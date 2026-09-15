@@ -137,7 +137,7 @@
   .footmark{height:14px;width:auto;vertical-align:-2px;margin-right:6px;overflow:visible}
 
   @media (max-width:820px){
-    nav .links{display:none} .tiles,.row{grid-template-columns:1fr} .tile{min-height:0;padding:36px}
+    nav .links{display:flex;gap:0} nav .links a:not([href='about.html']){display:none} .tiles,.row{grid-template-columns:1fr} .tile{min-height:0;padding:36px}
     .row .art{min-height:260px} .row .copy{padding:36px} .statement{padding:100px 0 80px} .contact .box{padding:64px 28px}
   }
 
@@ -226,7 +226,7 @@
   /* ── MOBILE ────────────────────────────────────────── */
   @media(max-width:768px){
     /* nav */
-    nav .links{display:none}
+    nav .links{display:flex;gap:0} nav .links a:not([href='about.html']){display:none}
     nav .inner{padding:0 20px}
 
     /* hero */
