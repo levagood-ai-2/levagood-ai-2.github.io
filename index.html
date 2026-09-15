@@ -103,10 +103,10 @@
   /* future detroit */
   .detroit{position:relative;margin:0 0 120px;border-radius:28px;overflow:hidden;background:#07050D;color:#fff;min-height:640px;display:grid;align-items:end}
   .detroit .city{position:absolute;inset:0;width:100%;height:100%;display:block}
-  .detroit .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 2px,transparent 2px 5px);mix-blend-mode:multiply}
+  .detroit .scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 2px,transparent 2px 5px);mix-blend-mode:multiply} .detroit .overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.75) 0%,rgba(0,0,0,.4) 60%,transparent 100%);pointer-events:none}
   .detroit .txt{position:relative;padding:56px;max-width:52ch}
-  .detroit h2{font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(34px,4.6vw,64px)}
-  .detroit p{margin-top:18px;color:rgba(255,255,255,.75);font-size:clamp(16px,1.4vw,20px)}
+  .detroit h2{font-weight:800;letter-spacing:-.03em;line-height:1;font-size:clamp(34px,4.6vw,64px);color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.9)}
+  .detroit p{margin-top:18px;color:rgba(255,255,255,.95);font-size:clamp(16px,1.4vw,20px);text-shadow:0 1px 12px rgba(0,0,0,.8)}
   .detroit .tag{font-family:"Inter Tight",sans-serif;font-weight:600;font-size:13px;letter-spacing:.08em;color:var(--cyan);margin-bottom:14px}
   .city .fl{animation:flick 4s var(--d) steps(1,end) infinite}
   @keyframes flick{0%,100%{opacity:1}22%{opacity:.15}26%{opacity:1}61%{opacity:.3}64%{opacity:1}}
@@ -322,8 +322,8 @@
 <rect x="0" y="430" width="1600" height="3" fill="#00F0FF" opacity=".8"/>
 </svg>
     <div class="scan" aria-hidden="true"></div>
+    <div class="overlay" aria-hidden="true"></div>
     <div class="txt">
-      <div class="tag">DEARBORN · MICHIGAN</div>
       <h2>We showed up every day. We still do.</h2>
       <p>We are not pretty. We do not really care what we are wearing. But we know exactly how to run this place. We grew up doing the work nobody noticed, keeping things running that everybody needed. That is still us. That is leva.</p>
     </div>
