@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Your account · leva</title>
+<meta name="description" content="Sign in to leva, manage your subscription, download the Mac app.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--black:#0A0A0A;--white:#FFFFFF;--grey:#5F5F66;--line:#E6E6EA;--heart:#FF2E88;--cyan:#00F0FF;--pink:#FFD3E8;--mint:#D4FFF0;--lilac:#DCD6FF;--sky:#D3EEFF;--peach:#FFE4D1}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Inter Tight",Inter,system-ui,sans-serif;color:var(--black);background:var(--white);font-size:18px;line-height:1.5;-webkit-font-smoothing:antialiased}
+nav{position:fixed;top:0;left:0;right:0;z-index:10;padding:22px 0;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+nav .inner{max-width:1180px;margin:0 auto;padding:0 32px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+nav .logo{display:flex;align-items:baseline;gap:.12em;font-weight:900;letter-spacing:-.04em;font-size:22px;line-height:1;text-decoration:none;color:#0A0A0A}
+.navheart{height:.78em;width:auto;overflow:visible;vertical-align:baseline}
+nav .links a{font-size:14px;font-weight:500;color:#5F5F66;text-decoration:none;margin-left:22px}
+nav .links a:hover{color:#0A0A0A}
+main{padding:120px 0 80px}
+.wrap{max-width:760px;margin:0 auto;padding:0 32px}
+.wrap.wide{max-width:1100px}
+h1{font-weight:900;letter-spacing:-.04em;font-size:clamp(36px,6vw,56px);line-height:1;margin-bottom:12px}
+.meta{font-size:14px;color:#5F5F66;margin-bottom:40px}
+h2{font-weight:700;font-size:22px;letter-spacing:-.02em;margin:40px 0 12px}
+p{color:#333;margin-bottom:16px}
+a{color:var(--heart)}
+.card{border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;background:#fff}
+.card.tint{background:var(--pink);border-color:transparent}
+.card.mint{background:var(--mint);border-color:transparent}
+.card.sky{background:var(--sky);border-color:transparent}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+input[type=text],input[type=email],input[type=number],input[type=url],textarea,select{font:inherit;font-size:16px;padding:12px 14px;border:2px solid var(--black);border-radius:10px;width:100%;background:#fff}
+textarea{min-height:120px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.45}
+.btn{display:inline-block;font:inherit;font-weight:700;font-size:15px;padding:11px 18px;border-radius:10px;border:2px solid var(--black);background:#fff;color:var(--black);cursor:pointer;text-decoration:none;line-height:1.2}
+.btn.primary{background:var(--heart);border-color:var(--heart);color:#fff}
+.btn.small{padding:7px 12px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:default}
+.muted{color:var(--grey);font-size:14px}
+.ok{color:#0a7a3d}.bad{color:#c0143c}
+.hide{display:none!important}
+.stat{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:14px 0}
+.stat div{border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font-size:28px;font-weight:900;letter-spacing:-.03em;line-height:1.1}
+.stat span{font-size:13px;color:var(--grey)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);font-weight:700}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--line)}
+.tag.on{background:var(--mint)}.tag.off{background:var(--peach)}.tag.warn{background:var(--pink)}
+.devices li{font-size:14px;color:#333;margin-bottom:6px}
+ul{padding-left:22px;margin-bottom:16px}
+footer{border-top:1px solid var(--line);padding:32px;text-align:center;font-size:13px;color:var(--grey)}
+footer a{color:var(--grey);margin:0 8px}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:26px 0 8px;flex-wrap:wrap}
+.tabs button{font:inherit;font-weight:700;font-size:15px;background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;cursor:pointer;color:var(--grey)}
+.tabs button.on{color:var(--black);border-bottom-color:var(--heart)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;word-break:break-all}
+@media (max-width:640px){nav .links a{margin-left:14px}.wrap{padding:0 20px}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="inner">
+    <a class="logo" href="index.html">leva <svg class="navheart" viewBox="0 0 114 108" shape-rendering="crispEdges" aria-hidden="true"><rect x="12" y="0" width="6" height="6" fill="#FF2E88"/><rect x="18" y="0" width="6" height="6" fill="#FF2E88"/><rect x="24" y="0" width="6" height="6" fill="#FF2E88"/><rect x="30" y="0" width="6" height="6" fill="#FF2E88"/><rect x="36" y="0" width="6" height="6" fill="#FF2E88"/><rect x="42" y="0" width="6" height="6" fill="#FF2E88"/><rect x="60" y="0" width="6" height="6" fill="#FF2E88"/><rect x="66" y="0" width="6" height="6" fill="#FF2E88"/><rect x="72" y="0" width="6" height="6" fill="#FF2E88"/><rect x="78" y="0" width="6" height="6" fill="#FF2E88"/><rect x="84" y="0" width="6" height="6" fill="#FF2E88"/><rect x="90" y="0" width="6" height="6" fill="#FF2E88"/><rect x="6" y="6" width="6" height="6" fill="#FF2E88"/><rect x="12" y="6" width="6" height="6" fill="#FF2E88"/><rect x="18" y="6" width="6" height="6" fill="#FF2E88"/><rect x="24" y="6" width="6" height="6" fill="#FF2E88"/><rect x="30" y="6" width="6" height="6" fill="#FF2E88"/><rect x="36" y="6" width="6" height="6" fill="#FF2E88"/><rect x="42" y="6" width="6" height="6" fill="#FF2E88"/><rect x="48" y="6" width="6" height="6" fill="#FF2E88"/><rect x="54" y="6" width="6" height="6" fill="#FF2E88"/><rect x="60" y="6" width="6" height="6" fill="#FF2E88"/><rect x="66" y="6" width="6" height="6" fill="#FF2E88"/><rect x="72" y="6" width="6" height="6" fill="#FF2E88"/><rect x="78" y="6" width="6" height="6" fill="#FF2E88"/><rect x="84" y="6" width="6" height="6" fill="#FF2E88"/><rect x="90" y="6" width="6" height="6" fill="#FF2E88"/><rect x="96" y="6" width="6" height="6" fill="#FF2E88"/><rect x="6" y="12" width="6" height="6" fill="#FF2E88"/><rect x="12" y="12" width="6" height="6" fill="#FF96C8"/><rect x="18" y="12" width="6" height="6" fill="#FF96C8"/><rect x="24" y="12" width="6" height="6" fill="#FF96C8"/><rect x="30" y="12" width="6" height="6" fill="#FF96C8"/><rect x="36" y="12" width="6" height="6" fill="#FF2E88"/><rect x="42" y="12" width="6" height="6" fill="#FF2E88"/><rect x="48" y="12" width="6" height="6" fill="#FF2E88"/><rect x="54" y="12" width="6" height="6" fill="#FF2E88"/><rect x="60" y="12" width="6" height="6" fill="#FF2E88"/><rect x="66" y="12" width="6" height="6" fill="#FF2E88"/><rect x="72" y="12" width="6" height="6" fill="#FF2E88"/><rect x="78" y="12" width="6" height="6" fill="#FF2E88"/><rect x="84" y="12" width="6" height="6" fill="#FF2E88"/><rect x="90" y="12" width="6" height="6" fill="#FF2E88"/><rect x="96" y="12" width="6" height="6" fill="#FF2E88"/><rect x="0" y="18" width="6" height="6" fill="#FF2E88"/><rect x="6" y="18" width="6" height="6" fill="#FF2E88"/><rect x="12" y="18" width="6" height="6" fill="#FF96C8"/><rect x="18" y="18" width="6" height="6" fill="#FF96C8"/><rect x="24" y="18" width="6" height="6" fill="#FF96C8"/><rect x="30" y="18" width="6" height="6" fill="#FF96C8"/><rect x="36" y="18" width="6" height="6" fill="#FF2E88"/><rect x="42" y="18" width="6" height="6" fill="#FF2E88"/><rect x="48" y="18" width="6" height="6" fill="#FF2E88"/><rect x="54" y="18" width="6" height="6" fill="#FF2E88"/><rect x="60" y="18" width="6" height="6" fill="#FF2E88"/><rect x="66" y="18" width="6" height="6" fill="#FF2E88"/><rect x="72" y="18" width="6" height="6" fill="#FF2E88"/><rect x="78" y="18" width="6" height="6" fill="#FF2E88"/><rect x="84" y="18" width="6" height="6" fill="#FF2E88"/><rect x="90" y="18" width="6" height="6" fill="#FF2E88"/><rect x="96" y="18" width="6" height="6" fill="#FF2E88"/><rect x="102" y="18" width="6" height="6" fill="#FF2E88"/><rect x="0" y="24" width="6" height="6" fill="#FF2E88"/><rect x="6" y="24" width="6" height="6" fill="#FF2E88"/><rect x="12" y="24" width="6" height="6" fill="#FF96C8"/><rect x="18" y="24" width="6" height="6" fill="#FF96C8"/><rect x="24" y="24" width="6" height="6" fill="#FF96C8"/><rect x="30" y="24" width="6" height="6" fill="#FF96C8"/><rect x="36" y="24" width="6" height="6" fill="#FF2E88"/><rect x="42" y="24" width="6" height="6" fill="#FF2E88"/><rect x="48" y="24" width="6" height="6" fill="#FF2E88"/><rect x="54" y="24" width="6" height="6" fill="#FF2E88"/><rect x="60" y="24" width="6" height="6" fill="#FF2E88"/><rect x="66" y="24" width="6" height="6" fill="#FF2E88"/><rect x="72" y="24" width="6" height="6" fill="#FF2E88"/><rect x="78" y="24" width="6" height="6" fill="#FF2E88"/><rect x="84" y="24" width="6" height="6" fill="#FF2E88"/><rect x="90" y="24" width="6" height="6" fill="#FF2E88"/><rect x="96" y="24" width="6" height="6" fill="#FF2E88"/><rect x="102" y="24" width="6" height="6" fill="#FF2E88"/><rect x="6" y="30" width="6" height="6" fill="#FF2E88"/><rect x="12" y="30" width="6" height="6" fill="#FF2E88"/><rect x="18" y="30" width="6" height="6" fill="#FF96C8"/><rect x="24" y="30" width="6" height="6" fill="#FF96C8"/><rect x="30" y="30" width="6" height="6" fill="#FF96C8"/><rect x="36" y="30" width="6" height="6" fill="#FF96C8"/><rect x="42" y="30" width="6" height="6" fill="#FF2E88"/><rect x="48" y="30" width="6" height="6" fill="#FF2E88"/><rect x="54" y="30" width="6" height="6" fill="#FF2E88"/><rect x="60" y="30" width="6" height="6" fill="#FF2E88"/><rect x="66" y="30" width="6" height="6" fill="#FF2E88"/><rect x="72" y="30" width="6" height="6" fill="#FF2E88"/><rect x="78" y="30" width="6" height="6" fill="#FF2E88"/><rect x="84" y="30" width="6" height="6" fill="#FF2E88"/><rect x="90" y="30" width="6" height="6" fill="#FF2E88"/><rect x="96" y="30" width="6" height="6" fill="#FF2E88"/><rect x="102" y="30" width="6" height="6" fill="#FF2E88"/><rect x="108" y="30" width="6" height="6" fill="#FF2E88"/><rect x="-6" y="36" width="6" height="6" fill="#FF2E88"/><rect x="0" y="36" width="6" height="6" fill="#FF2E88"/><rect x="6" y="36" width="6" height="6" fill="#FF2E88"/><rect x="12" y="36" width="6" height="6" fill="#FF2E88"/><rect x="18" y="36" width="6" height="6" fill="#FF2E88"/><rect x="24" y="36" width="6" height="6" fill="#FF2E88"/><rect x="30" y="36" width="6" height="6" fill="#FF2E88"/><rect x="36" y="36" width="6" height="6" fill="#FF2E88"/><rect x="42" y="36" width="6" height="6" fill="#FF2E88"/><rect x="48" y="36" width="6" height="6" fill="#FF2E88"/><rect x="54" y="36" width="6" height="6" fill="#FF2E88"/><rect x="60" y="36" width="6" height="6" fill="#FF2E88"/><rect x="66" y="36" width="6" height="6" fill="#FF2E88"/><rect x="72" y="36" width="6" height="6" fill="#FF2E88"/><rect x="78" y="36" width="6" height="6" fill="#FF2E88"/><rect x="84" y="36" width="6" height="6" fill="#FF2E88"/><rect x="90" y="36" width="6" height="6" fill="#FF2E88"/><rect x="96" y="36" width="6" height="6" fill="#FF2E88"/><rect x="0" y="42" width="6" height="6" fill="#FF2E88"/><rect x="6" y="42" width="6" height="6" fill="#FF2E88"/><rect x="12" y="42" width="6" height="6" fill="#FF2E88"/><rect x="18" y="42" width="6" height="6" fill="#FF2E88"/><rect x="24" y="42" width="6" height="6" fill="#FF2E88"/><rect x="30" y="42" width="6" height="6" fill="#FF2E88"/><rect x="36" y="42" width="6" height="6" fill="#FF2E88"/><rect x="42" y="42" width="6" height="6" fill="#FF2E88"/><rect x="48" y="42" width="6" height="6" fill="#FF2E88"/><rect x="54" y="42" width="6" height="6" fill="#FF2E88"/><rect x="60" y="42" width="6" height="6" fill="#FF2E88"/><rect x="66" y="42" width="6" height="6" fill="#FF2E88"/><rect x="72" y="42" width="6" height="6" fill="#FF2E88"/><rect x="78" y="42" width="6" height="6" fill="#FF2E88"/><rect x="84" y="42" width="6" height="6" fill="#FF2E88"/><rect x="90" y="42" width="6" height="6" fill="#FF2E88"/><rect x="96" y="42" width="6" height="6" fill="#FF2E88"/><rect x="102" y="42" width="6" height="6" fill="#FF2E88"/><rect x="6" y="48" width="6" height="6" fill="#FF2E88"/><rect x="12" y="48" width="6" height="6" fill="#FF2E88"/><rect x="18" y="48" width="6" height="6" fill="#FF2E88"/><rect x="24" y="48" width="6" height="6" fill="#FF2E88"/><rect x="30" y="48" width="6" height="6" fill="#FF2E88"/><rect x="36" y="48" width="6" height="6" fill="#FF2E88"/><rect x="42" y="48" width="6" height="6" fill="#FF2E88"/><rect x="48" y="48" width="6" height="6" fill="#FF2E88"/><rect x="54" y="48" width="6" height="6" fill="#FF2E88"/><rect x="60" y="48" width="6" height="6" fill="#FF2E88"/><rect x="66" y="48" width="6" height="6" fill="#FF2E88"/><rect x="72" y="48" width="6" height="6" fill="#FF2E88"/><rect x="78" y="48" width="6" height="6" fill="#FF2E88"/><rect x="84" y="48" width="6" height="6" fill="#FF2E88"/><rect x="90" y="48" width="6" height="6" fill="#FF2E88"/><rect x="96" y="48" width="6" height="6" fill="#FF2E88"/><rect x="6" y="54" width="6" height="6" fill="#FF2E88"/><rect x="12" y="54" width="6" height="6" fill="#FF2E88"/><rect x="18" y="54" width="6" height="6" fill="#FF2E88"/><rect x="24" y="54" width="6" height="6" fill="#FF2E88"/><rect x="30" y="54" width="6" height="6" fill="#FF2E88"/><rect x="36" y="54" width="6" height="6" fill="#FF2E88"/><rect x="42" y="54" width="6" height="6" fill="#FF2E88"/><rect x="48" y="54" width="6" height="6" fill="#FF2E88"/><rect x="54" y="54" width="6" height="6" fill="#FF2E88"/><rect x="60" y="54" width="6" height="6" fill="#FF2E88"/><rect x="66" y="54" width="6" height="6" fill="#FF2E88"/><rect x="72" y="54" width="6" height="6" fill="#FF2E88"/><rect x="78" y="54" width="6" height="6" fill="#FF2E88"/><rect x="84" y="54" width="6" height="6" fill="#FF2E88"/><rect x="90" y="54" width="6" height="6" fill="#FF2E88"/><rect x="96" y="54" width="6" height="6" fill="#FF2E88"/><rect x="6" y="60" width="6" height="6" fill="#FF2E88"/><rect x="12" y="60" width="6" height="6" fill="#FF2E88"/><rect x="18" y="60" width="6" height="6" fill="#FF2E88"/><rect x="24" y="60" width="6" height="6" fill="#FF2E88"/><rect x="30" y="60" width="6" height="6" fill="#FF2E88"/><rect x="36" y="60" width="6" height="6" fill="#FF2E88"/><rect x="42" y="60" width="6" height="6" fill="#FF2E88"/><rect x="48" y="60" width="6" height="6" fill="#FF2E88"/><rect x="54" y="60" width="6" height="6" fill="#FF2E88"/><rect x="60" y="60" width="6" height="6" fill="#FF2E88"/><rect x="66" y="60" width="6" height="6" fill="#FF2E88"/><rect x="72" y="60" width="6" height="6" fill="#FF2E88"/><rect x="78" y="60" width="6" height="6" fill="#FF2E88"/><rect x="84" y="60" width="6" height="6" fill="#FF2E88"/><rect x="90" y="60" width="6" height="6" fill="#FF2E88"/><rect x="96" y="60" width="6" height="6" fill="#FF2E88"/><rect x="12" y="66" width="6" height="6" fill="#FF2E88"/><rect x="18" y="66" width="6" height="6" fill="#FF2E88"/><rect x="24" y="66" width="6" height="6" fill="#FF2E88"/><rect x="30" y="66" width="6" height="6" fill="#FF2E88"/><rect x="36" y="66" width="6" height="6" fill="#FF2E88"/><rect x="42" y="66" width="6" height="6" fill="#FF2E88"/><rect x="48" y="66" width="6" height="6" fill="#FF2E88"/><rect x="54" y="66" width="6" height="6" fill="#FF2E88"/><rect x="60" y="66" width="6" height="6" fill="#FF2E88"/><rect x="66" y="66" width="6" height="6" fill="#FF2E88"/><rect x="72" y="66" width="6" height="6" fill="#FF2E88"/><rect x="78" y="66" width="6" height="6" fill="#FF2E88"/><rect x="84" y="66" width="6" height="6" fill="#FF2E88"/><rect x="90" y="66" width="6" height="6" fill="#FF2E88"/><rect x="18" y="72" width="6" height="6" fill="#FF2E88"/><rect x="24" y="72" width="6" height="6" fill="#FF2E88"/><rect x="30" y="72" width="6" height="6" fill="#FF2E88"/><rect x="36" y="72" width="6" height="6" fill="#FF2E88"/><rect x="42" y="72" width="6" height="6" fill="#FF2E88"/><rect x="48" y="72" width="6" height="6" fill="#FF2E88"/><rect x="54" y="72" width="6" height="6" fill="#FF2E88"/><rect x="60" y="72" width="6" height="6" fill="#FF2E88"/><rect x="66" y="72" width="6" height="6" fill="#FF2E88"/><rect x="72" y="72" width="6" height="6" fill="#FF2E88"/><rect x="78" y="72" width="6" height="6" fill="#FF2E88"/><rect x="84" y="72" width="6" height="6" fill="#FF2E88"/><rect x="24" y="78" width="6" height="6" fill="#FF2E88"/><rect x="30" y="78" width="6" height="6" fill="#FF2E88"/><rect x="36" y="78" width="6" height="6" fill="#FF2E88"/><rect x="42" y="78" width="6" height="6" fill="#FF2E88"/><rect x="48" y="78" width="6" height="6" fill="#FF2E88"/><rect x="54" y="78" width="6" height="6" fill="#FF2E88"/><rect x="60" y="78" width="6" height="6" fill="#FF2E88"/><rect x="66" y="78" width="6" height="6" fill="#FF2E88"/><rect x="72" y="78" width="6" height="6" fill="#FF2E88"/><rect x="78" y="78" width="6" height="6" fill="#FF2E88"/><rect x="84" y="78" width="6" height="6" fill="#FF2E88"/><rect x="90" y="78" width="6" height="6" fill="#FF2E88"/><rect x="24" y="84" width="6" height="6" fill="#FF2E88"/><rect x="30" y="84" width="6" height="6" fill="#FF2E88"/><rect x="36" y="84" width="6" height="6" fill="#FF2E88"/><rect x="42" y="84" width="6" height="6" fill="#FF2E88"/><rect x="48" y="84" width="6" height="6" fill="#FF2E88"/><rect x="54" y="84" width="6" height="6" fill="#FF2E88"/><rect x="60" y="84" width="6" height="6" fill="#FF2E88"/><rect x="66" y="84" width="6" height="6" fill="#FF2E88"/><rect x="72" y="84" width="6" height="6" fill="#FF2E88"/><rect x="78" y="84" width="6" height="6" fill="#FF2E88"/><rect x="36" y="90" width="6" height="6" fill="#FF2E88"/><rect x="42" y="90" width="6" height="6" fill="#FF2E88"/><rect x="48" y="90" width="6" height="6" fill="#FF2E88"/><rect x="54" y="90" width="6" height="6" fill="#FF2E88"/><rect x="60" y="90" width="6" height="6" fill="#FF2E88"/><rect x="66" y="90" width="6" height="6" fill="#FF2E88"/><rect x="42" y="96" width="6" height="6" fill="#FF2E88"/><rect x="48" y="96" width="6" height="6" fill="#FF2E88"/><rect x="54" y="96" width="6" height="6" fill="#FF2E88"/><rect x="60" y="96" width="6" height="6" fill="#FF2E88"/><rect x="48" y="102" width="6" height="6" fill="#FF2E88"/><rect x="54" y="102" width="6" height="6" fill="#FF2E88"/><rect x="-6" y="37.8" width="48" height="2.4" fill="#00F0FF"/><rect x="24" y="85.8" width="24" height="2.4" fill="#00F0FF"/></svg></a>
+    <div class="links"><a href="index.html">← Back to leva</a><a href="admin.html" id="adminlink" class="hide">Admin</a></div>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+    <h1>Your account</h1>
+    <p class="meta">Sign in with a link sent to your email. No passwords to remember, none to phish.</p>
+
+    <!-- signed out -->
+    <section id="out" class="hide">
+      <div class="card">
+        <label for="email" style="display:block;font-weight:700;margin-bottom:8px">Your email</label>
+        <div class="row">
+          <input type="email" id="email" placeholder="you@company.com" autocomplete="email" style="flex:1;min-width:220px">
+          <button class="btn primary" id="send">Email me a sign-in link</button>
+        </div>
+        <p class="muted" id="sendmsg" style="margin:10px 0 0"></p>
+      </div>
+      <p class="muted">Signing in here is also how the Mac app signs in: leva on your Mac asks for a link, you click it, and the app notices on its own.</p>
+    </section>
+
+    <!-- verifying -->
+    <section id="verifying" class="hide">
+      <div class="card sky"><p style="margin:0" id="vmsg">Signing you in…</p></div>
+    </section>
+
+    <!-- signed in -->
+    <section id="in" class="hide">
+      <div class="card tint">
+        <p style="margin:0 0 4px"><b id="who"></b></p>
+        <p style="margin:0" id="plan"></p>
+      </div>
+      <div class="row" style="margin:6px 0 20px">
+        <button class="btn primary hide" id="subscribe">Subscribe</button>
+        <button class="btn hide" id="portal">Manage billing</button>
+        <a class="btn" id="download" href="#" target="_blank" rel="noopener">Download leva for Mac</a>
+        <button class="btn" id="signout">Sign out</button>
+      </div>
+      <p class="muted" id="pricenote"></p>
+      <p class="muted hide" id="justsubscribed">Thank you. Stripe is telling leva about it now; this page will update in a moment, and the app picks it up on its next check (within a day, or right away from Settings → Check now).</p>
+
+      <h2>Your Macs</h2>
+      <p class="muted">Every copy of leva signed in as you. Signing out everywhere makes each one ask for a new link.</p>
+      <ul class="devices" id="devices"></ul>
+      <button class="btn small" id="signoutall">Sign out everywhere</button>
+
+      <h2>What the cloud knows</h2>
+      <p>Who you are, whether you're subscribed, which version of leva you run, and when it last checked in. That's the list. What leva reads on your Mac stays on your Mac.</p>
+    </section>
+
+    <section id="err" class="hide"><div class="card"><p style="margin:0" class="bad" id="errmsg"></p></div></section>
+  </div>
+</main>
+
+<footer>levagood, Inc. · Brighton, Michigan · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="mailto:ai@levagood.com">ai@levagood.com</a></footer>
+<script src="leva-shared.js"></script>
+
+<script>
+(async () => {
+  const { call, session, esc, planText, day, ago } = window.LEVA;
+  const $ = (i) => document.getElementById(i);
+  const show = (id) => { for (const s of ["out", "verifying", "in", "err"]) $(s).classList.toggle("hide", s !== id); };
+  const fail = (m) => { $("errmsg").textContent = m; $("err").classList.remove("hide"); };
+  const params = new URLSearchParams(location.search);
+
+  async function paint() {
+    const me = await call("GET", "/me");
+    if (me.status !== 200) { show("out"); return false; }
+    const u = me.user;
+    $("who").textContent = u.email; $("plan").textContent = planText(u);
+    const e = u.entitlement || {};
+    const canSubscribe = me.stripe && !(e.active && (e.reason === "subscribed" || e.reason === "admin")) ;
+    $("subscribe").classList.toggle("hide", !canSubscribe);
+    $("subscribe").textContent = u.sub_status && u.sub_status !== "active" ? "Subscribe again" : "Subscribe";
+    $("portal").classList.toggle("hide", !(me.stripe && u.has_customer));
+    $("pricenote").textContent = canSubscribe ? "$6 a month, cancel anytime. Stripe handles the card; leva never sees it." : "";
+    $("adminlink").classList.toggle("hide", u.role !== "admin");
+    $("devices").innerHTML = (u.devices || []).filter((d) => d.kind === "app").map((d) => `<li>${esc(d.device || "a Mac")} · leva ${esc(d.version || "?")} · last check-in ${ago(d.last_used_at)}</li>`).join("") || "<li>No Mac signed in yet. Download leva and sign in from its Settings.</li>";
+    $("justsubscribed").classList.toggle("hide", !params.get("subscribed"));
+    show("in");
+    return true;
+  }
+
+  // the download button points at the latest release, or the site's download page
+  try { const m = await (await fetch(window.LEVA.API + "/manifest.json")).json(); if (m.app && m.app.url) { $("download").href = m.app.url; $("download").textContent = `Download leva ${m.app.version} for Mac`; } else $("download").href = "index.html#download"; } catch (_) { $("download").href = "index.html#download"; }
+
+  if (params.get("verify")) {
+    show("verifying");
+    const r = await call("POST", "/auth/verify", { token: params.get("verify") });
+    history.replaceState(null, "", location.pathname);
+    if (r.status !== 200) { $("vmsg").textContent = r.error || "That link didn't work."; $("vmsg").className = "bad"; setTimeout(() => show("out"), 2500); return; }
+    session.set(r.session);
+    if (r.app_signed_in) { $("vmsg").innerHTML = `Done. <b>${esc(r.device || "Your Mac")}</b> is signed in to leva, and so are you here. You can close this tab or carry on below.`; await new Promise((res) => setTimeout(res, 1800)); }
+  }
+
+  const ok = await paint();
+  if (!ok) show("out");
+
+  $("send").addEventListener("click", async () => {
+    const email = $("email").value.trim(); if (!email) return $("email").focus();
+    $("send").disabled = true; $("sendmsg").textContent = "Sending…";
+    const r = await call("POST", "/auth/start", { email });
+    $("send").disabled = false;
+    $("sendmsg").textContent = r.status === 200 ? `Sent to ${email}. Click the link in that email; it works once and expires in 20 minutes.` : (r.error || "Couldn't send the link.");
+    $("sendmsg").className = r.status === 200 ? "muted ok" : "muted bad";
+  });
+  $("email").addEventListener("keydown", (e) => { if (e.key === "Enter") $("send").click(); });
+  $("subscribe").addEventListener("click", async () => { $("subscribe").disabled = true; const r = await call("POST", "/billing/checkout"); if (r.url) location.href = r.url; else { fail(r.error || "Couldn't start checkout."); $("subscribe").disabled = false; } });
+  $("portal").addEventListener("click", async () => { const r = await call("POST", "/billing/portal"); if (r.url) location.href = r.url; else fail(r.error || "Couldn't open billing."); });
+  $("signout").addEventListener("click", async () => { await call("POST", "/auth/signout"); session.set(""); show("out"); });
+  $("signoutall").addEventListener("click", async () => { await call("POST", "/devices/signout-all"); paint(); });
+  if (params.get("subscribed")) { for (let i = 0; i < 6; i++) { await new Promise((res) => setTimeout(res, 3000)); await paint(); } }
+})();
+</script>
+</body></html>

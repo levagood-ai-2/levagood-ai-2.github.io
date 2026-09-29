@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin · leva</title>
+<meta name="description" content="leva admin: people, subscriptions, releases.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--black:#0A0A0A;--white:#FFFFFF;--grey:#5F5F66;--line:#E6E6EA;--heart:#FF2E88;--cyan:#00F0FF;--pink:#FFD3E8;--mint:#D4FFF0;--lilac:#DCD6FF;--sky:#D3EEFF;--peach:#FFE4D1}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Inter Tight",Inter,system-ui,sans-serif;color:var(--black);background:var(--white);font-size:18px;line-height:1.5;-webkit-font-smoothing:antialiased}
+nav{position:fixed;top:0;left:0;right:0;z-index:10;padding:22px 0;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.06)}
+nav .inner{max-width:1180px;margin:0 auto;padding:0 32px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+nav .logo{display:flex;align-items:baseline;gap:.12em;font-weight:900;letter-spacing:-.04em;font-size:22px;line-height:1;text-decoration:none;color:#0A0A0A}
+.navheart{height:.78em;width:auto;overflow:visible;vertical-align:baseline}
+nav .links a{font-size:14px;font-weight:500;color:#5F5F66;text-decoration:none;margin-left:22px}
+nav .links a:hover{color:#0A0A0A}
+main{padding:120px 0 80px}
+.wrap{max-width:760px;margin:0 auto;padding:0 32px}
+.wrap.wide{max-width:1100px}
+h1{font-weight:900;letter-spacing:-.04em;font-size:clamp(36px,6vw,56px);line-height:1;margin-bottom:12px}
+.meta{font-size:14px;color:#5F5F66;margin-bottom:40px}
+h2{font-weight:700;font-size:22px;letter-spacing:-.02em;margin:40px 0 12px}
+p{color:#333;margin-bottom:16px}
+a{color:var(--heart)}
+.card{border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0;background:#fff}
+.card.tint{background:var(--pink);border-color:transparent}
+.card.mint{background:var(--mint);border-color:transparent}
+.card.sky{background:var(--sky);border-color:transparent}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+input[type=text],input[type=email],input[type=number],input[type=url],textarea,select{font:inherit;font-size:16px;padding:12px 14px;border:2px solid var(--black);border-radius:10px;width:100%;background:#fff}
+textarea{min-height:120px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.45}
+.btn{display:inline-block;font:inherit;font-weight:700;font-size:15px;padding:11px 18px;border-radius:10px;border:2px solid var(--black);background:#fff;color:var(--black);cursor:pointer;text-decoration:none;line-height:1.2}
+.btn.primary{background:var(--heart);border-color:var(--heart);color:#fff}
+.btn.small{padding:7px 12px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:default}
+.muted{color:var(--grey);font-size:14px}
+.ok{color:#0a7a3d}.bad{color:#c0143c}
+.hide{display:none!important}
+.stat{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:14px 0}
+.stat div{border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font-size:28px;font-weight:900;letter-spacing:-.03em;line-height:1.1}
+.stat span{font-size:13px;color:var(--grey)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--grey);font-weight:700}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--line)}
+.tag.on{background:var(--mint)}.tag.off{background:var(--peach)}.tag.warn{background:var(--pink)}
+.devices li{font-size:14px;color:#333;margin-bottom:6px}
+ul{padding-left:22px;margin-bottom:16px}
+footer{border-top:1px solid var(--line);padding:32px;text-align:center;font-size:13px;color:var(--grey)}
+footer a{color:var(--grey);margin:0 8px}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:26px 0 8px;flex-wrap:wrap}
+.tabs button{font:inherit;font-weight:700;font-size:15px;background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;cursor:pointer;color:var(--grey)}
+.tabs button.on{color:var(--black);border-bottom-color:var(--heart)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;word-break:break-all}
+@media (max-width:640px){nav .links a{margin-left:14px}.wrap{padding:0 20px}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="inner">
+    <a class="logo" href="index.html">leva <svg class="navheart" viewBox="0 0 114 108" shape-rendering="crispEdges" aria-hidden="true"><rect x="12" y="0" width="6" height="6" fill="#FF2E88"/><rect x="18" y="0" width="6" height="6" fill="#FF2E88"/><rect x="24" y="0" width="6" height="6" fill="#FF2E88"/><rect x="30" y="0" width="6" height="6" fill="#FF2E88"/><rect x="36" y="0" width="6" height="6" fill="#FF2E88"/><rect x="42" y="0" width="6" height="6" fill="#FF2E88"/><rect x="60" y="0" width="6" height="6" fill="#FF2E88"/><rect x="66" y="0" width="6" height="6" fill="#FF2E88"/><rect x="72" y="0" width="6" height="6" fill="#FF2E88"/><rect x="78" y="0" width="6" height="6" fill="#FF2E88"/><rect x="84" y="0" width="6" height="6" fill="#FF2E88"/><rect x="90" y="0" width="6" height="6" fill="#FF2E88"/><rect x="6" y="6" width="6" height="6" fill="#FF2E88"/><rect x="12" y="6" width="6" height="6" fill="#FF2E88"/><rect x="18" y="6" width="6" height="6" fill="#FF2E88"/><rect x="24" y="6" width="6" height="6" fill="#FF2E88"/><rect x="30" y="6" width="6" height="6" fill="#FF2E88"/><rect x="36" y="6" width="6" height="6" fill="#FF2E88"/><rect x="42" y="6" width="6" height="6" fill="#FF2E88"/><rect x="48" y="6" width="6" height="6" fill="#FF2E88"/><rect x="54" y="6" width="6" height="6" fill="#FF2E88"/><rect x="60" y="6" width="6" height="6" fill="#FF2E88"/><rect x="66" y="6" width="6" height="6" fill="#FF2E88"/><rect x="72" y="6" width="6" height="6" fill="#FF2E88"/><rect x="78" y="6" width="6" height="6" fill="#FF2E88"/><rect x="84" y="6" width="6" height="6" fill="#FF2E88"/><rect x="90" y="6" width="6" height="6" fill="#FF2E88"/><rect x="96" y="6" width="6" height="6" fill="#FF2E88"/><rect x="6" y="12" width="6" height="6" fill="#FF2E88"/><rect x="12" y="12" width="6" height="6" fill="#FF96C8"/><rect x="18" y="12" width="6" height="6" fill="#FF96C8"/><rect x="24" y="12" width="6" height="6" fill="#FF96C8"/><rect x="30" y="12" width="6" height="6" fill="#FF96C8"/><rect x="36" y="12" width="6" height="6" fill="#FF2E88"/><rect x="42" y="12" width="6" height="6" fill="#FF2E88"/><rect x="48" y="12" width="6" height="6" fill="#FF2E88"/><rect x="54" y="12" width="6" height="6" fill="#FF2E88"/><rect x="60" y="12" width="6" height="6" fill="#FF2E88"/><rect x="66" y="12" width="6" height="6" fill="#FF2E88"/><rect x="72" y="12" width="6" height="6" fill="#FF2E88"/><rect x="78" y="12" width="6" height="6" fill="#FF2E88"/><rect x="84" y="12" width="6" height="6" fill="#FF2E88"/><rect x="90" y="12" width="6" height="6" fill="#FF2E88"/><rect x="96" y="12" width="6" height="6" fill="#FF2E88"/><rect x="0" y="18" width="6" height="6" fill="#FF2E88"/><rect x="6" y="18" width="6" height="6" fill="#FF2E88"/><rect x="12" y="18" width="6" height="6" fill="#FF96C8"/><rect x="18" y="18" width="6" height="6" fill="#FF96C8"/><rect x="24" y="18" width="6" height="6" fill="#FF96C8"/><rect x="30" y="18" width="6" height="6" fill="#FF96C8"/><rect x="36" y="18" width="6" height="6" fill="#FF2E88"/><rect x="42" y="18" width="6" height="6" fill="#FF2E88"/><rect x="48" y="18" width="6" height="6" fill="#FF2E88"/><rect x="54" y="18" width="6" height="6" fill="#FF2E88"/><rect x="60" y="18" width="6" height="6" fill="#FF2E88"/><rect x="66" y="18" width="6" height="6" fill="#FF2E88"/><rect x="72" y="18" width="6" height="6" fill="#FF2E88"/><rect x="78" y="18" width="6" height="6" fill="#FF2E88"/><rect x="84" y="18" width="6" height="6" fill="#FF2E88"/><rect x="90" y="18" width="6" height="6" fill="#FF2E88"/><rect x="96" y="18" width="6" height="6" fill="#FF2E88"/><rect x="102" y="18" width="6" height="6" fill="#FF2E88"/><rect x="0" y="24" width="6" height="6" fill="#FF2E88"/><rect x="6" y="24" width="6" height="6" fill="#FF2E88"/><rect x="12" y="24" width="6" height="6" fill="#FF96C8"/><rect x="18" y="24" width="6" height="6" fill="#FF96C8"/><rect x="24" y="24" width="6" height="6" fill="#FF96C8"/><rect x="30" y="24" width="6" height="6" fill="#FF96C8"/><rect x="36" y="24" width="6" height="6" fill="#FF2E88"/><rect x="42" y="24" width="6" height="6" fill="#FF2E88"/><rect x="48" y="24" width="6" height="6" fill="#FF2E88"/><rect x="54" y="24" width="6" height="6" fill="#FF2E88"/><rect x="60" y="24" width="6" height="6" fill="#FF2E88"/><rect x="66" y="24" width="6" height="6" fill="#FF2E88"/><rect x="72" y="24" width="6" height="6" fill="#FF2E88"/><rect x="78" y="24" width="6" height="6" fill="#FF2E88"/><rect x="84" y="24" width="6" height="6" fill="#FF2E88"/><rect x="90" y="24" width="6" height="6" fill="#FF2E88"/><rect x="96" y="24" width="6" height="6" fill="#FF2E88"/><rect x="102" y="24" width="6" height="6" fill="#FF2E88"/><rect x="6" y="30" width="6" height="6" fill="#FF2E88"/><rect x="12" y="30" width="6" height="6" fill="#FF2E88"/><rect x="18" y="30" width="6" height="6" fill="#FF96C8"/><rect x="24" y="30" width="6" height="6" fill="#FF96C8"/><rect x="30" y="30" width="6" height="6" fill="#FF96C8"/><rect x="36" y="30" width="6" height="6" fill="#FF96C8"/><rect x="42" y="30" width="6" height="6" fill="#FF2E88"/><rect x="48" y="30" width="6" height="6" fill="#FF2E88"/><rect x="54" y="30" width="6" height="6" fill="#FF2E88"/><rect x="60" y="30" width="6" height="6" fill="#FF2E88"/><rect x="66" y="30" width="6" height="6" fill="#FF2E88"/><rect x="72" y="30" width="6" height="6" fill="#FF2E88"/><rect x="78" y="30" width="6" height="6" fill="#FF2E88"/><rect x="84" y="30" width="6" height="6" fill="#FF2E88"/><rect x="90" y="30" width="6" height="6" fill="#FF2E88"/><rect x="96" y="30" width="6" height="6" fill="#FF2E88"/><rect x="102" y="30" width="6" height="6" fill="#FF2E88"/><rect x="108" y="30" width="6" height="6" fill="#FF2E88"/><rect x="-6" y="36" width="6" height="6" fill="#FF2E88"/><rect x="0" y="36" width="6" height="6" fill="#FF2E88"/><rect x="6" y="36" width="6" height="6" fill="#FF2E88"/><rect x="12" y="36" width="6" height="6" fill="#FF2E88"/><rect x="18" y="36" width="6" height="6" fill="#FF2E88"/><rect x="24" y="36" width="6" height="6" fill="#FF2E88"/><rect x="30" y="36" width="6" height="6" fill="#FF2E88"/><rect x="36" y="36" width="6" height="6" fill="#FF2E88"/><rect x="42" y="36" width="6" height="6" fill="#FF2E88"/><rect x="48" y="36" width="6" height="6" fill="#FF2E88"/><rect x="54" y="36" width="6" height="6" fill="#FF2E88"/><rect x="60" y="36" width="6" height="6" fill="#FF2E88"/><rect x="66" y="36" width="6" height="6" fill="#FF2E88"/><rect x="72" y="36" width="6" height="6" fill="#FF2E88"/><rect x="78" y="36" width="6" height="6" fill="#FF2E88"/><rect x="84" y="36" width="6" height="6" fill="#FF2E88"/><rect x="90" y="36" width="6" height="6" fill="#FF2E88"/><rect x="96" y="36" width="6" height="6" fill="#FF2E88"/><rect x="0" y="42" width="6" height="6" fill="#FF2E88"/><rect x="6" y="42" width="6" height="6" fill="#FF2E88"/><rect x="12" y="42" width="6" height="6" fill="#FF2E88"/><rect x="18" y="42" width="6" height="6" fill="#FF2E88"/><rect x="24" y="42" width="6" height="6" fill="#FF2E88"/><rect x="30" y="42" width="6" height="6" fill="#FF2E88"/><rect x="36" y="42" width="6" height="6" fill="#FF2E88"/><rect x="42" y="42" width="6" height="6" fill="#FF2E88"/><rect x="48" y="42" width="6" height="6" fill="#FF2E88"/><rect x="54" y="42" width="6" height="6" fill="#FF2E88"/><rect x="60" y="42" width="6" height="6" fill="#FF2E88"/><rect x="66" y="42" width="6" height="6" fill="#FF2E88"/><rect x="72" y="42" width="6" height="6" fill="#FF2E88"/><rect x="78" y="42" width="6" height="6" fill="#FF2E88"/><rect x="84" y="42" width="6" height="6" fill="#FF2E88"/><rect x="90" y="42" width="6" height="6" fill="#FF2E88"/><rect x="96" y="42" width="6" height="6" fill="#FF2E88"/><rect x="102" y="42" width="6" height="6" fill="#FF2E88"/><rect x="6" y="48" width="6" height="6" fill="#FF2E88"/><rect x="12" y="48" width="6" height="6" fill="#FF2E88"/><rect x="18" y="48" width="6" height="6" fill="#FF2E88"/><rect x="24" y="48" width="6" height="6" fill="#FF2E88"/><rect x="30" y="48" width="6" height="6" fill="#FF2E88"/><rect x="36" y="48" width="6" height="6" fill="#FF2E88"/><rect x="42" y="48" width="6" height="6" fill="#FF2E88"/><rect x="48" y="48" width="6" height="6" fill="#FF2E88"/><rect x="54" y="48" width="6" height="6" fill="#FF2E88"/><rect x="60" y="48" width="6" height="6" fill="#FF2E88"/><rect x="66" y="48" width="6" height="6" fill="#FF2E88"/><rect x="72" y="48" width="6" height="6" fill="#FF2E88"/><rect x="78" y="48" width="6" height="6" fill="#FF2E88"/><rect x="84" y="48" width="6" height="6" fill="#FF2E88"/><rect x="90" y="48" width="6" height="6" fill="#FF2E88"/><rect x="96" y="48" width="6" height="6" fill="#FF2E88"/><rect x="6" y="54" width="6" height="6" fill="#FF2E88"/><rect x="12" y="54" width="6" height="6" fill="#FF2E88"/><rect x="18" y="54" width="6" height="6" fill="#FF2E88"/><rect x="24" y="54" width="6" height="6" fill="#FF2E88"/><rect x="30" y="54" width="6" height="6" fill="#FF2E88"/><rect x="36" y="54" width="6" height="6" fill="#FF2E88"/><rect x="42" y="54" width="6" height="6" fill="#FF2E88"/><rect x="48" y="54" width="6" height="6" fill="#FF2E88"/><rect x="54" y="54" width="6" height="6" fill="#FF2E88"/><rect x="60" y="54" width="6" height="6" fill="#FF2E88"/><rect x="66" y="54" width="6" height="6" fill="#FF2E88"/><rect x="72" y="54" width="6" height="6" fill="#FF2E88"/><rect x="78" y="54" width="6" height="6" fill="#FF2E88"/><rect x="84" y="54" width="6" height="6" fill="#FF2E88"/><rect x="90" y="54" width="6" height="6" fill="#FF2E88"/><rect x="96" y="54" width="6" height="6" fill="#FF2E88"/><rect x="6" y="60" width="6" height="6" fill="#FF2E88"/><rect x="12" y="60" width="6" height="6" fill="#FF2E88"/><rect x="18" y="60" width="6" height="6" fill="#FF2E88"/><rect x="24" y="60" width="6" height="6" fill="#FF2E88"/><rect x="30" y="60" width="6" height="6" fill="#FF2E88"/><rect x="36" y="60" width="6" height="6" fill="#FF2E88"/><rect x="42" y="60" width="6" height="6" fill="#FF2E88"/><rect x="48" y="60" width="6" height="6" fill="#FF2E88"/><rect x="54" y="60" width="6" height="6" fill="#FF2E88"/><rect x="60" y="60" width="6" height="6" fill="#FF2E88"/><rect x="66" y="60" width="6" height="6" fill="#FF2E88"/><rect x="72" y="60" width="6" height="6" fill="#FF2E88"/><rect x="78" y="60" width="6" height="6" fill="#FF2E88"/><rect x="84" y="60" width="6" height="6" fill="#FF2E88"/><rect x="90" y="60" width="6" height="6" fill="#FF2E88"/><rect x="96" y="60" width="6" height="6" fill="#FF2E88"/><rect x="12" y="66" width="6" height="6" fill="#FF2E88"/><rect x="18" y="66" width="6" height="6" fill="#FF2E88"/><rect x="24" y="66" width="6" height="6" fill="#FF2E88"/><rect x="30" y="66" width="6" height="6" fill="#FF2E88"/><rect x="36" y="66" width="6" height="6" fill="#FF2E88"/><rect x="42" y="66" width="6" height="6" fill="#FF2E88"/><rect x="48" y="66" width="6" height="6" fill="#FF2E88"/><rect x="54" y="66" width="6" height="6" fill="#FF2E88"/><rect x="60" y="66" width="6" height="6" fill="#FF2E88"/><rect x="66" y="66" width="6" height="6" fill="#FF2E88"/><rect x="72" y="66" width="6" height="6" fill="#FF2E88"/><rect x="78" y="66" width="6" height="6" fill="#FF2E88"/><rect x="84" y="66" width="6" height="6" fill="#FF2E88"/><rect x="90" y="66" width="6" height="6" fill="#FF2E88"/><rect x="18" y="72" width="6" height="6" fill="#FF2E88"/><rect x="24" y="72" width="6" height="6" fill="#FF2E88"/><rect x="30" y="72" width="6" height="6" fill="#FF2E88"/><rect x="36" y="72" width="6" height="6" fill="#FF2E88"/><rect x="42" y="72" width="6" height="6" fill="#FF2E88"/><rect x="48" y="72" width="6" height="6" fill="#FF2E88"/><rect x="54" y="72" width="6" height="6" fill="#FF2E88"/><rect x="60" y="72" width="6" height="6" fill="#FF2E88"/><rect x="66" y="72" width="6" height="6" fill="#FF2E88"/><rect x="72" y="72" width="6" height="6" fill="#FF2E88"/><rect x="78" y="72" width="6" height="6" fill="#FF2E88"/><rect x="84" y="72" width="6" height="6" fill="#FF2E88"/><rect x="24" y="78" width="6" height="6" fill="#FF2E88"/><rect x="30" y="78" width="6" height="6" fill="#FF2E88"/><rect x="36" y="78" width="6" height="6" fill="#FF2E88"/><rect x="42" y="78" width="6" height="6" fill="#FF2E88"/><rect x="48" y="78" width="6" height="6" fill="#FF2E88"/><rect x="54" y="78" width="6" height="6" fill="#FF2E88"/><rect x="60" y="78" width="6" height="6" fill="#FF2E88"/><rect x="66" y="78" width="6" height="6" fill="#FF2E88"/><rect x="72" y="78" width="6" height="6" fill="#FF2E88"/><rect x="78" y="78" width="6" height="6" fill="#FF2E88"/><rect x="84" y="78" width="6" height="6" fill="#FF2E88"/><rect x="90" y="78" width="6" height="6" fill="#FF2E88"/><rect x="24" y="84" width="6" height="6" fill="#FF2E88"/><rect x="30" y="84" width="6" height="6" fill="#FF2E88"/><rect x="36" y="84" width="6" height="6" fill="#FF2E88"/><rect x="42" y="84" width="6" height="6" fill="#FF2E88"/><rect x="48" y="84" width="6" height="6" fill="#FF2E88"/><rect x="54" y="84" width="6" height="6" fill="#FF2E88"/><rect x="60" y="84" width="6" height="6" fill="#FF2E88"/><rect x="66" y="84" width="6" height="6" fill="#FF2E88"/><rect x="72" y="84" width="6" height="6" fill="#FF2E88"/><rect x="78" y="84" width="6" height="6" fill="#FF2E88"/><rect x="36" y="90" width="6" height="6" fill="#FF2E88"/><rect x="42" y="90" width="6" height="6" fill="#FF2E88"/><rect x="48" y="90" width="6" height="6" fill="#FF2E88"/><rect x="54" y="90" width="6" height="6" fill="#FF2E88"/><rect x="60" y="90" width="6" height="6" fill="#FF2E88"/><rect x="66" y="90" width="6" height="6" fill="#FF2E88"/><rect x="42" y="96" width="6" height="6" fill="#FF2E88"/><rect x="48" y="96" width="6" height="6" fill="#FF2E88"/><rect x="54" y="96" width="6" height="6" fill="#FF2E88"/><rect x="60" y="96" width="6" height="6" fill="#FF2E88"/><rect x="48" y="102" width="6" height="6" fill="#FF2E88"/><rect x="54" y="102" width="6" height="6" fill="#FF2E88"/><rect x="-6" y="37.8" width="48" height="2.4" fill="#00F0FF"/><rect x="24" y="85.8" width="24" height="2.4" fill="#00F0FF"/></svg></a>
+    <div class="links"><a href="account.html">Your account</a><a href="index.html">← Back to leva</a></div>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap wide">
+    <h1>Admin</h1>
+    <p class="meta" id="sub">People, subscriptions, releases. Admin eyes only.</p>
+    <section id="gate" class="hide"><div class="card"><p style="margin:0">Sign in on <a href="account.html">your account page</a> first. Only admins can see this.</p></div></section>
+    <section id="app" class="hide">
+      <div class="tabs"><button class="on" data-tab="overview">Overview</button><button data-tab="people">People</button><button data-tab="releases">Releases</button><button data-tab="events">Events</button></div>
+
+      <div id="tab-overview">
+        <div class="stat" id="tiles"></div>
+        <div class="row"><span class="muted" id="wiring"></span></div>
+        <div class="card" style="margin-top:20px"><b>Versions in use (last 30 days)</b><div id="versions" class="muted" style="margin-top:6px"></div></div>
+        <div class="row"><button class="btn small" id="backup">Download a database backup</button><span class="muted">SQLite file. Keep one somewhere safe now and then.</span></div>
+      </div>
+
+      <div id="tab-people" class="hide">
+        <div class="row" style="margin-bottom:12px"><input type="text" id="q" placeholder="Search by email or note" style="flex:1;min-width:200px"><button class="btn small" id="search">Search</button></div>
+        <div class="card sky"><b>Add or comp someone</b><div class="row" style="margin-top:8px"><input type="email" id="newemail" placeholder="email" style="flex:1;min-width:200px"><input type="number" id="newdays" placeholder="free days" min="0" style="width:120px"><button class="btn small primary" id="add">Save</button></div><p class="muted" style="margin:8px 0 0">Comp days give the full leva without a card. 0 removes a comp.</p></div>
+        <table id="people"><thead><tr><th>Email</th><th>Plan</th><th>Macs</th><th>Seen</th><th>Note</th><th></th></tr></thead><tbody></tbody></table>
+      </div>
+
+      <div id="tab-releases" class="hide">
+        <div class="card mint">
+          <b>Publish a rules pack</b>
+          <p class="muted" style="margin:4px 0 10px">Phrases and domains leva should treat as attack tells, without an app update. It's signed here with the levagood key and every copy of leva runs its self-test before adopting it.</p>
+          <div class="row"><input type="text" id="rver" placeholder="version, like 1.0.3" style="width:200px"><input type="number" id="rroll" value="100" min="0" max="100" style="width:110px" title="rollout percent"><span class="muted">% of Macs</span></div>
+          <textarea id="rpack" placeholder='{"extra_lure_phrases": ["\\bsecure docu-?sign\\b"], "extra_urgency": [], "extra_asks": [], "bad_domains": {"graphiq-docs.com": "Sept RFP lure"}}' style="margin:10px 0"></textarea>
+          <div class="row"><input type="text" id="rnotes" placeholder="what changed (shown in the app)" style="flex:1;min-width:200px"><button class="btn small primary" id="pubrules">Sign and publish</button></div>
+          <p class="muted" id="rmsg" style="margin:8px 0 0"></p>
+        </div>
+        <div class="card sky">
+          <b>Publish an app release</b>
+          <p class="muted" style="margin:4px 0 10px">Upload the zip somewhere public first (a GitHub release works), then record it here. Pick the zip to compute its checksum in your browser; the file is not uploaded.</p>
+          <div class="row"><input type="text" id="aver" placeholder="version, like 1.0.2" style="width:200px"><input type="number" id="aroll" value="5" min="0" max="100" style="width:110px" title="rollout percent"><span class="muted">% of Macs (start small)</span></div>
+          <div class="row" style="margin-top:10px"><input type="url" id="aurl" placeholder="https://… download url of the zip" style="flex:1;min-width:260px"></div>
+          <div class="row" style="margin-top:10px"><input type="file" id="afile" accept=".zip"><span class="mono" id="asha"></span></div>
+          <div class="row" style="margin-top:10px"><input type="text" id="anotes" placeholder="release notes, one line" style="flex:1;min-width:200px"><button class="btn small primary" id="pubapp">Publish</button></div>
+          <p class="muted" id="amsg" style="margin:8px 0 0"></p>
+        </div>
+        <table id="rel"><thead><tr><th>Kind</th><th>Version</th><th>Rollout</th><th>Status</th><th>Notes</th><th>When</th><th></th></tr></thead><tbody></tbody></table>
+        <p class="muted" style="margin-top:14px">Public key on this server (the app must carry the same one): <span class="mono" id="pubkey"></span></p>
+      </div>
+
+      <div id="tab-events" class="hide"><table id="ev"><thead><tr><th>When</th><th>Who</th><th>What</th><th>Detail</th></tr></thead><tbody></tbody></table></div>
+    </section>
+    <section id="err" class="hide"><div class="card"><p style="margin:0" class="bad" id="errmsg"></p></div></section>
+  </div>
+</main>
+
+<footer>levagood, Inc. · Brighton, Michigan · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="mailto:ai@levagood.com">ai@levagood.com</a></footer>
+<script src="leva-shared.js"></script>
+
+<script>
+(async () => {
+  const { call, session, esc, planText, day, ago, API } = window.LEVA;
+  const $ = (i) => document.getElementById(i);
+  const fail = (m) => { $("errmsg").textContent = m; $("err").classList.remove("hide"); setTimeout(() => $("err").classList.add("hide"), 6000); };
+  const ov = await call("GET", "/admin/overview");
+  if (ov.status !== 200) { $("gate").classList.remove("hide"); return; }
+  $("app").classList.remove("hide");
+
+  for (const b of document.querySelectorAll(".tabs button")) b.addEventListener("click", () => { document.querySelectorAll(".tabs button").forEach((x) => x.classList.toggle("on", x === b)); for (const t of ["overview", "people", "releases", "events"]) $("tab-" + t).classList.toggle("hide", t !== b.dataset.tab); if (b.dataset.tab === "people") people(); if (b.dataset.tab === "releases") releases(); if (b.dataset.tab === "events") events(); });
+
+  function overview(o) {
+    const tiles = [["People", o.users], ["Entitled now", o.entitled], ["Subscribed", o.subscribed], ["Past due", o.past_due], ["Comped", o.comped], ["New this week", o.new_7d], ["Active this week", o.seen_7d], ["Sign-ins this week", o.signins_7d], ["License checks today", o.license_checks_24h], ["Update pings ok / all, 7d", `${(o.update_pings_7d && o.update_pings_7d.ok) || 0} / ${(o.update_pings_7d && o.update_pings_7d.n) || 0}`]];
+    $("tiles").innerHTML = tiles.map(([k, v]) => `<div><b>${esc(v)}</b><span>${esc(k)}</span></div>`).join("");
+    $("wiring").innerHTML = `API ${esc(o.api)} · signing ${o.signing ? "<span class=ok>on</span>" : "<span class=bad>off (set LEVA_SIGNING_KEY)</span>"} · Stripe ${o.stripe ? "<span class=ok>on</span>" : "<span class=bad>off</span>"} · mail ${o.mail ? "<span class=ok>on</span>" : "<span class=bad>log only</span>"} · latest app ${o.latest_app ? esc(o.latest_app.version) : "none"} · latest rules ${o.latest_rules ? esc(o.latest_rules.version) : "none"}`;
+    $("versions").textContent = (o.versions || []).map((v) => `${v.version || "?"}: ${v.n}`).join(" · ") || "no app check-ins yet";
+  }
+  overview(ov);
+  $("backup").addEventListener("click", async () => { const r = await fetch(API + "/admin/backup", { headers: { Authorization: "Bearer " + session.get() } }); if (!r.ok) return fail("backup failed"); const b = await r.blob(); const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = (r.headers.get("content-disposition") || "").match(/filename="([^"]+)"/)?.[1] || "leva-api.db"; a.click(); });
+
+  async function people() {
+    const r = await call("GET", "/admin/users?q=" + encodeURIComponent($("q").value.trim()));
+    if (r.status !== 200) return fail(r.error || "couldn't load people");
+    $("people").querySelector("tbody").innerHTML = r.users.map((u) => { const e = u.entitlement || {}; return `<tr data-id="${esc(u.id)}"><td>${esc(u.email)}${u.role === "admin" ? ' <span class="tag">admin</span>' : ""}</td><td><span class="tag ${e.active ? "on" : "off"}">${esc(e.reason)}</span><br><span class="muted">${esc(planText(u))}</span></td><td>${(u.devices || []).filter((d) => d.kind === "app").map((d) => esc(d.device || "a Mac") + " · " + esc(d.version || "?")).join("<br>") || "<span class=muted>none</span>"}</td><td class="muted">${esc(ago(u.last_seen_at))}<br>joined ${esc(day(u.created_at))}</td><td><input type="text" class="note" value="${esc(u.note || "")}" placeholder="note" style="padding:6px 8px;font-size:13px"></td><td><div class="row"><input type="number" class="comp" placeholder="days" min="0" style="width:80px;padding:6px 8px;font-size:13px"><button class="btn small save">Save</button><button class="btn small kick" title="sign this person out of every Mac">Sign out</button></div></td></tr>`; }).join("");
+    for (const tr of $("people").querySelectorAll("tr[data-id]")) {
+      tr.querySelector(".save").addEventListener("click", async () => { const body = { id: tr.dataset.id, note: tr.querySelector(".note").value }; const d = tr.querySelector(".comp").value; if (d !== "") body.comp_days = Number(d); const x = await call("POST", "/admin/users", body); if (x.status !== 200) fail(x.error || "save failed"); people(); });
+      tr.querySelector(".kick").addEventListener("click", async () => { await call("POST", "/admin/users", { id: tr.dataset.id, signout_all: true }); people(); });
+    }
+  }
+  $("search").addEventListener("click", people); $("q").addEventListener("keydown", (e) => { if (e.key === "Enter") people(); });
+  $("add").addEventListener("click", async () => { const email = $("newemail").value.trim(); if (!email) return; const x = await call("POST", "/admin/users", { email, comp_days: Number($("newdays").value || 0) }); if (x.status !== 200) return fail(x.error || "couldn't save"); $("newemail").value = ""; $("newdays").value = ""; $("q").value = email; people(); });
+
+  async function releases() {
+    const r = await call("GET", "/admin/releases");
+    if (r.status !== 200) return fail(r.error || "couldn't load releases");
+    $("pubkey").textContent = (r.public_key || "(none: set LEVA_SIGNING_KEY on the server)").trim();
+    $("rel").querySelector("tbody").innerHTML = r.releases.map((x) => `<tr data-id="${esc(x.id)}"><td>${esc(x.kind)}</td><td><b>${esc(x.version)}</b>${x.url ? `<br><a class="mono" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url.slice(0, 60))}…</a>` : ""}${x.sha256 ? `<br><span class="mono muted">${esc(x.sha256.slice(0, 16))}…</span>` : ""}</td><td><input type="number" class="roll" value="${x.rollout}" min="0" max="100" style="width:70px;padding:6px 8px;font-size:13px">%</td><td><span class="tag ${x.active ? "on" : "off"}">${x.active ? "live" : "pulled"}</span></td><td class="muted">${esc(x.notes || "")}<br>${esc(x.created_by || "")}</td><td class="muted">${esc(day(x.created_at))}</td><td><div class="row"><button class="btn small save">Save</button><button class="btn small tog">${x.active ? "Pull" : "Relive"}</button></div></td></tr>`).join("") || `<tr><td colspan="7" class="muted">Nothing published yet.</td></tr>`;
+    for (const tr of $("rel").querySelectorAll("tr[data-id]")) {
+      tr.querySelector(".save").addEventListener("click", async () => { await call("POST", "/admin/releases/" + tr.dataset.id, { rollout: Number(tr.querySelector(".roll").value) }); releases(); });
+      tr.querySelector(".tog").addEventListener("click", async () => { await call("POST", "/admin/releases/" + tr.dataset.id, { active: tr.querySelector(".tog").textContent === "Relive" }); releases(); });
+    }
+  }
+  $("pubrules").addEventListener("click", async () => {
+    let pack; try { pack = JSON.parse($("rpack").value || "{}"); } catch (e) { $("rmsg").textContent = "That JSON doesn't parse: " + e.message; $("rmsg").className = "muted bad"; return; }
+    const r = await call("POST", "/admin/releases", { kind: "rules", version: $("rver").value.trim(), rollout: Number($("rroll").value), notes: $("rnotes").value.trim(), pack });
+    $("rmsg").textContent = r.status === 200 ? `Published and signed. sha256 ${r.sha256.slice(0, 16)}…` : (r.error || "couldn't publish"); $("rmsg").className = r.status === 200 ? "muted ok" : "muted bad";
+    if (r.status === 200) { $("rver").value = ""; $("rnotes").value = ""; releases(); }
+  });
+  $("afile").addEventListener("change", async () => { const f = $("afile").files[0]; if (!f) return; $("asha").textContent = "computing…"; const buf = await f.arrayBuffer(); const h = await crypto.subtle.digest("SHA-256", buf); $("asha").textContent = [...new Uint8Array(h)].map((b) => b.toString(16).padStart(2, "0")).join(""); const m = f.name.match(/leva-(\d+\.\d+\.\d+)/); if (m && !$("aver").value) $("aver").value = m[1]; });
+  $("pubapp").addEventListener("click", async () => {
+    const r = await call("POST", "/admin/releases", { kind: "app", version: $("aver").value.trim(), rollout: Number($("aroll").value), url: $("aurl").value.trim(), sha256: $("asha").textContent.trim(), notes: $("anotes").value.trim() });
+    $("amsg").textContent = r.status === 200 ? "Published. Macs inside the rollout see it on their next daily check." : (r.error || "couldn't publish"); $("amsg").className = r.status === 200 ? "muted ok" : "muted bad";
+    if (r.status === 200) releases();
+  });
+
+  async function events() {
+    const r = await call("GET", "/admin/events?limit=200");
+    if (r.status !== 200) return fail(r.error || "couldn't load events");
+    $("ev").querySelector("tbody").innerHTML = r.events.map((e) => `<tr><td class="muted">${esc(new Date(e.ts * 1000).toLocaleString())}</td><td>${esc(e.email || "")}</td><td><span class="tag">${esc(e.kind)}</span></td><td class="muted">${esc(e.detail || "")}</td></tr>`).join("");
+  }
+})();
+</script>
+</body></html>
