@@ -135,11 +135,11 @@
       <canvas id="levac" width="1440" height="840" aria-hidden="true"></canvas>
       <div id="dark" aria-hidden="true"></div>
       <canvas id="lights" width="1440" height="840" aria-hidden="true"></canvas>
-<div class="spot" tabindex="0" role="note" aria-label="DIVING WELL, 12 feet, the high dive and the low board" style="left:266px;top:236px;width:106px;height:236px"><span class="tip"><b>DIVING WELL</b><span>12 feet, the high dive and the low board</span></span></div>
-<div class="spot" tabindex="0" role="note" aria-label="50 METER POOL, eight lanes, the ropes out for laps" style="left:418px;top:236px;width:182px;height:372px"><span class="tip"><b>50 METER POOL</b><span>eight lanes, the ropes out for laps</span></span></div>
+<div class="spot" tabindex="0" role="note" aria-label="DIVING WELL, 12 feet, two 1 meter and two 3 meter boards" style="left:266px;top:236px;width:106px;height:236px"><span class="tip"><b>DIVING WELL</b><span>12 feet, two 1 meter and two 3 meter boards</span></span></div>
+<div class="spot" tabindex="0" role="note" aria-label="50 METER POOL, meets run 25 yards across, five lanes in the middle" style="left:418px;top:236px;width:182px;height:372px"><span class="tip"><b>50 METER POOL</b><span>meets run 25 yards across, five lanes in the middle</span></span></div>
 <div class="spot" tabindex="0" role="note" aria-label="ZERO DEPTH, the mushroom, the arch, and the duck" style="left:660px;top:274px;width:130px;height:288px"><span class="tip"><b>ZERO DEPTH</b><span>the mushroom, the arch, and the duck</span></span></div>
 <button type="button" class="spot link" data-room="pump" style="left:448px;top:68px;width:106px;height:76px" aria-label="PUMP ROOM, leva lives here, come see"><span class="tip down"><b>PUMP ROOM</b><span>leva lives here, come see</span></span></button>
-<div class="spot" tabindex="0" role="note" aria-label="CONCESSION AREA, no outside food, no loitering" style="left:656px;top:60px;width:80px;height:124px"><span class="tip down"><b>CONCESSION AREA</b><span>no outside food, no loitering</span></span></div>
+<div class="spot" tabindex="0" role="note" aria-label="CONCESSION AREA, come in from the park, no food on the deck" style="left:656px;top:60px;width:80px;height:124px"><span class="tip down"><b>CONCESSION AREA</b><span>come in from the park, no food on the deck</span></span></div>
 <button type="button" class="spot link" data-room="nutty" style="left:736px;top:64px;width:96px;height:58px" aria-label="NUTTY DIP, Sandy's Sundaes"><span class="tip down"><b>NUTTY DIP</b><span>Sandy's Sundaes</span></span></button>
 <div class="spot" tabindex="0" role="note" aria-label="GIRLS BATHROOM" style="left:950px;top:182px;width:130px;height:108px"><span class="tip down"><b>GIRLS BATHROOM</b></span></div>
 <div class="spot" tabindex="0" role="note" aria-label="GIRLS GUARD SHACK" style="left:898px;top:244px;width:52px;height:46px"><span class="tip"><b>GIRLS GUARD SHACK</b></span></div>
@@ -244,7 +244,7 @@
   function isNight(){ return park.dataset.time === 'night'; }
   function isDusk(){ return park.dataset.time === 'dusk'; }
 
-  var ATLAS = {"crew_s0":[0,0,11,13],"crew2_s0":[12,0,11,13],"crew3_s0":[24,0,11,13],"crew_s1":[36,0,11,13],"crew2_s1":[48,0,11,13],"crew3_s1":[60,0,11,13],"crew_n0":[72,0,11,13],"crew2_n0":[84,0,11,13],"crew3_n0":[96,0,11,13],"crew_n1":[108,0,11,13],"crew2_n1":[120,0,11,13],"crew3_n1":[132,0,11,13],"crew_e0":[144,0,11,13],"crew2_e0":[156,0,11,13],"crew3_e0":[168,0,11,13],"crew_e1":[180,0,11,13],"crew2_e1":[192,0,11,13],"crew3_e1":[204,0,11,13],"crew_w0":[216,0,11,13],"crew2_w0":[228,0,11,13],"crew3_w0":[240,0,11,13],"crew_w1":[0,14,11,13],"crew2_w1":[12,14,11,13],"crew3_w1":[24,14,11,13],"kid1_e0":[36,14,11,13],"kid1_e1":[48,14,11,13],"kid1_w0":[60,14,11,13],"kid1_w1":[72,14,11,13],"kid1_s0":[84,14,11,13],"kid1_s1":[96,14,11,13],"kid1_n0":[108,14,11,13],"kid1_n1":[120,14,11,13],"kid2_e0":[132,14,11,13],"kid2_e1":[144,14,11,13],"kid2_w0":[156,14,11,13],"kid2_w1":[168,14,11,13],"kid2_s0":[180,14,11,13],"kid2_s1":[192,14,11,13],"kid2_n0":[204,14,11,13],"kid2_n1":[216,14,11,13],"kid3_e0":[228,14,11,13],"kid3_e1":[240,14,11,13],"kid3_w0":[0,28,11,13],"kid3_w1":[12,28,11,13],"kid3_s0":[24,28,11,13],"kid3_s1":[36,28,11,13],"kid3_n0":[48,28,11,13],"kid3_n1":[60,28,11,13],"food":[72,28,6,7],"chair_blue":[79,28,13,9],"chair_white":[93,28,13,9],"chair_web":[107,28,13,9],"chair_red":[121,28,13,9],"f1_seat0":[135,28,11,11],"f1_e0":[147,28,11,13],"f1_seat1":[159,28,11,11],"f1_e1":[171,28,11,13],"f2_seat0":[183,28,11,11],"f2_e0":[195,28,11,13],"f2_seat1":[207,28,11,11],"f2_e1":[219,28,11,13],"f3_seat0":[231,28,11,11],"f3_e0":[243,28,11,13],"f3_seat1":[0,42,11,11],"f3_e1":[12,42,11,13],"f4_seat0":[24,42,11,11],"f4_e0":[36,42,11,13],"f4_seat1":[48,42,11,11],"f4_e1":[60,42,11,13],"f5_seat0":[72,42,11,11],"f5_e0":[84,42,11,13],"f5_seat1":[96,42,11,11],"f5_e1":[108,42,11,13],"f6_seat0":[120,42,11,11],"f6_e0":[132,42,11,13],"f6_seat1":[144,42,11,11],"f6_e1":[156,42,11,13],"band1_w0":[168,42,11,13],"band1_w1":[180,42,11,13],"band2_w0":[192,42,11,13],"band2_w1":[204,42,11,13],"band3_w0":[216,42,11,13],"band3_w1":[228,42,11,13],"guitar":[240,42,8,7],"drums":[0,56,13,11],"note0":[14,56,5,6],"note1":[20,56,7,6],"guard_sit":[28,56,6,6],"guard_s0":[35,56,11,13],"guard_s1":[47,56,11,13],"guard_n0":[59,56,11,13],"guard_n1":[71,56,11,13],"guard_e0":[83,56,11,13],"guard_e1":[95,56,11,13],"guard_w0":[107,56,11,13],"guard_w1":[119,56,11,13],"swim_e0":[131,56,10,6],"swim_w0":[142,56,10,6],"swim_e1":[153,56,10,6],"swim_w1":[164,56,10,6],"swim_s0":[175,56,6,10],"swim_n0":[182,56,6,10],"swim_s1":[189,56,6,10],"swim_n1":[196,56,6,10],"head0":[203,56,8,6],"head1":[212,56,8,6],"cart_h":[221,56,12,8],"cart_v":[234,56,8,11],"duck0":[243,56,10,7],"duck1":[0,70,10,7],"spray0":[11,70,40,40],"spray1":[52,70,40,40],"spray2":[93,70,40,40],"arch0":[134,70,30,12],"arch1":[165,70,30,12],"fan0":[196,70,20,20],"fan1":[217,70,20,20],"flags0":[238,70,6,72],"flags1":[245,70,6,72],"splash0":[0,143,20,20],"splash1":[21,143,20,20],"splash2":[42,143,20,20],"flag0":[63,143,12,8],"flag1":[76,143,12,8],"skim0":[89,143,14,30],"skim1":[104,143,14,30],"mop":[119,143,9,11],"bucket":[129,143,7,6],"wrench0":[137,143,10,5],"wrench1":[148,143,10,5]};
+  var ATLAS = {"crew_s0":[0,0,11,13],"crew2_s0":[12,0,11,13],"crew3_s0":[24,0,11,13],"crew_s1":[36,0,11,13],"crew2_s1":[48,0,11,13],"crew3_s1":[60,0,11,13],"crew_n0":[72,0,11,13],"crew2_n0":[84,0,11,13],"crew3_n0":[96,0,11,13],"crew_n1":[108,0,11,13],"crew2_n1":[120,0,11,13],"crew3_n1":[132,0,11,13],"crew_e0":[144,0,11,13],"crew2_e0":[156,0,11,13],"crew3_e0":[168,0,11,13],"crew_e1":[180,0,11,13],"crew2_e1":[192,0,11,13],"crew3_e1":[204,0,11,13],"crew_w0":[216,0,11,13],"crew2_w0":[228,0,11,13],"crew3_w0":[240,0,11,13],"crew_w1":[0,14,11,13],"crew2_w1":[12,14,11,13],"crew3_w1":[24,14,11,13],"kid1_e0":[36,14,11,13],"kid1_e1":[48,14,11,13],"kid1_w0":[60,14,11,13],"kid1_w1":[72,14,11,13],"kid1_s0":[84,14,11,13],"kid1_s1":[96,14,11,13],"kid1_n0":[108,14,11,13],"kid1_n1":[120,14,11,13],"kid2_e0":[132,14,11,13],"kid2_e1":[144,14,11,13],"kid2_w0":[156,14,11,13],"kid2_w1":[168,14,11,13],"kid2_s0":[180,14,11,13],"kid2_s1":[192,14,11,13],"kid2_n0":[204,14,11,13],"kid2_n1":[216,14,11,13],"kid3_e0":[228,14,11,13],"kid3_e1":[240,14,11,13],"kid3_w0":[0,28,11,13],"kid3_w1":[12,28,11,13],"kid3_s0":[24,28,11,13],"kid3_s1":[36,28,11,13],"kid3_n0":[48,28,11,13],"kid3_n1":[60,28,11,13],"food":[72,28,6,7],"chair_blue":[79,28,13,9],"chair_white":[93,28,13,9],"chair_web":[107,28,13,9],"chair_red":[121,28,13,9],"f1_seat0":[135,28,11,11],"f1_n0":[147,28,11,13],"f1_e0":[159,28,11,13],"f1_s0":[171,28,11,13],"f1_w0":[183,28,11,13],"f1_seat1":[195,28,11,11],"f1_n1":[207,28,11,13],"f1_e1":[219,28,11,13],"f1_s1":[231,28,11,13],"f1_w1":[243,28,11,13],"f2_seat0":[0,42,11,11],"f2_n0":[12,42,11,13],"f2_e0":[24,42,11,13],"f2_s0":[36,42,11,13],"f2_w0":[48,42,11,13],"f2_seat1":[60,42,11,11],"f2_n1":[72,42,11,13],"f2_e1":[84,42,11,13],"f2_s1":[96,42,11,13],"f2_w1":[108,42,11,13],"f3_seat0":[120,42,11,11],"f3_n0":[132,42,11,13],"f3_e0":[144,42,11,13],"f3_s0":[156,42,11,13],"f3_w0":[168,42,11,13],"f3_seat1":[180,42,11,11],"f3_n1":[192,42,11,13],"f3_e1":[204,42,11,13],"f3_s1":[216,42,11,13],"f3_w1":[228,42,11,13],"f4_seat0":[240,42,11,11],"f4_n0":[0,56,11,13],"f4_e0":[12,56,11,13],"f4_s0":[24,56,11,13],"f4_w0":[36,56,11,13],"f4_seat1":[48,56,11,11],"f4_n1":[60,56,11,13],"f4_e1":[72,56,11,13],"f4_s1":[84,56,11,13],"f4_w1":[96,56,11,13],"f5_seat0":[108,56,11,11],"f5_n0":[120,56,11,13],"f5_e0":[132,56,11,13],"f5_s0":[144,56,11,13],"f5_w0":[156,56,11,13],"f5_seat1":[168,56,11,11],"f5_n1":[180,56,11,13],"f5_e1":[192,56,11,13],"f5_s1":[204,56,11,13],"f5_w1":[216,56,11,13],"f6_seat0":[228,56,11,11],"f6_n0":[240,56,11,13],"f6_e0":[0,70,11,13],"f6_s0":[12,70,11,13],"f6_w0":[24,70,11,13],"f6_seat1":[36,70,11,11],"f6_n1":[48,70,11,13],"f6_e1":[60,70,11,13],"f6_s1":[72,70,11,13],"f6_w1":[84,70,11,13],"band1_w0":[96,70,11,13],"band1_w1":[108,70,11,13],"band2_w0":[120,70,11,13],"band2_w1":[132,70,11,13],"band3_w0":[144,70,11,13],"band3_w1":[156,70,11,13],"guitar":[168,70,8,7],"drums":[177,70,13,11],"note0":[191,70,5,6],"note1":[197,70,7,6],"guard_sit":[205,70,6,6],"guard_s0":[212,70,11,13],"guard_s1":[224,70,11,13],"guard_n0":[236,70,11,13],"guard_n1":[0,84,11,13],"guard_e0":[12,84,11,13],"guard_e1":[24,84,11,13],"guard_w0":[36,84,11,13],"guard_w1":[48,84,11,13],"swim_e0":[60,84,10,6],"swim_w0":[71,84,10,6],"swim_e1":[82,84,10,6],"swim_w1":[93,84,10,6],"swim_s0":[104,84,6,10],"swim_n0":[111,84,6,10],"swim_s1":[118,84,6,10],"swim_n1":[125,84,6,10],"head0":[132,84,8,6],"head1":[141,84,8,6],"cart_h":[150,84,12,8],"cart_v":[163,84,8,11],"duck0":[172,84,10,7],"duck1":[183,84,10,7],"spray0":[194,84,40,40],"spray1":[0,125,40,40],"spray2":[41,125,40,40],"arch0":[82,125,30,12],"arch1":[113,125,30,12],"fan0":[144,125,20,20],"fan1":[165,125,20,20],"flags0":[186,125,6,72],"flags1":[193,125,6,72],"splash0":[200,125,20,20],"splash1":[221,125,20,20],"splash2":[0,198,20,20],"flag0":[21,198,12,8],"flag1":[34,198,12,8],"skim0":[47,198,14,30],"skim1":[62,198,14,30],"mop":[77,198,9,11],"bucket":[87,198,7,6],"wrench0":[95,198,10,5],"wrench1":[106,198,10,5]};
   var base = document.getElementById('base').getContext('2d'), ctx = document.getElementById('anim').getContext('2d');
   var lc = document.getElementById('levac').getContext('2d'), lx = document.getElementById('lights').getContext('2d');
   base.imageSmoothingEnabled = false; ctx.imageSmoothingEnabled = false;
@@ -253,7 +253,7 @@
     var im = new Image();
     im.onload = function(){ imgs[n] = im; if (--todo === 0) start(); };
     im.onerror = function(){ console.error('leva pool: could not load pool/' + n + '.png'); };
-    im.src = 'pool/' + n + '.png?v=8';
+    im.src = 'pool/' + n + '.png?v=9';
   });
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -282,16 +282,18 @@
     return w;
   }
   var crew = [
-    walker('crew',  [[140,254],[190,254],[190,296],[140,296]], 12, 'mop'),
+    walker('crew',  [[140,264],[186,264],[186,296],[140,296]], 12, 'mop'),
     walker('crew3', [[284,88],[322,88]], 10, 'bucket'),
-    walker('guard', [[196,212],[196,292]], 8, null),
+    walker('guard', [[214,320],[300,320]], 8, null),
     walker('guard', [[322,302],[404,302]], 8, null)
   ];
   var cart = walker('cart', [[140,98],[196,98]], 18, null);
   cart.draw = function(){ var v = cart.face === 'n' || cart.face === 's'; draw(v ? 'cart_v' : 'cart_h', cart.x - (v ? 4 : 6), cart.y - (v ? 6 : 4), cart.face === 'w'); };
-  var swimmers = [{x: 242, y: 130, dir: 1, t: 0, speed: 24}, {x: 275, y: 280, dir: -1, t: 0.7, speed: 20}];
-  var heads = [{x: 340, y: 168, t: 0, s: 'head0'}, {x: 372, y: 236, t: 1.1, s: 'head1'}, {x: 350, y: 222, t: 0.4, s: 'head0'}];
-  var chairs = [[190, 170], [190, 110], [338, 112]];
+  // meet lanes run east and west across the middle; the ends are open swim
+  var swimmers = [{x: 216, y: 198, dir: 1, t: 0, speed: 16}, {x: 288, y: 216, dir: -1, t: 0.7, speed: 14}];
+  var heads = [{x: 340, y: 168, t: 0, s: 'head0'}, {x: 372, y: 236, t: 1.1, s: 'head1'}, {x: 350, y: 222, t: 0.4, s: 'head0'},
+    {x: 232, y: 146, t: 0.2, s: 'head1'}, {x: 268, y: 160, t: 0.9, s: 'head0'}, {x: 246, y: 262, t: 1.5, s: 'head0'}, {x: 280, y: 276, t: 0.6, s: 'head1'}];
+  var chairs = [[153, 103], [153, 240], [191, 252], [338, 112]];
   var duck = {y: 170, dir: 1, t: 0};
   var diver = {t: 0};
 
@@ -464,6 +466,11 @@
       var sw = Math.sin(T * 2.2);
       glow(780, 692, 70, 'rgba(255,46,136,A)', 0.45 + 0.2 * sw); glow(800, 660, 60, 'rgba(0,240,255,A)', 0.4 - 0.2 * sw);
     }
+    if (night || dusk){
+      // headlights on the moving cars
+      through.concat(moving).forEach(function(c){ if (!c.pos) return; var L = Math.hypot(c.pos.dx, c.pos.dy) || 1;
+        glow(c.pos.x * 2 + c.pos.dx / L * 26, c.pos.y * 2 + c.pos.dy / L * 26, 30, 'rgba(255,246,200,A)', 0.8); });
+    }
     if (arcadeOn()){
       var pulse = 0.35 + 0.25 * Math.sin(T * 9);
       glow(956, 448, 60, 'rgba(255,46,136,A)', pulse); glow(956, 456, 40, 'rgba(0,240,255,A)', pulse * 0.8);
@@ -478,6 +485,174 @@
     }
   }
 
+  // ================= arrivals and park life =================
+  // everything here is on the street, the lots, the sidewalks, the path and the lawn; nothing crosses the pool deck
+  function along(path, dist){
+    // position and heading at a distance along a polyline
+    for (var i = 0; i < path.length - 1; i++){
+      var a = path[i], b = path[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (dist <= L || i === path.length - 2){
+        var t = L ? Math.min(1, dist / L) : 1;
+        return {x: a[0] + (b[0] - a[0]) * t, y: a[1] + (b[1] - a[1]) * t, dx: b[0] - a[0], dy: b[1] - a[1], done: dist > L && i === path.length - 2};
+      }
+      dist -= L;
+    }
+  }
+  function pathLen(path){ var L = 0; for (var i = 0; i < path.length - 1; i++) L += Math.hypot(path[i + 1][0] - path[i][0], path[i + 1][1] - path[i][1]); return L; }
+  var CAR_COLORS = ['#d7262b', '#2857d1', '#f2f2ee', '#1c1d22', '#9aa0a8', '#3f8f5a', '#e8c230', '#6b3fa0'];
+  function drawCar(x, y, dx, dy, col, lightsOn){
+    var vert = Math.abs(dy) >= Math.abs(dx), fwd = vert ? (dy >= 0 ? 1 : -1) : (dx >= 0 ? 1 : -1);
+    x = Math.round(x); y = Math.round(y);
+    var w = vert ? 8 : 14, h = vert ? 14 : 8, x0 = x - w / 2, y0 = y - h / 2;
+    ctx.fillStyle = 'rgba(20,22,40,.35)'; ctx.fillRect(x0 + 1, y0 + 1, w, h);
+    ctx.fillStyle = col; ctx.fillRect(x0, y0, w, h);
+    ctx.fillStyle = 'rgba(255,255,255,.18)'; vert ? ctx.fillRect(x0 + 1, y0 + 1, 1, h - 2) : ctx.fillRect(x0 + 1, y0 + 1, w - 2, 1);
+    ctx.fillStyle = '#1d2433';
+    if (vert){
+      var fy = fwd > 0 ? y0 + h - 5 : y0 + 2, ry = fwd > 0 ? y0 + 2 : y0 + h - 4;
+      ctx.fillRect(x0 + 1, fy, w - 2, 3); ctx.fillRect(x0 + 1, ry, w - 2, 2);
+      ctx.fillStyle = lightsOn ? '#fff6c8' : '#e8e8e2'; ctx.fillRect(x0 + 1, fwd > 0 ? y0 + h - 1 : y0, 2, 1); ctx.fillRect(x0 + w - 3, fwd > 0 ? y0 + h - 1 : y0, 2, 1);
+      ctx.fillStyle = '#b3262b'; ctx.fillRect(x0 + 1, fwd > 0 ? y0 : y0 + h - 1, 2, 1); ctx.fillRect(x0 + w - 3, fwd > 0 ? y0 : y0 + h - 1, 2, 1);
+    } else {
+      var fx = fwd > 0 ? x0 + w - 5 : x0 + 2, rx = fwd > 0 ? x0 + 2 : x0 + w - 4;
+      ctx.fillRect(fx, y0 + 1, 3, h - 2); ctx.fillRect(rx, y0 + 1, 2, h - 2);
+      ctx.fillStyle = lightsOn ? '#fff6c8' : '#e8e8e2'; ctx.fillRect(fwd > 0 ? x0 + w - 1 : x0, y0 + 1, 1, 2); ctx.fillRect(fwd > 0 ? x0 + w - 1 : x0, y0 + h - 3, 1, 2);
+      ctx.fillStyle = '#b3262b'; ctx.fillRect(fwd > 0 ? x0 : x0 + w - 1, y0 + 1, 1, 2); ctx.fillRect(fwd > 0 ? x0 : x0 + w - 1, y0 + h - 3, 1, 2);
+    }
+    return {x: x, y: y, fwd: fwd, vert: vert};
+  }
+  // the south lot: two rows of stalls with an aisle between
+  var STALLS = [];
+  for (var k = 0; k < 14; k++){ STALLS.push({x: 416 + k * 12, y: 357, row: 1, car: null}); STALLS.push({x: 416 + k * 12, y: 405, row: 2, car: null}); }
+  function seedLot(n){
+    STALLS.forEach(function(s){ s.car = null; });
+    for (var i = 0; i < n; i++){ var s = STALLS[(i * 11 + 3) % STALLS.length]; if (!s.car) s.car = {col: CAR_COLORS[i % CAR_COLORS.length]}; }
+  }
+  var lotMode = null;
+  var moving = [], walkers2 = [], through = [];
+  function arrivePath(s){
+    return [[606, -20], [606, 94], [586, 98], [560, 110], [558, 330], [556, 381], [s.x, 381], [s.x, s.y]];
+  }
+  function leavePath(s){
+    return [[s.x, s.y], [s.x, 381], [588, 381], [588, 330], [590, 110], [612, 96], [624, 80], [624, -24]];
+  }
+  var arriveClock = 4, leaveClock = 14, throughClock = 1;
+  function trafficStep(dt, open, lightsOn){
+    // how full the lot is follows the clock
+    var mode = open ? 'open' : (isNight() ? 'night' : 'closed');
+    if (mode !== lotMode){ lotMode = mode; seedLot(mode === 'open' ? 16 : mode === 'night' ? 2 : 5); moving = []; walkers2 = []; }
+    // cars passing on the street, both directions
+    throughClock -= dt;
+    if (throughClock <= 0){
+      throughClock = 6 + Math.random() * 8;
+      var south = Math.random() < 0.5;
+      through.push({path: south ? [[606, -20], [606, 440]] : [[624, 440], [624, -20]], d: 0, v: 34 + Math.random() * 10, col: CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)]});
+    }
+    // a family arrives while the pool is open
+    if (open){
+      arriveClock -= dt; leaveClock -= dt;
+      if (arriveClock <= 0){
+        arriveClock = 14 + Math.random() * 10;
+        var free = STALLS.filter(function(s){ return !s.car && !s.claimed; });
+        if (free.length){ var s = free[Math.floor(Math.random() * free.length)]; s.claimed = true;
+          moving.push({kind: 'arrive', stall: s, path: arrivePath(s), d: 0, v: 26, col: CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)]}); }
+      }
+      if (leaveClock <= 0){
+        leaveClock = 20 + Math.random() * 14;
+        var full = STALLS.filter(function(s){ return s.car && !s.claimed; });
+        if (full.length > 6){ var s2 = full[Math.floor(Math.random() * full.length)]; var c = s2.car; s2.car = null;
+          moving.push({kind: 'leave', stall: s2, path: leavePath(s2), d: 0, v: 24, col: c.col}); }
+      }
+    }
+    // parked cars
+    STALLS.forEach(function(s){ if (s.car) drawCar(s.x, s.y, 0, s.row === 1 ? -1 : 1, s.car.col, false); });
+    // moving cars
+    through = through.filter(function(c){ c.d += c.v * dt; var p = along(c.path, c.d); if (p.done) return false; drawCar(p.x, p.y, p.dx, p.dy, c.col, lightsOn); c.pos = p; return true; });
+    moving = moving.filter(function(c){
+      c.d += c.v * dt; var p = along(c.path, c.d);
+      if (p.done){
+        if (c.kind === 'arrive'){
+          c.stall.car = {col: c.col}; c.stall.claimed = false;
+          // the family climbs out and walks in the front door
+          var start = [c.stall.x, c.stall.row === 1 ? 346 : 394];
+          ['f1', 'kid1', 'kid3', 'f4'].slice(0, 2 + Math.floor(Math.random() * 3)).forEach(function(who, i){
+            walkers2.push({who: who, path: [start, [start[0], 381], [548, 381], [548, 318], [544, 300], [544, 196]], d: -i * 5, v: 11 + (i % 2) * 2});
+          });
+        }
+        return false;
+      }
+      drawCar(p.x, p.y, p.dx, p.dy, c.col, lightsOn); c.pos = p; return true;
+    });
+  }
+  // kids biking in on the park path and locking up at the rack
+  var ring = [];
+  for (var a = 0; a <= 180; a += 10){ var r = a * Math.PI / 180; ring.push([250 - 192.6 * Math.sin(r), 212 - 196.6 * Math.cos(r)]); }
+  var BIKE_PATH = [[249, -12]].concat(ring).concat([[400, 409], [432, 400], [432, 318], [470, 310]]);
+  var RACK = [498, 503, 508, 513, 518, 523, 528];
+  var bikes = [], racked = [], bikeClock = 3;
+  function bikeStep(dt, open){
+    if (!open){ racked = []; bikes = []; return; }
+    if (!racked.length && !bikes.length) racked = [0, 2, 3, 5].map(function(i){ return {slot: i, col: CAR_COLORS[i]}; });
+    bikeClock -= dt;
+    if (bikeClock <= 0){ bikeClock = 11 + Math.random() * 9;
+      var who = ['kid1', 'kid2', 'kid3'][Math.floor(Math.random() * 3)];
+      bikes.push({who: who, d: 0, v: 22 + Math.random() * 5, col: CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)], slot: Math.floor(Math.random() * RACK.length)});
+    }
+    // bikes at the rack
+    racked.forEach(function(b){ var x = RACK[b.slot]; ctx.fillStyle = '#1c1d22'; ctx.fillRect(x - 1, 297, 1, 2); ctx.fillRect(x - 1, 303, 1, 2); ctx.fillStyle = b.col; ctx.fillRect(x - 1, 299, 1, 4); });
+    bikes = bikes.filter(function(b){
+      b.d += b.v * dt; var p = along(BIKE_PATH, b.d);
+      if (p.done){
+        racked = racked.filter(function(r){ return r.slot !== b.slot; }); racked.push({slot: b.slot, col: b.col});
+        walkers2.push({who: b.who, path: [[RACK[b.slot], 310], [544, 310], [544, 300], [544, 196]], d: 0, v: 12});
+        return false;
+      }
+      var vert = Math.abs(p.dy) >= Math.abs(p.dx), face = vert ? (p.dy > 0 ? 's' : 'n') : (p.dx > 0 ? 'e' : 'w');
+      var x = Math.round(p.x), y = Math.round(p.y);
+      ctx.fillStyle = 'rgba(20,22,40,.3)'; vert ? ctx.fillRect(x, y - 5, 3, 12) : ctx.fillRect(x - 5, y + 1, 12, 3);
+      ctx.fillStyle = '#1c1d22';
+      if (vert){ ctx.fillRect(x - 1, y - 6, 3, 3); ctx.fillRect(x - 1, y + 3, 3, 3); ctx.fillStyle = b.col; ctx.fillRect(x, y - 3, 1, 6); ctx.fillRect(x - 2, p.dy > 0 ? y + 2 : y - 3, 5, 1); }
+      else { ctx.fillRect(x - 6, y - 1, 3, 3); ctx.fillRect(x + 3, y - 1, 3, 3); ctx.fillStyle = b.col; ctx.fillRect(x - 3, y, 6, 1); ctx.fillRect(p.dx > 0 ? x + 2 : x - 3, y - 2, 1, 5); }
+      draw(b.who + '_' + face + (Math.floor(b.d / 3) % 2), x - 4, y - 10);
+      return true;
+    });
+    // people walking from the lot and the rack to the front door
+    walkers2 = walkers2.filter(function(w){
+      w.d += w.v * dt; if (w.d < 0) return true;
+      var p = along(w.path, w.d); if (p.done) return false;
+      var vert = Math.abs(p.dy) >= Math.abs(p.dx), face = vert ? (p.dy > 0 ? 's' : 'n') : (p.dx > 0 ? 'e' : 'w');
+      var name = w.who + '_' + face + (Math.floor(w.d / 2) % 2);
+      if (!ATLAS[name]) name = w.who + '_e' + (Math.floor(w.d / 2) % 2);
+      draw(name, p.x - 4, p.y - 11);
+      return true;
+    });
+  }
+  // picnics on the lawn, and a frisbee game
+  var PICNICS = [
+    {x: 24, y: 262, fam: ['f2', 'f5', 'f4'], kid: 'kid2'},
+    {x: 20, y: 130, fam: ['f1', 'f6'], kid: 'kid1'},
+    {x: 140, y: 24, fam: ['f3', 'f4', 'f5'], kid: 'kid3'}
+  ];
+  function drawPicnics(T){
+    PICNICS.forEach(function(pc, i){
+      var x = pc.x, y = pc.y;
+      ctx.fillStyle = 'rgba(20,24,40,.2)'; ctx.fillRect(x + 1, y + 1, 18, 12);
+      for (var yy = 0; yy < 12; yy += 2) for (var xx = 0; xx < 18; xx += 2){ ctx.fillStyle = ((xx + yy) / 2) % 2 ? '#f6f6f2' : '#d7262b'; ctx.fillRect(x + xx, y + yy, 2, 2); }
+      ctx.fillStyle = '#8a5a33'; ctx.fillRect(x + 7, y + 4, 5, 4); ctx.fillStyle = '#6d4526'; ctx.fillRect(x + 7, y + 3, 5, 1);
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 3, y + 8, 2, 2); ctx.fillRect(x + 14, y + 3, 2, 2);
+      var seats = [[x - 4, y + 1], [x + 16, y + 6], [x + 5, y + 12]];
+      pc.fam.forEach(function(f, j){ var bob = Math.floor(T * 1.2 + i + j) % 2; draw(f + '_seat' + bob, seats[j][0], seats[j][1] - 4); });
+      // a kid running laps around the blanket
+      var a = T * 1.6 + i * 2, kx = x + 9 + Math.cos(a) * 16, ky = y + 6 + Math.sin(a) * 12, face = Math.abs(Math.sin(a)) > 0.7 ? (Math.cos(a) > 0 ? 'n' : 's') : (Math.sin(a) > 0 ? 'w' : 'e');
+      draw(pc.kid + '_' + face + (Math.floor(T * 5) % 2), kx - 4, ky - 10);
+    });
+    // two people throwing a frisbee on the west lawn
+    var ph = (T * 0.5) % 2, t = ph < 1 ? ph : 2 - ph, ax = 44, ay = 196, bx = 38, by = 228;
+    draw('f6_s' + (Math.floor(T * 2) % 2), ax - 4, ay - 11); draw('f1_n' + (Math.floor(T * 2 + 1) % 2), bx - 4, by - 11);
+    var fx = ax + (bx - ax) * t + Math.sin(t * Math.PI) * 8, fy = ay - 4 + (by - ay) * t;
+    ctx.fillStyle = '#ff2e88'; ctx.fillRect(Math.round(fx), Math.round(fy), 2, 2);
+  }
+
   var T = 0, last = null, running = true, visible = true;
   function frame(now){
     if (!loaded) return;
@@ -487,12 +662,16 @@
     ctx.clearRect(0, 0, 720, 420);
     var cf = Math.floor(T * 4) % 4;
     ctx.drawImage(imgs.caustics, 0, cf * 420, 720, 420, 0, 0, 720, 420);
+    var lightsOn = isNight() || isDusk();
+    if (!isNight()) drawPicnics(T);
+    trafficStep(dt, open, lightsOn);
+    bikeStep(dt, open);
     var fl = Math.floor(T * 2.2) % 2;
-    [130, 292].forEach(function(fy){
-      ctx.fillStyle = '#5c6169'; ctx.fillRect(206, fy, 98, 1);
-      for (var fx = 210; fx < 300; fx += 5){ ctx.fillStyle = ((fx - 210) / 5) % 2 ? '#ffd23a' : '#1f6fd0'; ctx.fillRect(fx + fl, fy + 1, 3, 2); ctx.fillRect(fx + fl, fy + 3, 1, 1); }
+    [227, 282].forEach(function(fx){
+      ctx.fillStyle = '#5c6169'; ctx.fillRect(fx, 184, 1, 56);
+      for (var fy = 188; fy < 236; fy += 5){ ctx.fillStyle = ((fy - 188) / 5) % 2 ? '#ffd23a' : '#1f6fd0'; ctx.fillRect(fx + 1, fy + fl, 2, 3); ctx.fillRect(fx + 3, fy + fl + 1, 1, 1); }
     });
-    draw('flag' + (Math.floor(T * 3) % 2), 558, 290);
+    draw('flag' + (Math.floor(T * 3) % 2), 536, 312);
     // the pennant string from the pump house to the concession fence, fluttering in the breeze
     var PC = ['#e0433a', '#f6f6f2', '#2857d1'];
     for (var k = 0; k < 52; k++){
@@ -511,33 +690,42 @@
       chairs.forEach(function(c){ draw('guard_sit', c[0] + 4, c[1] + 3); });
       heads.forEach(function(h){ h.t += dt; h.x += Math.sin(h.t * 0.5) * 2 * dt; draw(h.s, h.x, h.y + (Math.floor(h.t * 2) % 2)); });
       swimmers.forEach(function(s){
-        s.t += dt; s.y += s.dir * s.speed * dt;
-        if (s.y > 284) s.dir = -1; if (s.y < 128) s.dir = 1;
-        draw('swim_' + (s.dir > 0 ? 's' : 'n') + (Math.floor(s.t * 3) % 2), s.x, s.y);
-        ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.fillRect(s.x + 2, Math.round(s.y + (s.dir > 0 ? -3 : 11)), 1, 2);
+        s.t += dt; s.x += s.dir * s.speed * dt;
+        if (s.x > 286) s.dir = -1; if (s.x < 216) s.dir = 1;
+        draw('swim_' + (s.dir > 0 ? 'e' : 'w') + (Math.floor(s.t * 3) % 2), s.x, s.y);
+        ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.fillRect(Math.round(s.x + (s.dir > 0 ? -3 : 9)), s.y + 2, 2, 1);
       });
-      diver.t = (diver.t + dt) % 14;
-      var d = diver.t;
-      if (d < 2.5) draw('guard_e' + (Math.floor(d * 4) % 2), 88 + (d / 2.5) * 22, 137);
-      else if (d < 5.5) draw('guard_e' + (Math.floor(d * 4) % 2), 110 + ((d - 2.5) / 3) * 42, 137);
-      else if (d < 6.7) draw('guard_e0', 152, 137);
-      else if (d < 7.5) draw('splash' + Math.min(2, Math.floor((d - 6.7) * 4)), 156, 140);
-      else if (d < 11) draw('swim_s' + (Math.floor(d * 3) % 2), 166, 156 + (d - 7.5) * 16);
-      else if (d < 12.5) draw('guard_w0', 176, 212);
+      // the diver takes a turn on each board: up, out to the end, in, over to the ladder, out
+      var BOARDS = [[138, 150, 118], [164, 156, 112], [190, 156, 112], [216, 150, 118]];
+      diver.t += dt; if (diver.t > 13){ diver.t = 0; diver.b = ((diver.b || 0) + 1) % 4; }
+      var bd = BOARDS[diver.b || 0], by = bd[0], tip = bd[1], base = bd[2], d = diver.t;
+      if (d < 2) draw('guard_e' + (Math.floor(d * 4) % 2), 96 + (d / 2) * (base - 96) - 5, by - 11);
+      else if (d < 4.5) draw('guard_e' + (Math.floor(d * 4) % 2), base + ((d - 2) / 2.5) * (tip - 4 - base) - 5, by - 11);
+      else if (d < 5.6) draw('guard_e0', tip - 9, by - 11);
+      else if (d < 6.4) draw('splash' + Math.min(2, Math.floor((d - 5.6) * 4)), tip - 2, by - 8);
+      else if (d < 10) draw('swim_s' + (Math.floor(d * 3) % 2), tip + 6, Math.min(222, by + (d - 6.4) * 14));
+      else if (d < 11.5) draw('guard_w0', 176, 212);
       var bob = Math.floor(T * 1.5) % 2;
       draw('kid1_n' + bob, 374, 64); draw('kid3_n' + (1 - bob), 375, 74); draw('kid2_n0', 374, 84);
-      var tk = (T % 10) / 10, fx, fy;
-      if (tk < 0.3){ fx = 392 - (tk / 0.3) * 24; fy = 66 + (tk / 0.3) * 34; }
-      else { fx = 368 - ((tk - 0.3) / 0.7) * 80; fy = 100; }
-      draw(tk < 0.3 ? 'kid2_s0' : 'kid2_w' + (Math.floor(T * 4) % 2), fx, fy); draw('food', fx - 2, fy + 4);
+      // customers come in from the park and leave the same way, ice cream in hand
+      var OUT_PATH = [[392, 66], [348, 66], [348, 34], [348, 20], [300, 15], [262, 15]];
+      var IN_PATH = [[262, 15], [300, 15], [348, 20], [348, 40], [366, 52]];
+      [[OUT_PATH, 0, 'kid2', true], [IN_PATH, 5, 'kid1', false]].forEach(function(w){
+        var tk = ((T + w[1]) % 10) / 10, P2 = w[0], p = along(P2, tk * pathLen(P2));
+        if (!p || p.done) return;
+        var vert = Math.abs(p.dy) >= Math.abs(p.dx), face = vert ? (p.dy > 0 ? 's' : 'n') : (p.dx > 0 ? 'e' : 'w');
+        draw(w[2] + '_' + face + (Math.floor(T * 4) % 2), p.x - 4, p.y - 11);
+        if (w[3]) draw('food', p.x - 2, p.y - 7);
+      });
       draw('crew2_e' + (Math.floor(T * 2) % 2), 470, 196); draw('mop', 480, 198);
       if (bandOn()) drawBand(T);
       var all = crew.concat([cart]); all.forEach(function(w){ w.step(dt); });
       all.sort(function(a, b){ return a.y - b.y; }).forEach(function(w){ w.draw(); });
     } else {
-      ctx.fillStyle = '#9aa0a8'; ctx.fillRect(360, 92, 20, 1);
-      for (var gx = 360; gx < 380; gx += 2) ctx.fillRect(gx, 93, 1, 1);
-      ctx.fillStyle = '#d3ad0a'; ctx.fillRect(369, 91, 3, 3);
+      // the park gate to the concession square, chained after close
+      ctx.fillStyle = '#9aa0a8'; ctx.fillRect(340, 28, 17, 1);
+      for (var gx = 340; gx < 357; gx += 2) ctx.fillRect(gx, 29, 1, 1);
+      ctx.fillStyle = '#d3ad0a'; ctx.fillRect(347, 27, 3, 3);
     }
     cloudDt = dt; leva.step(dt); leva.draw();
     if (chipBand) chipBand.hidden = !(open && bandOn());
@@ -629,7 +817,7 @@
     nutty: {
       title: 'NUTTY DIP', files: ['nutty', 'nutty_closed'],
       label: "Nutty Dip, Sandy's Sundaes: a white trailer with a red and white striped awning, signs for cold drinks, sundaes and floats, a menu in the window, and blue picnic tables beside it.",
-      note: "Sandy's Sundaes. Nachos, pretzels, hot dogs, sundaes and floats.", action: null,
+      note: "Sandy's Sundaes. Walk up from the park. No food on the pool deck.", action: null,
       draw: function(){
         ctx.drawImage(imgs.nutty, 0, 0);
         sky(30);
