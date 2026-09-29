@@ -35,31 +35,64 @@
     background:radial-gradient(60% 80% at 20% 10%,var(--wpink) 0%,transparent 60%),radial-gradient(50% 70% at 80% 20%,var(--lilac) 0%,transparent 60%),
       radial-gradient(60% 60% at 70% 80%,var(--mint) 0%,transparent 60%),radial-gradient(50% 60% at 15% 85%,var(--sky) 0%,transparent 60%),
       radial-gradient(40% 40% at 50% 50%,var(--peach) 0%,transparent 70%),#F4F1FA}
-  .park-wrap{position:relative;width:100%;max-width:1440px;margin:0 auto;aspect-ratio:1440/840}
+  .park-wrap{position:relative;width:100%;max-width:1440px;margin:0 auto;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .sizer{position:relative;width:calc(1440px * var(--s,1));height:calc(840px * var(--s,1))}
+  .swipe-hint{display:none;max-width:960px;margin:0 auto 10px;padding:0 20px;font-size:13px;font-weight:500;color:var(--grey)}
+  @media(max-width:700px){.swipe-hint{display:block}}
   .stage{position:absolute;left:0;top:0;width:1440px;height:840px;transform-origin:0 0;transform:scale(var(--s,1))}
   .stage canvas{position:absolute;left:0;top:0;width:1440px;height:840px;image-rendering:pixelated;image-rendering:crisp-edges}
-  .stage canvas#anim{pointer-events:none}
+  .stage canvas#anim,.stage canvas#levac,.stage canvas#lights,#dark{pointer-events:none}
+  .stage canvas#levac,.stage canvas#lights{image-rendering:auto}
+  #dark{position:absolute;left:0;top:0;width:1440px;height:840px;mix-blend-mode:multiply;opacity:0;transition:opacity 2s,background 2s}
+  .stage canvas#lights{mix-blend-mode:screen}
+  .park[data-time="dusk"] #dark{background:#ff9fbd;opacity:.42}
+  .park[data-time="night"] #dark{background:#24336e;opacity:.86}
+  .park[data-time="night"]{background:radial-gradient(60% 80% at 20% 10%,#2a2f6b 0%,transparent 60%),radial-gradient(50% 70% at 80% 20%,#3a2a66 0%,transparent 60%),#10142e}
+  .park[data-time="night"] .park-note,.park[data-time="night"] .park-links{color:#c9cde6}
+  .park[data-time="dusk"]{background:radial-gradient(60% 80% at 20% 10%,#ffc2d6 0%,transparent 60%),radial-gradient(50% 70% at 80% 20%,#c9b8ff 0%,transparent 60%),#f1dfee}
 
   /* room chips: white map labels with hard black type */
-  .chip{position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-50%);display:inline-flex;flex-direction:column;align-items:center;gap:3px;
-    padding:6px 9px 5px;background:#fff;border:2px solid #0A0A0A;box-shadow:3px 3px 0 #0A0A0A;text-decoration:none;white-space:nowrap;line-height:1}
-  .chip b{font-family:Silkscreen,"Press Start 2P",monospace;font-weight:400;font-size:10px;letter-spacing:.04em;color:#0A0A0A}
-  .chip span{font-size:11px;font-weight:500;color:#5F5F66}
-  .chip:not(.link){border-color:#9a9aa3;box-shadow:none;background:rgba(255,255,255,.92)} .chip:not(.link) b{color:#5F5F66}
-  .chip.link:hover,.chip.link:focus-visible{background:var(--pink);border-color:#0A0A0A} .chip.link:hover b,.chip.link:hover span,.chip.link:focus-visible b,.chip.link:focus-visible span{color:#fff}
-  .chip .two{display:flex;gap:10px} .chip .two a{color:#0A0A0A;text-decoration:underline;text-underline-offset:2px} .chip .two a:hover{color:var(--pink)}
-  .chip:not(.link) .two a{color:#0A0A0A}
 
+  /* hover spots: invisible over each room and pool, a label appears when you point at one */
+  .spot{position:absolute;display:block;padding:0;margin:0;background:transparent;border:0;border-radius:3px;cursor:default;text-decoration:none;font:inherit;color:inherit;outline:0;-webkit-tap-highlight-color:transparent}
+  .spot.link{cursor:pointer}
+  .spot[hidden]{display:none}
+  .spot:hover,.spot:focus-visible,.spot:not(.link):focus-within{box-shadow:inset 0 0 0 2px rgba(255,255,255,.85),0 0 0 1px rgba(10,10,10,.35);background:rgba(255,255,255,.08)}
+  .spot.link:hover,.spot.link:focus-visible{box-shadow:inset 0 0 0 3px var(--pink),0 0 0 1px rgba(10,10,10,.4),0 0 18px rgba(255,46,136,.35);background:rgba(255,46,136,.10)}
+  .tip{position:absolute;left:50%;bottom:100%;z-index:5;display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 10px 6px;white-space:nowrap;line-height:1;
+    background:#fff;border:2px solid #0A0A0A;box-shadow:3px 3px 0 #0A0A0A;pointer-events:none;
+    opacity:0;visibility:hidden;transform-origin:50% 100%;transform:translate(-50%,-6px) scale(calc(.9 / var(--s,1)));transition:opacity .12s,transform .12s,visibility 0s .12s}
+  .tip.down{bottom:auto;top:100%;transform-origin:50% 0;transform:translate(-50%,6px) scale(calc(.9 / var(--s,1)))}
+  .tip b{font-family:Silkscreen,"Press Start 2P",monospace;font-weight:400;font-size:11px;letter-spacing:.05em;color:#0A0A0A}
+  .tip>span{font-size:12px;font-weight:500;color:#5F5F66}
+  .spot.link .tip{border-color:var(--pink);box-shadow:3px 3px 0 var(--pink)}
+  .spot:hover .tip,.spot:focus-visible .tip,.spot:not(.link):focus-within .tip{opacity:1;visibility:visible;transform:translate(-50%,-8px) scale(calc(1 / var(--s,1)));transition:opacity .12s,transform .12s}
+  .spot:hover .tip.down,.spot:focus-visible .tip.down,.spot:not(.link):focus-within .tip.down{transform:translate(-50%,8px) scale(calc(1 / var(--s,1)))}
+  .tip .two{display:flex;gap:12px;pointer-events:auto} .tip .two a{color:#0A0A0A;text-decoration:underline;text-underline-offset:2px;padding:4px 2px} .tip .two a:hover{color:var(--pink)}
   /* the heart over the pump house */
-  .pumpheart{position:absolute;left:1296px;top:294px;width:56px;height:auto;overflow:visible;transform:translate(-50%,-50%);transform-origin:50% 50%;
+  .pumpheart{pointer-events:none;position:absolute;left:501px;top:106px;width:38px;height:auto;overflow:visible;transform:translate(-50%,-50%);transform-origin:50% 50%;
     filter:drop-shadow(0 0 6px rgba(255,46,136,.55));animation:beat 1.1s ease-out infinite}
   @keyframes beat{0%{transform:translate(-50%,-50%) scale(1)}8%{transform:translate(-50%,-50%) scale(1.10)}16%{transform:translate(-50%,-50%) scale(1)}30%{transform:translate(-50%,-50%) scale(1.05)}40%,100%{transform:translate(-50%,-50%) scale(1)}}
 
+  /* the arcade cabinet in the guard shack */
+  .arcade{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:rgba(10,10,15,.88);padding:16px}
+  .arcade[hidden]{display:none}
+  .arcade-cab{background:#0A0A0A;border:3px solid var(--pink);box-shadow:8px 8px 0 var(--cyan);padding:14px 14px 12px;width:min(600px,96vw)}
+  .arcade-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .arcade-title{font-family:Silkscreen,monospace;font-size:14px;letter-spacing:.14em;color:var(--pink)}
+  .arcade-close{font:inherit;font-size:22px;line-height:1;color:#fff;background:none;border:0;cursor:pointer;padding:2px 6px} .arcade-close:hover{color:var(--pink)}
+  #si{display:block;width:100%;aspect-ratio:4/3;background:#05060a;cursor:crosshair;touch-action:none}
+  .arcade-hint{margin-top:10px;font-size:12px;color:#8a8a94;text-align:center}
+  .arcade-cab.wide{width:min(960px,96vw);border-color:#2F8F86;box-shadow:8px 8px 0 var(--pink)}
+  .arcade-cab.wide .arcade-title{color:#7fe3d9}
+  #entc{display:block;width:100%;aspect-ratio:16/9;image-rendering:pixelated;image-rendering:crisp-edges;background:#15171d}
+  .entrance-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:12px}
+  .entrance-foot p{font-size:13px;color:#9a9aa3;margin:0}
+  .entrance-home{font-family:Silkscreen,monospace;font-size:12px;letter-spacing:.08em;color:#0A0A0A;background:#fff;border:2px solid #fff;padding:8px 12px;text-decoration:none}
+  .entrance-home:hover{background:var(--pink);border-color:var(--pink);color:#fff}
   .park-note{max-width:960px;margin:28px auto 0;padding:0 32px;font-size:15px;color:var(--grey)}
   .park-links{list-style:none;max-width:960px;margin:12px auto 0;padding:0 32px;display:flex;flex-wrap:wrap;gap:8px 20px;font-size:15px;font-weight:500}
   .park-links a{text-decoration:underline;text-underline-offset:3px} .park-links a:hover{color:var(--pink)}
-  @media(max-width:820px){.chip span{display:none} .chip{padding:4px 6px 3px}}
-  @media(max-width:560px){.chip{display:none} .pumpheart{width:36px}}
 
   /* footer, same as the other pages */
   footer{background:#0A0A0A;color:#fff;padding:64px 0 0}
@@ -88,35 +121,47 @@
   <div class="wrap">
     <div class="eyebrow">Where it started</div>
     <h1>Levagood Pool,<br>from above.</h1>
-    <p class="lead">Dearborn, Michigan. The 50 meter pool, the diving well, the zero depth pool, the pump room, and the building with every room where it really is. The crew in blue is Maintenance. The links live in the rooms they belong to.</p>
+    <p class="lead">Dearborn, Michigan. The 50 meter pool, the diving well, the zero depth pool, the pump room, and the building with every room where it really is. leva is Maintenance. During pool hours he checks the water and reports to the office. After close he skims, vacuums and goes down in the pit to check the pump. The map follows your clock, day and night. The links live in the rooms they belong to.</p>
   </div>
 </section>
 
 <section class="park" aria-label="A pixel map of Levagood Pool">
+  <p class="swipe-hint">Swipe across to see the whole park. Tap a building to see what it is.</p>
   <div class="park-wrap">
+   <div class="sizer">
     <div class="stage" id="stage">
       <canvas id="base" width="720" height="420" aria-hidden="true"></canvas>
       <canvas id="anim" width="720" height="420" aria-hidden="true"></canvas>
-<div class="chip" style="--x:370px;--y:686px"><b>MENS BATHROOM</b></div>
-<div class="chip" style="--x:444px;--y:594px"><b>GUYS GUARD SHACK</b></div>
-<div class="chip" style="--x:556px;--y:558px"><b>MAINTENANCE STORAGE</b></div>
-<a class="chip link" href="account.html" style="--x:556px;--y:648px"><b>GUARD SHACK</b><span>get leva for your Mac</span></a>
-<a class="chip link" href="about.html" style="--x:690px;--y:614px"><b>THE PIT</b><span>where it started, under here</span></a>
-<a class="chip link" href="index.html" style="--x:720px;--y:774px"><b>ENTRANCE</b><span>home</span></a>
-<a class="chip link" href="account.html" style="--x:878px;--y:546px"><b>GLASS WINDOW ROOM</b><span>sign in</span></a>
-<div class="chip" style="--x:878px;--y:594px"><b>HEAD GUARD OFFICE</b></div>
-<a class="chip link" href="mailto:ai@levagood.com" style="--x:878px;--y:646px"><b>FIRST AID</b><span>help, a real person answers</span></a>
-<div class="chip" style="--x:996px;--y:594px"><b>GIRLS GUARD SHACK</b></div>
-<div class="chip" style="--x:1070px;--y:686px"><b>GIRLS BATHROOM</b></div>
-<div class="chip" style="--x:1296px;--y:374px"><b>PUMP ROOM</b><span>leva lives here</span></div>
-<div class="chip" style="--x:878px;--y:694px"><b>STORAGE</b><span class="two"><a href="terms.html">terms</a><a href="privacy.html">privacy</a></span></div>
+      <canvas id="levac" width="1440" height="840" aria-hidden="true"></canvas>
+      <div id="dark" aria-hidden="true"></div>
+      <canvas id="lights" width="1440" height="840" aria-hidden="true"></canvas>
+<div class="spot" tabindex="0" role="note" aria-label="DIVING WELL, 12 feet, the high dive and the low board" style="left:266px;top:236px;width:106px;height:236px"><span class="tip"><b>DIVING WELL</b><span>12 feet, the high dive and the low board</span></span></div>
+<div class="spot" tabindex="0" role="note" aria-label="50 METER POOL, eight lanes, the ropes out for laps" style="left:418px;top:236px;width:182px;height:372px"><span class="tip"><b>50 METER POOL</b><span>eight lanes, the ropes out for laps</span></span></div>
+<div class="spot" tabindex="0" role="note" aria-label="ZERO DEPTH, the mushroom, the arch, and the duck" style="left:660px;top:274px;width:130px;height:288px"><span class="tip"><b>ZERO DEPTH</b><span>the mushroom, the arch, and the duck</span></span></div>
+<button type="button" class="spot link" data-room="pump" style="left:448px;top:68px;width:106px;height:76px" aria-label="PUMP ROOM, leva lives here, come see"><span class="tip down"><b>PUMP ROOM</b><span>leva lives here, come see</span></span></button>
+<div class="spot" tabindex="0" role="note" aria-label="CONCESSION AREA, no outside food, no loitering" style="left:656px;top:60px;width:80px;height:124px"><span class="tip down"><b>CONCESSION AREA</b><span>no outside food, no loitering</span></span></div>
+<button type="button" class="spot link" data-room="nutty" style="left:736px;top:64px;width:96px;height:58px" aria-label="NUTTY DIP, Sandy's Sundaes"><span class="tip down"><b>NUTTY DIP</b><span>Sandy's Sundaes</span></span></button>
+<div class="spot" tabindex="0" role="note" aria-label="GIRLS BATHROOM" style="left:950px;top:182px;width:130px;height:108px"><span class="tip down"><b>GIRLS BATHROOM</b></span></div>
+<div class="spot" tabindex="0" role="note" aria-label="GIRLS GUARD SHACK" style="left:898px;top:244px;width:52px;height:46px"><span class="tip"><b>GIRLS GUARD SHACK</b></span></div>
+<a class="spot link" href="account.html" style="left:856px;top:290px;width:47px;height:50px" aria-label="GLASS WINDOW ROOM, sign in"><span class="tip"><b>GLASS WINDOW ROOM</b><span>sign in</span></span></a>
+<a class="spot link" href="account.html" style="left:903px;top:290px;width:47px;height:50px" aria-label="HEAD GUARD OFFICE, get leva for your Mac"><span class="tip"><b>HEAD GUARD OFFICE</b><span>get leva for your Mac</span></span></a>
+<button type="button" class="spot link" data-room="firstaid" style="left:950px;top:290px;width:48px;height:50px" aria-label="FIRST AID, help, a real person answers"><span class="tip"><b>FIRST AID</b><span>help, a real person answers</span></span></button>
+<div class="spot" tabindex="0" style="left:998px;top:290px;width:46px;height:50px"><span class="tip"><b>STORAGE</b><span class="two"><a href="terms.html">terms</a><a href="privacy.html">privacy</a></span></span></div>
+<button type="button" class="spot link" data-room="pit" style="left:844px;top:360px;width:200px;height:64px" aria-label="THE PIT, where it started, come on in"><span class="tip"><b>THE PIT</b><span>where it started, come on in</span></span></button>
+<div class="spot" tabindex="0" role="note" aria-label="MAINTENANCE STORAGE" style="left:868px;top:424px;width:62px;height:46px"><span class="tip"><b>MAINTENANCE STORAGE</b></span></div>
+<button type="button" class="spot link" id="play-invaders" style="left:930px;top:424px;width:114px;height:46px" aria-label="GUARD SHACK, play invaders"><span class="tip"><b>GUARD SHACK</b><span>play invaders</span></span></button>
+<div class="spot" tabindex="0" role="note" aria-label="GUYS GUARD SHACK" style="left:898px;top:470px;width:52px;height:46px"><span class="tip"><b>GUYS GUARD SHACK</b></span></div>
+<div class="spot" tabindex="0" role="note" aria-label="MENS BATHROOM" style="left:950px;top:470px;width:130px;height:108px"><span class="tip"><b>MENS BATHROOM</b></span></div>
+<button type="button" class="spot link" data-room="entrance" style="left:1044px;top:290px;width:36px;height:180px" aria-label="ENTRANCE, come on in"><span class="tip"><b>ENTRANCE</b><span>come on in</span></span></button>
+<div class="spot" tabindex="0" role="note" id="chip-band" hidden aria-label="FRIDAY MUSIC, on the deck till close" style="left:736px;top:636px;width:88px;height:112px"><span class="tip"><b>FRIDAY MUSIC</b><span>on the deck till close</span></span></div>
       <svg class="pumpheart" viewBox="0 0 114 108" shape-rendering="crispEdges" aria-hidden="true"><rect x="12" y="0" width="6" height="6" fill="#FF2E88"/><rect x="18" y="0" width="6" height="6" fill="#FF2E88"/><rect x="24" y="0" width="6" height="6" fill="#FF2E88"/><rect x="30" y="0" width="6" height="6" fill="#FF2E88"/><rect x="36" y="0" width="6" height="6" fill="#FF2E88"/><rect x="42" y="0" width="6" height="6" fill="#FF2E88"/><rect x="60" y="0" width="6" height="6" fill="#FF2E88"/><rect x="66" y="0" width="6" height="6" fill="#FF2E88"/><rect x="72" y="0" width="6" height="6" fill="#FF2E88"/><rect x="78" y="0" width="6" height="6" fill="#FF2E88"/><rect x="84" y="0" width="6" height="6" fill="#FF2E88"/><rect x="90" y="0" width="6" height="6" fill="#FF2E88"/><rect x="6" y="6" width="6" height="6" fill="#FF2E88"/><rect x="12" y="6" width="6" height="6" fill="#FF2E88"/><rect x="18" y="6" width="6" height="6" fill="#FF2E88"/><rect x="24" y="6" width="6" height="6" fill="#FF2E88"/><rect x="30" y="6" width="6" height="6" fill="#FF2E88"/><rect x="36" y="6" width="6" height="6" fill="#FF2E88"/><rect x="42" y="6" width="6" height="6" fill="#FF2E88"/><rect x="48" y="6" width="6" height="6" fill="#FF2E88"/><rect x="54" y="6" width="6" height="6" fill="#FF2E88"/><rect x="60" y="6" width="6" height="6" fill="#FF2E88"/><rect x="66" y="6" width="6" height="6" fill="#FF2E88"/><rect x="72" y="6" width="6" height="6" fill="#FF2E88"/><rect x="78" y="6" width="6" height="6" fill="#FF2E88"/><rect x="84" y="6" width="6" height="6" fill="#FF2E88"/><rect x="90" y="6" width="6" height="6" fill="#FF2E88"/><rect x="96" y="6" width="6" height="6" fill="#FF2E88"/><rect x="6" y="12" width="6" height="6" fill="#FF2E88"/><rect x="12" y="12" width="6" height="6" fill="#FF96C8"/><rect x="18" y="12" width="6" height="6" fill="#FF96C8"/><rect x="24" y="12" width="6" height="6" fill="#FF96C8"/><rect x="30" y="12" width="6" height="6" fill="#FF96C8"/><rect x="36" y="12" width="6" height="6" fill="#FF2E88"/><rect x="42" y="12" width="6" height="6" fill="#FF2E88"/><rect x="48" y="12" width="6" height="6" fill="#FF2E88"/><rect x="54" y="12" width="6" height="6" fill="#FF2E88"/><rect x="60" y="12" width="6" height="6" fill="#FF2E88"/><rect x="66" y="12" width="6" height="6" fill="#FF2E88"/><rect x="72" y="12" width="6" height="6" fill="#FF2E88"/><rect x="78" y="12" width="6" height="6" fill="#FF2E88"/><rect x="84" y="12" width="6" height="6" fill="#FF2E88"/><rect x="90" y="12" width="6" height="6" fill="#FF2E88"/><rect x="96" y="12" width="6" height="6" fill="#FF2E88"/><rect x="0" y="18" width="6" height="6" fill="#FF2E88"/><rect x="6" y="18" width="6" height="6" fill="#FF2E88"/><rect x="12" y="18" width="6" height="6" fill="#FF96C8"/><rect x="18" y="18" width="6" height="6" fill="#FF96C8"/><rect x="24" y="18" width="6" height="6" fill="#FF96C8"/><rect x="30" y="18" width="6" height="6" fill="#FF96C8"/><rect x="36" y="18" width="6" height="6" fill="#FF2E88"/><rect x="42" y="18" width="6" height="6" fill="#FF2E88"/><rect x="48" y="18" width="6" height="6" fill="#FF2E88"/><rect x="54" y="18" width="6" height="6" fill="#FF2E88"/><rect x="60" y="18" width="6" height="6" fill="#FF2E88"/><rect x="66" y="18" width="6" height="6" fill="#FF2E88"/><rect x="72" y="18" width="6" height="6" fill="#FF2E88"/><rect x="78" y="18" width="6" height="6" fill="#FF2E88"/><rect x="84" y="18" width="6" height="6" fill="#FF2E88"/><rect x="90" y="18" width="6" height="6" fill="#FF2E88"/><rect x="96" y="18" width="6" height="6" fill="#FF2E88"/><rect x="102" y="18" width="6" height="6" fill="#FF2E88"/><rect x="0" y="24" width="6" height="6" fill="#FF2E88"/><rect x="6" y="24" width="6" height="6" fill="#FF2E88"/><rect x="12" y="24" width="6" height="6" fill="#FF96C8"/><rect x="18" y="24" width="6" height="6" fill="#FF96C8"/><rect x="24" y="24" width="6" height="6" fill="#FF96C8"/><rect x="30" y="24" width="6" height="6" fill="#FF96C8"/><rect x="36" y="24" width="6" height="6" fill="#FF2E88"/><rect x="42" y="24" width="6" height="6" fill="#FF2E88"/><rect x="48" y="24" width="6" height="6" fill="#FF2E88"/><rect x="54" y="24" width="6" height="6" fill="#FF2E88"/><rect x="60" y="24" width="6" height="6" fill="#FF2E88"/><rect x="66" y="24" width="6" height="6" fill="#FF2E88"/><rect x="72" y="24" width="6" height="6" fill="#FF2E88"/><rect x="78" y="24" width="6" height="6" fill="#FF2E88"/><rect x="84" y="24" width="6" height="6" fill="#FF2E88"/><rect x="90" y="24" width="6" height="6" fill="#FF2E88"/><rect x="96" y="24" width="6" height="6" fill="#FF2E88"/><rect x="102" y="24" width="6" height="6" fill="#FF2E88"/><rect x="6" y="30" width="6" height="6" fill="#FF2E88"/><rect x="12" y="30" width="6" height="6" fill="#FF2E88"/><rect x="18" y="30" width="6" height="6" fill="#FF96C8"/><rect x="24" y="30" width="6" height="6" fill="#FF96C8"/><rect x="30" y="30" width="6" height="6" fill="#FF96C8"/><rect x="36" y="30" width="6" height="6" fill="#FF96C8"/><rect x="42" y="30" width="6" height="6" fill="#FF2E88"/><rect x="48" y="30" width="6" height="6" fill="#FF2E88"/><rect x="54" y="30" width="6" height="6" fill="#FF2E88"/><rect x="60" y="30" width="6" height="6" fill="#FF2E88"/><rect x="66" y="30" width="6" height="6" fill="#FF2E88"/><rect x="72" y="30" width="6" height="6" fill="#FF2E88"/><rect x="78" y="30" width="6" height="6" fill="#FF2E88"/><rect x="84" y="30" width="6" height="6" fill="#FF2E88"/><rect x="90" y="30" width="6" height="6" fill="#FF2E88"/><rect x="96" y="30" width="6" height="6" fill="#FF2E88"/><rect x="102" y="30" width="6" height="6" fill="#FF2E88"/><rect x="108" y="30" width="6" height="6" fill="#FF2E88"/><rect x="-6" y="36" width="6" height="6" fill="#FF2E88"/><rect x="0" y="36" width="6" height="6" fill="#FF2E88"/><rect x="6" y="36" width="6" height="6" fill="#FF2E88"/><rect x="12" y="36" width="6" height="6" fill="#FF2E88"/><rect x="18" y="36" width="6" height="6" fill="#FF2E88"/><rect x="24" y="36" width="6" height="6" fill="#FF2E88"/><rect x="30" y="36" width="6" height="6" fill="#FF2E88"/><rect x="36" y="36" width="6" height="6" fill="#FF2E88"/><rect x="42" y="36" width="6" height="6" fill="#FF2E88"/><rect x="48" y="36" width="6" height="6" fill="#FF2E88"/><rect x="54" y="36" width="6" height="6" fill="#FF2E88"/><rect x="60" y="36" width="6" height="6" fill="#FF2E88"/><rect x="66" y="36" width="6" height="6" fill="#FF2E88"/><rect x="72" y="36" width="6" height="6" fill="#FF2E88"/><rect x="78" y="36" width="6" height="6" fill="#FF2E88"/><rect x="84" y="36" width="6" height="6" fill="#FF2E88"/><rect x="90" y="36" width="6" height="6" fill="#FF2E88"/><rect x="96" y="36" width="6" height="6" fill="#FF2E88"/><rect x="0" y="42" width="6" height="6" fill="#FF2E88"/><rect x="6" y="42" width="6" height="6" fill="#FF2E88"/><rect x="12" y="42" width="6" height="6" fill="#FF2E88"/><rect x="18" y="42" width="6" height="6" fill="#FF2E88"/><rect x="24" y="42" width="6" height="6" fill="#FF2E88"/><rect x="30" y="42" width="6" height="6" fill="#FF2E88"/><rect x="36" y="42" width="6" height="6" fill="#FF2E88"/><rect x="42" y="42" width="6" height="6" fill="#FF2E88"/><rect x="48" y="42" width="6" height="6" fill="#FF2E88"/><rect x="54" y="42" width="6" height="6" fill="#FF2E88"/><rect x="60" y="42" width="6" height="6" fill="#FF2E88"/><rect x="66" y="42" width="6" height="6" fill="#FF2E88"/><rect x="72" y="42" width="6" height="6" fill="#FF2E88"/><rect x="78" y="42" width="6" height="6" fill="#FF2E88"/><rect x="84" y="42" width="6" height="6" fill="#FF2E88"/><rect x="90" y="42" width="6" height="6" fill="#FF2E88"/><rect x="96" y="42" width="6" height="6" fill="#FF2E88"/><rect x="102" y="42" width="6" height="6" fill="#FF2E88"/><rect x="6" y="48" width="6" height="6" fill="#FF2E88"/><rect x="12" y="48" width="6" height="6" fill="#FF2E88"/><rect x="18" y="48" width="6" height="6" fill="#FF2E88"/><rect x="24" y="48" width="6" height="6" fill="#FF2E88"/><rect x="30" y="48" width="6" height="6" fill="#FF2E88"/><rect x="36" y="48" width="6" height="6" fill="#FF2E88"/><rect x="42" y="48" width="6" height="6" fill="#FF2E88"/><rect x="48" y="48" width="6" height="6" fill="#FF2E88"/><rect x="54" y="48" width="6" height="6" fill="#FF2E88"/><rect x="60" y="48" width="6" height="6" fill="#FF2E88"/><rect x="66" y="48" width="6" height="6" fill="#FF2E88"/><rect x="72" y="48" width="6" height="6" fill="#FF2E88"/><rect x="78" y="48" width="6" height="6" fill="#FF2E88"/><rect x="84" y="48" width="6" height="6" fill="#FF2E88"/><rect x="90" y="48" width="6" height="6" fill="#FF2E88"/><rect x="96" y="48" width="6" height="6" fill="#FF2E88"/><rect x="6" y="54" width="6" height="6" fill="#FF2E88"/><rect x="12" y="54" width="6" height="6" fill="#FF2E88"/><rect x="18" y="54" width="6" height="6" fill="#FF2E88"/><rect x="24" y="54" width="6" height="6" fill="#FF2E88"/><rect x="30" y="54" width="6" height="6" fill="#FF2E88"/><rect x="36" y="54" width="6" height="6" fill="#FF2E88"/><rect x="42" y="54" width="6" height="6" fill="#FF2E88"/><rect x="48" y="54" width="6" height="6" fill="#FF2E88"/><rect x="54" y="54" width="6" height="6" fill="#FF2E88"/><rect x="60" y="54" width="6" height="6" fill="#FF2E88"/><rect x="66" y="54" width="6" height="6" fill="#FF2E88"/><rect x="72" y="54" width="6" height="6" fill="#FF2E88"/><rect x="78" y="54" width="6" height="6" fill="#FF2E88"/><rect x="84" y="54" width="6" height="6" fill="#FF2E88"/><rect x="90" y="54" width="6" height="6" fill="#FF2E88"/><rect x="96" y="54" width="6" height="6" fill="#FF2E88"/><rect x="6" y="60" width="6" height="6" fill="#FF2E88"/><rect x="12" y="60" width="6" height="6" fill="#FF2E88"/><rect x="18" y="60" width="6" height="6" fill="#FF2E88"/><rect x="24" y="60" width="6" height="6" fill="#FF2E88"/><rect x="30" y="60" width="6" height="6" fill="#FF2E88"/><rect x="36" y="60" width="6" height="6" fill="#FF2E88"/><rect x="42" y="60" width="6" height="6" fill="#FF2E88"/><rect x="48" y="60" width="6" height="6" fill="#FF2E88"/><rect x="54" y="60" width="6" height="6" fill="#FF2E88"/><rect x="60" y="60" width="6" height="6" fill="#FF2E88"/><rect x="66" y="60" width="6" height="6" fill="#FF2E88"/><rect x="72" y="60" width="6" height="6" fill="#FF2E88"/><rect x="78" y="60" width="6" height="6" fill="#FF2E88"/><rect x="84" y="60" width="6" height="6" fill="#FF2E88"/><rect x="90" y="60" width="6" height="6" fill="#FF2E88"/><rect x="96" y="60" width="6" height="6" fill="#FF2E88"/><rect x="12" y="66" width="6" height="6" fill="#FF2E88"/><rect x="18" y="66" width="6" height="6" fill="#FF2E88"/><rect x="24" y="66" width="6" height="6" fill="#FF2E88"/><rect x="30" y="66" width="6" height="6" fill="#FF2E88"/><rect x="36" y="66" width="6" height="6" fill="#FF2E88"/><rect x="42" y="66" width="6" height="6" fill="#FF2E88"/><rect x="48" y="66" width="6" height="6" fill="#FF2E88"/><rect x="54" y="66" width="6" height="6" fill="#FF2E88"/><rect x="60" y="66" width="6" height="6" fill="#FF2E88"/><rect x="66" y="66" width="6" height="6" fill="#FF2E88"/><rect x="72" y="66" width="6" height="6" fill="#FF2E88"/><rect x="78" y="66" width="6" height="6" fill="#FF2E88"/><rect x="84" y="66" width="6" height="6" fill="#FF2E88"/><rect x="90" y="66" width="6" height="6" fill="#FF2E88"/><rect x="18" y="72" width="6" height="6" fill="#FF2E88"/><rect x="24" y="72" width="6" height="6" fill="#FF2E88"/><rect x="30" y="72" width="6" height="6" fill="#FF2E88"/><rect x="36" y="72" width="6" height="6" fill="#FF2E88"/><rect x="42" y="72" width="6" height="6" fill="#FF2E88"/><rect x="48" y="72" width="6" height="6" fill="#FF2E88"/><rect x="54" y="72" width="6" height="6" fill="#FF2E88"/><rect x="60" y="72" width="6" height="6" fill="#FF2E88"/><rect x="66" y="72" width="6" height="6" fill="#FF2E88"/><rect x="72" y="72" width="6" height="6" fill="#FF2E88"/><rect x="78" y="72" width="6" height="6" fill="#FF2E88"/><rect x="84" y="72" width="6" height="6" fill="#FF2E88"/><rect x="24" y="78" width="6" height="6" fill="#FF2E88"/><rect x="30" y="78" width="6" height="6" fill="#FF2E88"/><rect x="36" y="78" width="6" height="6" fill="#FF2E88"/><rect x="42" y="78" width="6" height="6" fill="#FF2E88"/><rect x="48" y="78" width="6" height="6" fill="#FF2E88"/><rect x="54" y="78" width="6" height="6" fill="#FF2E88"/><rect x="60" y="78" width="6" height="6" fill="#FF2E88"/><rect x="66" y="78" width="6" height="6" fill="#FF2E88"/><rect x="72" y="78" width="6" height="6" fill="#FF2E88"/><rect x="78" y="78" width="6" height="6" fill="#FF2E88"/><rect x="84" y="78" width="6" height="6" fill="#FF2E88"/><rect x="90" y="78" width="6" height="6" fill="#FF2E88"/><rect x="24" y="84" width="6" height="6" fill="#FF2E88"/><rect x="30" y="84" width="6" height="6" fill="#FF2E88"/><rect x="36" y="84" width="6" height="6" fill="#FF2E88"/><rect x="42" y="84" width="6" height="6" fill="#FF2E88"/><rect x="48" y="84" width="6" height="6" fill="#FF2E88"/><rect x="54" y="84" width="6" height="6" fill="#FF2E88"/><rect x="60" y="84" width="6" height="6" fill="#FF2E88"/><rect x="66" y="84" width="6" height="6" fill="#FF2E88"/><rect x="72" y="84" width="6" height="6" fill="#FF2E88"/><rect x="78" y="84" width="6" height="6" fill="#FF2E88"/><rect x="36" y="90" width="6" height="6" fill="#FF2E88"/><rect x="42" y="90" width="6" height="6" fill="#FF2E88"/><rect x="48" y="90" width="6" height="6" fill="#FF2E88"/><rect x="54" y="90" width="6" height="6" fill="#FF2E88"/><rect x="60" y="90" width="6" height="6" fill="#FF2E88"/><rect x="66" y="90" width="6" height="6" fill="#FF2E88"/><rect x="42" y="96" width="6" height="6" fill="#FF2E88"/><rect x="48" y="96" width="6" height="6" fill="#FF2E88"/><rect x="54" y="96" width="6" height="6" fill="#FF2E88"/><rect x="60" y="96" width="6" height="6" fill="#FF2E88"/><rect x="48" y="102" width="6" height="6" fill="#FF2E88"/><rect x="54" y="102" width="6" height="6" fill="#FF2E88"/><rect x="-6" y="37.8" width="48" height="2.4" fill="#00F0FF"/><rect x="24" y="85.8" width="24" height="2.4" fill="#00F0FF"/></svg>
     </div>
+   </div>
   </div>
-  <p class="park-note">Every room is real. The guard shack is where you get leva for your Mac. The glass window room is where you sign in. First aid is help. The pit is where it started. The pump room is where leva lives.</p>
+  <p class="park-note">Point at a building or a pool to see what it is. The pink ones open: the pump room, the pit, first aid, the entrance, Nutty Dip, and the arcade in the guard shack. On a phone, tap.</p>
   <ul class="park-links">
-    <li><a href="index.html">Entrance, home</a></li>
-    <li><a href="account.html">Guard shack, get leva for your Mac</a></li>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="account.html">Head guard office, get leva for your Mac</a></li>
     <li><a href="account.html">Glass window room, sign in</a></li>
     <li><a href="mailto:ai@levagood.com">First aid, help</a></li>
     <li><a href="about.html">The pit, where it started</a></li>
@@ -124,6 +169,25 @@
     <li><a href="privacy.html">Storage, privacy</a></li>
   </ul>
 </section>
+
+<div class="arcade" id="room" hidden>
+  <div class="arcade-cab wide" role="dialog" aria-modal="true" aria-labelledby="room-title">
+    <div class="arcade-top"><span class="arcade-title" id="room-title">ROOM</span><button type="button" class="arcade-close" id="room-close" aria-label="Close">×</button></div>
+    <canvas id="entc" width="320" height="180" role="img" aria-label=""></canvas>
+    <div class="entrance-foot">
+      <p id="room-note"></p>
+      <a class="entrance-home" id="room-action" href="index.html">Go to home</a>
+    </div>
+  </div>
+</div>
+
+<div class="arcade" id="arcade" hidden>
+  <div class="arcade-cab" role="dialog" aria-modal="true" aria-label="Invaders, the game in the guard shack">
+    <div class="arcade-top"><span class="arcade-title">INVADERS</span><button type="button" class="arcade-close" id="arcade-close" aria-label="Close">×</button></div>
+    <canvas id="si" width="560" height="420"></canvas>
+    <div class="arcade-hint">Move the mouse. Click or press L to shoot. On a phone, drag and tap. Esc closes the cabinet.</div>
+  </div>
+</div>
 
 <footer>
   <div class="footer-inner">
@@ -159,16 +223,37 @@
 <script>
 (function(){
   // scale the 1440 x 840 stage to the page width
-  var wrap = document.querySelector('.park-wrap'), stage = document.getElementById('stage');
-  function fit(){ stage.style.setProperty('--s', wrap.clientWidth / 1440); }
+  var park = document.querySelector('.park'), wrap = document.querySelector('.park-wrap'), stage = document.getElementById('stage');
+  // on phones the park shows at half size and you swipe across it, starting on the pools
+  var centered = false;
+  function fit(){
+    var w = wrap.clientWidth, s = w < 700 ? 0.5 : Math.min(1, w / 1440);
+    wrap.style.setProperty('--s', s);
+    if (!centered && w < 700){ wrap.scrollLeft = Math.max(0, 250 * 2 * s - w / 2); centered = true; }
+  }
   fit(); if (window.ResizeObserver) new ResizeObserver(fit).observe(wrap); else window.addEventListener('resize', fit);
 
-  var ATLAS = {"crew_s0":[0,0,11,13],"crew2_s0":[12,0,11,13],"crew3_s0":[24,0,11,13],"crew_s1":[36,0,11,13],"crew2_s1":[48,0,11,13],"crew3_s1":[60,0,11,13],"crew_n0":[72,0,11,13],"crew2_n0":[84,0,11,13],"crew3_n0":[96,0,11,13],"crew_n1":[108,0,11,13],"crew2_n1":[120,0,11,13],"crew3_n1":[132,0,11,13],"crew_e0":[144,0,11,13],"crew2_e0":[156,0,11,13],"crew3_e0":[168,0,11,13],"crew_e1":[180,0,11,13],"crew2_e1":[192,0,11,13],"crew3_e1":[204,0,11,13],"crew_w0":[216,0,11,13],"crew2_w0":[228,0,11,13],"crew3_w0":[240,0,11,13],"crew_w1":[0,14,11,13],"crew2_w1":[12,14,11,13],"crew3_w1":[24,14,11,13],"guard_s0":[36,14,11,13],"guard_s1":[48,14,11,13],"guard_n0":[60,14,11,13],"guard_n1":[72,14,11,13],"guard_e0":[84,14,11,13],"guard_e1":[96,14,11,13],"guard_w0":[108,14,11,13],"guard_w1":[120,14,11,13],"swim_e0":[132,14,10,6],"swim_w0":[143,14,10,6],"swim_e1":[154,14,10,6],"swim_w1":[165,14,10,6],"head0":[176,14,8,6],"head1":[185,14,8,6],"cart_h":[194,14,12,8],"cart_v":[207,14,8,11],"duck0":[216,14,10,7],"duck1":[227,14,10,7],"spray0":[0,28,40,40],"spray1":[41,28,40,40],"spray2":[82,28,40,40],"arch0":[123,28,30,12],"arch1":[154,28,30,12],"fan0":[185,28,20,20],"fan1":[206,28,20,20],"flags0":[227,28,6,72],"flags1":[234,28,6,72],"splash0":[0,101,20,20],"splash1":[21,101,20,20],"splash2":[42,101,20,20],"flag0":[63,101,12,8],"flag1":[76,101,12,8],"skim0":[89,101,14,30],"skim1":[104,101,14,30],"mop":[119,101,9,11],"bucket":[129,101,7,6],"wrench0":[137,101,10,5],"wrench1":[148,101,10,5]};
+  // time of day and pool hours, same rules as the front page. Test with ?time=day|dusk|night and ?open=1|0
+  function tod(){
+    var p = new URLSearchParams(location.search), q = p.get('time'), op = p.get('open'), h = new Date().getHours();
+    park.dataset.time = q || ((h >= 7 && h < 18) ? 'day' : ((h >= 18 && h < 20) || (h >= 5 && h < 7)) ? 'dusk' : 'night');
+    park.dataset.open = op !== null ? op : ((h >= 8 && h < 21) ? '1' : '0');
+  }
+  tod(); setInterval(tod, 300000);
+  function isOpen(){ return park.dataset.open === '1'; }
+  function isNight(){ return park.dataset.time === 'night'; }
+  function isDusk(){ return park.dataset.time === 'dusk'; }
+
+  var ATLAS = {"crew_s0":[0,0,11,13],"crew2_s0":[12,0,11,13],"crew3_s0":[24,0,11,13],"crew_s1":[36,0,11,13],"crew2_s1":[48,0,11,13],"crew3_s1":[60,0,11,13],"crew_n0":[72,0,11,13],"crew2_n0":[84,0,11,13],"crew3_n0":[96,0,11,13],"crew_n1":[108,0,11,13],"crew2_n1":[120,0,11,13],"crew3_n1":[132,0,11,13],"crew_e0":[144,0,11,13],"crew2_e0":[156,0,11,13],"crew3_e0":[168,0,11,13],"crew_e1":[180,0,11,13],"crew2_e1":[192,0,11,13],"crew3_e1":[204,0,11,13],"crew_w0":[216,0,11,13],"crew2_w0":[228,0,11,13],"crew3_w0":[240,0,11,13],"crew_w1":[0,14,11,13],"crew2_w1":[12,14,11,13],"crew3_w1":[24,14,11,13],"kid1_e0":[36,14,11,13],"kid1_e1":[48,14,11,13],"kid1_w0":[60,14,11,13],"kid1_w1":[72,14,11,13],"kid1_s0":[84,14,11,13],"kid1_s1":[96,14,11,13],"kid1_n0":[108,14,11,13],"kid1_n1":[120,14,11,13],"kid2_e0":[132,14,11,13],"kid2_e1":[144,14,11,13],"kid2_w0":[156,14,11,13],"kid2_w1":[168,14,11,13],"kid2_s0":[180,14,11,13],"kid2_s1":[192,14,11,13],"kid2_n0":[204,14,11,13],"kid2_n1":[216,14,11,13],"kid3_e0":[228,14,11,13],"kid3_e1":[240,14,11,13],"kid3_w0":[0,28,11,13],"kid3_w1":[12,28,11,13],"kid3_s0":[24,28,11,13],"kid3_s1":[36,28,11,13],"kid3_n0":[48,28,11,13],"kid3_n1":[60,28,11,13],"food":[72,28,6,7],"chair_blue":[79,28,13,9],"chair_white":[93,28,13,9],"chair_web":[107,28,13,9],"chair_red":[121,28,13,9],"f1_seat0":[135,28,11,11],"f1_e0":[147,28,11,13],"f1_seat1":[159,28,11,11],"f1_e1":[171,28,11,13],"f2_seat0":[183,28,11,11],"f2_e0":[195,28,11,13],"f2_seat1":[207,28,11,11],"f2_e1":[219,28,11,13],"f3_seat0":[231,28,11,11],"f3_e0":[243,28,11,13],"f3_seat1":[0,42,11,11],"f3_e1":[12,42,11,13],"f4_seat0":[24,42,11,11],"f4_e0":[36,42,11,13],"f4_seat1":[48,42,11,11],"f4_e1":[60,42,11,13],"f5_seat0":[72,42,11,11],"f5_e0":[84,42,11,13],"f5_seat1":[96,42,11,11],"f5_e1":[108,42,11,13],"f6_seat0":[120,42,11,11],"f6_e0":[132,42,11,13],"f6_seat1":[144,42,11,11],"f6_e1":[156,42,11,13],"band1_w0":[168,42,11,13],"band1_w1":[180,42,11,13],"band2_w0":[192,42,11,13],"band2_w1":[204,42,11,13],"band3_w0":[216,42,11,13],"band3_w1":[228,42,11,13],"guitar":[240,42,8,7],"drums":[0,56,13,11],"note0":[14,56,5,6],"note1":[20,56,7,6],"guard_sit":[28,56,6,6],"guard_s0":[35,56,11,13],"guard_s1":[47,56,11,13],"guard_n0":[59,56,11,13],"guard_n1":[71,56,11,13],"guard_e0":[83,56,11,13],"guard_e1":[95,56,11,13],"guard_w0":[107,56,11,13],"guard_w1":[119,56,11,13],"swim_e0":[131,56,10,6],"swim_w0":[142,56,10,6],"swim_e1":[153,56,10,6],"swim_w1":[164,56,10,6],"swim_s0":[175,56,6,10],"swim_n0":[182,56,6,10],"swim_s1":[189,56,6,10],"swim_n1":[196,56,6,10],"head0":[203,56,8,6],"head1":[212,56,8,6],"cart_h":[221,56,12,8],"cart_v":[234,56,8,11],"duck0":[243,56,10,7],"duck1":[0,70,10,7],"spray0":[11,70,40,40],"spray1":[52,70,40,40],"spray2":[93,70,40,40],"arch0":[134,70,30,12],"arch1":[165,70,30,12],"fan0":[196,70,20,20],"fan1":[217,70,20,20],"flags0":[238,70,6,72],"flags1":[245,70,6,72],"splash0":[0,143,20,20],"splash1":[21,143,20,20],"splash2":[42,143,20,20],"flag0":[63,143,12,8],"flag1":[76,143,12,8],"skim0":[89,143,14,30],"skim1":[104,143,14,30],"mop":[119,143,9,11],"bucket":[129,143,7,6],"wrench0":[137,143,10,5],"wrench1":[148,143,10,5]};
   var base = document.getElementById('base').getContext('2d'), ctx = document.getElementById('anim').getContext('2d');
+  var lc = document.getElementById('levac').getContext('2d'), lx = document.getElementById('lights').getContext('2d');
   base.imageSmoothingEnabled = false; ctx.imageSmoothingEnabled = false;
-  var imgs = {}, todo = 3;
-  ['base', 'caustics', 'sprites'].forEach(function(n){
-    var im = new Image(); im.onload = function(){ imgs[n] = im; if (--todo === 0) start(); }; im.src = 'pool/' + n + '.png';
+  var imgs = {}, todo = 4, loaded = false;
+  ['base', 'caustics', 'sprites', 'leva'].forEach(function(n){
+    var im = new Image();
+    im.onload = function(){ imgs[n] = im; if (--todo === 0) start(); };
+    im.onerror = function(){ console.error('leva pool: could not load pool/' + n + '.png'); };
+    im.src = 'pool/' + n + '.png?v=8';
   });
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -178,97 +263,515 @@
     if (flip){ ctx.save(); ctx.translate(x + a[2], y); ctx.scale(-1, 1); ctx.drawImage(imgs.sprites, a[0], a[1], a[2], a[3], 0, 0, a[2], a[3]); ctx.restore(); }
     else ctx.drawImage(imgs.sprites, a[0], a[1], a[2], a[3], x, y, a[2], a[3]);
   }
-
-  // a walker follows waypoints on a loop and faces where it is going
+  // a walker's feet are at (x, y); every path below stays on the deck
   function walker(sprite, pts, speed, tool){
-    var w = {sprite: sprite, pts: pts, speed: speed, tool: tool, i: 0, x: pts[0][0], y: pts[0][1], face: 's', t: 0};
+    var w = {sprite: sprite, pts: pts, speed: speed, tool: tool, i: 0, x: pts[0][0], y: pts[0][1], face: 's', t: 0, pause: 0};
     w.step = function(dt){
+      if (w.pause > 0){ w.pause -= dt; return; }
       var tgt = w.pts[(w.i + 1) % w.pts.length], dx = tgt[0] - w.x, dy = tgt[1] - w.y, d = Math.hypot(dx, dy);
-      if (d < 0.5){ w.i = (w.i + 1) % w.pts.length; return; }
+      if (d < 0.5){ w.i = (w.i + 1) % w.pts.length; w.pause = 0.6 + ((w.i * 7) % 5) * 0.3; return; }
       var m = Math.min(d, w.speed * dt); w.x += dx / d * m; w.y += dy / d * m; w.t += dt;
       w.face = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'e' : 'w') : (dy > 0 ? 's' : 'n');
     };
     w.draw = function(){
-      var f = Math.floor(w.t * 4) % 2;
+      var f = w.pause > 0 ? 0 : Math.floor(w.t * 4) % 2;
       draw(w.sprite + '_' + w.face + f, w.x - 5, w.y - 11);
       if (w.tool === 'mop') draw('mop', w.x + 5, w.y - 8);
       if (w.tool === 'bucket') draw('bucket', w.x + 6, w.y - 2);
     };
     return w;
   }
-  var walkers = [
-    walker('crew',  [[150,270],[150,150],[128,150],[128,270]], 14, 'mop'),
-    walker('crew2', [[394,352],[394,248],[520,248],[520,182],[394,182],[394,248]], 13, 'bucket'),
-    walker('crew3', [[590,168],[590,100],[556,100],[556,168]], 11, null),
-    walker('guard', [[210,84],[470,84]], 9, null),
-    walker('guard', [[560,300],[560,230],[600,230],[600,300]], 8, null)
+  var crew = [
+    walker('crew',  [[140,254],[190,254],[190,296],[140,296]], 12, 'mop'),
+    walker('crew3', [[284,88],[322,88]], 10, 'bucket'),
+    walker('guard', [[196,212],[196,292]], 8, null),
+    walker('guard', [[322,302],[404,302]], 8, null)
   ];
-  // the skimmer works the south edge of the 50 meter pool
-  var skim = {x: 300, dir: 1, t: 0};
-  // the cart drives a loop on the east deck
-  var cart = walker('cart', [[652,352],[652,292],[682,292],[682,352]], 24, null);
+  var cart = walker('cart', [[140,98],[196,98]], 18, null);
   cart.draw = function(){ var v = cart.face === 'n' || cart.face === 's'; draw(v ? 'cart_v' : 'cart_h', cart.x - (v ? 4 : 6), cart.y - (v ? 6 : 4), cart.face === 'w'); };
-  // swimmers in lanes 3 and 6
-  var swimmers = [{x: 210, y: 116, dir: 1, t: 0, speed: 26}, {x: 500, y: 146, dir: -1, t: 0.7, speed: 22}];
-  // heads bobbing in the shallow pool
-  var heads = [{x: 440, y: 226, t: 0, s: 'head0'}, {x: 300, y: 196, t: 1.1, s: 'head1'}, {x: 380, y: 230, t: 0.4, s: 'head0'}];
-  var duck = {x: 330, dir: 1, t: 0};
-  // a lifeguard on the high board, on a loop: walk out, dive, swim to the ladder, climb out, back to the board
+  var swimmers = [{x: 242, y: 130, dir: 1, t: 0, speed: 24}, {x: 275, y: 280, dir: -1, t: 0.7, speed: 20}];
+  var heads = [{x: 340, y: 168, t: 0, s: 'head0'}, {x: 372, y: 236, t: 1.1, s: 'head1'}, {x: 350, y: 222, t: 0.4, s: 'head0'}];
+  var chairs = [[190, 170], [190, 110], [338, 112]];
+  var duck = {y: 170, dir: 1, t: 0};
   var diver = {t: 0};
+
+  // ---------------- leva ----------------
+  var LF = {s: 0, n: 1, e: 2, w: 3};
+  var HOME = [250, 80];
+  var OPEN_ROUTE = [
+    {at: HOME, hide: true, wait: 6},
+    {to: [250, 100]}, {to: [262, 108]},
+    {act: 'kit', face: 'e', wait: 5},
+    {to: [262, 104]}, {to: [410, 104]}, {to: [410, 175]}, {to: [430, 175]},
+    {act: 'report', hide: true, wait: 4},
+    {to: [410, 175]}, {to: [410, 104]}, {to: [250, 104]}, {to: [250, 84]}, {to: HOME}
+  ];
+  var CLOSED_ROUTE = [
+    {at: HOME, hide: true, wait: 4},
+    {to: [250, 100]}, {to: [316, 100]}, {to: [316, 124]},
+    {to: [316, 298], tool: 'skim', speed: 8},
+    {to: [316, 210]},
+    {act: 'vac', face: 'w', wait: 14},
+    {to: [316, 300]}, {to: [410, 300]}, {to: [410, 196]}, {to: [430, 196]},
+    {act: 'pit', hide: true, wait: 6},
+    {to: [410, 196]}, {to: [410, 106]}, {to: [370, 106]},
+    {act: 'gate', face: 'n', wait: 2.5},
+    {to: [250, 106]}, {to: [250, 84]}, {to: HOME},
+    {act: 'pump', hide: true, wait: 8}
+  ];
+  var ARCADE_ROUTE = [
+    {to: [250, 100]}, {to: [410, 100]}, {to: [410, 224]}, {to: [430, 224]},
+    {act: 'arcade', hide: true, wait: 10},
+    {to: [410, 224]}, {to: [410, 100]}, {to: [250, 100]}, {to: [250, 84]}, {to: HOME}
+  ];
+  var leva = {route: null, i: 0, x: HOME[0], y: HOME[1], face: 's', t: 0, hidden: true, wait: 0, act: null, tool: null, vt: 0};
+  function pickRoute(){
+    if (isOpen()) return OPEN_ROUTE;
+    if (leva.route === CLOSED_ROUTE && Math.random() < 0.35){ ARCADE_ROUTE[4].wait = 8 + Math.random() * 22; return ARCADE_ROUTE; }
+    return CLOSED_ROUTE;
+  }
+  leva.route = pickRoute();
+  leva.step = function(dt){
+    var R = leva.route, st = R[leva.i];
+    function next(){ leva.i++; if (leva.i >= R.length){ leva.route = pickRoute(); leva.i = 0; } }
+    if (leva.wait > 0){
+      leva.wait -= dt; leva.vt += dt;
+      if (leva.wait <= 0){ leva.wait = 0; leva.act = null; next(); }
+      return;
+    }
+    if (st.at){ leva.x = st.at[0]; leva.y = st.at[1]; leva.hidden = !!st.hide; leva.act = null; if (st.wait){ leva.wait = st.wait; return; } next(); return; }
+    if (st.act){ leva.hidden = !!st.hide; if (st.face) leva.face = st.face; leva.act = st.act; leva.vt = 0; leva.wait = st.wait; return; }
+    leva.hidden = false; leva.tool = st.tool || null;
+    var dx = st.to[0] - leva.x, dy = st.to[1] - leva.y, d = Math.hypot(dx, dy);
+    if (d < 0.5){ next(); return; }
+    var sp = st.speed || 13, m = Math.min(d, sp * dt);
+    leva.x += dx / d * m; leva.y += dy / d * m; leva.t += dt * (sp / 13);
+    leva.face = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'e' : 'w') : (dy > 0 ? 's' : 'n');
+  };
+  function inBuilding(x, y){ return x > 418 && y > 88 && y < 292; }
+  function levaVisible(){ return !leva.hidden && !inBuilding(leva.x, leva.y); }
+  function vacHead(){ return [258 + Math.sin(leva.vt * 0.5) * 30, 214 + Math.sin(leva.vt * 1.1) * 60]; }
+  var clouds = [{x: 200, y: 180, rx: 260, ry: 120, v: 9}, {x: 900, y: 560, rx: 320, ry: 140, v: 7}, {x: -300, y: 700, rx: 240, ry: 110, v: 11}];
+  function drawClouds(dt){
+    if (isNight()) return;
+    clouds.forEach(function(c){
+      c.x += c.v * dt; if (c.x - c.rx > 1440) c.x = -c.rx;
+      var g = lc.createRadialGradient(c.x, c.y, 0, c.x, c.y, c.rx);
+      g.addColorStop(0, 'rgba(20,24,50,.10)'); g.addColorStop(0.7, 'rgba(20,24,50,.05)'); g.addColorStop(1, 'rgba(20,24,50,0)');
+      lc.save(); lc.translate(c.x, c.y); lc.scale(1, c.ry / c.rx); lc.translate(-c.x, -c.y);
+      lc.fillStyle = g; lc.fillRect(c.x - c.rx, c.y - c.rx, c.rx * 2, c.rx * 2); lc.restore();
+    });
+  }
+  var cloudDt = 0;
+  leva.draw = function(){
+    lc.clearRect(0, 0, 1440, 840);
+    drawClouds(cloudDt);
+    if (!levaVisible()) return;
+    var X = Math.round(leva.x * 2), Y = Math.round(leva.y * 2);
+    var frame = !leva.act ? Math.floor(leva.t * 6) % 4 : 0;
+    lc.lineCap = 'round';
+    lc.fillStyle = 'rgba(12,14,28,.22)'; lc.beginPath(); lc.ellipse(X + 2, Y + 1, 14, 4, 0, 0, Math.PI * 2); lc.fill();
+    if (leva.act === 'vac'){
+      var h = vacHead(), hx = h[0] * 2, hy = h[1] * 2;
+      lc.strokeStyle = 'rgba(40,52,80,.85)'; lc.lineWidth = 3;
+      lc.beginPath(); lc.moveTo(X - 6, Y - 20); lc.quadraticCurveTo(X - 30, hy + 30, hx + 8, hy + 2); lc.stroke();
+      lc.fillStyle = '#5c6169'; lc.fillRect(hx - 4, hy - 12, 8, 24); lc.fillStyle = '#8b9098'; lc.fillRect(hx - 4, hy - 12, 3, 24);
+      lc.fillStyle = 'rgba(255,255,255,.85)';
+      for (var b = 0; b < 5; b++){ var bt = (leva.vt * 1.4 + b * 0.37) % 1; lc.fillRect(hx - 8 + b * 4, hy - 6 - bt * 16, 2, 2); }
+    }
+    var sx, sy;
+    if (leva.act === 'kit'){ sx = (leva.face === 'e' ? 1 : 0) * 40; sy = 4 * 56; }
+    else { sx = frame * 40; sy = LF[leva.face] * 56; }
+    lc.drawImage(imgs.leva, sx, sy, 40, 56, X - 20, Y - 53, 40, 56);
+    if (leva.act === 'vac'){
+      var h2 = vacHead();
+      lc.strokeStyle = '#c9cfd6'; lc.lineWidth = 2;
+      lc.beginPath(); lc.moveTo(X - 10, Y - 30); lc.lineTo(h2[0] * 2, h2[1] * 2); lc.stroke();
+    }
+    if (leva.tool === 'skim'){
+      var nx = X - 44, ny = Y - 24 + Math.sin(leva.t * 3) * 4;
+      lc.strokeStyle = '#8a6a48'; lc.lineWidth = 2;
+      lc.beginPath(); lc.moveTo(X - 10, Y - 28); lc.lineTo(nx + 8, ny); lc.stroke();
+      lc.fillStyle = 'rgba(255,255,255,.55)'; lc.strokeStyle = '#d9dde1'; lc.lineWidth = 1.5;
+      lc.beginPath(); lc.ellipse(nx, ny, 7, 11, 0, 0, Math.PI * 2); lc.fill(); lc.stroke();
+    }
+  };
+  window.__leva = leva;
+  function arcadeOn(){ return leva.route === ARCADE_ROUTE && leva.act === 'arcade'; }
+
+  // Friday nights there's a band on the south deck. Test with ?event=band (or ?event=none).
+  function bandOn(){
+    var ev = new URLSearchParams(location.search).get('event');
+    if (ev === 'band') return true; if (ev === 'none') return false;
+    var d = new Date(); return d.getDay() === 5 && d.getHours() >= 17 && isOpen();
+  }
+  var chipBand = document.getElementById('chip-band');
+  var crowd = [], CH = ['blue', 'white', 'web', 'red'], FN = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6'], n = 0;
+  for (var cx = 252; cx <= 352; cx += 13){
+    for (var cy = 322; cy <= 382; cy += 12){
+      n++;
+      crowd.push({x: cx + (n % 3) - 1, y: cy + (n % 2), chair: CH[n % 4], fan: FN[(n * 5) % 6], stand: n % 9 === 4, ph: (n * 0.37) % 1});
+    }
+  }
+  var dancers = [{x: 358, y: 326, ph: 0}, {x: 360, y: 360, ph: 0.5}];
+  function drawBand(T){
+    var beat = Math.floor(T * 2.2) % 2;
+    ctx.fillStyle = '#3a3d45'; ctx.fillRect(368, 318, 44, 56);
+    ctx.fillStyle = '#4a4e57'; for (var y = 320; y < 372; y += 6) ctx.fillRect(368, y, 44, 1);
+    ctx.fillStyle = '#15161a'; ctx.fillRect(366, 312, 9, 8); ctx.fillRect(366, 372, 9, 8); ctx.fillRect(404, 320, 7, 6); ctx.fillRect(404, 362, 7, 6);
+    ctx.fillStyle = beat ? '#5c6169' : '#34373e'; ctx.fillRect(368, 314, 5, 4); ctx.fillRect(368, 374, 5, 4);
+    draw('drums', 388, 338);
+    draw('band1_w' + beat, 398, 338);
+    draw('band2_w' + beat, 378, 320); draw('guitar', 375, 326);
+    draw('band3_w' + (1 - beat), 378, 356); draw('guitar', 375, 362);
+    draw('band1_w' + (1 - beat), 370, 339);
+    ctx.fillStyle = '#9aa0a8'; ctx.fillRect(367, 343, 1, 6); ctx.fillRect(366, 342, 3, 1);
+    for (var k = 0; k < 4; k++){ var q = (T * 0.35 + k * 0.25) % 1; draw('note' + (k % 2), 364 - q * 50, 340 - q * 24 + Math.sin((T + k) * 3) * 3); }
+    crowd.forEach(function(p){
+      var f = Math.floor(T * 2 + p.ph * 2) % 2;
+      if (p.stand) draw(p.fan + '_e' + f, p.x, p.y - 4);
+      else { draw('chair_' + p.chair, p.x - 1, p.y); draw(p.fan + '_seat' + f, p.x + 1, p.y - 3); }
+    });
+    dancers.forEach(function(d){ d.ph += 0.016; draw('kid' + (d.y > 340 ? 1 : 2) + '_e' + (Math.floor(T * 4) % 2), d.x + Math.sin(d.ph * 6) * 2, d.y); });
+  }
+
+  // ---------------- lights ----------------
+  function glow(x, y, r, color, a){
+    var g = lx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, color.replace('A', a)); g.addColorStop(1, color.replace('A', 0));
+    lx.fillStyle = g; lx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  function lights(T){
+    lx.clearRect(0, 0, 1440, 840);
+    var night = isNight(), dusk = isDusk();
+    if (night || dusk){
+      var k = night ? 1 : 0.45;
+      [[510, 422, 210], [320, 354, 100], [724, 418, 140]].forEach(function(p){ glow(p[0], p[1], p[2], 'rgba(0,240,255,A)', 0.42 * k); });
+      [[1080, 380], [500, 150], [844, 392]].forEach(function(p){ glow(p[0], p[1], 70, 'rgba(255,214,140,A)', 0.55 * k); });
+      if (isOpen()) glow(784, 124, 60, 'rgba(255,214,140,A)', 0.6 * k);
+      [[192, 220], [184, 636], [624, 72], [820, 772]].forEach(function(p){ glow(p[0], p[1], 34, 'rgba(255,248,215,A)', 0.95 * k); glow(p[0] + 60, p[1] + 60, 190, 'rgba(255,244,205,A)', 0.22 * k); });
+    }
+    if (night){
+      // moths circling the light poles
+      [[192, 220], [184, 636], [624, 72], [820, 772]].forEach(function(p, i){
+        for (var m = 0; m < 3; m++){
+          var a = T * (2 + m * 0.7) + i + m * 2.1, r = 10 + m * 5;
+          lx.fillStyle = 'rgba(255,250,225,.9)'; lx.fillRect(p[0] + Math.cos(a) * r, p[1] + Math.sin(a * 1.3) * r * 0.6, 2, 2);
+        }
+      });
+    }
+    if (isOpen() && bandOn() && (night || dusk)){
+      var sw = Math.sin(T * 2.2);
+      glow(780, 692, 70, 'rgba(255,46,136,A)', 0.45 + 0.2 * sw); glow(800, 660, 60, 'rgba(0,240,255,A)', 0.4 - 0.2 * sw);
+    }
+    if (arcadeOn()){
+      var pulse = 0.35 + 0.25 * Math.sin(T * 9);
+      glow(956, 448, 60, 'rgba(255,46,136,A)', pulse); glow(956, 456, 40, 'rgba(0,240,255,A)', pulse * 0.8);
+    }
+    if (levaVisible() && (night || dusk)){
+      var X = leva.x * 2, Y = leva.y * 2;
+      glow(X, Y - 38, 20, 'rgba(0,240,255,A)', 0.9);
+      if (night && !isOpen()){
+        var dir = {s: [0, 1], n: [0, -1], e: [1, 0], w: [-1, 0]}[leva.face];
+        glow(X + dir[0] * 80, Y - 24 + dir[1] * 80, 70, 'rgba(255,248,220,A)', 0.55);
+      }
+    }
+  }
 
   var T = 0, last = null, running = true, visible = true;
   function frame(now){
+    if (!loaded) return;
     if (last === null) last = now;
     var dt = Math.min(0.05, (now - last) / 1000); last = now; T += dt;
+    var open = isOpen();
     ctx.clearRect(0, 0, 720, 420);
-    // living water
     var cf = Math.floor(T * 4) % 4;
     ctx.drawImage(imgs.caustics, 0, cf * 420, 720, 420, 0, 0, 720, 420);
-    // flags and sprayers
-    var f2 = Math.floor(T * 2.2) % 2, f3 = Math.floor(T * 4) % 3;
-    draw('flags' + f2, 212, 96); draw('flags' + f2, 504, 96);
-    draw('flag' + (Math.floor(T * 3) % 2), 476, 380);
-    draw('spray' + f3, 386, 192); draw('arch' + f2, 345, 210); draw('fan' + f2, 290, 212);
-    // duck
-    duck.t += dt; duck.x += duck.dir * 3 * dt; if (duck.x > 430) duck.dir = -1; if (duck.x < 290) duck.dir = 1;
-    draw('duck' + (Math.floor(duck.t * 2) % 2), duck.x, 198, duck.dir < 0);
-    // heads in the shallow pool
-    heads.forEach(function(h){ h.t += dt; h.x += Math.sin(h.t * 0.5) * 2 * dt; draw(h.s, h.x, h.y + (Math.floor(h.t * 2) % 2)); });
-    // swimmers
-    swimmers.forEach(function(s){
-      s.t += dt; s.x += s.dir * s.speed * dt;
-      if (s.x > 505){ s.dir = -1; } if (s.x < 205){ s.dir = 1; }
-      var fr = Math.floor(s.t * 3) % 2;
-      draw('swim_' + (s.dir > 0 ? 'e' : 'w') + fr, s.x, s.y);
-      ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.fillRect(Math.round(s.x + (s.dir > 0 ? -3 : 11)), s.y + 2, 2, 1);
+    var fl = Math.floor(T * 2.2) % 2;
+    [130, 292].forEach(function(fy){
+      ctx.fillStyle = '#5c6169'; ctx.fillRect(206, fy, 98, 1);
+      for (var fx = 210; fx < 300; fx += 5){ ctx.fillStyle = ((fx - 210) / 5) % 2 ? '#ffd23a' : '#1f6fd0'; ctx.fillRect(fx + fl, fy + 1, 3, 2); ctx.fillRect(fx + fl, fy + 3, 1, 1); }
     });
-    // the skimmer
-    skim.t += dt; skim.x += skim.dir * 4 * dt; if (skim.x > 460) skim.dir = -1; if (skim.x < 240) skim.dir = 1;
-    draw('skim' + (Math.floor(skim.t * 1.4) % 2), skim.x - 2, 150);
-    draw('crew_n0', skim.x - 5, 172);
-    // the diver loop
-    diver.t = (diver.t + dt) % 14;
-    var d = diver.t;
-    if (d < 3){ draw('guard_e0', 470 + (d / 3) * 26, 44 + (1 - d / 3) * 14); }
-    else if (d < 6){ draw('guard_s' + (Math.floor(d * 4) % 2), 495 - 5, 32 + ((d - 3) / 3) * 26); }
-    else if (d < 7.2){ draw('guard_s0', 490, 58); }
-    else if (d < 8){ draw('splash' + Math.min(2, Math.floor((d - 7.2) * 4)), 485, 62); }
-    else if (d < 11){ draw('swim_w' + (Math.floor(d * 3) % 2), 500 - (d - 8) * 6, 66); }
-    else if (d < 12.5){ draw('guard_w0', 476, 54); }
-    // walkers and the cart, painted back to front
-    var all = walkers.concat([cart]); all.forEach(function(w){ w.step(dt); });
-    all.sort(function(a, b){ return a.y - b.y; }).forEach(function(w){ w.draw(); });
+    draw('flag' + (Math.floor(T * 3) % 2), 558, 290);
+    // the pennant string from the pump house to the concession fence, fluttering in the breeze
+    var PC = ['#e0433a', '#f6f6f2', '#2857d1'];
+    for (var k = 0; k < 52; k++){
+      var px0 = 277 + k, py0 = 50 + Math.round(4 * Math.sin(k / 52 * Math.PI) + Math.sin(T * 1.3 + k * 0.2) * 0.6);
+      ctx.fillStyle = '#5c6169'; ctx.fillRect(px0, py0, 1, 1);
+      if (k % 4 === 0){
+        var sway = Math.round(Math.sin(T * 3 + k) * 0.8);
+        ctx.fillStyle = PC[(k / 4) % 3]; ctx.fillRect(px0 + sway, py0 + 1, 2, 1); ctx.fillRect(px0 + sway, py0 + 2, 1, 1);
+      }
+    }
+    duck.t += dt; duck.y += duck.dir * 3 * dt; if (duck.y > 250) duck.dir = -1; if (duck.y < 164) duck.dir = 1;
+    draw('duck' + (Math.floor(duck.t * 2) % 2), 356, duck.y);
+    if (open){
+      var f2 = Math.floor(T * 2.2) % 2, f3 = Math.floor(T * 4) % 3;
+      draw('spray' + f3, 348, 190); draw('fan' + f2, 338, 176); draw('fan' + (1 - f2), 342, 244);
+      chairs.forEach(function(c){ draw('guard_sit', c[0] + 4, c[1] + 3); });
+      heads.forEach(function(h){ h.t += dt; h.x += Math.sin(h.t * 0.5) * 2 * dt; draw(h.s, h.x, h.y + (Math.floor(h.t * 2) % 2)); });
+      swimmers.forEach(function(s){
+        s.t += dt; s.y += s.dir * s.speed * dt;
+        if (s.y > 284) s.dir = -1; if (s.y < 128) s.dir = 1;
+        draw('swim_' + (s.dir > 0 ? 's' : 'n') + (Math.floor(s.t * 3) % 2), s.x, s.y);
+        ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.fillRect(s.x + 2, Math.round(s.y + (s.dir > 0 ? -3 : 11)), 1, 2);
+      });
+      diver.t = (diver.t + dt) % 14;
+      var d = diver.t;
+      if (d < 2.5) draw('guard_e' + (Math.floor(d * 4) % 2), 88 + (d / 2.5) * 22, 137);
+      else if (d < 5.5) draw('guard_e' + (Math.floor(d * 4) % 2), 110 + ((d - 2.5) / 3) * 42, 137);
+      else if (d < 6.7) draw('guard_e0', 152, 137);
+      else if (d < 7.5) draw('splash' + Math.min(2, Math.floor((d - 6.7) * 4)), 156, 140);
+      else if (d < 11) draw('swim_s' + (Math.floor(d * 3) % 2), 166, 156 + (d - 7.5) * 16);
+      else if (d < 12.5) draw('guard_w0', 176, 212);
+      var bob = Math.floor(T * 1.5) % 2;
+      draw('kid1_n' + bob, 374, 64); draw('kid3_n' + (1 - bob), 375, 74); draw('kid2_n0', 374, 84);
+      var tk = (T % 10) / 10, fx, fy;
+      if (tk < 0.3){ fx = 392 - (tk / 0.3) * 24; fy = 66 + (tk / 0.3) * 34; }
+      else { fx = 368 - ((tk - 0.3) / 0.7) * 80; fy = 100; }
+      draw(tk < 0.3 ? 'kid2_s0' : 'kid2_w' + (Math.floor(T * 4) % 2), fx, fy); draw('food', fx - 2, fy + 4);
+      draw('crew2_e' + (Math.floor(T * 2) % 2), 470, 196); draw('mop', 480, 198);
+      if (bandOn()) drawBand(T);
+      var all = crew.concat([cart]); all.forEach(function(w){ w.step(dt); });
+      all.sort(function(a, b){ return a.y - b.y; }).forEach(function(w){ w.draw(); });
+    } else {
+      ctx.fillStyle = '#9aa0a8'; ctx.fillRect(360, 92, 20, 1);
+      for (var gx = 360; gx < 380; gx += 2) ctx.fillRect(gx, 93, 1, 1);
+      ctx.fillStyle = '#d3ad0a'; ctx.fillRect(369, 91, 3, 3);
+    }
+    cloudDt = dt; leva.step(dt); leva.draw();
+    if (chipBand) chipBand.hidden = !(open && bandOn());
+    lights(T);
     if (running && visible && !reduce) requestAnimationFrame(frame);
   }
   function start(){
+    loaded = true; window.__levaImg = imgs.leva;
     base.drawImage(imgs.base, 0, 0);
-    if (reduce){ last = 0; frame(0); return; }
+    if (reduce){ last = 0; leva.hidden = false; leva.route = OPEN_ROUTE; leva.i = 2; leva.x = 262; leva.y = 108; frame(0); return; }
     requestAnimationFrame(frame);
   }
-  document.addEventListener('visibilitychange', function(){ running = !document.hidden; if (running && !reduce){ last = null; requestAnimationFrame(frame); } });
+  document.addEventListener('visibilitychange', function(){ running = !document.hidden; if (running && loaded && !reduce){ last = null; requestAnimationFrame(frame); } });
   if (window.IntersectionObserver) new IntersectionObserver(function(es){
-    var v = es[0].isIntersecting; if (v && !visible){ visible = true; last = null; if (!reduce) requestAnimationFrame(frame); } else visible = v;
+    var v = es[0].isIntersecting; if (v && !visible){ visible = true; last = null; if (loaded && !reduce) requestAnimationFrame(frame); } else visible = v;
   }).observe(wrap);
+})();
+
+
+// the rooms you can click into: the entrance, the pit, first aid and Nutty Dip
+(function(){
+  var ov = document.getElementById('room'), C = document.getElementById('entc'), ctx = C.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  var park = document.querySelector('.park'), imgs = {}, raf = null, opener = null, T = 0, last = 0, cur = null;
+  function isOpen(){ return park.dataset.open === '1'; }
+  // outdoor rooms follow the clock: pink at dusk, dark with a navy sky at night
+  function sky(h){
+    var tm = park.dataset.time;
+    if (tm === 'dusk'){ ctx.fillStyle = 'rgba(255,140,180,.16)'; ctx.fillRect(0, 0, 320, 180); ctx.fillStyle = 'rgba(255,170,120,.18)'; ctx.fillRect(0, 0, 320, h); }
+    if (tm === 'night'){ ctx.fillStyle = 'rgba(14,20,56,.55)'; ctx.fillRect(0, 0, 320, 180); ctx.fillStyle = 'rgba(10,14,40,.6)'; ctx.fillRect(0, 0, 320, h);
+      ctx.fillStyle = '#fffbe6'; [[40, 10], [96, 24], [210, 8], [262, 30], [300, 14]].forEach(function(s){ ctx.fillRect(s[0], s[1], 1, 1); }); }
+  }
+  var ROOMS = {
+    entrance: {
+      title: 'ENTRANCE', files: ['entrance', 'entrance_open'],
+      label: 'The entrance: a long white counter with teal trim, the pool rules and regulations sign on the wall behind it, a framed picture, a dark hallway on the left, and a green OPEN sign by the gate, lit during pool hours.',
+      note: 'The rules sign on the wall was made by Maintenance.', action: ['Go to home', 'index.html'],
+      draw: function(){
+        ctx.drawImage(imgs.entrance, 0, 0);
+        if (isOpen()){
+          if (Math.floor(T * 10) % 97 < 2){ ctx.fillStyle = 'rgba(210,214,220,.9)'; ctx.fillRect(190, 5, 72, 3); }
+          ctx.save(); ctx.shadowColor = '#4dff9a'; ctx.shadowBlur = 8; ctx.drawImage(imgs.entrance_open, 303, 40); ctx.restore();
+          ctx.drawImage(imgs.entrance_open, 303, 40);
+        } else { ctx.fillStyle = 'rgba(8,10,30,.72)'; ctx.fillRect(0, 0, 320, 180); ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.fillRect(100, 13, 50, 3); }
+      }
+    },
+    pump: {
+      title: 'PUMP ROOM', files: ['pump'],
+      label: 'The pump room: three big white filter tanks in a row, each on its own pad with a valve and a straight pipe up to the header along the ceiling, green pumps on the floor in front, a drain grate, and the roll-up door open to the deck and the lawn. The first tank has a blue arrow marked LAP.',
+      note: 'The filters and the pumps. This is where leva lives.', action: null,
+      draw: function(){
+        ctx.drawImage(imgs.pump, 0, 0);
+        var run = isOpen() || Math.floor(T) % 20 < 14;
+        [111, 195, 279].forEach(function(cx, i){
+          if (run){ var j = Math.floor(T * 30 + i) % 2; ctx.fillStyle = 'rgba(79,154,138,.9)'; ctx.fillRect(cx - 20 + j, 132, 34, 2); }
+          var a = -2.3 + Math.sin(T * 0.8 + i) * 0.25 + (run ? 0.7 : 0);
+          ctx.strokeStyle = '#d7262b'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx + 14.5, 46.5); ctx.lineTo(cx + 14.5 + Math.cos(a) * 3, 46.5 + Math.sin(a) * 3); ctx.stroke();
+        });
+        var d = (T * 0.7) % 1; ctx.fillStyle = 'rgba(180,230,255,.9)'; ctx.fillRect(195, 53 + d * 14, 1, 2);
+        ctx.fillStyle = Math.floor(T * 2) % 2 ? '#4dff9a' : '#1f7a4a'; ctx.fillRect(304, 64, 10, 2);
+        var L = window.__leva, im = window.__levaImg;
+        if (L && im && L.act === 'pump'){ ctx.drawImage(im, 0, 0, 40, 56, 132, 104, 40, 56); }
+        if (!isOpen()){ ctx.fillStyle = 'rgba(8,10,30,.3)'; ctx.fillRect(66, 0, 254, 180); }
+      }
+    },
+    pit: {
+      title: 'THE PIT', files: ['pit'],
+      label: 'The pit: the covered spot under the flat roof between the two wings, open to the deck, with the chimney behind it. Old cabinets and a desk, a bike, dollies, a red hose reel and pipes on the ground. WALK and NO CHAIRS are painted on the concrete.',
+      note: 'Where Maintenance kept everything. This is where it started.', action: ['Read the story', 'about.html'],
+      draw: function(){
+        ctx.drawImage(imgs.pit, 0, 0);
+        var L = window.__leva, im = window.__levaImg;
+        sky(62);
+        if (L && im && L.act === 'pit'){ ctx.drawImage(im, 0, 0, 40, 56, 150, 100, 40, 56); }
+      }
+    },
+    firstaid: {
+      title: 'FIRST AID', files: ['firstaid'],
+      label: 'The first aid room: cinder block walls, desks on both sides, a wire shelf of supplies, a fridge, a steel sink counter, a computer, radios on the charger, and old black and white photos pinned to the wall.',
+      note: 'Radios on the charger and old photos on the wall. A real person answers.', action: ['Get help', 'mailto:ai@levagood.com'],
+      draw: function(){
+        ctx.drawImage(imgs.firstaid, 0, 0);
+        var on = Math.floor(T * 1.5) % 2;
+        [[237, 86], [245, 86], [253, 86]].forEach(function(p, i){ ctx.fillStyle = (i + on) % 3 === 0 ? '#ff3b3b' : '#4dff9a'; ctx.fillRect(p[0], p[1], 2, 1); });
+        ctx.fillStyle = 'rgba(120,200,255,' + (0.25 + 0.1 * Math.sin(T * 3)) + ')'; ctx.fillRect(240, 54, 16, 12);
+        if (!isOpen()){ ctx.fillStyle = 'rgba(8,10,30,.6)'; ctx.fillRect(0, 0, 320, 180); }
+      }
+    },
+    nutty: {
+      title: 'NUTTY DIP', files: ['nutty', 'nutty_closed'],
+      label: "Nutty Dip, Sandy's Sundaes: a white trailer with a red and white striped awning, signs for cold drinks, sundaes and floats, a menu in the window, and blue picnic tables beside it.",
+      note: "Sandy's Sundaes. Nachos, pretzels, hot dogs, sundaes and floats.", action: null,
+      draw: function(){
+        ctx.drawImage(imgs.nutty, 0, 0);
+        sky(30);
+        if (isOpen()){
+          ctx.fillStyle = 'rgba(255,236,170,' + (0.10 + 0.03 * Math.sin(T * 2) + (park.dataset.time === 'night' ? 0.25 : 0)) + ')'; ctx.fillRect(38, 54, 190, 36);
+        } else {
+          ctx.fillStyle = 'rgba(20,24,34,.7)'; ctx.fillRect(38, 54, 190, 36);
+          ctx.drawImage(imgs.nutty_closed, 112, 64);
+        }
+      }
+    }
+  };
+  function load(files, cb){
+    var n = files.length;
+    files.forEach(function(f){
+      if (imgs[f]){ if (--n === 0) cb(); return; }
+      var im = new Image(); im.onload = function(){ imgs[f] = im; if (--n === 0) cb(); };
+      im.onerror = function(){ console.error('leva pool: could not load pool/' + f + '.png'); }; im.src = 'pool/' + f + '.png?v=3';
+    });
+  }
+  function frame(now){
+    var dt = Math.min(0.05, (now - last) / 1000 || 0); last = now; T += dt;
+    ctx.globalCompositeOperation = 'source-over';
+    cur.draw();
+    raf = requestAnimationFrame(frame);
+  }
+  function open(id){
+    var r = ROOMS[id]; if (!r) return; cur = r;
+    opener = document.activeElement;
+    document.getElementById('room-title').textContent = r.title;
+    document.getElementById('room-note').textContent = r.note;
+    C.setAttribute('aria-label', r.label);
+    var a = document.getElementById('room-action');
+    if (r.action){ a.hidden = false; a.textContent = r.action[0]; a.href = r.action[1]; } else a.hidden = true;
+    ov.hidden = false; document.getElementById('room-close').focus();
+    ctx.clearRect(0, 0, 320, 180);
+    load(r.files, function(){ last = performance.now(); if (raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(frame); });
+  }
+  function close(){ ov.hidden = true; if (raf) cancelAnimationFrame(raf); raf = null; if (opener && opener.focus) opener.focus(); }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-room]'), function(b){ b.addEventListener('click', function(){ open(b.getAttribute('data-room')); }); });
+  document.getElementById('room-close').addEventListener('click', close);
+  ov.addEventListener('click', function(e){ if (e.target === ov) close(); });
+  window.addEventListener('keydown', function(e){ if (!ov.hidden && e.key === 'Escape') close(); });
+})();
+
+
+// the arcade cabinet in the guard shack: the same invaders as the front page, same high score
+(function(){
+  var ov = document.getElementById('arcade'), C = document.getElementById('si'), ctx = C.getContext('2d');
+  var W = 560, H = 420, PINK = '#FF2E88', CYN = '#00F0FF', LIL = '#8C6BFF', ICOLS = [PINK, LIL, CYN];
+  var INV = [[[0,1,1,1,0],[1,1,1,1,1],[1,0,1,0,1],[0,1,0,1,0]],[[0,0,1,0,0],[0,1,1,1,0],[1,1,1,1,1],[1,0,1,0,1]],[[0,1,0,1,0],[0,1,1,1,0],[1,1,1,1,1],[0,1,0,1,0]]];
+  var SHIP = [[0,0,0,0,0,1,0,0,0,0,0],[0,0,0,0,1,1,1,0,0,0,0],[0,0,0,0,1,1,1,0,0,0,0],[0,1,1,1,1,1,1,1,1,1,0],[1,1,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1,1,1],[0,0,1,0,0,0,0,0,1,0,0],[0,0,1,0,0,0,0,0,1,0,0]];
+  var SW = 11, SH = 8, st, active = false, over = false, won = false, mouseX = W / 2, hi = 0, raf = null, lastT = 0, opener = null;
+  try { hi = +localStorage.getItem('leva-hi') || 0; } catch (e) {}
+  function init(){
+    over = false; won = false; active = false;
+    var px = 4, cols = 9, rows = 4, iw = 5 * px, ih = 4 * px, gapX = Math.floor(W / 11), gapY = Math.floor(ih * 2.4);
+    var startX = (W - cols * gapX) / 2 + gapX * 0.2, inv = [];
+    for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) inv.push({r: r, c: c, x: startX + c * gapX, y: 50 + r * gapY, alive: true, type: Math.floor(r * 3 / rows) % 3, iw: iw, ih: ih, frame: 0});
+    st = {inv: inv, px: px, gapX: gapX, dir: 1, nextStep: 1400, step: 0, bullets: [], eb: [], boom: [], score: 0, lives: 3,
+          ship: {x: W / 2, y: H - 4 * SH - 22, px: 4, alive: true, flash: 0}};
+    mouseX = W / 2;
+  }
+  function drawInv(i){
+    if (!i.alive) return; var g = INV[i.type], px = st.px; ctx.fillStyle = ICOLS[i.type];
+    for (var j = 0; j < g.length; j++) for (var k = 0; k < g[j].length; k++) if (g[j][k]) ctx.fillRect(i.x + k * px + (i.frame ? px * 0.5 : 0), i.y + j * px, px - 1, px - 1);
+    if (i.frame){ ctx.fillRect(i.x, i.y + g.length * px, px - 1, px - 1); ctx.fillRect(i.x + 4 * px, i.y + g.length * px, px - 1, px - 1); }
+  }
+  function drawShip(){
+    var s = st.ship; if (!s.alive && s.flash % 4 > 1) return;
+    var x0 = s.x - SW * s.px / 2; ctx.fillStyle = CYN;
+    for (var j = 0; j < SH; j++) for (var k = 0; k < SW; k++) if (SHIP[j][k]) ctx.fillRect(x0 + k * s.px, s.y + j * s.px, s.px - 1, s.px - 1);
+    if (active){ ctx.fillStyle = PINK; ctx.fillRect(x0 + 4 * s.px, s.y + SH * s.px, s.px - 1, s.px); ctx.fillRect(x0 + 6 * s.px, s.y + SH * s.px, s.px - 1, s.px); }
+  }
+  function shoot(){ if (!active || won || over || st.bullets.length > 2) return; st.bullets.push({x: st.ship.x, y: st.ship.y, vy: -7}); }
+  function update(dt){
+    if (!active || won || over) return;
+    var s = st, ship = s.ship;
+    s.nextStep -= dt * 1.5;
+    if (s.nextStep <= 0){
+      var alive = s.inv.filter(function(i){ return i.alive; });
+      var atR = alive.some(function(i){ return i.x + i.iw > W - 24; }), atL = alive.some(function(i){ return i.x < 24; });
+      if ((s.dir > 0 && atR) || (s.dir < 0 && atL)){ s.dir *= -1; alive.forEach(function(i){ i.y += i.ih * 0.7; i.frame ^= 1; }); }
+      else alive.forEach(function(i){ i.x += s.dir * s.gapX * 0.5; i.frame ^= 1; });
+      if (alive.some(function(i){ return i.y + i.ih >= ship.y - 4; })) over = true;
+      s.step++; s.nextStep = Math.max(260, 1400 - s.step * 22);
+      var shooters = alive.filter(function(i){ return !alive.some(function(j){ return j.c === i.c && j.r > i.r; }); });
+      if (Math.random() < 0.45 && shooters.length){ var sh = shooters[Math.floor(Math.random() * shooters.length)]; s.eb.push({x: sh.x + sh.iw / 2, y: sh.y + sh.ih, vy: 3.4}); }
+    }
+    ship.x += (mouseX - ship.x) * 0.2; ship.x = Math.max(SW * ship.px / 2 + 8, Math.min(W - SW * ship.px / 2 - 8, ship.x));
+    if (ship.flash > 0) ship.flash -= dt / 40;
+    s.bullets.forEach(function(b){ b.y += b.vy * (dt / 16); }); s.eb.forEach(function(b){ b.y += b.vy * (dt / 16); });
+    s.bullets = s.bullets.filter(function(b){ return b.y > -20; }); s.eb = s.eb.filter(function(b){ return b.y < H + 20; });
+    s.bullets.forEach(function(b){ s.inv.forEach(function(i){
+      if (i.alive && b.x > i.x && b.x < i.x + i.iw && b.y > i.y && b.y < i.y + i.ih){
+        i.alive = false; b.y = -9999; s.score++; if (s.score > hi){ hi = s.score; try { localStorage.setItem('leva-hi', hi); } catch (e) {} }
+        s.boom.push({x: i.x + i.iw / 2, y: i.y + i.ih / 2, t: 0, col: ICOLS[i.type]});
+      } }); });
+    s.eb.forEach(function(b){
+      var sw = ship.px * SW;
+      if (b.x > ship.x - sw / 2 && b.x < ship.x + sw / 2 && b.y > ship.y && b.y < ship.y + ship.px * SH){
+        b.y = 9999; ship.flash = 8; s.lives--; if (s.lives <= 0) over = true; s.boom.push({x: ship.x, y: ship.y + 12, t: 0, col: CYN});
+      }
+    });
+    s.boom.forEach(function(b){ b.t += dt / 350; }); s.boom = s.boom.filter(function(b){ return b.t < 1; });
+    if (s.inv.every(function(i){ return !i.alive; })) won = true;
+  }
+  function draw(){
+    var s = st, ship = s.ship; ctx.clearRect(0, 0, W, H);
+    s.inv.forEach(drawInv);
+    ctx.fillStyle = PINK; s.bullets.forEach(function(b){ ctx.fillRect(b.x - 1, b.y, 3, 8); });
+    ctx.fillStyle = CYN; s.eb.forEach(function(b){ ctx.fillRect(b.x - 1, b.y, 3, 8); });
+    drawShip();
+    s.boom.forEach(function(b){ ctx.globalAlpha = 1 - b.t; ctx.fillStyle = b.col; for (var k = 0; k < 8; k++){ var a = k / 8 * Math.PI * 2, d = 8 * b.t * 2; ctx.fillRect(b.x + Math.cos(a) * d - 2, b.y + Math.sin(a) * d - 2, 4, 4); } ctx.globalAlpha = 1; });
+    ctx.fillStyle = CYN; ctx.font = 'bold 14px Silkscreen, monospace'; ctx.textAlign = 'left'; ctx.fillText(String(s.score), 12, 24);
+    ctx.fillStyle = '#9a9aa3'; ctx.font = '10px Silkscreen, monospace'; ctx.fillText('HI ' + hi, 12, 40);
+    ctx.fillStyle = PINK; for (var k = 0; k < s.lives; k++){ ctx.fillRect(W - 18 - k * 16, 14, 10, 4); ctx.fillRect(W - 15 - k * 16, 10, 4, 4); }
+    ctx.textAlign = 'center';
+    if (!active && !over && !won){ ctx.fillStyle = '#fff'; ctx.font = '12px Silkscreen, monospace'; ctx.fillText('CLICK TO START', W / 2, H / 2); }
+    if (over){ ctx.fillStyle = PINK; ctx.font = '22px Silkscreen, monospace'; ctx.fillText('GAME OVER', W / 2, H / 2 - 8); ctx.fillStyle = '#fff'; ctx.font = '10px Silkscreen, monospace'; ctx.fillText('SCORE ' + s.score + '   CLICK TO PLAY AGAIN', W / 2, H / 2 + 18); }
+    if (won){ ctx.fillStyle = CYN; ctx.font = '22px Silkscreen, monospace'; ctx.fillText('ALL CLEAR', W / 2, H / 2 - 8); ctx.fillStyle = '#fff'; ctx.font = '10px Silkscreen, monospace'; ctx.fillText('MAINTENANCE WINS   CLICK TO PLAY AGAIN', W / 2, H / 2 + 18); }
+    ctx.textAlign = 'left';
+  }
+  function loop(ts){ var dt = Math.min(ts - lastT, 80); lastT = ts; update(dt); draw(); raf = requestAnimationFrame(loop); }
+  function toX(e){ var r = C.getBoundingClientRect(); return (e.clientX - r.left) * (W / r.width); }
+  function open(){ opener = document.activeElement; ov.hidden = false; init(); draw(); lastT = performance.now(); if (raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); document.getElementById('arcade-close').focus(); }
+  function close(){ ov.hidden = true; active = false; if (raf) cancelAnimationFrame(raf); raf = null; if (opener && opener.focus) opener.focus(); }
+  document.getElementById('play-invaders').addEventListener('click', open);
+  document.getElementById('arcade-close').addEventListener('click', close);
+  ov.addEventListener('click', function(e){ if (e.target === ov) close(); });
+  C.addEventListener('click', function(e){ mouseX = toX(e); if (over || won){ init(); active = true; return; } if (!active) active = true; else shoot(); });
+  C.addEventListener('mousemove', function(e){ mouseX = toX(e); });
+  C.addEventListener('touchstart', function(e){ e.preventDefault(); mouseX = toX(e.touches[0]); if (over || won){ init(); active = true; return; } if (!active) active = true; else shoot(); }, {passive: false});
+  C.addEventListener('touchmove', function(e){ e.preventDefault(); mouseX = toX(e.touches[0]); }, {passive: false});
+  window.addEventListener('keydown', function(e){
+    if (ov.hidden) return;
+    if (e.key === 'Escape') close();
+    if (!active || !st) return;
+    if (e.key === 'l' || e.key === 'L' || e.key === ' '){ e.preventDefault(); shoot(); }
+    if (e.key === 'ArrowLeft') mouseX = Math.max(30, mouseX - 24);
+    if (e.key === 'ArrowRight') mouseX = Math.min(W - 30, mouseX + 24);
+  });
 })();
 </script>
 </body>
