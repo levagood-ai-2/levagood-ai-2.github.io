@@ -69,10 +69,6 @@
   .spot:hover .tip,.spot:focus-visible .tip,.spot:not(.link):focus-within .tip{opacity:1;visibility:visible;transform:translate(-50%,-8px) scale(calc(1 / var(--s,1)));transition:opacity .12s,transform .12s}
   .spot:hover .tip.down,.spot:focus-visible .tip.down,.spot:not(.link):focus-within .tip.down{transform:translate(-50%,8px) scale(calc(1 / var(--s,1)))}
   .tip .two{display:flex;gap:12px;pointer-events:auto} .tip .two a{color:#0A0A0A;text-decoration:underline;text-underline-offset:2px;padding:4px 2px} .tip .two a:hover{color:var(--pink)}
-  /* the heart over the pump house */
-  .pumpheart{pointer-events:none;position:absolute;left:501px;top:106px;width:38px;height:auto;overflow:visible;transform:translate(-50%,-50%);transform-origin:50% 50%;
-    filter:drop-shadow(0 0 6px rgba(255,46,136,.55));animation:beat 1.1s ease-out infinite}
-  @keyframes beat{0%{transform:translate(-50%,-50%) scale(1)}8%{transform:translate(-50%,-50%) scale(1.10)}16%{transform:translate(-50%,-50%) scale(1)}30%{transform:translate(-50%,-50%) scale(1.05)}40%,100%{transform:translate(-50%,-50%) scale(1)}}
 
   /* the arcade cabinet in the guard shack */
   .arcade{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:rgba(10,10,15,.88);padding:16px}
@@ -105,7 +101,100 @@
   .footer-col a{font-size:14px;color:rgba(255,255,255,.55);text-decoration:none} .footer-col a:hover{color:#fff}
   .footer-bottom{padding:20px 0;font-size:13px;color:#3A3A3A} .footer-bottom .wrap{max-width:1180px;margin:0 auto;padding:0 32px}
   @media(max-width:720px){.hero{padding:120px 0 40px} .footer-inner{grid-template-columns:1fr;gap:32px} .footer-links{grid-template-columns:1fr 1fr}}
-  @media (prefers-reduced-motion:reduce){.pumpheart{animation:none}}
+
+  /* speech bubbles over the map, sized against the stage scale like the room labels */
+  .bubbles{position:absolute;left:0;top:0;width:1440px;height:840px;pointer-events:none;z-index:4}
+  .bub{position:absolute;left:0;top:0;width:max-content;max-width:240px;padding:6px 10px 8px;background:#fff;border:2px solid #0A0A0A;box-shadow:3px 3px 0 #0A0A0A;
+    font:600 13px/1.3 "Inter Tight",system-ui,sans-serif;color:#0A0A0A;white-space:normal;text-wrap:pretty;
+    transform-origin:50% 100%;transform:translate(-50%,calc(-100% - 10px)) scale(calc(1 / var(--s,1)));transition:opacity .25s}
+  .bub.bye{opacity:0}
+  .bub b{display:block;margin-bottom:3px;font-family:Silkscreen,"Press Start 2P",monospace;font-weight:400;font-size:9px;letter-spacing:.08em;line-height:1;color:var(--who)}
+  .bub::after{content:"";position:absolute;left:50%;bottom:-7px;width:10px;height:10px;background:#fff;border-right:2px solid #0A0A0A;border-bottom:2px solid #0A0A0A;transform:translateX(-50%) rotate(45deg)}
+  .bub-leva{--who:#FF2E88} .bub-ari{--who:#b4501f} .bub-m{--who:#26358c} .bub-mel{--who:#16876a}
+
+  /* the board under the map */
+  .deck{padding:72px 0 88px;background:#fff}
+  .deck-wrap{max-width:1180px;margin:0 auto;padding:0 32px}
+  .deck-head{max-width:720px;margin-bottom:40px}
+  .deck-head h2{font-weight:900;letter-spacing:-.04em;line-height:1.02;font-size:clamp(32px,4.4vw,52px);margin-bottom:16px;text-wrap:balance}
+  .deck-lead{font-size:18px;color:var(--grey);font-weight:500;line-height:1.55;max-width:60ch}
+  .deck-grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:28px;align-items:start}
+  .panel{background:#fff;border:2px solid #0A0A0A;box-shadow:5px 5px 0 #0A0A0A;padding:20px 20px 22px;min-width:0}
+  .panel h3,.who h3{font-family:Silkscreen,"Press Start 2P",monospace;font-weight:400;font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px}
+  .water .reading{margin-bottom:18px}
+  .rtop{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .lbl{font-size:14px;font-weight:600;color:var(--grey)}
+  .val{font-weight:900;font-size:38px;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+  .val small{font-size:14px;font-weight:600;color:var(--grey);margin-left:4px;letter-spacing:0}
+  .gauge{position:relative;height:12px;margin:10px 0 6px;background:#EFEDF4;border:2px solid #0A0A0A}
+  .gauge::before{content:"";position:absolute;top:0;bottom:0;left:var(--ok-l,30%);right:var(--ok-r,30%);background:var(--mint);border-left:2px solid #0A0A0A;border-right:2px solid #0A0A0A}
+  .gauge i{position:absolute;top:-6px;bottom:-6px;left:var(--v,50%);width:4px;margin-left:-2px;background:#0A0A0A;transition:left .6s}
+  .gauge.off i{background:var(--pink)} .gauge.none i{display:none}
+  .scale{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--grey);font-variant-numeric:tabular-nums}
+  .tested{font-size:14px;color:var(--grey);margin:4px 0 16px;line-height:1.45}
+  .leaves{display:flex;justify-content:space-between;align-items:baseline;padding:12px 0;border-top:2px solid #0A0A0A;border-bottom:2px solid #0A0A0A;margin-bottom:14px}
+  .leaves .val{font-size:26px}
+  .today{font-size:14px;line-height:1.5;color:#2a2a30} .today b{display:block;font-family:Silkscreen,monospace;font-weight:400;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:4px}
+  .cast{grid-column:1 / -1;list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+  .who{display:grid;grid-template-columns:80px minmax(0,1fr);grid-template-areas:"face head" "body body";gap:14px;align-content:start;background:#fff;border:2px solid #0A0A0A;box-shadow:5px 5px 0 #0A0A0A;padding:16px;min-width:0}
+  .who .face{grid-area:face;width:80px;height:80px;border:2px solid #0A0A0A;background:url(pool/faces.png) calc(var(--i) * -81.6667px) 0/325px 80px no-repeat;image-rendering:pixelated;image-rendering:crisp-edges}
+  .who-leva .face{background-color:var(--sky)} .who-ari .face{background-color:var(--peach)} .who-m .face{background-color:var(--wpink)} .who-mel .face{background-color:var(--lilac)}
+  .who-head{grid-area:head;min-width:0;align-self:center}
+  .who-body{grid-area:body;min-width:0;border-top:2px solid #0A0A0A;padding-top:12px}
+  .who h3{font-family:"Inter Tight",system-ui,sans-serif;font-weight:900;font-size:24px;letter-spacing:-.03em;text-transform:none;margin:0 0 4px;line-height:1}
+  .role{font-size:13px;color:var(--grey);line-height:1.4}
+  .now{font-size:15px;font-weight:700;line-height:1.35;margin-bottom:8px;text-wrap:pretty}
+  .now::before{content:"Now";display:block;font-family:Silkscreen,monospace;font-weight:400;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--pink);margin-bottom:4px}
+  .knows{font-size:13px;color:#3d3d44;line-height:1.45;text-wrap:pretty}
+  .log-list{list-style:none;display:flex;flex-direction:column;gap:12px;max-height:520px;overflow-y:auto}
+  .log-list li{font-size:14px;line-height:1.45;padding:2px 0 2px 12px;border-left:4px solid var(--line)}
+  .log-list li.w-leva{border-left-color:var(--pink)} .log-list li.w-ari{border-left-color:#c65a28} .log-list li.w-m{border-left-color:#26358c} .log-list li.w-mel{border-left-color:#3fbf93}
+  .log-list time{display:block;font-family:Silkscreen,monospace;font-size:10px;letter-spacing:.06em;color:var(--grey);margin-bottom:2px;font-variant-numeric:tabular-nums}
+  .log-list .empty{color:var(--grey)}
+  @media(max-width:1100px){.cast{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:720px){.deck{padding:48px 0 64px} .deck-wrap{padding:0 16px} .deck-grid{grid-template-columns:minmax(0,1fr)} .cast{grid-template-columns:minmax(0,1fr)}}
+
+  /* the chat box */
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .lchat{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:12px;pointer-events:none}
+  .lchat>*{pointer-events:auto}
+  .lchat-open{display:inline-flex;align-items:center;gap:10px;font:800 15px/1 "Inter Tight",system-ui,sans-serif;letter-spacing:-.01em;color:#0A0A0A;background:#fff;border:2px solid #0A0A0A;box-shadow:4px 4px 0 var(--pink);padding:12px 16px;cursor:pointer;transition:transform .12s,box-shadow .12s}
+  .lchat-open:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--pink)}
+  .lchat-open:focus-visible,.lchat-x:focus-visible,.lchat-chips button:focus-visible,.lchat-form button:focus-visible,.lchat-link:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+  .lchat-heart svg{display:block;width:18px;height:auto}
+  .lchat.thinking .lchat-heart svg,.lchat-beat.beating svg{animation:thump 1.1s ease-out infinite}
+  @keyframes thump{0%{transform:scale(1)}8%{transform:scale(1.18)}16%{transform:scale(1)}30%{transform:scale(1.09)}40%,100%{transform:scale(1)}}
+  .lchat-panel{width:min(390px,calc(100vw - 32px));height:min(560px,calc(100vh - 120px));display:flex;flex-direction:column;background:#fff;border:2px solid #0A0A0A;box-shadow:6px 6px 0 #0A0A0A}
+  .lchat-panel[hidden]{display:none}
+  .lchat-top{display:flex;align-items:center;gap:12px;padding:12px 12px 12px 14px;border-bottom:2px solid #0A0A0A;background:linear-gradient(100deg,var(--sky),var(--lilac) 60%,var(--wpink))}
+  .lchat-face{flex:none;width:48px;height:48px;border:2px solid #0A0A0A;background:#fff url(pool/faces.png) 0 0/195px 48px no-repeat;image-rendering:pixelated}
+  .lchat-id{flex:1;min-width:0}
+  .lchat-id b{display:block;font-weight:900;font-size:22px;letter-spacing:-.04em;line-height:1}
+  .lchat-id span{display:block;font-size:12px;font-weight:600;color:#3d3d44;margin-top:3px}
+  .lchat-beat svg{display:block;width:24px;height:auto;filter:drop-shadow(0 0 6px rgba(255,46,136,.45))}
+  .lchat-x{font:inherit;font-size:26px;line-height:1;color:#0A0A0A;background:none;border:0;cursor:pointer;padding:2px 6px}
+  .lchat-x:hover{color:var(--pink)}
+  .lchat-log{flex:1;min-height:0;overflow-y:auto;list-style:none;padding:14px;display:flex;flex-direction:column;gap:10px;background:#FBFAFD}
+  .lchat-log li{display:flex}
+  .lchat-log p{max-width:86%;padding:9px 12px 10px;font-size:15px;line-height:1.45;border:2px solid #0A0A0A;background:#fff;overflow-wrap:anywhere}
+  .lchat-log .m-leva p{box-shadow:3px 3px 0 var(--lilac)}
+  .lchat-log .m-you{justify-content:flex-end}
+  .lchat-log .m-you p{background:#0A0A0A;color:#fff}
+  .lchat-chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px 0;background:#FBFAFD}
+  .lchat-chips[hidden]{display:none}
+  .lchat-chips button{font:700 13px/1 "Inter Tight",system-ui,sans-serif;padding:8px 10px;border:2px solid #0A0A0A;background:#fff;color:#0A0A0A;cursor:pointer}
+  .lchat-chips button:hover{background:var(--wpink)}
+  .lchat-form{display:flex;gap:8px;padding:12px 14px;border-top:2px solid #0A0A0A;background:#fff}
+  .lchat-form input{flex:1;min-width:0;font:500 16px/1.2 "Inter Tight",system-ui,sans-serif;color:#0A0A0A;padding:10px 12px;border:2px solid #0A0A0A;border-radius:0;outline:0;background:#fff}
+  .lchat-form input:focus{box-shadow:3px 3px 0 var(--pink)}
+  .lchat-form button{font:800 14px/1 "Inter Tight",system-ui,sans-serif;padding:0 16px;background:#0A0A0A;color:#fff;border:2px solid #0A0A0A;cursor:pointer}
+  .lchat-form button:hover{background:var(--pink);border-color:var(--pink)}
+  .lchat-form button:disabled{opacity:.45;cursor:default;background:#0A0A0A;border-color:#0A0A0A}
+  .lchat-foot{padding:0 14px 12px;font-size:12px;line-height:1.45;color:var(--grey);background:#fff}
+  .lchat-link{font:inherit;font-weight:700;color:#0A0A0A;background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+  .lchat-link:hover{color:var(--pink)}
+  @media(max-width:560px){.lchat{left:16px;align-items:stretch} .lchat-open{align-self:flex-end} .lchat.on .lchat-open{display:none} .lchat-panel{width:100%;height:min(600px,calc(100vh - 40px))}}
+  @media (prefers-reduced-motion:reduce){.lchat.thinking .lchat-heart svg,.lchat-beat.beating svg{animation:none} .gauge i{transition:none} .lchat-open{transition:none}}
 </style>
 </head>
 <body>
@@ -121,7 +210,7 @@
   <div class="wrap">
     <div class="eyebrow">Where it started</div>
     <h1>Levagood Pool,<br>from above.</h1>
-    <p class="lead">Dearborn, Michigan. The 50 meter pool, the diving well, the zero depth pool, the pump room, and the building with every room where it really is. leva is Maintenance. During pool hours he checks the water and reports to the office. After close he skims, vacuums and goes down in the pit to check the pump. The map follows your clock, day and night. The links live in the rooms they belong to.</p>
+    <p class="lead">Dearborn, Michigan. The 50 meter pool, the diving well, the zero depth pool, the pump room, and the building with every room where it really is. leva is Maintenance, and he runs the place on his own. He tests the water, keeps the chemistry right, skims the leaves, and gets Ari out of the pool. Again. M and Mel are regulars. The map follows your clock, day and night. Say hi to leva in the chat.</p>
   </div>
 </section>
 
@@ -154,7 +243,7 @@
 <div class="spot" tabindex="0" role="note" aria-label="MENS BATHROOM" style="left:950px;top:470px;width:130px;height:108px"><span class="tip"><b>MENS BATHROOM</b></span></div>
 <button type="button" class="spot link" data-room="entrance" style="left:1044px;top:290px;width:36px;height:180px" aria-label="ENTRANCE, come on in"><span class="tip"><b>ENTRANCE</b><span>come on in</span></span></button>
 <div class="spot" tabindex="0" role="note" id="chip-band" hidden aria-label="FRIDAY MUSIC, on the deck till close" style="left:736px;top:636px;width:88px;height:112px"><span class="tip"><b>FRIDAY MUSIC</b><span>on the deck till close</span></span></div>
-      <svg class="pumpheart" viewBox="0 0 114 108" shape-rendering="crispEdges" aria-hidden="true"><rect x="12" y="0" width="6" height="6" fill="#FF2E88"/><rect x="18" y="0" width="6" height="6" fill="#FF2E88"/><rect x="24" y="0" width="6" height="6" fill="#FF2E88"/><rect x="30" y="0" width="6" height="6" fill="#FF2E88"/><rect x="36" y="0" width="6" height="6" fill="#FF2E88"/><rect x="42" y="0" width="6" height="6" fill="#FF2E88"/><rect x="60" y="0" width="6" height="6" fill="#FF2E88"/><rect x="66" y="0" width="6" height="6" fill="#FF2E88"/><rect x="72" y="0" width="6" height="6" fill="#FF2E88"/><rect x="78" y="0" width="6" height="6" fill="#FF2E88"/><rect x="84" y="0" width="6" height="6" fill="#FF2E88"/><rect x="90" y="0" width="6" height="6" fill="#FF2E88"/><rect x="6" y="6" width="6" height="6" fill="#FF2E88"/><rect x="12" y="6" width="6" height="6" fill="#FF2E88"/><rect x="18" y="6" width="6" height="6" fill="#FF2E88"/><rect x="24" y="6" width="6" height="6" fill="#FF2E88"/><rect x="30" y="6" width="6" height="6" fill="#FF2E88"/><rect x="36" y="6" width="6" height="6" fill="#FF2E88"/><rect x="42" y="6" width="6" height="6" fill="#FF2E88"/><rect x="48" y="6" width="6" height="6" fill="#FF2E88"/><rect x="54" y="6" width="6" height="6" fill="#FF2E88"/><rect x="60" y="6" width="6" height="6" fill="#FF2E88"/><rect x="66" y="6" width="6" height="6" fill="#FF2E88"/><rect x="72" y="6" width="6" height="6" fill="#FF2E88"/><rect x="78" y="6" width="6" height="6" fill="#FF2E88"/><rect x="84" y="6" width="6" height="6" fill="#FF2E88"/><rect x="90" y="6" width="6" height="6" fill="#FF2E88"/><rect x="96" y="6" width="6" height="6" fill="#FF2E88"/><rect x="6" y="12" width="6" height="6" fill="#FF2E88"/><rect x="12" y="12" width="6" height="6" fill="#FF96C8"/><rect x="18" y="12" width="6" height="6" fill="#FF96C8"/><rect x="24" y="12" width="6" height="6" fill="#FF96C8"/><rect x="30" y="12" width="6" height="6" fill="#FF96C8"/><rect x="36" y="12" width="6" height="6" fill="#FF2E88"/><rect x="42" y="12" width="6" height="6" fill="#FF2E88"/><rect x="48" y="12" width="6" height="6" fill="#FF2E88"/><rect x="54" y="12" width="6" height="6" fill="#FF2E88"/><rect x="60" y="12" width="6" height="6" fill="#FF2E88"/><rect x="66" y="12" width="6" height="6" fill="#FF2E88"/><rect x="72" y="12" width="6" height="6" fill="#FF2E88"/><rect x="78" y="12" width="6" height="6" fill="#FF2E88"/><rect x="84" y="12" width="6" height="6" fill="#FF2E88"/><rect x="90" y="12" width="6" height="6" fill="#FF2E88"/><rect x="96" y="12" width="6" height="6" fill="#FF2E88"/><rect x="0" y="18" width="6" height="6" fill="#FF2E88"/><rect x="6" y="18" width="6" height="6" fill="#FF2E88"/><rect x="12" y="18" width="6" height="6" fill="#FF96C8"/><rect x="18" y="18" width="6" height="6" fill="#FF96C8"/><rect x="24" y="18" width="6" height="6" fill="#FF96C8"/><rect x="30" y="18" width="6" height="6" fill="#FF96C8"/><rect x="36" y="18" width="6" height="6" fill="#FF2E88"/><rect x="42" y="18" width="6" height="6" fill="#FF2E88"/><rect x="48" y="18" width="6" height="6" fill="#FF2E88"/><rect x="54" y="18" width="6" height="6" fill="#FF2E88"/><rect x="60" y="18" width="6" height="6" fill="#FF2E88"/><rect x="66" y="18" width="6" height="6" fill="#FF2E88"/><rect x="72" y="18" width="6" height="6" fill="#FF2E88"/><rect x="78" y="18" width="6" height="6" fill="#FF2E88"/><rect x="84" y="18" width="6" height="6" fill="#FF2E88"/><rect x="90" y="18" width="6" height="6" fill="#FF2E88"/><rect x="96" y="18" width="6" height="6" fill="#FF2E88"/><rect x="102" y="18" width="6" height="6" fill="#FF2E88"/><rect x="0" y="24" width="6" height="6" fill="#FF2E88"/><rect x="6" y="24" width="6" height="6" fill="#FF2E88"/><rect x="12" y="24" width="6" height="6" fill="#FF96C8"/><rect x="18" y="24" width="6" height="6" fill="#FF96C8"/><rect x="24" y="24" width="6" height="6" fill="#FF96C8"/><rect x="30" y="24" width="6" height="6" fill="#FF96C8"/><rect x="36" y="24" width="6" height="6" fill="#FF2E88"/><rect x="42" y="24" width="6" height="6" fill="#FF2E88"/><rect x="48" y="24" width="6" height="6" fill="#FF2E88"/><rect x="54" y="24" width="6" height="6" fill="#FF2E88"/><rect x="60" y="24" width="6" height="6" fill="#FF2E88"/><rect x="66" y="24" width="6" height="6" fill="#FF2E88"/><rect x="72" y="24" width="6" height="6" fill="#FF2E88"/><rect x="78" y="24" width="6" height="6" fill="#FF2E88"/><rect x="84" y="24" width="6" height="6" fill="#FF2E88"/><rect x="90" y="24" width="6" height="6" fill="#FF2E88"/><rect x="96" y="24" width="6" height="6" fill="#FF2E88"/><rect x="102" y="24" width="6" height="6" fill="#FF2E88"/><rect x="6" y="30" width="6" height="6" fill="#FF2E88"/><rect x="12" y="30" width="6" height="6" fill="#FF2E88"/><rect x="18" y="30" width="6" height="6" fill="#FF96C8"/><rect x="24" y="30" width="6" height="6" fill="#FF96C8"/><rect x="30" y="30" width="6" height="6" fill="#FF96C8"/><rect x="36" y="30" width="6" height="6" fill="#FF96C8"/><rect x="42" y="30" width="6" height="6" fill="#FF2E88"/><rect x="48" y="30" width="6" height="6" fill="#FF2E88"/><rect x="54" y="30" width="6" height="6" fill="#FF2E88"/><rect x="60" y="30" width="6" height="6" fill="#FF2E88"/><rect x="66" y="30" width="6" height="6" fill="#FF2E88"/><rect x="72" y="30" width="6" height="6" fill="#FF2E88"/><rect x="78" y="30" width="6" height="6" fill="#FF2E88"/><rect x="84" y="30" width="6" height="6" fill="#FF2E88"/><rect x="90" y="30" width="6" height="6" fill="#FF2E88"/><rect x="96" y="30" width="6" height="6" fill="#FF2E88"/><rect x="102" y="30" width="6" height="6" fill="#FF2E88"/><rect x="108" y="30" width="6" height="6" fill="#FF2E88"/><rect x="-6" y="36" width="6" height="6" fill="#FF2E88"/><rect x="0" y="36" width="6" height="6" fill="#FF2E88"/><rect x="6" y="36" width="6" height="6" fill="#FF2E88"/><rect x="12" y="36" width="6" height="6" fill="#FF2E88"/><rect x="18" y="36" width="6" height="6" fill="#FF2E88"/><rect x="24" y="36" width="6" height="6" fill="#FF2E88"/><rect x="30" y="36" width="6" height="6" fill="#FF2E88"/><rect x="36" y="36" width="6" height="6" fill="#FF2E88"/><rect x="42" y="36" width="6" height="6" fill="#FF2E88"/><rect x="48" y="36" width="6" height="6" fill="#FF2E88"/><rect x="54" y="36" width="6" height="6" fill="#FF2E88"/><rect x="60" y="36" width="6" height="6" fill="#FF2E88"/><rect x="66" y="36" width="6" height="6" fill="#FF2E88"/><rect x="72" y="36" width="6" height="6" fill="#FF2E88"/><rect x="78" y="36" width="6" height="6" fill="#FF2E88"/><rect x="84" y="36" width="6" height="6" fill="#FF2E88"/><rect x="90" y="36" width="6" height="6" fill="#FF2E88"/><rect x="96" y="36" width="6" height="6" fill="#FF2E88"/><rect x="0" y="42" width="6" height="6" fill="#FF2E88"/><rect x="6" y="42" width="6" height="6" fill="#FF2E88"/><rect x="12" y="42" width="6" height="6" fill="#FF2E88"/><rect x="18" y="42" width="6" height="6" fill="#FF2E88"/><rect x="24" y="42" width="6" height="6" fill="#FF2E88"/><rect x="30" y="42" width="6" height="6" fill="#FF2E88"/><rect x="36" y="42" width="6" height="6" fill="#FF2E88"/><rect x="42" y="42" width="6" height="6" fill="#FF2E88"/><rect x="48" y="42" width="6" height="6" fill="#FF2E88"/><rect x="54" y="42" width="6" height="6" fill="#FF2E88"/><rect x="60" y="42" width="6" height="6" fill="#FF2E88"/><rect x="66" y="42" width="6" height="6" fill="#FF2E88"/><rect x="72" y="42" width="6" height="6" fill="#FF2E88"/><rect x="78" y="42" width="6" height="6" fill="#FF2E88"/><rect x="84" y="42" width="6" height="6" fill="#FF2E88"/><rect x="90" y="42" width="6" height="6" fill="#FF2E88"/><rect x="96" y="42" width="6" height="6" fill="#FF2E88"/><rect x="102" y="42" width="6" height="6" fill="#FF2E88"/><rect x="6" y="48" width="6" height="6" fill="#FF2E88"/><rect x="12" y="48" width="6" height="6" fill="#FF2E88"/><rect x="18" y="48" width="6" height="6" fill="#FF2E88"/><rect x="24" y="48" width="6" height="6" fill="#FF2E88"/><rect x="30" y="48" width="6" height="6" fill="#FF2E88"/><rect x="36" y="48" width="6" height="6" fill="#FF2E88"/><rect x="42" y="48" width="6" height="6" fill="#FF2E88"/><rect x="48" y="48" width="6" height="6" fill="#FF2E88"/><rect x="54" y="48" width="6" height="6" fill="#FF2E88"/><rect x="60" y="48" width="6" height="6" fill="#FF2E88"/><rect x="66" y="48" width="6" height="6" fill="#FF2E88"/><rect x="72" y="48" width="6" height="6" fill="#FF2E88"/><rect x="78" y="48" width="6" height="6" fill="#FF2E88"/><rect x="84" y="48" width="6" height="6" fill="#FF2E88"/><rect x="90" y="48" width="6" height="6" fill="#FF2E88"/><rect x="96" y="48" width="6" height="6" fill="#FF2E88"/><rect x="6" y="54" width="6" height="6" fill="#FF2E88"/><rect x="12" y="54" width="6" height="6" fill="#FF2E88"/><rect x="18" y="54" width="6" height="6" fill="#FF2E88"/><rect x="24" y="54" width="6" height="6" fill="#FF2E88"/><rect x="30" y="54" width="6" height="6" fill="#FF2E88"/><rect x="36" y="54" width="6" height="6" fill="#FF2E88"/><rect x="42" y="54" width="6" height="6" fill="#FF2E88"/><rect x="48" y="54" width="6" height="6" fill="#FF2E88"/><rect x="54" y="54" width="6" height="6" fill="#FF2E88"/><rect x="60" y="54" width="6" height="6" fill="#FF2E88"/><rect x="66" y="54" width="6" height="6" fill="#FF2E88"/><rect x="72" y="54" width="6" height="6" fill="#FF2E88"/><rect x="78" y="54" width="6" height="6" fill="#FF2E88"/><rect x="84" y="54" width="6" height="6" fill="#FF2E88"/><rect x="90" y="54" width="6" height="6" fill="#FF2E88"/><rect x="96" y="54" width="6" height="6" fill="#FF2E88"/><rect x="6" y="60" width="6" height="6" fill="#FF2E88"/><rect x="12" y="60" width="6" height="6" fill="#FF2E88"/><rect x="18" y="60" width="6" height="6" fill="#FF2E88"/><rect x="24" y="60" width="6" height="6" fill="#FF2E88"/><rect x="30" y="60" width="6" height="6" fill="#FF2E88"/><rect x="36" y="60" width="6" height="6" fill="#FF2E88"/><rect x="42" y="60" width="6" height="6" fill="#FF2E88"/><rect x="48" y="60" width="6" height="6" fill="#FF2E88"/><rect x="54" y="60" width="6" height="6" fill="#FF2E88"/><rect x="60" y="60" width="6" height="6" fill="#FF2E88"/><rect x="66" y="60" width="6" height="6" fill="#FF2E88"/><rect x="72" y="60" width="6" height="6" fill="#FF2E88"/><rect x="78" y="60" width="6" height="6" fill="#FF2E88"/><rect x="84" y="60" width="6" height="6" fill="#FF2E88"/><rect x="90" y="60" width="6" height="6" fill="#FF2E88"/><rect x="96" y="60" width="6" height="6" fill="#FF2E88"/><rect x="12" y="66" width="6" height="6" fill="#FF2E88"/><rect x="18" y="66" width="6" height="6" fill="#FF2E88"/><rect x="24" y="66" width="6" height="6" fill="#FF2E88"/><rect x="30" y="66" width="6" height="6" fill="#FF2E88"/><rect x="36" y="66" width="6" height="6" fill="#FF2E88"/><rect x="42" y="66" width="6" height="6" fill="#FF2E88"/><rect x="48" y="66" width="6" height="6" fill="#FF2E88"/><rect x="54" y="66" width="6" height="6" fill="#FF2E88"/><rect x="60" y="66" width="6" height="6" fill="#FF2E88"/><rect x="66" y="66" width="6" height="6" fill="#FF2E88"/><rect x="72" y="66" width="6" height="6" fill="#FF2E88"/><rect x="78" y="66" width="6" height="6" fill="#FF2E88"/><rect x="84" y="66" width="6" height="6" fill="#FF2E88"/><rect x="90" y="66" width="6" height="6" fill="#FF2E88"/><rect x="18" y="72" width="6" height="6" fill="#FF2E88"/><rect x="24" y="72" width="6" height="6" fill="#FF2E88"/><rect x="30" y="72" width="6" height="6" fill="#FF2E88"/><rect x="36" y="72" width="6" height="6" fill="#FF2E88"/><rect x="42" y="72" width="6" height="6" fill="#FF2E88"/><rect x="48" y="72" width="6" height="6" fill="#FF2E88"/><rect x="54" y="72" width="6" height="6" fill="#FF2E88"/><rect x="60" y="72" width="6" height="6" fill="#FF2E88"/><rect x="66" y="72" width="6" height="6" fill="#FF2E88"/><rect x="72" y="72" width="6" height="6" fill="#FF2E88"/><rect x="78" y="72" width="6" height="6" fill="#FF2E88"/><rect x="84" y="72" width="6" height="6" fill="#FF2E88"/><rect x="24" y="78" width="6" height="6" fill="#FF2E88"/><rect x="30" y="78" width="6" height="6" fill="#FF2E88"/><rect x="36" y="78" width="6" height="6" fill="#FF2E88"/><rect x="42" y="78" width="6" height="6" fill="#FF2E88"/><rect x="48" y="78" width="6" height="6" fill="#FF2E88"/><rect x="54" y="78" width="6" height="6" fill="#FF2E88"/><rect x="60" y="78" width="6" height="6" fill="#FF2E88"/><rect x="66" y="78" width="6" height="6" fill="#FF2E88"/><rect x="72" y="78" width="6" height="6" fill="#FF2E88"/><rect x="78" y="78" width="6" height="6" fill="#FF2E88"/><rect x="84" y="78" width="6" height="6" fill="#FF2E88"/><rect x="90" y="78" width="6" height="6" fill="#FF2E88"/><rect x="24" y="84" width="6" height="6" fill="#FF2E88"/><rect x="30" y="84" width="6" height="6" fill="#FF2E88"/><rect x="36" y="84" width="6" height="6" fill="#FF2E88"/><rect x="42" y="84" width="6" height="6" fill="#FF2E88"/><rect x="48" y="84" width="6" height="6" fill="#FF2E88"/><rect x="54" y="84" width="6" height="6" fill="#FF2E88"/><rect x="60" y="84" width="6" height="6" fill="#FF2E88"/><rect x="66" y="84" width="6" height="6" fill="#FF2E88"/><rect x="72" y="84" width="6" height="6" fill="#FF2E88"/><rect x="78" y="84" width="6" height="6" fill="#FF2E88"/><rect x="36" y="90" width="6" height="6" fill="#FF2E88"/><rect x="42" y="90" width="6" height="6" fill="#FF2E88"/><rect x="48" y="90" width="6" height="6" fill="#FF2E88"/><rect x="54" y="90" width="6" height="6" fill="#FF2E88"/><rect x="60" y="90" width="6" height="6" fill="#FF2E88"/><rect x="66" y="90" width="6" height="6" fill="#FF2E88"/><rect x="42" y="96" width="6" height="6" fill="#FF2E88"/><rect x="48" y="96" width="6" height="6" fill="#FF2E88"/><rect x="54" y="96" width="6" height="6" fill="#FF2E88"/><rect x="60" y="96" width="6" height="6" fill="#FF2E88"/><rect x="48" y="102" width="6" height="6" fill="#FF2E88"/><rect x="54" y="102" width="6" height="6" fill="#FF2E88"/><rect x="-6" y="37.8" width="48" height="2.4" fill="#00F0FF"/><rect x="24" y="85.8" width="24" height="2.4" fill="#00F0FF"/></svg>
+      <div class="bubbles" id="bubbles" aria-hidden="true"></div>
     </div>
    </div>
   </div>
@@ -169,6 +258,45 @@
     <li><a href="privacy.html">Storage, privacy</a></li>
   </ul>
 </section>
+
+<section class="deck" aria-labelledby="deck-title">
+  <div class="deck-wrap">
+    <div class="deck-head">
+      <div class="eyebrow">Live from the deck</div>
+      <h2 id="deck-title">Nobody tells leva what to do next.</h2>
+      <p class="deck-lead">He reads the water and decides. Ari, M and Mel learn from each other, and from him. Everything below updates as it happens, and the deck remembers where it left off the next time you come by.</p>
+    </div>
+    <div class="deck-grid">
+      <ul class="cast" aria-label="Who is on the deck">
+        <li class="who who-leva" style="--i:0"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>leva</h3><p class="role">Maintenance. Runs the place.</p></div><div class="who-body"><p class="now" id="s-leva">Starting his rounds</p><p class="knows" id="k-leva"></p></div></li>
+        <li class="who who-ari" style="--i:1"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Ari</h3><p class="role">Corn red beagle. Not allowed in the pool.</p></div><div class="who-body"><p class="now" id="s-ari">Waking up</p><p class="knows" id="k-ari"></p></div></li>
+        <li class="who who-m" style="--i:2"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>M</h3><p class="role">Regular. Goggles on, cannonballs first.</p></div><div class="who-body"><p class="now" id="s-m"></p><p class="knows" id="k-m"></p></div></li>
+        <li class="who who-mel" style="--i:3"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Mel</h3><p class="role">Regular. Asks leva everything.</p></div><div class="who-body"><p class="now" id="s-mel"></p><p class="knows" id="k-mel"></p></div></li>
+      </ul>
+      <div class="panel water">
+        <h3>The water</h3>
+        <div class="reading">
+          <div class="rtop"><span class="lbl">pH</span><span class="val" id="b-ph">--</span></div>
+          <div class="gauge" id="g-ph"><i></i></div>
+          <div class="scale"><span>6.8</span><span>Keep it 7.2 to 7.8</span><span>8.2</span></div>
+        </div>
+        <div class="reading">
+          <div class="rtop"><span class="lbl">Free chlorine</span><span class="val"><span id="b-cl">--</span><small>ppm</small></span></div>
+          <div class="gauge" id="g-cl"><i></i></div>
+          <div class="scale"><span>0</span><span>Keep it 1 to 3 ppm</span><span>5</span></div>
+        </div>
+        <p class="tested" id="b-tested">leva is starting his rounds.</p>
+        <div class="leaves"><span class="lbl">Leaves on the water</span><span class="val" id="b-leaves">0</span></div>
+        <p class="today"><b>Today</b> <span id="b-today"></span></p>
+      </div>
+      <div class="panel log">
+        <h3>Deck log</h3>
+        <ol class="log-list" id="b-log"></ol>
+      </div>
+    </div>
+  </div>
+</section>
+
 
 <div class="arcade" id="room" hidden>
   <div class="arcade-cab wide" role="dialog" aria-modal="true" aria-labelledby="room-title">
@@ -187,6 +315,27 @@
     <canvas id="si" width="560" height="420"></canvas>
     <div class="arcade-hint">Move the mouse. Click or press L to shoot. On a phone, drag and tap. Esc closes the cabinet.</div>
   </div>
+</div>
+
+
+<div class="lchat" id="lchat">
+  <div class="lchat-panel" id="lchat-panel" role="dialog" aria-label="Talk to leva" hidden>
+    <div class="lchat-top">
+      <span class="lchat-face" aria-hidden="true"></span>
+      <div class="lchat-id"><b>leva</b><span id="lchat-status">Maintenance, Levagood Pool</span></div>
+      <span class="lchat-beat" id="lchat-beat" aria-hidden="true"><svg viewBox="0 0 7 6" shape-rendering="crispEdges" aria-hidden="true"><g fill="#FF2E88"><rect x="1" y="0" width="2" height="1"/><rect x="4" y="0" width="2" height="1"/><rect x="0" y="1" width="7" height="2"/><rect x="1" y="3" width="5" height="1"/><rect x="2" y="4" width="3" height="1"/><rect x="3" y="5" width="1" height="1"/></g><rect x="1" y="1" width="1" height="1" fill="#fff" opacity=".75"/></svg></span>
+      <button type="button" class="lchat-x" id="lchat-close" aria-label="Close the chat">&times;</button>
+    </div>
+    <ol class="lchat-log" id="lchat-log" aria-live="polite"></ol>
+    <div class="lchat-chips" id="lchat-chips"></div>
+    <form class="lchat-form" id="lchat-form">
+      <label for="lchat-in" class="sr">Message leva</label>
+      <input id="lchat-in" type="text" autocomplete="off" maxlength="400" placeholder="Ask leva about the pool">
+      <button type="submit" id="lchat-send">Send</button>
+    </form>
+    <p class="lchat-foot" id="lchat-foot"></p>
+  </div>
+  <button type="button" class="lchat-open" id="lchat-open" aria-expanded="false" aria-controls="lchat-panel"><span class="lchat-heart"><svg viewBox="0 0 7 6" shape-rendering="crispEdges" aria-hidden="true"><g fill="#FF2E88"><rect x="1" y="0" width="2" height="1"/><rect x="4" y="0" width="2" height="1"/><rect x="0" y="1" width="7" height="2"/><rect x="1" y="3" width="5" height="1"/><rect x="2" y="4" width="3" height="1"/><rect x="3" y="5" width="1" height="1"/></g><rect x="1" y="1" width="1" height="1" fill="#fff" opacity=".75"/></svg></span>Talk to leva</button>
 </div>
 
 <footer>
@@ -220,6 +369,7 @@
   </div>
 </footer>
 
+<script src="pool-life.js?v=1"></script>
 <script>
 (function(){
   // scale the 1440 x 840 stage to the page width
@@ -298,58 +448,11 @@
   var diver = {t: 0};
 
   // ---------------- leva ----------------
+  // leva decides what to do on his own in pool-life.js. This part draws him.
   var LF = {s: 0, n: 1, e: 2, w: 3};
   var HOME = [250, 80];
-  var OPEN_ROUTE = [
-    {at: HOME, hide: true, wait: 6},
-    {to: [250, 100]}, {to: [262, 108]},
-    {act: 'kit', face: 'e', wait: 5},
-    {to: [262, 104]}, {to: [410, 104]}, {to: [410, 175]}, {to: [430, 175]},
-    {act: 'report', hide: true, wait: 4},
-    {to: [410, 175]}, {to: [410, 104]}, {to: [250, 104]}, {to: [250, 84]}, {to: HOME}
-  ];
-  var CLOSED_ROUTE = [
-    {at: HOME, hide: true, wait: 4},
-    {to: [250, 100]}, {to: [316, 100]}, {to: [316, 124]},
-    {to: [316, 298], tool: 'skim', speed: 8},
-    {to: [316, 210]},
-    {act: 'vac', face: 'w', wait: 14},
-    {to: [316, 300]}, {to: [410, 300]}, {to: [410, 196]}, {to: [430, 196]},
-    {act: 'pit', hide: true, wait: 6},
-    {to: [410, 196]}, {to: [410, 106]}, {to: [370, 106]},
-    {act: 'gate', face: 'n', wait: 2.5},
-    {to: [250, 106]}, {to: [250, 84]}, {to: HOME},
-    {act: 'pump', hide: true, wait: 8}
-  ];
-  var ARCADE_ROUTE = [
-    {to: [250, 100]}, {to: [410, 100]}, {to: [410, 224]}, {to: [430, 224]},
-    {act: 'arcade', hide: true, wait: 10},
-    {to: [410, 224]}, {to: [410, 100]}, {to: [250, 100]}, {to: [250, 84]}, {to: HOME}
-  ];
-  var leva = {route: null, i: 0, x: HOME[0], y: HOME[1], face: 's', t: 0, hidden: true, wait: 0, act: null, tool: null, vt: 0};
-  function pickRoute(){
-    if (isOpen()) return OPEN_ROUTE;
-    if (leva.route === CLOSED_ROUTE && Math.random() < 0.35){ ARCADE_ROUTE[4].wait = 8 + Math.random() * 22; return ARCADE_ROUTE; }
-    return CLOSED_ROUTE;
-  }
-  leva.route = pickRoute();
-  leva.step = function(dt){
-    var R = leva.route, st = R[leva.i];
-    function next(){ leva.i++; if (leva.i >= R.length){ leva.route = pickRoute(); leva.i = 0; } }
-    if (leva.wait > 0){
-      leva.wait -= dt; leva.vt += dt;
-      if (leva.wait <= 0){ leva.wait = 0; leva.act = null; next(); }
-      return;
-    }
-    if (st.at){ leva.x = st.at[0]; leva.y = st.at[1]; leva.hidden = !!st.hide; leva.act = null; if (st.wait){ leva.wait = st.wait; return; } next(); return; }
-    if (st.act){ leva.hidden = !!st.hide; if (st.face) leva.face = st.face; leva.act = st.act; leva.vt = 0; leva.wait = st.wait; return; }
-    leva.hidden = false; leva.tool = st.tool || null;
-    var dx = st.to[0] - leva.x, dy = st.to[1] - leva.y, d = Math.hypot(dx, dy);
-    if (d < 0.5){ next(); return; }
-    var sp = st.speed || 13, m = Math.min(d, sp * dt);
-    leva.x += dx / d * m; leva.y += dy / d * m; leva.t += dt * (sp / 13);
-    leva.face = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'e' : 'w') : (dy > 0 ? 's' : 'n');
-  };
+  var leva = {x: HOME[0], y: HOME[1], face: 's', t: 0, hidden: true, act: null, tool: null, net: null, vt: 0, thinking: false};
+  leva.step = function(dt){ leva.vt += dt; if (window.PoolLife) PoolLife.stepLeva(dt); };
   function inBuilding(x, y){ return x > 418 && y > 88 && y < 292; }
   function levaVisible(){ return !leva.hidden && !inBuilding(leva.x, leva.y); }
   function vacHead(){ return [258 + Math.sin(leva.vt * 0.5) * 30, 214 + Math.sin(leva.vt * 1.1) * 60]; }
@@ -368,6 +471,10 @@
   leva.draw = function(){
     lc.clearRect(0, 0, 1440, 840);
     drawClouds(cloudDt);
+    // with pool-life.js loaded, leva is drawn in step with Ari, M and Mel, front to back
+    if (!(window.PoolLife && PoolLife.drawCast(lc))) leva.drawSelf();
+  };
+  leva.drawSelf = function(){
     if (!levaVisible()) return;
     var X = Math.round(leva.x * 2), Y = Math.round(leva.y * 2);
     var frame = !leva.act ? Math.floor(leva.t * 6) % 4 : 0;
@@ -391,15 +498,24 @@
       lc.beginPath(); lc.moveTo(X - 10, Y - 30); lc.lineTo(h2[0] * 2, h2[1] * 2); lc.stroke();
     }
     if (leva.tool === 'skim'){
-      var nx = X - 44, ny = Y - 24 + Math.sin(leva.t * 3) * 4;
+      // the net goes out over the water to whatever leaf he is after
       lc.strokeStyle = '#8a6a48'; lc.lineWidth = 2;
-      lc.beginPath(); lc.moveTo(X - 10, Y - 28); lc.lineTo(nx + 8, ny); lc.stroke();
-      lc.fillStyle = 'rgba(255,255,255,.55)'; lc.strokeStyle = '#d9dde1'; lc.lineWidth = 1.5;
-      lc.beginPath(); lc.ellipse(nx, ny, 7, 11, 0, 0, Math.PI * 2); lc.fill(); lc.stroke();
+      if (!leva.net){
+        // between leaves he carries the pole up over his shoulder
+        var sway = Math.sin(leva.t * 6) * 2;
+        lc.beginPath(); lc.moveTo(X - 9, Y - 22); lc.lineTo(X - 22 + sway, Y - 76); lc.stroke();
+        lc.fillStyle = 'rgba(255,255,255,.55)'; lc.strokeStyle = '#d9dde1'; lc.lineWidth = 1.5;
+        lc.beginPath(); lc.ellipse(X - 23 + sway, Y - 83, 6, 8, -0.25, 0, Math.PI * 2); lc.fill(); lc.stroke();
+      } else {
+        var nx = leva.net[0] * 2 + Math.sin(leva.vt * 4) * 3, ny = leva.net[1] * 2 + Math.cos(leva.vt * 3) * 2, right = nx >= X;
+        lc.beginPath(); lc.moveTo(X + (right ? 10 : -10), Y - 28); lc.lineTo(nx + (right ? -6 : 6), ny); lc.stroke();
+        lc.fillStyle = 'rgba(255,255,255,.55)'; lc.strokeStyle = '#d9dde1'; lc.lineWidth = 1.5;
+        lc.beginPath(); lc.ellipse(nx, ny, 7, 11, 0, 0, Math.PI * 2); lc.fill(); lc.stroke();
+      }
     }
   };
   window.__leva = leva;
-  function arcadeOn(){ return leva.route === ARCADE_ROUTE && leva.act === 'arcade'; }
+  function arcadeOn(){ return leva.act === 'arcade'; }
 
   // Friday nights there's a band on the south deck. Test with ?event=band (or ?event=none).
   function bandOn(){
@@ -727,6 +843,7 @@
       for (var gx = 340; gx < 357; gx += 2) ctx.fillRect(gx, 29, 1, 1);
       ctx.fillStyle = '#d3ad0a'; ctx.fillRect(347, 27, 3, 3);
     }
+    if (window.PoolLife) PoolLife.step(dt, T);
     cloudDt = dt; leva.step(dt); leva.draw();
     if (chipBand) chipBand.hidden = !(open && bandOn());
     lights(T);
@@ -735,7 +852,9 @@
   function start(){
     loaded = true; window.__levaImg = imgs.leva;
     base.drawImage(imgs.base, 0, 0);
-    if (reduce){ last = 0; leva.hidden = false; leva.route = OPEN_ROUTE; leva.i = 2; leva.x = 262; leva.y = 108; frame(0); return; }
+    if (window.PoolLife) PoolLife.init({ctx: ctx, lc: lc, draw: draw, leva: leva, isOpen: isOpen, isNight: isNight, isDusk: isDusk, reduce: reduce,
+      redraw: function(){ if (reduce){ last = null; frame(performance.now()); } }});
+    if (reduce){ last = 0; leva.hidden = false; leva.act = 'kit'; leva.face = 'e'; leva.x = 262; leva.y = 108; frame(0); return; }
     requestAnimationFrame(frame);
   }
   document.addEventListener('visibilitychange', function(){ running = !document.hidden; if (running && loaded && !reduce){ last = null; requestAnimationFrame(frame); } });
@@ -962,5 +1081,6 @@
   });
 })();
 </script>
+<script src="leva-chat.js?v=1"></script>
 </body>
 </html>
