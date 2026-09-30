@@ -1,6 +1,6 @@
 // pool-life.js: the living part of the Levagood Pool page.
 // leva runs the place on his own. He watches the water, decides what needs doing, and goes and does it.
-// Ari the beagle, M and Mel share the deck with him, and everybody learns from everybody.
+// Ari the beagle, Em and Mel share the deck with him, and everybody learns from everybody.
 // pool.html hands over its canvases and the leva object with PoolLife.init(api), then calls
 // PoolLife.step(dt) and PoolLife.drawCast() once a frame. The chat (leva-chat.js) talks to leva through PoolLife too.
 (function(){
@@ -174,22 +174,35 @@
   // kept in this browser, so the deck picks up where it left off next time you visit
   var KEY = 'levagood-deck-v1';
   function today(){ var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
-  function freshDay(){ return {ariSwims: 0, ariTime: 0, leaves: 0, tests: 0, fixes: 0, reminders: 0}; }
+  function freshDay(){ return {ariSwims: 0, ariTime: 0, leaves: 0, tests: 0, fixes: 0, reminders: 0, treats: 0, volleyBest: 0, newFacts: 0}; }
   var MEM = {
     v: 1, day: today(), today: freshDay(), visits: 0,
-    ari: {spots: {zero: 0.5, lapN: 0.5, lapS: 0.5, dive: 0.5}, best: null, sit: 0, paw: 0},
+    ari: {spots: {zero: 0.5, lapN: 0.5, lapS: 0.5, dive: 0.5}, best: null, sit: 0, paw: 0, roll: 0, treats: 0},
     leva: {seen: {zero: 0, lapN: 0, lapS: 0, dive: 0}, watch: null, jokes: []},
-    m: {cannonball: 1, float: 0.2, handstand: 0.75, run: 0.55, facts: 0},
-    mel: {cannonball: 0.1, float: 1, handstand: 0.2, run: 0.2, facts: 0},
-    chem: null, log: [], visitor: {name: '', chats: 0, topics: {}}
+    // Em: bold, goggles on, cannonballs first, all about volleyball right now.
+    // Mel: curious, asks leva everything, loves fishing and catfish, sings all day.
+    m: {cannonball: 1, float: 0.2, handstand: 0.75, run: 0.55, facts: 0, volley: 0.35, volleyBest: 4, volleys: 0, rallyBest: 0},
+    mel: {cannonball: 0.1, float: 1, handstand: 0.2, run: 0.2, facts: 0, fish: 2, bump: 0.35, sings: 0},
+    chem: null, log: [], visitor: {name: '', chats: 0, topics: {}, met: {}, likes: {}}
   };
+  // anything new since a visitor was last here gets its starting value
+  var DEFAULTS = JSON.parse(JSON.stringify(MEM));
+  function fill(dst, src){
+    for (var k in src){
+      if (dst[k] === undefined || dst[k] === null && src[k] !== null) dst[k] = JSON.parse(JSON.stringify(src[k]));
+      else if (src[k] && typeof src[k] === 'object' && !Array.isArray(src[k]) && dst[k] && typeof dst[k] === 'object') fill(dst[k], src[k]);
+    }
+  }
   function load(){
     try {
       var raw = localStorage.getItem(KEY); if (!raw) return;
       var m = JSON.parse(raw); if (!m || m.v !== 1) return;
       for (var k in MEM) if (m[k] !== undefined) MEM[k] = m[k];
     } catch (e) {}
+    fill(MEM, DEFAULTS);
     if (MEM.day !== today()){ MEM.day = today(); MEM.today = freshDay(); }
+    // M goes by Em now, in the old log lines too
+    MEM.log.forEach(function(l){ if (l && l.text) l.text = l.text.replace(/(^|[^A-Za-z])M(?=('s)?([^A-Za-z]|$))/g, '$1Em'); });
   }
   var saveAt = 0;
   function save(){ try { localStorage.setItem(KEY, JSON.stringify(MEM)); } catch (e) {} }
@@ -218,7 +231,8 @@
     // leaves blow in off the park trees
     W.leafClock -= dt;
     if (W.leafClock <= 0){
-      W.leafClock = ((api.isNight() ? 22 : 12) + Math.random() * 12) / (1 + (wx ? wx.windMph : 0) / 12);
+      // a leaf every half minute to a minute on a calm day, less at night, a lot more when it's windy
+      W.leafClock = ((api.isNight() ? 55 : 30) + Math.random() * 30) / (1 + (wx ? wx.windMph : 0) / 15);
       if (W.leaves.length < 14){
         var r = Math.random(), pool = r < 0.55 ? 'lap' : r < 0.8 ? 'dive' : 'zero', p = randomWater(pool);
         W.leaves.push({x: p[0], y: p[1], vx: 0, vy: 0, pool: pool, c: ['#6b8e23', '#8a6a3a', '#a7c957', '#b5651d'][Math.floor(Math.random() * 4)], k: Math.random() * 6.28, grab: 0});
@@ -254,7 +268,7 @@
 
   // ================= speech bubbles and little effects =================
   var bubbleLayer = null, bubbles = [], fx = [], splashes = [];
-  var NAME = {leva: 'leva', ari: 'Ari', m: 'M', mel: 'Mel'};
+  var NAME = {leva: 'leva', ari: 'Ari', m: 'Em', mel: 'Mel'};
   function say(who, text, dur){
     if (!bubbleLayer || reduce) return;
     bubbles = bubbles.filter(function(b){ if (b.who === who){ b.el.remove(); return false; } return true; });
@@ -314,14 +328,29 @@
   function zzz(x, y){ fx.push({k: 'z', x: x, y: y, t: 0, life: 2.4}); }
   function splash(x, y, big){ splashes.push({x: x, y: y, t: 0, big: !!big}); }
   function fxStep(dt, lc){
+    var spawn = [];
     fx = fx.filter(function(f){
-      f.t += dt; if (f.t >= f.life) return false;
+      f.t += dt;
+      if (f.t >= f.life){ if (f.k === 'treat' && !ari.hidden) spawn.push({k: 'heart', x: ari.x, y: ari.y, t: 0, life: 1.4}); return false; }
       var a = 1 - f.t / f.life;
-      if (f.k === 'heart'){ drawHeartPx(lc, f.x * 2, f.y * 2 - 30 - f.t * 22, 2, a); }
+      if (f.k === 'heart'){ drawHeartPx(lc, f.x * 2, f.y * 2 - 32 - f.t * 22, 1, a); }
+      else if (f.k === 'note'){ lc.save(); lc.globalAlpha = a; lc.fillStyle = f.c; drawNote(lc, Math.round(f.x * 2 + Math.sin(f.t * 3 + f.s) * 4), Math.round(f.y * 2 - 22 - f.t * 26), f.s); lc.restore(); }
+      else if (f.k === 'treat'){
+        var u = f.t / f.life, tx = (f.x0 + (ari.x - f.x0) * u) * 2, ty = (f.y0 + (ari.y - 6 - f.y0) * u) * 2 - Math.sin(u * Math.PI) * 26;
+        lc.fillStyle = '#6b4424'; lc.fillRect(Math.round(tx) - 4, Math.round(ty) - 1, 8, 3); lc.fillRect(Math.round(tx) - 5, Math.round(ty) - 2, 2, 5); lc.fillRect(Math.round(tx) + 3, Math.round(ty) - 2, 2, 5);
+        lc.fillStyle = '#b07a44'; lc.fillRect(Math.round(tx) - 3, Math.round(ty) - 1, 6, 1);
+      }
       else if (f.k === 'drop'){ f.x += f.vx * dt / 2; f.y += f.vy * dt / 2; f.vy += 140 * dt; lc.fillStyle = 'rgba(170,225,255,' + a + ')'; lc.fillRect(Math.round(f.x * 2), Math.round(f.y * 2), 3, 3); }
       else if (f.k === 'z'){ lc.fillStyle = 'rgba(40,50,90,' + a + ')'; lc.font = '10px Silkscreen, monospace'; lc.fillText('z', f.x * 2 + 8 + f.t * 6, f.y * 2 - 18 - f.t * 12); }
       return true;
     });
+    if (spawn.length) fx = fx.concat(spawn);
+  }
+  // a little pixel music note, single or a beamed pair
+  function drawNote(c, x, y, s){
+    c.fillRect(x, y, 3, 2); c.fillRect(x + 2, y - 7, 1, 8);
+    if (s === 2){ c.fillRect(x + 6, y - 1, 3, 2); c.fillRect(x + 8, y - 8, 1, 8); c.fillRect(x + 2, y - 8, 7, 2); }
+    else { c.fillRect(x + 3, y - 7, 2, 1); c.fillRect(x + 4, y - 6, 1, 2); }
   }
   function splashStep(dt, ctx){
     splashes = splashes.filter(function(s){
@@ -332,13 +361,26 @@
       return true;
     });
   }
-  var HEART = ['.XX.XX.', 'XXXXXXX', 'XXXXXXX', '.XXXXX.', '..XXX..', '...X...'];
-  function drawHeartPx(c, cx, cy, px, alpha){
-    c.save(); c.globalAlpha = alpha == null ? 1 : alpha;
-    var w = 7 * px, h = 6 * px, x0 = Math.round(cx - w / 2), y0 = Math.round(cy - h / 2);
-    c.fillStyle = '#FF2E88';
-    for (var r = 0; r < 6; r++) for (var q = 0; q < 7; q++) if (HEART[r][q] === 'X') c.fillRect(x0 + q * px, y0 + r * px, px, px);
-    c.fillStyle = 'rgba(255,255,255,.75)'; c.fillRect(x0 + px, y0 + px, px, px);
+  // The leva heart, pixel for pixel the one in the logo on every page. No other heart on the site.
+  var HEART = ['..XXXXXX..XXXXXX...', '.XXXXXXXXXXXXXXXX..', '.XAAAAXXXXXXXXXXX..', 'XXAAAAXXXXXXXXXXXX.', 'XXAAAAXXXXXXXXXXXX.', '.XXAAAAXXXXXXXXXXXX',
+    'XXXXXXXXXXXXXXXXX..', 'XXXXXXXXXXXXXXXXXX.', '.XXXXXXXXXXXXXXXX..', '.XXXXXXXXXXXXXXXX..', '.XXXXXXXXXXXXXXXX..', '..XXXXXXXXXXXXXX...',
+    '...XXXXXXXXXXXX....', '....XXXXXXXXXXXX...', '....XXXXXXXXXX.....', '......XXXXXX.......', '.......XXXX........', '........XX.........'];
+  var heartCv = null;
+  function heartImg(){
+    if (heartCv) return heartCv;
+    heartCv = document.createElement('canvas'); heartCv.width = 19; heartCv.height = 18;
+    var h = heartCv.getContext('2d');
+    for (var r = 0; r < 18; r++) for (var q = 0; q < 19; q++){
+      var ch = HEART[r].charAt(q); if (ch === '.') continue;
+      h.fillStyle = ch === 'A' ? '#FF96C8' : '#FF2E88'; h.fillRect(q, r, 1, 1);
+    }
+    return heartCv;
+  }
+  // scale 1 is the heart at one pixel a cell, 19 wide and 18 tall
+  function drawHeartPx(c, cx, cy, scale, alpha){
+    var w = Math.round(19 * scale), h = Math.round(18 * scale);
+    c.save(); c.globalAlpha = alpha == null ? 1 : alpha; c.imageSmoothingEnabled = false;
+    c.drawImage(heartImg(), Math.round(cx - w / 2), Math.round(cy - h / 2), w, h);
     c.restore();
   }
   function beat(t){ var p = (t % 1.1) / 1.1; return p < 0.08 ? 1 + p / 0.08 * 0.18 : p < 0.16 ? 1.18 - (p - 0.08) / 0.08 * 0.18 : p < 0.3 ? 1 + (p - 0.16) / 0.14 * 0.09 : p < 0.4 ? 1.09 - (p - 0.3) / 0.1 * 0.09 : 1; }
@@ -404,7 +446,8 @@
   function setPlan(a, steps){
     a.plan = steps; a.si = 0; a.wait = 0; a.tick = null; a.path = null; a.act = null; a.moving = false;
     // a new job means leva puts down whatever he was carrying
-    if (a === B){ B.tool = null; B.net = null; B.vac = null; }
+    if (a === B){ if (B.abort){ var f = B.abort; B.abort = null; f(); } B.tool = null; B.net = null; B.vac = null; }
+    if (VB && (VB.a === a || VB.b === a)) VB = null;
   }
 
   // ================= the cast =================
@@ -418,7 +461,7 @@
   };
   var ACT = {leva: B, ari: ari, m: kids.m, mel: kids.mel};
   var lesson = null;
-  var KID_START = {lastLesson: -25, lastQ: 12, lastJ: 45, lastAri: 5};
+  var KID_START = {lastLesson: -25, lastQ: 12, lastJ: 45, lastAri: 5, lastVolley: -20, lastRally: 30, lastSing: 5, lastChat: 15};
 
   // ---------------- leva ----------------
   function levaPlan(steps, task){
@@ -479,34 +522,109 @@
       line('leva', 'Should read right in a couple minutes.')
     ]);
   }
-  function planSkim(pool){
-    var list = W.leaves.filter(function(l){ return l.pool === pool; });
-    if (!list.length) return null;
-    var got = 0, steps = leaveBuilding();
-    list.sort(function(a, b){ return Math.hypot(a.x - lv.x, a.y - lv.y) - Math.hypot(b.x - lv.x, b.y - lv.y); });
-    list.slice(0, 5).forEach(function(leaf){
-      steps.push({k: 'custom', step: function(a, dt, st){
-        if (W.leaves.indexOf(leaf) < 0) return true;
-        if (!st.spot){ st.spot = snap(BIG, leaf.x, leaf.y); st.path = path(BIG, lv.x, lv.y, st.spot[0], st.spot[1]); B.tool = 'skim'; }
-        if (st.path.length){ a.path = st.path; follow(a, dt, 11); B.net = null; return false; }
-        // sweep the net out to the leaf
-        st.el = (st.el || 0) + dt;
-        var reach = Math.hypot(leaf.x - lv.x, leaf.y - lv.y);
-        if (reach > 54){ return st.el > 0.5; }
-        B.net = [leaf.x, leaf.y]; lv.face = faceOf(leaf.x - lv.x, leaf.y - lv.y, lv.face);
-        if (st.el > 1.3){
-          W.leaves = W.leaves.filter(function(l){ var hit = l === leaf || Math.hypot(l.x - leaf.x, l.y - leaf.y) < 9; if (hit) got++; return !hit; });
-          B.net = null; return true;
-        }
-        return false;
-      }});
-    });
-    steps.push(fn(function(){
-      B.tool = null; B.net = null;
-      if (got){ MEM.today.leaves += got; log('leva skimmed ' + got + (got === 1 ? ' leaf' : ' leaves') + ' off ' + POOLS[pool].name + '.', 'leva'); }
-    }));
-    return steps;
+  // ---- skimming ----
+  // leva works the net until the water is clear, not just a few leaves. Whatever he can reach from where he's
+  // standing comes out first, no walking. Then the leaf that's the shortest walk away, finishing the pool he's
+  // at before he heads to the next one. only = stay on one pool (the vacuum job nets the lap pool first).
+  var REACH = 54;
+  // how many steps it is from leva to every spot on the deck, so he can pick the shortest walk
+  var bfsD = null, bfsQ = null;
+  function stepsFrom(x, y){
+    if (!bfsD){ bfsD = new Int32Array(N); bfsQ = new Int32Array(N); }
+    bfsD.fill(-1);
+    var s0 = snap(BIG, x, y), si = cellIdx(s0[0], s0[1]); if (si < 0) return bfsD;
+    var h = 0, t = 0; bfsQ[t++] = si; bfsD[si] = 0;
+    while (h < t){
+      var i = bfsQ[h++], cx = i % GW, cy = (i / GW) | 0, d = bfsD[i] + 1;
+      for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++){
+        var nx = cx + dx, ny = cy + dy; if ((!dx && !dy) || nx < 0 || ny < 0 || nx >= GW || ny >= GH) continue;
+        var j = ny * GW + nx; if (!BIG[j] || bfsD[j] >= 0) continue;
+        bfsD[j] = d; bfsQ[t++] = j;
+      }
+    }
+    return bfsD;
   }
+  // the closest place to stand, by walking, where the net reaches this leaf
+  function standFor(D, leaf, r){
+    var gx = Math.floor(leaf.x / 2), gy = Math.floor(leaf.y / 2), R = Math.ceil(r / 2), best = -1, bd = 1e9;
+    for (var y = gy - R; y <= gy + R; y++) for (var x = gx - R; x <= gx + R; x++){
+      if (x < 0 || y < 0 || x >= GW || y >= GH) continue;
+      var j = y * GW + x; if (D[j] < 0 || D[j] >= bd) continue;
+      var ex = x * 2 + 1 - leaf.x, ey = y * 2 + 1 - leaf.y; if (ex * ex + ey * ey > r * r) continue;
+      bd = D[j]; best = j;
+    }
+    return best < 0 ? null : {spot: [(best % GW) * 2 + 1, ((best / GW) | 0) * 2 + 1], steps: bd};
+  }
+  function nextTarget(pool, only, skip){
+    var cands = W.leaves.filter(function(l){ return skip.indexOf(l) < 0 && (!only || l.pool === only); });
+    if (!cands.length) return null;
+    // anything he can reach from right where he's standing: no walking
+    var here = null, hd = 1e9;
+    cands.forEach(function(l){ var d = Math.hypot(l.x - lv.x, l.y - lv.y); if (d < REACH - 6 && d < hd){ hd = d; here = l; } });
+    if (here) return {leaf: here, path: []};
+    // otherwise the shortest walk to a spot the net reaches from, finishing the pool he's at first
+    var D = stepsFrom(lv.x, lv.y), best = null, bc = 1e9;
+    cands.forEach(function(l){
+      var sp = standFor(D, l, REACH - 2); if (!sp) return;
+      var cost = sp.steps + (l.pool === pool ? 0 : 60);
+      if (cost < bc){ bc = cost; best = {leaf: l, spot: sp.spot}; }
+    });
+    if (!best) return null;
+    best.path = path(BIG, lv.x, lv.y, best.spot[0], best.spot[1]);
+    return best;
+  }
+  // the leaf closest to leva, anywhere, for starting a round with the net
+  function nextLeaf(){ var best = null, bd = 1e9; W.leaves.forEach(function(l){ var d = Math.hypot(l.x - lv.x, l.y - lv.y); if (d < bd){ bd = d; best = l; } }); return best; }
+  function skimStep(first, only, got){
+    return {k: 'custom', step: function(a, dt, st){
+      if (!st.skip){ st.skip = []; st.pool = first; st.total = 0; }
+      st.total += dt;
+      if (!st.leaf || W.leaves.indexOf(st.leaf) < 0){
+        var t = st.total < 150 ? nextTarget(st.pool, only, st.skip) : null;
+        st.el = 0; st.leaf = null; B.net = null;
+        if (!t){ if (only && st.netted) B.task = 'vacuuming the lap pool'; return true; }
+        st.leaf = t.leaf; st.path = t.path; st.pool = t.leaf.pool; st.miss = st.miss || 0; st.netted = true; B.tool = 'skim';
+        B.task = only ? 'netting the leaves off ' + POOLS[only].name : 'skimming leaves off ' + POOLS[st.pool].name;
+      }
+      var leaf = st.leaf, reach = Math.hypot(leaf.x - lv.x, leaf.y - lv.y);
+      if (st.path.length){
+        // walking over, and he stops as soon as the net will reach it
+        if (reach < REACH - 6){ st.path = []; a.path = null; }
+        else { a.path = st.path; a.moving = true; follow(a, dt, 11); return false; }
+      }
+      if (reach > REACH){
+        // it drifted off while he walked over. Go again, and after a few tries let it come to him.
+        if (++st.miss > 3){ st.skip.push(leaf); st.leaf = null; st.miss = 0; }
+        else { var sp2 = standFor(stepsFrom(lv.x, lv.y), leaf, REACH - 2); st.path = sp2 ? path(BIG, lv.x, lv.y, sp2.spot[0], sp2.spot[1]) : []; if (!sp2){ st.skip.push(leaf); st.leaf = null; } }
+        return false;
+      }
+      // sweep the net out to the leaf. It takes whatever's floating right around it too.
+      st.el += dt;
+      B.net = [leaf.x, leaf.y]; a.face = faceOf(leaf.x - lv.x, leaf.y - lv.y, a.face);
+      if (st.el > 1.1){
+        W.leaves = W.leaves.filter(function(l){
+          var hit = l === leaf || (l.pool === leaf.pool && Math.hypot(l.x - leaf.x, l.y - leaf.y) < 11);
+          if (hit){ got[l.pool] = (got[l.pool] || 0) + 1; MEM.today.leaves++; boardDirty = true; }
+          return !hit;
+        });
+        B.net = null; st.leaf = null; st.miss = 0;
+      }
+      return false;
+    }};
+  }
+  function leafCount(got){ var n = 0; for (var k in got) n += got[k]; return n; }
+  function skimWords(got){
+    var parts = Object.keys(got).filter(function(k){ return got[k]; }).map(function(k){ return got[k] + (got[k] === 1 ? ' leaf' : ' leaves') + ' off ' + POOLS[k].name; });
+    return parts.length < 2 ? (parts[0] || '') : parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1];
+  }
+  function planSkim(pool){
+    if (!W.leaves.length) return null;
+    var got = {}, done = false;
+    function wrap(){ if (done) return; done = true; var n = leafCount(got); if (n) log('leva skimmed ' + skimWords(got) + '.', 'leva'); }
+    return leaveBuilding().concat([fn(function(){ B.abort = wrap; }), skimStep(pool, null, got), fn(function(){ B.tool = null; B.net = null; B.abort = null; wrap(); })]);
+  }
+
+  function nearestLeafPool(){ var l = nextLeaf(); return l ? l.pool : null; }
   function planRescue(){
     var called = false;
     return leaveBuilding().concat([{k: 'custom', step: function(a, dt, st){
@@ -587,14 +705,19 @@
     if (!W.vacDone || (W.vacDone.n == null && W.vacDone.s == null) || W.clock - Math.max(W.vacDone.n || -1e9, W.vacDone.s || -1e9) > 600) W.vacDone = {};
     var keys = ['n', 's'].filter(function(k){ return W.vacDone[k] == null; });
     if (!keys.length){ W.vacDone = {}; keys = ['n', 's']; }
-    var steps = leaveBuilding();
-    keys.forEach(function(k){
+    // Skim first, then vacuum: get what's floating before it sinks, and the vacuum only has to get what's on
+    // the floor. He nets any new leaves between ends and gives it one last pass when he's done.
+    var got = {}, steps = leaveBuilding().concat([fn(function(){ B.abort = function(){ var n = leafCount(got); if (n) log('leva skimmed ' + skimWords(got) + '.', 'leva'); }; }), skimStep('lap', 'lap', got)]);
+    keys.forEach(function(k, i){
       var z = VAC_ZONES[k], first = vacStrokes(z)[0];
+      if (i) steps.push(skimStep('lap', 'lap', got));
       steps.push(go(vacStand(first[0]), z.stand, {tool: 'vac', face: z.face}), vacZone(k));
     });
+    steps.push(skimStep('lap', 'lap', got));
     steps.push(fn(function(){
-      B.tool = null; B.vac = null; W.lastVac = W.clock; W.vacDone = {}; W.dirt = Math.min(W.dirt, 0.06);
-      log('leva vacuumed both ends of the lap pool and worked around the lane lines.', 'leva');
+      B.tool = null; B.vac = null; B.net = null; W.lastVac = W.clock; W.vacDone = {}; W.dirt = Math.min(W.dirt, 0.06);
+      var n = leafCount(got); B.abort = null;
+      log(n ? 'leva skimmed ' + skimWords(got) + ', then vacuumed both ends and worked around the lane lines.' : 'leva vacuumed both ends of the lap pool and worked around the lane lines.', 'leva');
     }));
     return steps;
   }
@@ -664,7 +787,7 @@
       var job = {
         vac: function(){ return {steps: planVac(), task: 'vacuuming the lap pool'}; },
         test: function(){ return {steps: planTest('lap'), task: 'testing ' + POOLS.lap.name}; },
-        skim: function(){ var by = {}; W.leaves.forEach(function(l){ by[l.pool] = (by[l.pool] || 0) + 1; }); var p = Object.keys(by).sort(function(a, b){ return by[b] - by[a]; })[0]; return p ? {steps: planSkim(p), task: 'skimming leaves off ' + POOLS[p].name} : null; },
+        skim: function(){ var p = nearestLeafPool(); return p ? {steps: planSkim(p), task: 'skimming leaves off ' + POOLS[p].name} : null; },
         gate: function(){ return {steps: planGate(), task: 'chaining the park gate'}; },
         shovel: function(){ return {steps: planShovel(), task: 'shoveling the deck'}; }
       }[DO];
@@ -674,9 +797,9 @@
     if (W.fixPending) add('fix', 70, function(){ return {steps: planFix(), task: 'adjusting the chemicals in the pump room'}; });
     var since = C - W.lastTest, every = open ? 150 : 240;
     add('test', since > every ? 42 + (since - every) / 10 : (W.lastTest < 0 && C > 14 ? 55 : 0), function(){ var p = ['lap', 'zero', 'dive'][Math.floor(Math.random() * 3)]; return {steps: planTest(p), task: 'testing ' + POOLS[p].name}; });
-    var byPool = {}; W.leaves.forEach(function(l){ byPool[l.pool] = (byPool[l.pool] || 0) + 1; });
-    var worst = null; for (var k in byPool) if (!worst || byPool[k] > byPool[worst]) worst = k;
-    if (worst && byPool[worst] >= (open ? 3 : 2)) add('skim', 22 + byPool[worst] * 5, function(){ return {steps: planSkim(worst), task: 'skimming leaves off ' + POOLS[worst].name}; });
+    // a round with the net clears every pool, so it's worth doing once a few leaves are down
+    var nLeaves = W.leaves.length;
+    if (nLeaves >= (open ? 3 : 2)) add('skim', 24 + nLeaves * 5, function(){ var p = nearestLeafPool(); return p ? {steps: planSkim(p), task: 'skimming leaves off ' + POOLS[p].name} : null; });
     if (open) add('report', C - W.lastReport > 220 ? 36 : 0, function(){ return {steps: planReport(), task: 'reporting to the office'}; });
     if (!open && W.lastGate !== today()) add('gate', 48, function(){ return {steps: planGate(), task: 'chaining the park gate'}; });
     // no vacuuming with swimmers in the water: before opening, after close, on a day too cold to swim,
@@ -684,7 +807,7 @@
     if (noSwimmers() && ((W.dirt > 0.25 && C - W.lastVac > 240) || vacHalfDone())) add('vac', vacHalfDone() ? 50 : 34 + W.dirt * 20, function(){ return {steps: planVac(), task: 'vacuuming the lap pool'}; });
     var fav = favSpot();
     if (fav && !ari.inWater) add('patrol', 20, function(){ return {steps: planWatch(fav, 10 + Math.random() * 8), task: 'keeping an eye on ' + SPOT_NAME[fav]}; });
-    if (open && (kids.m.inWater || kids.mel.inWater)) add('kids', 24, function(){ return {steps: planKids(), task: 'watching M and Mel swim'}; });
+    if (open && (kids.m.inWater || kids.mel.inWater)) add('kids', 24, function(){ return {steps: planKids(), task: 'watching Em and Mel swim'}; });
     if (!open){ add('pit', 10, function(){ return {steps: planPit(), task: 'checking the pit'}; }); if (night) add('arcade', 9, function(){ return {steps: planArcade(), task: 'playing invaders in the guard shack'}; }); }
     add('rest', 12, function(){ return {steps: planRest(), task: 'checking the pumps'}; });
     if (wx && wx.snow > 0.18 && C - (W.lastShovel || -999) > 50) add('shovel', 56 + wx.snow * 30, function(){ return {steps: planShovel(), task: 'shoveling the deck'}; });
@@ -898,6 +1021,11 @@
     }
     var levaFar = lv.hidden || Math.hypot(lv.x - ari.x, lv.y - ari.y) > 70, noSwim = why === 'storm' || why === 'snow' || why === 'cold';
     if (ari.swimCool <= 0 && levaFar && !B.rescue && !noSwim && Math.random() < 0.6) return ariPlan(planSneak(), 'up to something');
+    var bag = [kids.m, kids.mel].filter(function(k){ return k.here && !k.inWater && k.task === 'on her towel'; });
+    if (bag.length && !noSwim && Math.random() < 0.22 && W.clock - (ari.lastBeg || -999) > 70){
+      var kk = pick(bag), bp = snap(SMALL, kk.x + 12, kk.y + 2); ari.lastBeg = W.clock;
+      return ariPlan([go(bp[0], bp[1], {speed: 16}), fn(function(){ ari.face = 'w'; }), act('sit', 2.5), fn(function(){ begTreat(kk); }), act('happy', 3)], 'begging for a treat');
+    }
     var r = Math.random(), kidsHere = kids.m.here && !kids.m.inWater && !lesson;
     if (kidsHere && r < 0.22){
       var k = Math.random() < 0.6 ? kids.mel : kids.m;
@@ -926,7 +1054,8 @@
   }
   function stepAri(dt){
     ari.swimCool -= dt;
-    if (runPlan(ari, dt) === 'done') pickAri();
+    if (ari.talking > 0 && !ari.inWater && !ari.hidden && !ari.hopping){ ari.talking -= dt; ari.moving = false; if (ari.talking <= 0) ari.talkAct = null; }
+    else if (runPlan(ari, dt) === 'done') pickAri();
     var wx = WXS();
     if (wx && wx.snow > 0.05 && ari.moving && !ari.hidden && !ari.inWater){
       ari.printT = (ari.printT || 0) - dt;
@@ -948,7 +1077,7 @@
     if (ari.act === 'sit' || ari.act === 'sleep') ari.pose = ari.act; else if (!ari.inWater) ari.pose = 'stand';
   }
 
-  // ---------------- M and Mel ----------------
+  // ---------------- Em and Mel ----------------
   var SKILL = {cannonball: {spot: 'dive', verb: 'the cannonball'}, float: {spot: 'zero', verb: 'the back float'}, handstand: {spot: 'lapN', verb: 'the handstand'}};
   var QA = [
     ['Why does the pool smell like chlorine?', "That smell is chloramines. It means the chlorine's busy. Clean water barely smells."],
@@ -962,6 +1091,33 @@
     ['What are the ropes for?', "Lane lines. They calm the waves so swimmers go faster."],
     ['Why do you test the water so much?', "Sun and swimmers use up chlorine all day. You can't fix what you don't measure."]
   ];
+  // Mel's catfish facts, in the order she picks them up. She starts with two and learns the rest from leva.
+  var FISH = [
+    'Catfish have whiskers called barbels. They use them to smell and taste.',
+    'Catfish have taste buds all over their bodies. Their whole body is basically a tongue!',
+    "Most catfish don't have scales. Their skin is smooth and slimy.",
+    'Catfish like to eat at night, down near the bottom.',
+    "Channel catfish live in a lot of Michigan's lakes and rivers.",
+    'Catfish have sharp spines on their fins, so you hold them carefully.',
+    'Some catfish can make grunting sounds!',
+    'Bullheads are little catfish. You can catch them off a pier.',
+    'Some catfish in other countries grow bigger than a grown-up!',
+    'Catfish can live a really long time. Some live more than 20 years.'
+  ];
+  var FISH_QA = [
+    ['Why do catfish have whiskers?', "They're called barbels. Catfish smell and taste with them."],
+    ['Can catfish really taste with their whole body?', 'Pretty much. They have taste buds all over their skin.'],
+    ['Do catfish have scales?', "Most don't. Just smooth, slimy skin."],
+    ['When do catfish eat?', 'Mostly at night, down near the bottom.'],
+    ['Are there catfish in Michigan?', "Sure are. Channel catfish, in a lot of Michigan's lakes and rivers."],
+    ['How do I hold a catfish?', 'Carefully. Their fins have sharp spines. Wet your hands first so you protect its slime coat.'],
+    ['Do fish make noise?', 'Some catfish grunt. They rub their fin spines or thump their swim bladder.'],
+    ['What can I catch off a pier?', 'Bluegill, perch, and little catfish called bullheads. Worms work great.'],
+    ['How big do catfish get?', "Some overseas get bigger than a grown-up. Ours are smaller, but a big one will still bend your rod."],
+    ['How long do catfish live?', 'A long time. Some live more than 20 years.']
+  ];
+  var EM_REACT = ['Cool. Gross. Cool.', 'How do you know all this?', "Okay, that's actually cool.", 'Can we go fishing after volleyball?', 'Ari would eat the catfish.'];
+  function pick(a){ return a[Math.floor(Math.random() * a.length)]; }
   var JOKES = [
     ['Why do fish live in salt water?', 'Because pepper makes them sneeze!'],
     ['What do you call a dog that does magic?', 'A labracadabrador!'],
@@ -1004,6 +1160,15 @@
       var gaps = Object.keys(SKILL).map(function(s){ return {s: s, gap: MEM[k.id][s] - MEM[other.id][s]}; }).filter(function(g){ return Math.abs(g.gap) > 0.3; });
       if (gaps.length){ var g = gaps[Math.floor(Math.random() * gaps.length)]; startLesson(g.gap > 0 ? k : other, g.gap > 0 ? other : k, g.s); return; }
     }
+    // Em's volleyball, pepper with Mel, Mel's songs, and talk on the towels
+    var r2 = Math.random();
+    if (k.id === 'm' && !k.inWater){
+      if (free && other.here && !other.inWater && !other.leaving && r2 < 0.2 && W.clock - pickKid.lastRally > 100) return startRally(k, other, k);
+      if (r2 < 0.42 && W.clock - pickKid.lastVolley > 45){ pickKid.lastVolley = W.clock; return kidPlan(k, volleySteps(k).concat(towelSteps(k, 5 + Math.random() * 4)), 'practicing volleyball'); }
+    }
+    if (k.id === 'mel' && !k.inWater && free && other.here && !other.inWater && !other.leaving && r2 >= 0.28 && r2 < 0.38 && W.clock - pickKid.lastRally > 100) return startRally(other, k, k);
+    if (k.id === 'mel' && r2 < 0.28 && W.clock - pickKid.lastSing > 55){ pickKid.lastSing = W.clock; return kidPlan(k, singSteps(k), 'singing her favorite song'); }
+    if (other.here && !other.inWater && other.task === 'on her towel' && r2 > 0.78 && W.clock - pickKid.lastChat > 45){ pickKid.lastChat = W.clock; return kidPlan(k, chatSteps(k), 'on her towel'); }
     if (k.id === 'mel' && r < 0.5 && !lv.hidden && !B.rescue && B.talking <= 0 && W.clock - pickKid.lastQ > 55){ pickKid.lastQ = W.clock; return askLeva(k); }
     if (k.id === 'm' && r < 0.45 && !lv.hidden && !B.rescue && B.talking <= 0 && MEM.leva.jokes.length < JOKES.length && W.clock - pickKid.lastJ > 90){ pickKid.lastJ = W.clock; return tellJoke(k); }
     if (r < 0.6 && !ari.inWater && ari.task !== 'up to something' && W.clock - pickKid.lastAri > 40){ pickKid.lastAri = W.clock; return trainAri(k); }
@@ -1066,6 +1231,8 @@
     }};
   }
   function askLeva(k){
+    // half the time it's about fishing now, until she's learned every catfish fact
+    if (MEM.mel.fish < FISH.length && Math.random() < 0.55) return askFish(k);
     var q = QA[(MEM.mel.facts + Math.floor(Math.random() * 3)) % QA.length];
     kidPlan(k, [
       approach(k, function(){ return lv; }, 22, 14, function(){ return lv.hidden || !!B.rescue; }),
@@ -1079,8 +1246,25 @@
         log('Mel asked leva: ' + q[0] + ' He told her.', 'mel');
       }),
       act('listen', 7),
-      fn(function(){ if (MEM.mel.facts >= 3 && Math.random() < 0.5) convo([['mel', 'M, did you know pH should be 7.2 to 7.8?'], ['m', 'Nerd.'], ['mel', 'Smart nerd.']]); })
+      fn(function(){ if (MEM.mel.facts >= 3 && Math.random() < 0.5) convo([['mel', 'Em, did you know pH should be 7.2 to 7.8?'], ['m', 'Nerd.'], ['mel', 'Smart nerd.']]); })
     ].concat(towelSteps(k, 6)), 'asking leva a question');
+  }
+  function askFish(k){
+    var i = MEM.mel.fish, q = FISH_QA[i];
+    kidPlan(k, [
+      approach(k, function(){ return lv; }, 22, 14, function(){ return lv.hidden || !!B.rescue; }),
+      fn(function(){
+        if (k.missed) return;
+        k.face = lv.x > k.x ? 'e' : 'w'; if (!lv.hidden && !B.rescue){ B.talking = Math.max(B.talking, 7); B.talkTo = k; B.talkWith = 'Mel'; }
+        convo([['mel', 'leva? ' + q[0]], ['leva', q[1], 0, function(){
+          MEM.mel.fish = Math.max(MEM.mel.fish, i + 1); MEM.today.newFacts++; save(); boardDirty = true;
+        }]]);
+        log('Mel asked leva: ' + q[0] + ' Now she knows ' + (i + 1) + ' catfish facts.', 'mel');
+      }),
+      act('listen', 7),
+      // and she tells Em, if Em's around
+      fn(function(){ if (kids.m.here && !kids.m.inWater && Math.hypot(kids.m.x - k.x, kids.m.y - k.y) < 160) convo([['mel', 'Em! ' + FISH[i]], ['m', pick(EM_REACT)]]); })
+    ].concat(towelSteps(k, 6)), 'asking leva about catfish');
   }
   function tellJoke(k){
     var j = JOKES[MEM.leva.jokes.length % JOKES.length];
@@ -1088,9 +1272,9 @@
       approach(k, function(){ return lv; }, 22, -14, function(){ return lv.hidden || !!B.rescue; }),
       fn(function(){
         if (k.missed) return;
-        k.face = lv.x > k.x ? 'e' : 'w'; if (!lv.hidden && !B.rescue){ B.talking = Math.max(B.talking, 9); B.talkTo = k; B.talkWith = 'M'; }
+        k.face = lv.x > k.x ? 'e' : 'w'; if (!lv.hidden && !B.rescue){ B.talking = Math.max(B.talking, 9); B.talkTo = k; B.talkWith = 'Em'; }
         convo([['m', 'leva! ' + j[0]], ["leva", "I don't know. Why?"], ['m', j[1]], ['leva', "Ha. I'm keeping that one.", 0, function(){
-          if (MEM.leva.jokes.indexOf(j[0]) < 0){ MEM.leva.jokes.push(j[0]); log('M taught leva a joke. He is keeping it.', 'm'); }
+          if (MEM.leva.jokes.indexOf(j[0]) < 0){ MEM.leva.jokes.push(j[0]); log('Em taught leva a joke. He is keeping it.', 'm'); }
         }]]);
       }),
       act('listen', 9)
@@ -1112,12 +1296,155 @@
         MEM.ari[trick] = Math.min(1, p + (ok ? 0.2 : 0.1));
         var cmd = trick === 'sit' ? 'Ari, sit!' : 'Ari, shake!';
         var reply = ok ? (trick === 'sit' ? 'Did I do it?' : 'Like this?') : (trick === 'sit' ? 'Sit? I thought you said snack.' : 'Is it snack time?');
-        convo([[k.id, cmd], ['ari', reply, 0, function(){ if (ok) ari.act = trick === 'sit' ? 'sit' : 'happy'; heart(ari.x, ari.y); }], [k.id, ok ? 'Good boy!' : 'Close enough. Good boy.']]);
+        // they bring treats in their pool bags. leva's rule: six a day.
+        var treat = MEM.today.treats < TREAT_LIMIT;
+        convo([[k.id, cmd], ['ari', reply, 0, function(){ if (ok) ari.act = trick === 'sit' ? 'sit' : 'happy'; heart(ari.x, ari.y); }],
+          [k.id, treat ? (ok ? 'Good boy! Here you go.' : 'Close enough. Here you go.') : (ok ? 'Good boy! No more treats today, though.' : 'Close enough. Good boy.'), 0, function(){ if (treat) giveTreat(k); }],
+          treat ? ['ari', pick(['Crunchy!', 'Best day ever!', 'Again! Again!'])] : ['ari', 'Worth a shot.']]);
         if (MEM.ari[trick] >= 1 && p < 1) log(NAME[k.id] + ' taught Ari to ' + (trick === 'sit' ? 'sit' : 'shake') + '. He tries it on leva now.', k.id);
         heart(k.x, k.y);
       }),
       act('listen', 6)
     ].concat(towelSteps(k, 6)), 'teaching Ari a trick');
+  }
+  // ---- volleyball ----
+  // Em keeps the ball up by her towel and counts. Every session she gets a little better, so her record climbs
+  // the more you come by. Mel plays too. When they're both free they play pepper, back and forth, and their
+  // record together climbs as Mel's bump and Em's hands get better.
+  var VB = null, VOLLEY_SPOT = [336, 326], RALLY_SPOTS = [[330, 324], [358, 324]];
+  function volleySteps(k){
+    var sp = snap(SMALL, VOLLEY_SPOT[0], VOLLEY_SPOT[1]);
+    return [kidGo(k, sp[0], sp[1]), {k: 'custom', step: function(a, dt, st){
+      if (!st.go){
+        st.go = true; st.left = 11 + Math.random() * 6; st.count = 0; st.pause = 0;
+        VB = {a: a, b: a, from: 0, t: 0, dur: 0.8, down: false}; a.face = 's';
+        if (Math.random() < 0.6) say('m', pick(['Volleyball time!', 'Record is ' + MEM.m.volleyBest + '. Watch this.', 'Keep it up, keep it up...']));
+      }
+      if (!VB) return true;
+      st.left -= dt;
+      if (st.pause > 0){ st.pause -= dt; VB.t = 0; a.act = null; if (st.pause <= 0) VB.down = false; }
+      else {
+        VB.t += dt;
+        if (VB.t >= VB.dur){
+          VB.t = 0;
+          var p = Math.min(0.97, 0.8 + MEM.m.volley * 0.17) - st.count * 0.003;
+          if (Math.random() < p) st.count++;
+          else { endVolley(a, st.count); st.count = 0; st.pause = 1.1; VB.down = true; }
+        }
+        a.act = VB.t < 0.16 ? 'wave' : null;
+      }
+      if (st.left <= 0 && st.pause <= 0){
+        endVolley(a, st.count); VB = null; a.act = null;
+        MEM.m.volleys++; MEM.m.volley = Math.min(1, MEM.m.volley + 0.035); save(); boardDirty = true;
+        return true;
+      }
+      return false;
+    }}];
+  }
+  function endVolley(k, n){
+    if (n > MEM.today.volleyBest) MEM.today.volleyBest = n;
+    if (n > MEM.m.volleyBest){
+      MEM.m.volleyBest = n; save(); boardDirty = true;
+      var near = !lv.hidden && !B.rescue && Math.hypot(lv.x - k.x, lv.y - k.y) < 170;
+      convo([['m', n + ' in a row! New record!']].concat(kids.mel.here && !kids.mel.inWater ? [['mel', 'Whoa, Em!']] : []).concat(near ? [['leva', 'Nice hands, Em.']] : []));
+      log('Em kept the volleyball up ' + n + ' times in a row. A new best.', 'm');
+    } else if (n >= 3 && Math.random() < 0.4) say('m', n + '! ' + pick(['Almost.', 'So close.', 'Again!']));
+  }
+  function startRally(em, mel, by){
+    pickKid.lastRally = W.clock;
+    var A = snap(SMALL, RALLY_SPOTS[0][0], RALLY_SPOTS[0][1]), Bp = snap(SMALL, RALLY_SPOTS[1][0], RALLY_SPOTS[1][1]);
+    var R = {done: false}, a = by === mel ? 'mel' : 'm', b = a === 'm' ? 'mel' : 'm';
+    var call = !MEM.m.rallyBest ? [[a, NAME[b] + '! Want to play pepper?'], [b, "Let's go! Bump, set, hit."]]
+      : [[a, pick([NAME[b] + '! Pepper?', 'Rally time!', "Let's beat our record, " + NAME[b] + '.'])], [b, pick(['Okay!', "Let's go!", 'This time for sure.'])]];
+    kidPlan(em, [kidGo(em, A[0], A[1]),
+      fn(function(){ em.face = 'e'; convo(call); }),
+      until(function(){ return Math.hypot(mel.x - Bp[0], mel.y - Bp[1]) < 5 && !mel.moving; }, 25),
+      {k: 'custom', step: function(a, dt, st){ return rallyStep(dt, st, em, mel, R); }}
+    ].concat(towelSteps(em, 6)), 'playing volleyball with Mel');
+    kidPlan(mel, [kidGo(mel, Bp[0], Bp[1]), fn(function(){ mel.face = 'w'; }), until(function(){ return R.done; }, 45), fn(function(){ mel.act = null; })].concat(towelSteps(mel, 6)), 'playing volleyball with Em');
+  }
+  function rallyStep(dt, st, em, mel, R){
+    if (!st.go){ st.go = true; st.left = 12 + Math.random() * 5; st.count = 0; st.pause = 0; st.best = 0; VB = {a: em, b: mel, from: 0, t: 0, dur: 1, down: false}; em.face = 'e'; mel.face = 'w'; }
+    if (!VB){ R.done = true; return true; }
+    st.left -= dt;
+    if (st.pause > 0){ st.pause -= dt; VB.t = 0; VB.from = 0; if (st.pause <= 0) VB.down = false; em.act = mel.act = null; }
+    else {
+      VB.t += dt;
+      if (VB.t >= VB.dur){
+        VB.t = 0;
+        // whoever it's coming to has to get it back
+        var to = VB.from === 0 ? mel : em, p = to === mel ? 0.72 + MEM.mel.bump * 0.24 : 0.84 + MEM.m.volley * 0.12;
+        if (Math.random() < p){ st.count++; VB.from = 1 - VB.from; }
+        else { st.best = Math.max(st.best, st.count); st.count = 0; st.pause = 1.2; VB.down = true; }
+      }
+      em.act = VB.from === 0 && VB.t < 0.16 ? 'wave' : null; mel.act = VB.from === 1 && VB.t < 0.16 ? 'wave' : null;
+    }
+    if (st.left <= 0 && st.pause <= 0){
+      st.best = Math.max(st.best, st.count);
+      VB = null; em.act = mel.act = null; R.done = true;
+      MEM.mel.bump = Math.min(1, MEM.mel.bump + 0.05); MEM.m.volley = Math.min(1, MEM.m.volley + 0.02);
+      if (st.best > MEM.m.rallyBest){
+        MEM.m.rallyBest = st.best;
+        convo([['mel', st.best + ' back and forth!'], ['m', 'New record!']]);
+        log('Em and Mel kept a volley going ' + st.best + ' times. A new record.', 'm');
+      } else convo([['mel', pick(['One more time?', 'I almost had it!', 'Your serve next time.'])], ['m', pick(['Tomorrow we beat it.', 'Good hustle.', 'Call the ball!'])]]);
+      save(); boardDirty = true;
+      return true;
+    }
+    return false;
+  }
+  // ---- Mel's singing ----
+  // Her favorite songs are Freya Skye's. She hums on her towel, and if Ari's close he howls along.
+  function singSteps(k){
+    var t = TOWELS[k.id], st = {n: 0};
+    return [kidGo(k, t[0], t[1]),
+      fn(function(){ k.face = 's'; say('mel', pick(['\u266a La la la \u266a', '\u266a Hmm hmm hmm \u266a', 'This one is my favorite! \u266a'])); MEM.mel.sings++; }),
+      act('sit', 9 + Math.random() * 4, {tick: function(dt){ st.n -= dt; if (st.n <= 0){ st.n = 0.55; fx.push({k: 'note', x: k.x + (Math.random() - 0.5) * 6, y: k.y - 12, t: 0, life: 1.9, c: Math.random() < 0.5 ? '#16876a' : '#FF2E88', s: Math.random() < 0.5 ? 1 : 2}); } }}),
+      fn(function(){
+        var howl = !ari.inWater && !ari.hidden && Math.hypot(ari.x - k.x, ari.y - k.y) < 90;
+        if (howl) convo([['ari', 'Awoooo!'], ['mel', 'Ari! You know the words!']]);
+        if (howl || Math.random() < 0.35) log('Mel sang her favorite Freya Skye song on her towel.' + (howl ? ' Ari howled along.' : ''), 'mel');
+        save(); boardDirty = true;
+      })];
+  }
+  // ---- on the towels, they talk ----
+  function chatter(){
+    var f = FISH[Math.floor(Math.random() * Math.max(1, Math.min(MEM.mel.fish, FISH.length)))];
+    var ariNear = !ari.inWater && !ari.hidden && Math.hypot(ari.x - TOWELS.m[0], ari.y - TOWELS.m[1]) < 80;
+    var list = [
+      [['m', "I wonder what Luke's doing right now."], ['mel', 'Probably waiting by the door for us.'], ['m', 'Best dog ever.'], ['mel', 'Best dog ever.']],
+      [['mel', "Next time we go fishing, I'm catching a catfish."], ['m', 'You say that every time.'], ['mel', "And one time I'll be right!"]],
+      [['m', 'Youth group was so fun this week.'], ['mel', 'Did they have snacks?'], ['m', 'They ALWAYS have snacks.']].concat(ariNear ? [['ari', 'Did somebody say snacks?']] : []),
+      [['m', 'I kept the volleyball up ' + MEM.m.volleyBest + ' times in a row.'], ['mel', "I'm going to beat that."], ['m', 'After swimming. Deal.']],
+      [['m', "I can't wait for soccer to start."], ['mel', "Me too. I'm bringing the orange slices."], ['m', 'You just want to eat the orange slices.'], ['mel', 'Yes.']],
+      [['mel', 'Want to practice soccer when we get home?'], ['m', 'Yes! Luke can be goalie.'], ['mel', 'Luke is a terrible goalie.'], ['m', 'Luke is the BEST goalie. He just likes to chase the ball.']],
+      [['mel', 'Em, did you know? ' + f], ['m', pick(EM_REACT)]],
+      [['m', 'Mel, are you humming that song again?'], ['mel', "It's the best one!"]],
+      [['m', 'At youth group we learned about Jesus feeding five thousand people with five loaves and two fish.'], ['mel', 'Fish? What kind?'], ['m', "It doesn't say."], ['mel', 'Probably catfish.']],
+      [['mel', 'Did you bring the treats for Ari?'], ['m', 'In my bag. His ears are listening, though.']].concat(ariNear ? [['ari', 'My ears are ALWAYS listening.']] : []),
+      [['m', "When I grow up I'm going to play volleyball. And be a lifeguard."], ['mel', "I'm going to be a fishing guide."], ['m', 'You already are one.']],
+      [['m', 'Race you to the diving well!'], ['mel', 'Walking race?'], ['m', "Walking race. leva's watching."]]
+    ];
+    return pick(list);
+  }
+  function chatSteps(k){
+    var t = TOWELS[k.id];
+    return [kidGo(k, t[0], t[1]), fn(function(){ k.face = 's'; k.task = 'on her towel'; convo(chatter()); }), act('sit', 12 + Math.random() * 4)];
+  }
+  // Ari sits by a towel, very politely, until somebody opens a pool bag
+  function begTreat(k){
+    if (!k.here || k.inWater || k.task !== 'on her towel') return;
+    if (MEM.today.treats < TREAT_LIMIT) convo([['ari', pick(['Is that a snack bag?', 'I smell treats.', 'Look how nicely I am sitting.'])], [k.id, pick(['Okay, one treat!', 'Fine. Just one.', 'How can I say no to that face?']), 0, function(){ giveTreat(k); }], ['ari', pick(['You are my favorite!', 'Crunchy!', 'Best day ever!'])]]);
+    else convo([['ari', 'Is there... one more treat?'], [k.id, "No more today, Ari. leva's rule."], ['ari', 'Worth a shot.']]);
+  }
+  var TREAT_LIMIT = 6;
+  // a treat flies from a pool bag to Ari
+  function giveTreat(from){
+    if (MEM.today.treats >= TREAT_LIMIT) return false;
+    MEM.today.treats++; MEM.ari.treats++; boardDirty = true;
+    fx.push({k: 'treat', x0: from ? from.x : ari.x + 16, y0: from ? from.y - 10 : ari.y - 24, t: 0, life: 0.55});
+    if (MEM.today.treats === TREAT_LIMIT && !lv.hidden && !B.rescue) setTimeout(function(){ convo([['leva', "That's plenty of treats for one day, buddy."], ['ari', 'Plenty? Is that a number?']]); }, 1800);
+    return true;
   }
   function leaveKid(k, why){
     if (!k.here) return;
@@ -1156,7 +1483,9 @@
       if (open && !k.here) arriveKid(k, W.clock > 3);
       if (!open && k.here && !k.leaving) leaveKid(k, api.isOpen() ? why : null);
       if (!k.here) return;
-      if (runPlan(k, dt) === 'done') pickKid(k);
+      if (k.talkWave > 0) k.talkWave -= dt;
+      if (k.talking > 0 && !k.hopping){ k.talking -= dt; k.moving = false; if (!k.inWater) k.face = 's'; }
+      else if (runPlan(k, dt) === 'done') pickKid(k);
       // leva reminds anybody running on the deck
       if (k.moving && k.running && !k.inWater && !lv.hidden && !B.rescue && Math.hypot(lv.x - k.x, lv.y - k.y) < 150 && W.clock - B.walkRemind > 12){
         B.walkRemind = W.clock; k.running = false;
@@ -1195,6 +1524,13 @@
       c.fillStyle = 'rgba(255,255,255,.55)'; c.fillRect(X + (side === 'e' ? 14 : -18), Y - 2 + (Math.floor(T * 3) % 2), 4, 2); return;
     }
     shadow(c, X, Y, 12);
+    if (ari.talking > 0){
+      var ta = ari.talkAct || 'happy';
+      if (ta === 'sit') spr(c, 'ari_sit_' + side, X, Y);
+      else if (ta === 'roll') spr(c, 'ari_happy_' + (Math.floor(T * 8) % 2 ? 'e' : 'w'), X, Y - Math.round(Math.abs(Math.sin(T * 8)) * 3));
+      else spr(c, 'ari_happy_' + side, X, Y);
+      return;
+    }
     if (ari.act === 'shake'){ spr(c, 'ari_' + side + '0', X + (Math.floor(T * 30) % 2 ? 1.5 : -1.5), Y); return; }
     if (ari.act === 'sleep'){ spr(c, 'ari_sleep_' + side, X, Y); return; }
     if (ari.act === 'sit'){ spr(c, 'ari_sit_' + side, X, Y); return; }
@@ -1217,8 +1553,8 @@
     }
     if (k.inWater){ spr(c, n + '_swim' + (Math.floor(T * 2.4 + (n === 'm' ? 0 : 0.5)) % 2), X, Y); ripple(c, X, Y + 1, 13); return; }
     shadow(c, X, Y, 8);
-    if (k.pose === 'sit'){ spr(c, n + '_sit', X, Y); return; }
-    if (k.act === 'wave'){ spr(c, n + '_wave', X, Y); return; }
+    if (k.pose === 'sit' && !(k.talkWave > 0)){ spr(c, n + '_sit', X, Y); return; }
+    if (k.act === 'wave' || k.talkWave > 0){ spr(c, n + '_wave', X, Y); return; }
     spr(c, n + '_' + k.face + (k.moving ? f : ''), X, Y);
   }
   function drawTowels(ctx){
@@ -1232,7 +1568,7 @@
   function drawLevaExtras(c){
     if (lv.hidden) return;
     var X = lv.x * 2, Y = lv.y * 2;
-    if (B.thinking){ var s = beat(T); drawHeartPx(c, X, Y - 70, 3 * s, 1); }
+    if (B.thinking){ var s = beat(T); drawHeartPx(c, X, Y - 70, s, 1); }
   }
   function drawCast(c){
     if (!ready) return false;
@@ -1240,8 +1576,30 @@
     ['m', 'mel'].forEach(function(id){ var k = kids[id]; list.push({y: k.y + (k.inWater ? -2 : 0), d: function(){ drawKid(c, k); }}); });
     list.sort(function(a, b){ return a.y - b.y; });
     list.forEach(function(o){ o.d(); });
+    drawBall(c);
     fxStep(lastDt, c);
     return true;
+  }
+  function drawBall(c){
+    if (!VB) return;
+    var a = VB.a, b = VB.b, X, Y, gY;
+    if (a === b){
+      var u = Math.min(1, VB.t / VB.dur);
+      X = a.x * 2 + 1; Y = a.y * 2 - 40 - Math.sin(u * Math.PI) * 30; gY = a.y * 2 + 2;
+      if (VB.down){ X = a.x * 2 + 12; Y = a.y * 2 - 2; }
+      if (a.talking > 0){ X = a.x * 2 + 7; Y = a.y * 2 - 18; }
+    } else {
+      var from = VB.from === 0 ? a : b, to = VB.from === 0 ? b : a, u2 = Math.min(1, VB.t / VB.dur);
+      X = (from.x + (to.x - from.x) * u2) * 2; Y = (from.y + (to.y - from.y) * u2) * 2 - 38 - Math.sin(u2 * Math.PI) * 26; gY = (from.y + (to.y - from.y) * u2) * 2 + 2;
+      if (VB.down){ X = (a.x + b.x); Y = (a.y + b.y) - 2; }
+      if (a.talking > 0){ X = a.x * 2 + 7; Y = a.y * 2 - 18; }
+    }
+    X = Math.round(X); Y = Math.round(Y);
+    if (!VB.down && gY){ c.fillStyle = 'rgba(12,14,28,.18)'; c.beginPath(); c.ellipse(X, gY, 4, 1.5, 0, 0, Math.PI * 2); c.fill(); }
+    c.fillStyle = '#ffffff'; c.beginPath(); c.arc(X, Y, 4.5, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = '#1b2a4a'; c.lineWidth = 1; c.stroke();
+    c.fillStyle = '#2f6fd6'; c.fillRect(X - 3, Y - 1, 7, 2);
+    c.fillStyle = '#ffd23a'; c.fillRect(X - 1, Y - 4, 2, 3);
   }
 
   // ================= the weather, as it changes =================
@@ -1278,7 +1636,7 @@
         log('Rain in Dearborn. Rain is fine. leva is listening for thunder.', 'leva');
         if (kidsHere) convo([['m', "It's raining!"], ['mel', "We're already wet!"]]);
       }
-      if (why === 'cold' && was !== 'snow') log('Too cold to swim. M and Mel are staying home.', 'leva');
+      if (why === 'cold' && was !== 'snow') log('Too cold to swim. Em and Mel are staying home.', 'leva');
     }
     if (why === 'heat' && kidsHere && W.clock - heatLine > 240 && !B.rescue){ heatLine = W.clock; convo([['leva', 'Hot one. Drink some water, you two.'], ['mel', 'Okay!']]); }
     if (wx.flashAt && wx.flashAt !== lastFlash){ lastFlash = wx.flashAt; ariThunder(); }
@@ -1302,6 +1660,7 @@
     stepKids(dt);
     talkStep(dt);
     bubbleStep(dt);
+    placeSpots();
     saveAt -= dt; if (saveAt <= 0){ saveAt = 20; MEM.chem = {ph: W.ph, cl: W.cl, measured: W.measured}; save(); }
     boardClock -= dt; if (boardClock <= 0 || boardDirty){ boardClock = 1; boardDirty = false; renderBoard(); }
   }
@@ -1327,16 +1686,17 @@
     gauge(board.clg, m ? m.cl : null, 0, 5, 1, 3);
     board.tested.textContent = m ? 'Tested ' + ago(m.at) + ' at ' + POOLS[m.pool].name + '.' : 'Not tested yet. leva will get to it.';
     board.leaves.textContent = String(W.leaves.length);
-    board.today.textContent = MEM.today.tests + (MEM.today.tests === 1 ? ' test' : ' tests') + ', ' + MEM.today.leaves + ' leaves skimmed, ' + MEM.today.ariSwims + (MEM.today.ariSwims === 1 ? ' beagle' : ' beagles') + ' pulled from the pool.';
+    board.today.textContent = MEM.today.tests + (MEM.today.tests === 1 ? ' test' : ' tests') + ', ' + MEM.today.leaves + ' leaves skimmed, ' + MEM.today.ariSwims + (MEM.today.ariSwims === 1 ? ' beagle' : ' beagles') + ' pulled from the pool, ' + MEM.today.treats + ' of ' + TREAT_LIMIT + ' treats for Ari.';
     board.s.leva.textContent = B.talking > 0 && !B.rescue ? 'Talking with ' + (B.talkWith || 'you') : cap(B.task);
     board.s.ari.textContent = cap(ari.task);
     board.s.m.textContent = cap(kids.m.task);
     board.s.mel.textContent = cap(kids.mel.task);
-    board.k.leva.textContent = MEM.leva.watch ? 'Watches ' + SPOT_NAME[MEM.leva.watch] + ' closest. Knows ' + MEM.leva.jokes.length + (MEM.leva.jokes.length === 1 ? ' joke from M.' : ' jokes from M.') : (MEM.leva.jokes.length ? 'Knows ' + MEM.leva.jokes.length + (MEM.leva.jokes.length === 1 ? ' joke from M.' : ' jokes from M.') : 'Still learning where Ari likes to sneak in.');
-    var tricks = []; if (MEM.ari.sit >= 1) tricks.push('sit, from Mel'); if (MEM.ari.paw >= 1) tricks.push('shake, from M');
-    board.k.ari.textContent = (tricks.length ? 'Knows ' + tricks.join(' and ') + '. ' : 'Learning tricks from M and Mel. ') + (MEM.ari.best ? 'Favorite spot: ' + SPOT_NAME[MEM.ari.best] + '.' : 'Still picking a favorite spot.');
-    board.k.m.textContent = skillLine('m');
-    board.k.mel.textContent = skillLine('mel') + (MEM.mel.facts ? ' Has asked leva ' + MEM.mel.facts + (MEM.mel.facts === 1 ? ' question.' : ' questions.') : '');
+    board.k.leva.textContent = MEM.leva.watch ? 'Watches ' + SPOT_NAME[MEM.leva.watch] + ' closest. Knows ' + MEM.leva.jokes.length + (MEM.leva.jokes.length === 1 ? ' joke from Em.' : ' jokes from Em.') : (MEM.leva.jokes.length ? 'Knows ' + MEM.leva.jokes.length + (MEM.leva.jokes.length === 1 ? ' joke from Em.' : ' jokes from Em.') : 'Still learning where Ari likes to sneak in.');
+    var tricks = ariTricks();
+    board.k.ari.textContent = (tricks.length ? 'Knows ' + listWords(tricks) + '. ' : 'Learning tricks from Em and Mel. ') + (MEM.ari.best ? 'Favorite spot: ' + SPOT_NAME[MEM.ari.best] + '.' : 'Still picking a favorite spot.');
+    board.k.m.textContent = 'Volleyball record: ' + MEM.m.volleyBest + ' in a row.' + (MEM.m.rallyBest ? ' Pepper with Mel: ' + MEM.m.rallyBest + '.' : '') + ' ' + skillLine('m');
+    var melQ = MEM.mel.facts + Math.max(0, MEM.mel.fish - 2);
+    board.k.mel.textContent = 'Knows ' + MEM.mel.fish + ' catfish facts.' + (melQ ? ' Has asked leva ' + melQ + (melQ === 1 ? ' question.' : ' questions.') : '') + (MEM.m.rallyBest ? ' Pepper with Em: ' + MEM.m.rallyBest + '.' : '') + ' ' + skillLine('mel');
     var items = MEM.log.slice(-7).reverse();
     var sig = items.map(function(i){ return i.t; }).join(',');
     if (sig !== board.sig){
@@ -1349,6 +1709,8 @@
       });
     }
   }
+  function ariTricks(){ var t = []; if (MEM.ari.sit >= 1) t.push('sit, from Mel'); if (MEM.ari.paw >= 1) t.push('shake, from Em'); if (MEM.ari.roll >= 1) t.push('roll over, from a visitor'); return t; }
+  function listWords(a){ return a.length < 2 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
   function skillLine(id){
     var s = MEM[id], got = [], work = [];
     Object.keys(SKILL).forEach(function(k){ (s[k] >= 1 ? got : work).push(SKILL[k].verb.replace('the ', '')); });
@@ -1396,16 +1758,41 @@
       if (!MEM.log.length) log('A new day at Levagood Pool.', 'leva');
       if (MEM.visitor.name) setTimeout(function(){ say('leva', 'Welcome back, ' + MEM.visitor.name + '.'); }, 1800);
       renderBoard();
+      makeSpots();
       if (reduce) staticFrame();
     };
     im.onerror = function(){ console.error('leva pool: could not load pool/cast.png'); };
     im.src = 'pool/cast.png?v=1';
     document.addEventListener('visibilitychange', function(){ if (document.hidden){ MEM.chem = {ph: W.ph, cl: W.cl, measured: W.measured}; save(); } });
   }
+  var spots = {};
+  function makeSpots(){
+    var stage = document.getElementById('stage'); if (!stage) return;
+    [['leva', 'LEVA', 'talk to leva', 40, 58], ['ari', 'ARI', 'say hi to Ari', 34, 26], ['m', 'EM', 'talk to Em', 26, 44], ['mel', 'MEL', 'talk to Mel', 26, 44]].forEach(function(d){
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'spot link cast-spot'; b.tabIndex = -1; b.hidden = true;
+      b.style.width = d[3] + 'px'; b.style.height = d[4] + 'px'; b.setAttribute('aria-label', d[1] + ', ' + d[2]);
+      var tip = document.createElement('span'); tip.className = 'tip'; var tb = document.createElement('b'); tb.textContent = d[1]; var ts = document.createElement('span'); ts.textContent = d[2];
+      tip.appendChild(tb); tip.appendChild(ts); b.appendChild(tip);
+      b.addEventListener('click', function(){ if (window.levaChat) window.levaChat.open(d[0]); });
+      stage.appendChild(b); spots[d[0]] = {el: b, w: d[3], h: d[4]};
+    });
+  }
+  function placeSpots(){
+    for (var id in spots){
+      var sp = spots[id], a = id === 'leva' ? lv : id === 'ari' ? ari : kids[id];
+      var show = id === 'leva' ? !lv.hidden : id === 'ari' ? !ari.hidden : (a.here && !a.hidden);
+      if (sp.el.hidden === show) sp.el.hidden = !show;
+      if (!show) continue;
+      var h = a.inWater ? Math.round(sp.h * 0.55) : sp.h;
+      sp.el.style.left = Math.round(a.x * 2 - sp.w / 2) + 'px'; sp.el.style.top = Math.round(a.y * 2 - h + 2) + 'px';
+      if (sp.lastH !== h){ sp.el.style.height = h + 'px'; sp.lastH = h; }
+    }
+  }
   function staticFrame(){
-    // with reduced motion there is one still frame: leva on the deck, Ari by the pump room, M and Mel on their towels
+    // with reduced motion there is one still frame: leva on the deck, Ari by the pump room, Em and Mel on their towels
     lv.hidden = false; lv.x = 263; lv.y = 109; lv.act = 'kit'; lv.face = 'e';
     ari.act = 'sleep';
+    placeSpots();
     if (api.redraw) api.redraw();
   }
 
@@ -1416,10 +1803,13 @@
       return {
         open: api ? api.isOpen() : true, time: api ? (api.isNight() ? 'night' : api.isDusk() ? 'dusk' : 'day') : 'day',
         measured: m ? {ph: m.ph, cl: m.cl, pool: POOLS[m.pool].name, ago: ago(m.at)} : null,
-        leaves: W.leaves.length, levaTask: B.task, levaHidden: lv ? lv.hidden : false,
-        ari: {task: ari.task, inWater: ari.inWater, where: ari.inWater ? SPOT_NAME[ari.spot] : null, swims: MEM.today.ariSwims, best: MEM.ari.best ? SPOT_NAME[MEM.ari.best] : null, sit: MEM.ari.sit >= 1, paw: MEM.ari.paw >= 1},
+        leaves: W.leaves.length, leavesBy: (function(){ var by = {lap: 0, zero: 0, dive: 0}; W.leaves.forEach(function(l){ by[l.pool] = (by[l.pool] || 0) + 1; }); return by; })(),
+        levaTask: B.task, levaHidden: lv ? lv.hidden : false,
+        ari: {task: ari.task, inWater: ari.inWater, where: ari.inWater ? SPOT_NAME[ari.spot] : null, swims: MEM.today.ariSwims, best: MEM.ari.best ? SPOT_NAME[MEM.ari.best] : null, sit: MEM.ari.sit >= 1, paw: MEM.ari.paw >= 1,
+          roll: MEM.ari.roll, rolls: MEM.ari.roll >= 1, treatsToday: MEM.today.treats, treatLimit: TREAT_LIMIT, treats: MEM.ari.treats, tricks: ariTricks(), hidden: !!ari.hidden, inside: ari.inside || null},
         watch: fav ? SPOT_NAME[fav] : null,
-        m: {here: kids.m.here, task: kids.m.task, skills: skillLine('m')}, mel: {here: kids.mel.here, task: kids.mel.task, skills: skillLine('mel'), facts: MEM.mel.facts},
+        m: {here: kids.m.here, task: kids.m.task, skills: skillLine('m'), inWater: kids.m.inWater, volleyBest: MEM.m.volleyBest, bestToday: MEM.today.volleyBest, volleys: MEM.m.volleys, rallyBest: MEM.m.rallyBest, cannonball: MEM.m.cannonball >= 1},
+        mel: {here: kids.mel.here, task: kids.mel.task, skills: skillLine('mel'), inWater: kids.mel.inWater, facts: MEM.mel.facts, fish: MEM.mel.fish, fishFacts: FISH.slice(0, MEM.mel.fish), newFacts: MEM.today.newFacts, sings: MEM.mel.sings, bump: MEM.mel.bump, float: MEM.mel.float >= 1},
         jokes: MEM.leva.jokes.map(function(q){ for (var i = 0; i < JOKES.length; i++) if (JOKES[i][0] === q) return JOKES[i]; return [q, '']; }), today: Object.assign({}, MEM.today),
         log: MEM.log.slice(-8).map(function(l){ return clock(l.t) + ' ' + l.text; }),
         visitor: MEM.visitor,
@@ -1437,6 +1827,58 @@
     },
     think: function(on){ var why = wxWhy(); B.thinking = !!on; if (on && !B.rescue && why !== 'storm' && why !== 'tornado'){ B.talking = Math.max(B.talking, 12); B.talkTo = null; B.talkWith = 'you'; } },
     say: function(text){ if (ready) say('leva', text.length > 90 ? text.slice(0, 87).replace(/\s+\S*$/, '') + '...' : text); },
+    sayAs: function(id, text){ if (ready && NAME[id]) say(id, text.length > 90 ? text.slice(0, 87).replace(/\s+\S*$/, '') + '...' : text); },
+    // who's around to talk. Em and Mel only chat while they're at the pool.
+    who: function(id){
+      if (!ready) return {here: false, task: ''};
+      if (id === 'leva') return {here: true, task: B.task};
+      if (id === 'ari') return {here: true, task: ari.task, inWater: ari.inWater, hidden: !!ari.hidden};
+      var k = kids[id]; if (!k) return {here: false, task: ''};
+      return {here: !!(k.here && !k.hidden && !k.leaving), task: k.task, inWater: k.inWater, leaving: !!k.leaving};
+    },
+    // whoever you're talking to stops what they're doing and faces you for a few seconds
+    attendChar: function(id, secs){
+      if (!ready) return 'no';
+      if (id === 'leva') return chat.attend(secs);
+      var a = id === 'ari' ? ari : kids[id]; if (!a) return 'no';
+      if (id !== 'ari' && (!a.here || a.hidden || a.leaving)) return 'away';
+      if (a.hopping || a.inWater && id === 'ari' || a.hidden || (lesson && (lesson.teacher === a || lesson.learner === a)) || (VB && VB.a !== VB.b && (VB.a === a || VB.b === a))) return 'busy';
+      if (!(a.talking > 0) && id !== 'ari') a.talkWave = 1.4;
+      a.talking = Math.max(a.talking || 0, secs || 10);
+      return 'ok';
+    },
+    charDo: function(id, what){
+      if (!ready) return 'no';
+      if (id === 'ari'){
+        if (ari.inWater || ari.hidden || ari.hopping) return 'busy';
+        ari.talking = Math.max(ari.talking || 0, 4);
+        if (what === 'treat'){ if (!giveTreat(null)) return 'limit'; ari.talkAct = 'happy'; save(); return 'ok'; }
+        if (what === 'sit'){ var ks = MEM.ari.sit >= 1; MEM.ari.sit = Math.min(1, MEM.ari.sit + 0.05); ari.talkAct = ks ? 'sit' : 'happy'; save(); return ks ? 'ok' : 'learning'; }
+        if (what === 'shake'){ var kp = MEM.ari.paw >= 1; MEM.ari.paw = Math.min(1, MEM.ari.paw + 0.05); ari.talkAct = 'happy'; save(); return kp ? 'ok' : 'learning'; }
+        if (what === 'roll'){
+          var before = MEM.ari.roll; MEM.ari.roll = Math.min(1, before + 0.25); ari.talkAct = 'roll'; save(); boardDirty = true;
+          if (MEM.ari.roll >= 1 && before < 1){ log('Ari learned to roll over. A visitor in the chat taught him.', 'ari'); return 'learned'; }
+          return MEM.ari.roll >= 1 ? 'ok' : 'learning';
+        }
+        if (what === 'speak'){ ari.talkAct = 'happy'; return 'ok'; }
+        return 'no';
+      }
+      var k = kids[id]; if (!k || !k.here || k.hidden || k.leaving) return 'away';
+      if (k.hopping || (lesson && (lesson.teacher === k || lesson.learner === k)) || (VB && VB.a !== VB.b && (VB.a === k || VB.b === k))) return 'busy';
+      if (what === 'wave'){ k.talkWave = 1.6; k.talking = Math.max(k.talking || 0, 2); return 'ok'; }
+      if (k.inWater) return 'wet';
+      k.talking = 0;
+      if (what === 'cannonball' && id === 'm'){ kidPlan(k, swimSteps(k, 'dive', 8, 'cannonball').concat(towelSteps(k, 6)), 'doing a cannonball for you'); return 'ok'; }
+      if (what === 'volley' && id === 'm'){ pickKid.lastVolley = W.clock; kidPlan(k, volleySteps(k).concat(towelSteps(k, 5)), 'practicing volleyball'); return 'ok'; }
+      if (what === 'rally' || what === 'volley'){
+        var o = kids[id === 'm' ? 'mel' : 'm'];
+        if (!o.here || o.hidden || o.leaving || o.inWater || o.hopping || (lesson && (lesson.teacher === o || lesson.learner === o))) return 'noother';
+        o.talking = 0; startRally(kids.m, kids.mel, k); return 'ok';
+      }
+      if (what === 'float' && id === 'mel'){ kidPlan(k, swimSteps(k, 'zero', 8, 'float').concat(towelSteps(k, 6)), 'doing a back float for you'); return 'ok'; }
+      if (what === 'sing' && id === 'mel'){ pickKid.lastSing = W.clock; kidPlan(k, singSteps(k), 'singing her favorite song'); return 'ok'; }
+      return 'no';
+    },
     // things you can ask leva to go do on the deck
     doTask: function(what){
       if (!ready) return false;
@@ -1447,16 +1889,22 @@
       B.talking = 0;
       if (what === 'vac'){ levaPlan(planVac(), 'vacuuming the lap pool for you'); return true; }
       if (what === 'test'){ var p = ['lap', 'zero', 'dive'][Math.floor(Math.random() * 3)]; levaPlan(planTest(p), 'testing ' + POOLS[p].name + ' for you'); return true; }
-      if (what === 'skim'){ var pools = {}; W.leaves.forEach(function(l){ pools[l.pool] = (pools[l.pool] || 0) + 1; }); var w = Object.keys(pools).sort(function(a, b){ return pools[b] - pools[a]; })[0]; if (!w) return 'clean'; levaPlan(planSkim(w), 'skimming ' + POOLS[w].name + ' for you'); return true; }
+      if (what === 'skim'){ var w = nearestLeafPool(); if (!w) return 'clean'; levaPlan(planSkim(w), 'skimming ' + POOLS[w].name + ' for you'); return true; }
       if (what === 'pump'){ levaPlan(planRest(), 'checking the pumps'); return true; }
       if (what === 'ari'){ if (ari.inWater){ ari.noticeT = 99; return true; } var p2 = snap(BIG, ari.x + 14, ari.y); levaPlan(leaveBuilding().concat([go(p2[0], p2[1]), act('watch', 5, {face: ari.x < p2[0] ? 'w' : 'e'})]), 'checking on Ari'); setTimeout(function(){ convo([['leva', 'Hey, buddy.'], ['ari', 'Hi! Are we swimming?'], ['leva', 'No.']]); }, 4000); return true; }
       if (what === 'wave'){ levaPlan(leaveBuilding().concat([act('talk', 4, {face: 's'})]), 'waving at you'); say('leva', 'Hey there!'); return true; }
       return false;
     },
-    remember: function(k, v){ if (k === 'name'){ MEM.visitor.name = v; } if (k === 'topic'){ MEM.visitor.topics[v] = (MEM.visitor.topics[v] || 0) + 1; } if (k === 'chat') MEM.visitor.chats++; save(); },
-    forget: function(){ MEM.visitor = {name: '', chats: 0, topics: {}}; save(); },
+    remember: function(k, v){
+      if (k === 'name'){ MEM.visitor.name = v; } if (k === 'topic'){ MEM.visitor.topics[v] = (MEM.visitor.topics[v] || 0) + 1; } if (k === 'chat') MEM.visitor.chats++;
+      if (k === 'met'){ MEM.visitor.met[v] = (MEM.visitor.met[v] || 0) + 1; } if (k === 'like'){ MEM.visitor.likes[v] = true; }
+      save();
+    },
+    forget: function(){ MEM.visitor = {name: '', chats: 0, topics: {}, met: {}, likes: {}}; save(); },
     ready: function(){ return ready; }
   };
 
   window.PoolLife = {init: init, step: step, drawCast: drawCast, stepLeva: stepLeva, chat: chat, drawHeart: drawHeartPx};
+  // with a ?do= test switch on, the deck's state is open to the console for checking
+  if (DO) window.__deck = {W: W, B: B, ari: ari};
 })();
