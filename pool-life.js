@@ -12,6 +12,8 @@
   var GW = 360, GH = 210, N = GW * GH;
   // test the deck faster with ?fast=4 (up to 10), the same way ?time= and ?open= test the clock
   var FAST = Math.max(1, Math.min(10, +new URLSearchParams(location.search).get('fast') || 1));
+  // and ?do=vac (or test, skim, gate, shovel) puts leva on that job first, so you don't have to wait for it to come up
+  var DO = (new URLSearchParams(location.search).get('do') || '').toLowerCase();
 
   // ================= the deck as a grid =================
   // one cell is 2 x 2 map pixels. DECK is concrete you can walk on, WATER is water you can swim in.
@@ -36,6 +38,11 @@
   }
   var DECK = unrle(DECK_RLE), WATER = unrle(WATER_RLE);
   var BIG = erode(DECK, 2), SMALL = erode(DECK, 1), SWIM = erode(WATER, 2);
+  var WORLD = {GW: GW, GH: GH, N: N, DECK: DECK, WATER: WATER, SWIM: SWIM};
+  // the real Dearborn weather, from pool-weather.js, once it has something to say
+  function WXS(){ var w = window.PoolWeather; return w && w.ok ? w : null; }
+  function wxWhy(){ var w = WXS(); return w ? w.reason() : null; }
+  function wet(w){ return !!w && (w.kind === 'rain' || w.kind === 'drizzle' || w.kind === 'storm' || w.kind === 'sleet' || w.kind === 'tornado'); }
   function cellIdx(x, y){ var gx = Math.floor(x / 2), gy = Math.floor(y / 2); if (gx < 0 || gy < 0 || gx >= GW || gy >= GH) return -1; return gy * GW + gx; }
   function on(mask, x, y){ var i = cellIdx(x, y); return i >= 0 && mask[i] === 1; }
   function snap(mask, x, y){
@@ -153,8 +160,15 @@
     gate: {door: [416, 190], inside: [440, 190], name: 'the front gate'}
   };
   var KIT_SPOTS = {lap: [[263, 109, 'e'], [247, 313, 'w']], zero: [[409, 213, 'w']], dive: [[171, 241, 'w']]};
-  var VAC = [317, 211], GATE_SPOT = [371, 107];
+  var GATE_SPOT = [371, 107];
   var TOWELS = {m: [351, 331], mel: [373, 337]};
+  // The lane lines run across the middle of the lap pool (rope to rope, y 188 to 235). They float on top and
+  // stop a vacuum pole cold, so leva vacuums the open water at each end from the deck behind it.
+  var LANE_TOP = 188, LANE_BOTTOM = 235;
+  var VAC_ZONES = {
+    n: {x0: 222, x1: 288, near: 131, far: LANE_TOP - 8, stand: 110, face: 's', name: 'the shallow end', east: true},
+    s: {x0: 222, x1: 288, near: 291, far: LANE_BOTTOM + 8, stand: 310, face: 'n', name: 'the deep end', east: false}
+  };
 
   // ================= the deck's memory =================
   // kept in this browser, so the deck picks up where it left off next time you visit
@@ -197,12 +211,14 @@
       W.ph += (open ? 0.035 : 0.018) * m;
       W.cl -= (open ? (api.isNight() ? 0.03 : 0.07) : 0.02) * m;
     }
+    var wx = WXS();
+    if (wet(wx)){ W.cl -= 0.09 * wx.intensity * m; W.ph -= 0.03 * wx.intensity * m; W.rainedAt = W.clock; }
     W.ph = Math.max(6.8, Math.min(8.3, W.ph)); W.cl = Math.max(0, Math.min(6, W.cl));
     W.dirt = Math.min(1, W.dirt + (open ? 0.012 : 0.004) * m);
     // leaves blow in off the park trees
     W.leafClock -= dt;
     if (W.leafClock <= 0){
-      W.leafClock = (api.isNight() ? 22 : 12) + Math.random() * 12;
+      W.leafClock = ((api.isNight() ? 22 : 12) + Math.random() * 12) / (1 + (wx ? wx.windMph : 0) / 12);
       if (W.leaves.length < 14){
         var r = Math.random(), pool = r < 0.55 ? 'lap' : r < 0.8 ? 'dive' : 'zero', p = randomWater(pool);
         W.leaves.push({x: p[0], y: p[1], vx: 0, vy: 0, pool: pool, c: ['#6b8e23', '#8a6a3a', '#a7c957', '#b5651d'][Math.floor(Math.random() * 4)], k: Math.random() * 6.28, grab: 0});
@@ -385,7 +401,11 @@
     if (st.k === 'until'){ st.el = (st.el || 0) + dt; if (st.c(a) || st.el > st.max) a.si++; return; }
     if (st.k === 'custom'){ if (st.step(a, dt, st)) a.si++; return; }
   }
-  function setPlan(a, steps){ a.plan = steps; a.si = 0; a.wait = 0; a.tick = null; a.path = null; a.act = null; a.moving = false; }
+  function setPlan(a, steps){
+    a.plan = steps; a.si = 0; a.wait = 0; a.tick = null; a.path = null; a.act = null; a.moving = false;
+    // a new job means leva puts down whatever he was carrying
+    if (a === B){ B.tool = null; B.net = null; B.vac = null; }
+  }
 
   // ================= the cast =================
   var api = null, lv = null, castImg = null, reduce = false, ready = false, T = 0;
@@ -504,9 +524,101 @@
     }}]);
   }
   function planReport(){ return leaveBuilding().concat(enter('office', 'report', 4)).concat([out('office'), fn(function(){ W.lastReport = W.clock; })]); }
+  // ---- vacuuming the lap pool ----
+  // The head rides the floor on a pole, with the hose floating back to the skimmer. leva can't get the pole past
+  // the lane ropes, so he works the shallow end from the north deck, then walks around and does the deep end
+  // from the south deck. Push out to the rope, slide over, pull back to the wall, slide over, like mowing a lawn.
+  var VAC_GAP = 7.3, VAC_SPEED = 13, vacTrail = [], vacGen = 0;
+  var VAC_LINES = ["Slow strokes. Go fast and you just stir it back up.", "Lane lines stay in, so I work the ends.", "Shallow end first. It all rolls to the deep end anyway."];
+  function vacStrokes(z){
+    var n = Math.round((z.x1 - z.x0) / VAC_GAP), pts = [];
+    for (var i = 0; i <= n; i++){
+      var x = z.east ? z.x0 + (z.x1 - z.x0) * i / n : z.x1 - (z.x1 - z.x0) * i / n;
+      if (i % 2) pts.push([x, z.far], [x, z.near]); else pts.push([x, z.near], [x, z.far]);
+    }
+    return pts;
+  }
+  // where he stands on the deck: a couple steps east of the head, working the pole off his side at an angle
+  function vacStand(hx){ return Math.max(232, Math.min(292, hx + 16)); }
+  function vacZone(key){
+    var z = VAC_ZONES[key];
+    return {k: 'custom', step: function(a, dt, st){
+      if (!st.pts){
+        st.pts = vacStrokes(z); st.i = 1; st.phase = 'in'; st.el = 0; st.mark = 0; vacGen++;
+        B.vac = {zone: key, head: st.pts[0].slice(), dip: 0, walk: false};
+        B.task = 'vacuuming ' + z.name + ' of the lap pool'; a.tool = 'vac';
+        if (key === 'n' && Math.random() < 0.55) say('leva', VAC_LINES[Math.floor(Math.random() * VAC_LINES.length)]);
+      }
+      var v = B.vac;
+      a.act = 'vac';
+      // shuffle along the deck to stay with the head
+      var tx = vacStand(v.head[0]), moved = Math.abs(tx - a.x) > 0.4 || Math.abs(z.stand - a.y) > 0.4;
+      if (moved) moveTo(a, tx, z.stand, 9, dt);
+      a.face = z.face; v.walk = moved; a.moving = moved;
+      if (st.phase === 'in'){
+        // down through the surface to the floor
+        if (v.dip === 0) drops(v.head[0], v.head[1], 5);
+        v.dip = Math.min(1, v.dip + dt / 1.6);
+        if (v.dip >= 1) st.phase = 'work';
+        return false;
+      }
+      if (st.phase === 'work'){
+        var p = st.pts[st.i], dx = p[0] - v.head[0], dy = p[1] - v.head[1], d = Math.hypot(dx, dy);
+        // easy at the turns, steady down the stroke
+        st.el += dt;
+        var m = VAC_SPEED * dt * Math.min(1, 0.3 + d / 9, 0.3 + st.el * 1.4);
+        if (d <= m){ v.head[0] = p[0]; v.head[1] = p[1]; st.i++; st.el = 0; if (st.i >= st.pts.length) st.phase = 'out'; }
+        else { v.head[0] += dx / d * m; v.head[1] += dy / d * m; }
+        W.dirt = Math.max(0.05, W.dirt - dt * 0.004);
+        st.mark -= dt;
+        if (st.mark <= 0){ st.mark = 0.2; vacTrail.push({x: v.head[0], y: v.head[1], t: W.clock, g: vacGen}); }
+        return false;
+      }
+      // lift it back out, dripping
+      v.dip = Math.max(0, v.dip - dt / 1.2);
+      if (v.dip > 0) return false;
+      drops(v.head[0], v.head[1], 4);
+      W.vacDone[key] = W.clock; B.vac = null; a.act = null; B.task = 'vacuuming the lap pool';
+      return true;
+    }};
+  }
   function planVac(){
-    return leaveBuilding().concat([go(VAC[0], VAC[1], {tool: null}), act('vac', 14, {face: 'w', tick: function(dt){ W.dirt = Math.max(0, W.dirt - dt * 0.05); }}),
-      fn(function(){ W.lastVac = W.clock; log('leva vacuumed the floor of the lap pool.', 'leva'); })]);
+    // pick up where he left off if Ari or a storm pulled him away partway through
+    if (!W.vacDone || (W.vacDone.n == null && W.vacDone.s == null) || W.clock - Math.max(W.vacDone.n || -1e9, W.vacDone.s || -1e9) > 600) W.vacDone = {};
+    var keys = ['n', 's'].filter(function(k){ return W.vacDone[k] == null; });
+    if (!keys.length){ W.vacDone = {}; keys = ['n', 's']; }
+    var steps = leaveBuilding();
+    keys.forEach(function(k){
+      var z = VAC_ZONES[k], first = vacStrokes(z)[0];
+      steps.push(go(vacStand(first[0]), z.stand, {tool: 'vac', face: z.face}), vacZone(k));
+    });
+    steps.push(fn(function(){
+      B.tool = null; B.vac = null; W.lastVac = W.clock; W.vacDone = {}; W.dirt = Math.min(W.dirt, 0.06);
+      log('leva vacuumed both ends of the lap pool and worked around the lane lines.', 'leva');
+    }));
+    return steps;
+  }
+  function noSwimmers(){ var w = WXS(); return !api.isOpen() || !!(w && w.closedForWeather()); }
+  function vacHalfDone(){ return !!W.vacDone && (W.vacDone.n != null) !== (W.vacDone.s != null) && W.clock - Math.max(W.vacDone.n || -1e9, W.vacDone.s || -1e9) < 600; }
+  // where the vacuum has been shows for a little while as a cleaner stripe on the floor
+  function drawVacTrail(ctx){
+    if (!vacTrail.length) return;
+    var now = W.clock, LIFE = 45, B5 = 5;
+    vacTrail = vacTrail.filter(function(p){ return now - p.t < LIFE; });
+    ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = 8;
+    // one path per age band, so the overlaps inside a band don't stack up brighter
+    for (var b = 0; b < B5; b++){
+      ctx.strokeStyle = 'rgba(225,250,255,' + (0.16 * (1 - b / B5)).toFixed(3) + ')';
+      ctx.beginPath(); var on = false;
+      for (var i = 1; i < vacTrail.length; i++){
+        var p = vacTrail[i], q = vacTrail[i - 1];
+        if (p.g !== q.g || Math.min(B5 - 1, Math.floor((now - p.t) / LIFE * B5)) !== b){ on = false; continue; }
+        if (!on){ ctx.moveTo(q.x, q.y); on = true; }
+        ctx.lineTo(p.x, p.y);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
   }
   function planGate(){ return leaveBuilding().concat([go(GATE_SPOT[0], GATE_SPOT[1]), act('gate', 2.5, {face: 'n'}), fn(function(){ W.lastGate = today(); log('leva chained the park gate for the night.', 'leva'); })]); }
   function planPit(){ return leaveBuilding().concat(enter('pit', 'pit', 6 + Math.random() * 4)).concat([out('pit')]); }
@@ -527,9 +639,38 @@
     for (var k in MEM.leva.seen) if (MEM.leva.seen[k] > n){ n = MEM.leva.seen[k]; best = k; }
     return best;
   }
+  var INSIDE_ACT = {pump: 'pump', pit: 'pit', office: 'report', arcade: 'arcade', gate: 'report'};
+  function stayIn(place, secs){
+    // already inside a building? stay put. Otherwise get to this one.
+    if (lv.hidden && B.inside) return [act(INSIDE_ACT[B.inside] || 'report', secs, {hide: true})];
+    return enter(place, INSIDE_ACT[place], secs);
+  }
+  var SHOVEL_ROUTE = [[250, 100], [320, 104], [320, 204], [320, 304], [252, 318], [194, 304], [194, 204], [194, 106], [250, 100], [370, 106], [410, 176]];
+  function planShovel(){
+    var steps = leaveBuilding();
+    SHOVEL_ROUTE.forEach(function(p){ steps.push(go(p[0], p[1], {tool: 'shovel', speed: 9})); });
+    steps.push(fn(function(){ B.tool = null; W.lastShovel = W.clock; log('leva shoveled a path around the pools.', 'leva'); }));
+    return steps;
+  }
   function pickLeva(){
     var open = api.isOpen(), night = api.isNight(), C = W.clock, options = [];
+    var wx = WXS(), why = wx ? wx.reason() : null;
+    if (why === 'tornado'){ levaPlan(stayIn('office', 40), 'sheltering inside for the tornado warning'); return; }
+    if (why === 'storm'){ levaPlan(stayIn('pit', 30 + Math.random() * 20), 'waiting out the lightning under the pit roof'); return; }
     function add(name, score, planFn){ options.push({name: name, score: score + Math.random() * 8 - (B.lastPick[name] && C - B.lastPick[name] < 20 ? 25 : 0), plan: planFn}); }
+    if (DO && !pickLeva.did){
+      // ?do= from the address bar, once
+      pickLeva.did = true;
+      var job = {
+        vac: function(){ return {steps: planVac(), task: 'vacuuming the lap pool'}; },
+        test: function(){ return {steps: planTest('lap'), task: 'testing ' + POOLS.lap.name}; },
+        skim: function(){ var by = {}; W.leaves.forEach(function(l){ by[l.pool] = (by[l.pool] || 0) + 1; }); var p = Object.keys(by).sort(function(a, b){ return by[b] - by[a]; })[0]; return p ? {steps: planSkim(p), task: 'skimming leaves off ' + POOLS[p].name} : null; },
+        gate: function(){ return {steps: planGate(), task: 'chaining the park gate'}; },
+        shovel: function(){ return {steps: planShovel(), task: 'shoveling the deck'}; }
+      }[DO];
+      var jp = job && job();
+      if (jp && jp.steps){ B.lastPick[DO] = C; levaPlan(jp.steps, jp.task); return; }
+    }
     if (W.fixPending) add('fix', 70, function(){ return {steps: planFix(), task: 'adjusting the chemicals in the pump room'}; });
     var since = C - W.lastTest, every = open ? 150 : 240;
     add('test', since > every ? 42 + (since - every) / 10 : (W.lastTest < 0 && C > 14 ? 55 : 0), function(){ var p = ['lap', 'zero', 'dive'][Math.floor(Math.random() * 3)]; return {steps: planTest(p), task: 'testing ' + POOLS[p].name}; });
@@ -538,12 +679,16 @@
     if (worst && byPool[worst] >= (open ? 3 : 2)) add('skim', 22 + byPool[worst] * 5, function(){ return {steps: planSkim(worst), task: 'skimming leaves off ' + POOLS[worst].name}; });
     if (open) add('report', C - W.lastReport > 220 ? 36 : 0, function(){ return {steps: planReport(), task: 'reporting to the office'}; });
     if (!open && W.lastGate !== today()) add('gate', 48, function(){ return {steps: planGate(), task: 'chaining the park gate'}; });
-    if (!open && W.dirt > 0.25 && C - W.lastVac > 240) add('vac', 34 + W.dirt * 20, function(){ return {steps: planVac(), task: 'vacuuming the lap pool'}; });
+    // no vacuuming with swimmers in the water: before opening, after close, on a day too cold to swim,
+    // or to finish a job Ari interrupted
+    if (noSwimmers() && ((W.dirt > 0.25 && C - W.lastVac > 240) || vacHalfDone())) add('vac', vacHalfDone() ? 50 : 34 + W.dirt * 20, function(){ return {steps: planVac(), task: 'vacuuming the lap pool'}; });
     var fav = favSpot();
     if (fav && !ari.inWater) add('patrol', 20, function(){ return {steps: planWatch(fav, 10 + Math.random() * 8), task: 'keeping an eye on ' + SPOT_NAME[fav]}; });
     if (open && (kids.m.inWater || kids.mel.inWater)) add('kids', 24, function(){ return {steps: planKids(), task: 'watching M and Mel swim'}; });
     if (!open){ add('pit', 10, function(){ return {steps: planPit(), task: 'checking the pit'}; }); if (night) add('arcade', 9, function(){ return {steps: planArcade(), task: 'playing invaders in the guard shack'}; }); }
     add('rest', 12, function(){ return {steps: planRest(), task: 'checking the pumps'}; });
+    if (wx && wx.snow > 0.18 && C - (W.lastShovel || -999) > 50) add('shovel', 56 + wx.snow * 30, function(){ return {steps: planShovel(), task: 'shoveling the deck'}; });
+    if (W.rainedAt && !wet(wx) && W.lastTest < W.rainedAt && C - W.rainedAt > 15) add('raintest', 62, function(){ return {steps: planTest('lap'), task: 'testing the water after the rain'}; });
     options.sort(function(a, b){ return b.score - a.score; });
     for (var i = 0; i < options.length; i++){
       var o = options[i], p = o.plan();
@@ -556,17 +701,27 @@
     if (B.talking > 0){
       B.talking -= dt;
       if (!B.rescue){
-        lv.act = 'talk'; lv.hidden = false;
-        lv.face = B.talkTo ? faceOf(B.talkTo.x - lv.x, B.talkTo.y - lv.y, 's') : 's';
+        if (B.act === 'vac' && B.vac){
+          // he keeps the head on the floor and talks over his shoulder
+          B.vac.walk = false; lv.act = 'vac'; lv.vac = B.vac;
+        } else {
+          lv.act = 'talk'; lv.hidden = false; lv.vac = null;
+          lv.face = B.talkTo ? faceOf(B.talkTo.x - lv.x, B.talkTo.y - lv.y, 's') : 's';
+        }
         if (B.talking <= 0){ B.talkTo = null; syncLeva(); }
         return;
       }
     }
     if (runPlan(B, dt) === 'done'){ B.rescue = null; pickLeva(); }
     syncLeva();
+    var wx = WXS();
+    if (wx && wx.snow > 0.02 && !lv.hidden && B.moving){
+      if (B.tool === 'shovel') wx.clearSnow(lv.x, lv.y + 2, 8);
+      else { B.printT = (B.printT || 0) - dt; if (B.printT <= 0){ B.printT = 0.28; B.side = !B.side; wx.pawPrint(lv.x, lv.y, B.side); } }
+    }
   }
   // B carries the plan; lv is the object the page draws. Keep them in step.
-  function syncLeva(){ lv.act = B.act || null; lv.hidden = !!B.hidden; lv.face = B.face || lv.face; lv.x = B.x; lv.y = B.y; lv.tool = B.tool || null; lv.net = B.net || null; lv.thinking = B.thinking; }
+  function syncLeva(){ lv.act = B.act || null; lv.hidden = !!B.hidden; lv.face = B.face || lv.face; lv.x = B.x; lv.y = B.y; lv.tool = B.tool || null; lv.net = B.net || null; lv.vac = B.act === 'vac' ? B.vac : null; lv.thinking = B.thinking; }
   Object.defineProperty(B, 'x', {get: function(){ return lv.x; }, set: function(v){ lv.x = v; }});
   Object.defineProperty(B, 'y', {get: function(){ return lv.y; }, set: function(v){ lv.y = v; }});
   Object.defineProperty(B, 't', {get: function(){ return lv.t; }, set: function(v){ lv.t = v; }});
@@ -584,7 +739,8 @@
     {when: 'zero', call: [["leva", "Ari, it's the zero depth, not zero rules."], ['ari', 'Worth a shot.']], after: [['leva', 'It always is with you.']]},
     {when: 'night', call: [["leva", "Ari, it's after close."], ['ari', "That's when the water's warmest."]], after: [['leva', 'Still no.']]},
     {when: 'fav', call: [["leva", "Knew you'd be here."], ['ari', 'How?']], after: [["leva", "You always pick this spot. I pay attention."]]},
-    {when: 'sit', call: [['leva', 'Ari. Out.'], ['ari', 'Sitting! Mel taught me.']], after: [['leva', 'Out first. Then sit.']]}
+    {when: 'sit', call: [['leva', 'Ari. Out.'], ['ari', 'Sitting! Mel taught me.']], after: [['leva', 'Out first. Then sit.']]},
+    {when: 'rain', call: [["leva", "Ari, it's raining. You're wet enough."], ['ari', 'Not this kind of wet.']], after: [['leva', 'Every kind of wet. Out.']]}
   ];
   var AFTER = [
     [['leva', "Let's get you dried off."]],
@@ -598,15 +754,43 @@
     var ok = RESCUE.filter(function(r, i){
       if (i === lastRescue) return false;
       if (r.when === 'zero') return spot === 'zero';
-      if (r.when === 'vac') return W.clock - W.lastVac < 600;
+      if (r.when === 'vac') return justVacuumed(spot);
       if (r.when === 'night') return night;
       if (r.when === 'fav') return fav === spot;
       if (r.when === 'sit') return MEM.ari.sit >= 1;
+      if (r.when === 'rain') return wet(WXS());
       return true;
     });
-    var r = ok[Math.floor(Math.random() * ok.length)] || RESCUE[0]; lastRescue = RESCUE.indexOf(r); return r;
+    // he's not going to pass up that one
+    var fresh = justVacuumed(spot) && lastRescue !== RESCUE.findIndex(function(x){ return x.when === 'vac'; });
+    var r = (fresh ? ok.filter(function(x){ return x.when === 'vac'; })[0] : null) || ok[Math.floor(Math.random() * ok.length)] || RESCUE[0];
+    lastRescue = RESCUE.indexOf(r); return r;
   }
-  function ariPlan(steps, task){ ari.task = task; setPlan(ari, steps); }
+  // Ari is paddling around the end of the lap pool leva just vacuumed
+  function justVacuumed(spot){
+    if (spot !== 'lapN' && spot !== 'lapS') return false;
+    return W.clock - W.lastVac < 600 || !!(W.vacDone && W.vacDone[spot === 'lapN' ? 'n' : 's'] != null);
+  }
+  function ariPlan(steps, task){
+    if (ari.hidden && ari.inside && !(steps[0] && steps[0].stay)){
+      var pl = PLACES[ari.inside];
+      steps = [{k: 'straight', x: pl.door[0], y: pl.door[1], show: true, speed: 14}, fn(function(){ ari.inside = null; })].concat(steps);
+    }
+    ari.task = task; setPlan(ari, steps);
+  }
+  function ariInside(place, secs){
+    if (ari.hidden && ari.inside) return [Object.assign(act(null, secs, {hide: true}), {stay: true})];
+    var pl = PLACES[place];
+    return [go(pl.door[0], pl.door[1] + 4, {speed: 20}), {k: 'straight', x: pl.inside[0], y: pl.inside[1], hide: true, speed: 16}, fn(function(){ ari.inside = place; }), act(null, secs, {hide: true})];
+  }
+  function ariThunder(){
+    if (ari.inWater || ari.hopping) return;
+    ari.scaredAt = W.clock;
+    if (ari.hidden) return;
+    say('ari', ['Nope. Nope. Nope.', 'Was that thunder?', "I'll be in the pump room."][Math.floor(Math.random() * 3)]);
+    ariPlan(ariInside('pump', 40), 'hiding in the pump room. He does not like thunder.');
+    if (!W.hidLogged){ W.hidLogged = true; log('Ari is hiding in the pump room. He does not like thunder.', 'ari'); }
+  }
   function pickSpot(){
     // Ari weighs what has worked for him, and how far each spot is from leva right now
     var keys = Object.keys(SPOTS), ws = keys.map(function(k){
@@ -705,9 +889,15 @@
     return false;
   }
   function pickAri(){
-    var open = api.isOpen(), night = api.isNight();
-    var levaFar = lv.hidden || Math.hypot(lv.x - ari.x, lv.y - ari.y) > 70;
-    if (ari.swimCool <= 0 && levaFar && !B.rescue && Math.random() < 0.6) return ariPlan(planSneak(), 'up to something');
+    var open = api.isOpen(), night = api.isNight(), wx = WXS(), why = wx ? wx.reason() : null;
+    if (why === 'tornado') return ariPlan(ariInside('office', 30), 'sheltering inside with leva');
+    if (why === 'storm' && W.clock - (ari.scaredAt || -999) < 120) return ariPlan(ariInside('pump', 30), 'hiding in the pump room. He does not like thunder.');
+    if (wx && wx.snow > 0.1 && Math.random() < 0.65){
+      var zx = ari.x + (Math.random() - 0.5) * 200, zy = ari.y + (Math.random() - 0.5) * 140, z = snap(SMALL, zx, zy);
+      return ariPlan([go(z[0], z[1], {speed: 26}), act('happy', 1.2 + Math.random() * 1.5)], 'playing in the snow');
+    }
+    var levaFar = lv.hidden || Math.hypot(lv.x - ari.x, lv.y - ari.y) > 70, noSwim = why === 'storm' || why === 'snow' || why === 'cold';
+    if (ari.swimCool <= 0 && levaFar && !B.rescue && !noSwim && Math.random() < 0.6) return ariPlan(planSneak(), 'up to something');
     var r = Math.random(), kidsHere = kids.m.here && !kids.m.inWater && !lesson;
     if (kidsHere && r < 0.22){
       var k = Math.random() < 0.6 ? kids.mel : kids.m;
@@ -737,6 +927,11 @@
   function stepAri(dt){
     ari.swimCool -= dt;
     if (runPlan(ari, dt) === 'done') pickAri();
+    var wx = WXS();
+    if (wx && wx.snow > 0.05 && ari.moving && !ari.hidden && !ari.inWater){
+      ari.printT = (ari.printT || 0) - dt;
+      if (ari.printT <= 0){ ari.printT = 0.16; ari.side = !ari.side; wx.pawPrint(ari.x + (ari.side ? 2 : -2), ari.y + (ari.side ? 1 : 0), ari.side); }
+    }
     // leva notices a beagle in the pool: right away if he can see it, a little later if he only hears it
     if (ari.inWater && !ari.noticed){
       ari.noticeT = (ari.noticeT || 0) + dt;
@@ -924,29 +1119,42 @@
       act('listen', 6)
     ].concat(towelSteps(k, 6)), 'teaching Ari a trick');
   }
-  function leaveKid(k){
+  function leaveKid(k, why){
     if (!k.here) return;
     if (k.leaving) return;
-    k.leaving = true; lesson = null;
+    k.leaving = true; lesson = null; k.awayWhy = why || null;
     var steps = [];
     if (k.inWater){ steps = [{k: 'custom', step: function(a, dt, st){ if (!st.p){ st.p = snap(SMALL, a.x, a.y); } return hop(a, dt, st, st.p, 'hop', true); }}, fn(function(){ k.inWater = false; k.pose = 'walk'; })]; }
-    if (k.id === 'm') convo([['m', 'Bye leva! Bye Ari!'], ['leva', 'See you tomorrow. Walk to the gate.']]);
-    kidPlan(k, steps.concat([go(PLACES.gate.door[0], PLACES.gate.door[1] + (k.id === 'm' ? -3 : 3), {speed: 12}), {k: 'straight', x: PLACES.gate.inside[0], y: PLACES.gate.inside[1], hide: true, speed: 12},
-      fn(function(){ k.here = false; k.hidden = true; k.leaving = false; k.task = 'home for the night'; })]), 'heading home');
+    var away = {tornado: 'inside for the tornado warning', storm: 'waiting out the storm inside', snow: 'home. No swimming in the snow.', cold: 'home. Too cold to swim today.'}[why] || 'home for the night';
+    if (k.id === 'm'){
+      if (why === 'storm') convo([['m', 'Come on, Mel!'], ['mel', 'Can we come back after?'], ['leva', 'Thirty minutes after the last thunder.']]);
+      else if (why === 'tornado') convo([['m', 'Come on, Mel. Inside.']]);
+      else if (why === 'cold' || why === 'snow') convo([['m', "Too cold, leva! We're going home."], ['leva', 'Good call. See you on a warmer day.']]);
+      else convo([['m', 'Bye leva! Bye Ari!'], ['leva', 'See you tomorrow. Walk to the gate.']]);
+    }
+    kidPlan(k, steps.concat([go(PLACES.gate.door[0], PLACES.gate.door[1] + (k.id === 'm' ? -3 : 3), {speed: why === 'tornado' || why === 'storm' ? 18 : 12}), {k: 'straight', x: PLACES.gate.inside[0], y: PLACES.gate.inside[1], hide: true, speed: 12},
+      fn(function(){ k.here = false; k.hidden = true; k.leaving = false; k.task = away; })]), why === 'tornado' || why === 'storm' ? 'heading inside' : 'heading home');
   }
   function arriveKid(k, walkIn){
     k.here = true; k.hidden = false; k.leaving = false;
     if (!walkIn){ var t = TOWELS[k.id]; k.x = t[0]; k.y = t[1]; kidPlan(k, [fn(function(){ k.face = 's'; }), act('sit', k.cool)], 'on her towel'); return; }
     k.x = PLACES.gate.inside[0]; k.y = PLACES.gate.inside[1];
     kidPlan(k, [{k: 'straight', x: PLACES.gate.door[0], y: PLACES.gate.door[1], show: true, speed: 12}].concat(towelSteps(k, 5)), 'coming in');
-    if (k.id === 'm') convo([['m', 'Morning, leva!'], ['leva', 'Morning. Walk, please.']]);
+    if (k.id === 'm'){
+      var back = k.awayWhy, hr = new Date().getHours();
+      if (back === 'storm') convo([['m', 'Is the storm over?'], ['leva', 'Thirty minutes since the last thunder. Come on in. Walk, please.']]);
+      else if (back === 'tornado') convo([['m', 'Is it over?'], ['leva', 'Warning ended. Walk, please.']]);
+      else convo([['m', hr < 12 ? 'Morning, leva!' : 'Hi leva! We are here!'], ['leva', (hr < 12 ? 'Morning.' : 'Hey, you two.') + ' Walk, please.']]);
+    }
+    k.awayWhy = null;
   }
   function stepKids(dt){
-    var open = api.isOpen();
+    var why = wxWhy(), stay = why === 'tornado' || why === 'storm' || why === 'snow' || why === 'cold';
+    var open = api.isOpen() && !stay;
     ['m', 'mel'].forEach(function(id){
       var k = kids[id];
       if (open && !k.here) arriveKid(k, W.clock > 3);
-      if (!open && k.here && !k.leaving) leaveKid(k);
+      if (!open && k.here && !k.leaving) leaveKid(k, api.isOpen() ? why : null);
       if (!k.here) return;
       if (runPlan(k, dt) === 'done') pickKid(k);
       // leva reminds anybody running on the deck
@@ -978,6 +1186,7 @@
     c.strokeStyle = 'rgba(255,255,255,.3)'; c.beginPath(); c.ellipse(X, Y + 1, rx + 6 + w, (rx + 6 + w) * 0.32, 0, 0, Math.PI * 2); c.stroke();
   }
   function drawAri(c){
+    if (ari.hidden) return;
     var X = ari.x * 2, Y = ari.y * 2 - (ari.lift || 0) * 2, f = Math.floor(ari.t * 5) % 2, side = ari.face === 'w' ? 'w' : 'e';
     if (ari.hopping === 'lift'){ spr(c, 'ari_s0', X, Y); return; }
     if (ari.inWater || ari.hopping === 'swim'){
@@ -1035,15 +1244,58 @@
     return true;
   }
 
+  // ================= the weather, as it changes =================
+  var lastWhy, lastFlash = 0, heatLine = -999;
+  function weatherStep(dt){
+    var wx = WXS(); if (!wx) return;
+    var why = wx.reason(), kidsHere = kids.m.here || kids.mel.here;
+    if (lastWhy === undefined){
+      lastWhy = why;
+      if (why === 'tornado') log('Tornado warning for Dearborn right now. Everybody is inside.', 'leva');
+      else if (why === 'storm') log('Thunder around Dearborn right now. The pool is closed for lightning.', 'leva');
+      else if (why === 'snow') log('Snow in Dearborn right now. leva has the shovel out.', 'leva');
+      return;
+    }
+    if (why !== lastWhy){
+      var was = lastWhy; lastWhy = why;
+      if (why === 'tornado'){
+        log('Tornado warning for Dearborn. Everybody went inside.', 'leva');
+        convo([['leva', 'Tornado warning. Everybody inside, now.']], true);
+        if (!B.rescue) setPlan(B, null);
+      } else if (why === 'storm'){
+        W.hidLogged = false;
+        log('Thunder near Dearborn. leva cleared the pool until 30 minutes after the last rumble.', 'leva');
+        convo([['leva', kidsHere || ari.inWater ? 'Thunder. Everybody out of the pool.' : 'Thunder. Pool is closed for lightning.']], true);
+        if (!B.rescue) setPlan(B, null);
+      } else if (was === 'storm'){
+        log('Thirty minutes since the last thunder. The pool is open again.', 'leva');
+      } else if (was === 'tornado'){
+        log('The tornado warning for Dearborn ended. Everybody came back out.', 'leva');
+        if (!B.rescue) setPlan(B, null);
+      }
+      if (why === 'snow') log('Snow in Dearborn. No swimming today. leva is getting the shovel.', 'leva');
+      if (why === 'rain'){
+        log('Rain in Dearborn. Rain is fine. leva is listening for thunder.', 'leva');
+        if (kidsHere) convo([['m', "It's raining!"], ['mel', "We're already wet!"]]);
+      }
+      if (why === 'cold' && was !== 'snow') log('Too cold to swim. M and Mel are staying home.', 'leva');
+    }
+    if (why === 'heat' && kidsHere && W.clock - heatLine > 240 && !B.rescue){ heatLine = W.clock; convo([['leva', 'Hot one. Drink some water, you two.'], ['mel', 'Okay!']]); }
+    if (wx.flashAt && wx.flashAt !== lastFlash){ lastFlash = wx.flashAt; ariThunder(); }
+  }
+
   // ================= the loop =================
   var lastDt = 0, boardDirty = true, boardClock = 0;
   function step(dt, t){
     if (!ready) return;
+    if (window.PoolWeather && window.PoolWeather.step) window.PoolWeather.step(dt, api.isNight());
     dt *= FAST;
     lastDt = dt; T += dt; W.clock += dt;
     var open = api.isOpen();
+    weatherStep(dt);
     chemStep(dt, open);
     drawTowels(api.ctx);
+    drawVacTrail(api.ctx);
     drawLeaves(api.ctx);
     splashStep(dt, api.ctx);
     stepAri(dt);
@@ -1078,8 +1330,8 @@
     board.today.textContent = MEM.today.tests + (MEM.today.tests === 1 ? ' test' : ' tests') + ', ' + MEM.today.leaves + ' leaves skimmed, ' + MEM.today.ariSwims + (MEM.today.ariSwims === 1 ? ' beagle' : ' beagles') + ' pulled from the pool.';
     board.s.leva.textContent = B.talking > 0 && !B.rescue ? 'Talking with ' + (B.talkWith || 'you') : cap(B.task);
     board.s.ari.textContent = cap(ari.task);
-    board.s.m.textContent = kids.m.here ? cap(kids.m.task) : 'Home for the night. Back when the pool opens.';
-    board.s.mel.textContent = kids.mel.here ? cap(kids.mel.task) : 'Home for the night. Back when the pool opens.';
+    board.s.m.textContent = cap(kids.m.task);
+    board.s.mel.textContent = cap(kids.mel.task);
     board.k.leva.textContent = MEM.leva.watch ? 'Watches ' + SPOT_NAME[MEM.leva.watch] + ' closest. Knows ' + MEM.leva.jokes.length + (MEM.leva.jokes.length === 1 ? ' joke from M.' : ' jokes from M.') : (MEM.leva.jokes.length ? 'Knows ' + MEM.leva.jokes.length + (MEM.leva.jokes.length === 1 ? ' joke from M.' : ' jokes from M.') : 'Still learning where Ari likes to sneak in.');
     var tricks = []; if (MEM.ari.sit >= 1) tricks.push('sit, from Mel'); if (MEM.ari.paw >= 1) tricks.push('shake, from M');
     board.k.ari.textContent = (tricks.length ? 'Knows ' + tricks.join(' and ') + '. ' : 'Learning tricks from M and Mel. ') + (MEM.ari.best ? 'Favorite spot: ' + SPOT_NAME[MEM.ari.best] + '.' : 'Still picking a favorite spot.');
@@ -1115,6 +1367,11 @@
     // drift a little for the time you were gone, so there is something to do when you come back
     W.ph = Math.min(7.95, W.ph + 0.08); W.cl = Math.max(0.9, W.cl - 0.25);
     bubbleLayer = document.getElementById('bubbles');
+    var wxc = document.getElementById('wxc');
+    if (window.PoolWeather && wxc){
+      window.PoolWeather.init(wxc, WORLD);
+      window.PoolWeather.onChange(function(){ boardDirty = true; if (reduce && api.redraw) api.redraw(); });
+    }
     board = {
       ph: document.getElementById('b-ph'), cl: document.getElementById('b-cl'), phg: document.getElementById('g-ph'), clg: document.getElementById('g-cl'),
       tested: document.getElementById('b-tested'), leaves: document.getElementById('b-leaves'), today: document.getElementById('b-today'), log: document.getElementById('b-log'),
@@ -1130,8 +1387,12 @@
       levaPlan([act('watch', 2.5, {face: 's'})], 'starting his rounds');
       var den = snap(SMALL, 270, 94); ari.x = den[0]; ari.y = den[1];
       ariPlan([act('happy', 3)], 'wagging');
-      if (api.isOpen()){ arriveKid(kids.m, false); arriveKid(kids.mel, false); }
-      else { kids.m.task = kids.mel.task = 'home for the night'; kids.m.hidden = kids.mel.hidden = true; }
+      var wr = wxWhy(), stayHome = wr === 'tornado' || wr === 'storm' || wr === 'snow' || wr === 'cold';
+      if (api.isOpen() && !stayHome){ arriveKid(kids.m, false); arriveKid(kids.mel, false); }
+      else {
+        kids.m.task = kids.mel.task = api.isOpen() ? ({tornado: 'inside for the tornado warning', storm: 'waiting out the storm inside', snow: 'home. No swimming in the snow.', cold: 'home. Too cold to swim today.'}[wr]) : 'home for the night';
+        kids.m.hidden = kids.mel.hidden = true; kids.m.awayWhy = kids.mel.awayWhy = api.isOpen() ? wr : null;
+      }
       if (!MEM.log.length) log('A new day at Levagood Pool.', 'leva');
       if (MEM.visitor.name) setTimeout(function(){ say('leva', 'Welcome back, ' + MEM.visitor.name + '.'); }, 1800);
       renderBoard();
@@ -1161,23 +1422,30 @@
         m: {here: kids.m.here, task: kids.m.task, skills: skillLine('m')}, mel: {here: kids.mel.here, task: kids.mel.task, skills: skillLine('mel'), facts: MEM.mel.facts},
         jokes: MEM.leva.jokes.map(function(q){ for (var i = 0; i < JOKES.length; i++) if (JOKES[i][0] === q) return JOKES[i]; return [q, '']; }), today: Object.assign({}, MEM.today),
         log: MEM.log.slice(-8).map(function(l){ return clock(l.t) + ' ' + l.text; }),
-        visitor: MEM.visitor
+        visitor: MEM.visitor,
+        weather: (function(){ var w = WXS(); return w ? {kind: w.kind, summary: w.summary(), tempF: w.tempF, windMph: w.windMph, why: w.reason(), alert: w.alert ? {event: w.alert.event, headline: w.alert.headline} : null, source: w.source(), test: w.test} : (window.PoolWeather && window.PoolWeather.failed ? {down: true} : null); })()
       };
     },
     // the chat window opened or a message went out: leva stops and faces you
     attend: function(secs){
       if (!ready) return 'no';
       if (B.rescue) return 'busy';
+      // in lightning or a tornado warning he answers from inside and doesn't come out on the deck
+      var why = wxWhy(); if (why === 'storm' || why === 'tornado') return 'inside';
       if (lv.hidden){ levaPlan(leaveBuilding().concat([act('talk', secs || 10, {face: 's'})]), 'coming out to talk'); B.talking = 0; return 'coming'; }
       B.talking = Math.max(B.talking, secs || 10); B.talkTo = null; B.talkWith = 'you'; return 'ok';
     },
-    think: function(on){ B.thinking = !!on; if (on && !B.rescue){ B.talking = Math.max(B.talking, 12); B.talkTo = null; B.talkWith = 'you'; } },
+    think: function(on){ var why = wxWhy(); B.thinking = !!on; if (on && !B.rescue && why !== 'storm' && why !== 'tornado'){ B.talking = Math.max(B.talking, 12); B.talkTo = null; B.talkWith = 'you'; } },
     say: function(text){ if (ready) say('leva', text.length > 90 ? text.slice(0, 87).replace(/\s+\S*$/, '') + '...' : text); },
     // things you can ask leva to go do on the deck
     doTask: function(what){
       if (!ready) return false;
       if (B.rescue && what !== 'ari') return 'busy';
+      // lightning or a tornado warning keeps him inside, no matter who asks
+      var why = wxWhy(); if (why === 'storm' || why === 'tornado') return 'weather';
+      if (what === 'vac' && !noSwimmers()) return 'open';
       B.talking = 0;
+      if (what === 'vac'){ levaPlan(planVac(), 'vacuuming the lap pool for you'); return true; }
       if (what === 'test'){ var p = ['lap', 'zero', 'dive'][Math.floor(Math.random() * 3)]; levaPlan(planTest(p), 'testing ' + POOLS[p].name + ' for you'); return true; }
       if (what === 'skim'){ var pools = {}; W.leaves.forEach(function(l){ pools[l.pool] = (pools[l.pool] || 0) + 1; }); var w = Object.keys(pools).sort(function(a, b){ return pools[b] - pools[a]; })[0]; if (!w) return 'clean'; levaPlan(planSkim(w), 'skimming ' + POOLS[w].name + ' for you'); return true; }
       if (what === 'pump'){ levaPlan(planRest(), 'checking the pumps'); return true; }

@@ -41,8 +41,8 @@
   @media(max-width:700px){.swipe-hint{display:block}}
   .stage{position:absolute;left:0;top:0;width:1440px;height:840px;transform-origin:0 0;transform:scale(var(--s,1))}
   .stage canvas{position:absolute;left:0;top:0;width:1440px;height:840px;image-rendering:pixelated;image-rendering:crisp-edges}
-  .stage canvas#anim,.stage canvas#levac,.stage canvas#lights,#dark{pointer-events:none}
-  .stage canvas#levac,.stage canvas#lights{image-rendering:auto}
+  .stage canvas#anim,.stage canvas#levac,.stage canvas#lights,.stage canvas#wxc,#dark{pointer-events:none}
+  .stage canvas#levac,.stage canvas#lights,.stage canvas#wxc{image-rendering:auto}
   #dark{position:absolute;left:0;top:0;width:1440px;height:840px;mix-blend-mode:multiply;opacity:0;transition:opacity 2s,background 2s}
   .stage canvas#lights{mix-blend-mode:screen}
   .park[data-time="dusk"] #dark{background:#ff9fbd;opacity:.42}
@@ -154,6 +154,22 @@
   @media(max-width:1100px){.cast{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:720px){.deck{padding:48px 0 64px} .deck-wrap{padding:0 16px} .deck-grid{grid-template-columns:minmax(0,1fr)} .cast{grid-template-columns:minmax(0,1fr)}}
 
+  /* live Dearborn weather: warnings above the map, conditions on the board */
+  .wx-alert{max-width:1180px;margin:0 auto 18px;padding:14px 18px;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;border:3px solid #0A0A0A;box-shadow:5px 5px 0 #0A0A0A;background:#fff;font-size:15px;line-height:1.45}
+  .wx-alert[hidden]{display:none}
+  .wx-alert strong{font-family:Silkscreen,"Press Start 2P",monospace;font-weight:400;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+  .wx-alert span{flex:1 1 320px;min-width:0}
+  .wx-alert a{font-weight:700;color:#0A0A0A;text-underline-offset:3px}
+  .wx-alert.warn{background:#FFE3E6;border-color:#B00020;box-shadow:5px 5px 0 #B00020} .wx-alert.warn strong{color:#B00020}
+  .wx-alert.watch{background:#FFF0DC;border-color:#B35C00;box-shadow:5px 5px 0 #B35C00} .wx-alert.watch strong{color:#8A4600}
+  .wx-alert.advisory{background:#FFF9D6}
+  @media(max-width:720px){.wx-alert{margin:0 16px 14px}}
+  .wx{padding-bottom:16px;margin-bottom:18px;border-bottom:2px solid #0A0A0A}
+  .wx .lbl{color:#0A0A0A;font-weight:700;font-size:15px;line-height:1.35;min-width:0}
+  .wx-pool{font-size:14px;font-weight:600;line-height:1.4;margin-top:10px;color:#2a2a30}
+  .wx-pool.bad{color:#B00020}
+  .wx-src{font-size:12px;color:var(--grey);margin-top:6px;line-height:1.4}
+
   /* the chat box */
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   .lchat{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:12px;pointer-events:none}
@@ -210,11 +226,16 @@
   <div class="wrap">
     <div class="eyebrow">Where it started</div>
     <h1>Levagood Pool,<br>from above.</h1>
-    <p class="lead">Dearborn, Michigan. The 50 meter pool, the diving well, the zero depth pool, the pump room, and the building with every room where it really is. leva is Maintenance, and he runs the place on his own. He tests the water, keeps the chemistry right, skims the leaves, and gets Ari out of the pool. Again. M and Mel are regulars. The map follows your clock, day and night. Say hi to leva in the chat.</p>
+    <p class="lead">Dearborn, Michigan. The 50 meter pool, the diving well, the zero depth pool, the pump room, and the building with every room where it really is. leva is Maintenance, and he runs the place on his own. He tests the water, keeps the chemistry right, skims the leaves, and gets Ari out of the pool. Again. M and Mel are regulars. The map follows your clock, day and night, and the real weather in Dearborn. Say hi to leva in the chat.</p>
   </div>
 </section>
 
 <section class="park" aria-label="A pixel map of Levagood Pool">
+  <div class="wx-alert" id="wx-alert" role="alert" hidden>
+    <strong id="wx-alert-title"></strong>
+    <span id="wx-alert-text"></span>
+    <a href="https://forecast.weather.gov/MapClick.php?lat=42.3223&amp;lon=-83.1763" target="_blank" rel="noopener">Details at weather.gov</a>
+  </div>
   <p class="swipe-hint">Swipe across to see the whole park. Tap a building to see what it is.</p>
   <div class="park-wrap">
    <div class="sizer">
@@ -224,6 +245,7 @@
       <canvas id="levac" width="1440" height="840" aria-hidden="true"></canvas>
       <div id="dark" aria-hidden="true"></div>
       <canvas id="lights" width="1440" height="840" aria-hidden="true"></canvas>
+      <canvas id="wxc" width="1440" height="840" aria-hidden="true"></canvas>
 <div class="spot" tabindex="0" role="note" aria-label="DIVING WELL, 12 feet, two 1 meter and two 3 meter boards" style="left:266px;top:236px;width:106px;height:236px"><span class="tip"><b>DIVING WELL</b><span>12 feet, two 1 meter and two 3 meter boards</span></span></div>
 <div class="spot" tabindex="0" role="note" aria-label="50 METER POOL, meets run 25 yards across, five lanes in the middle" style="left:418px;top:236px;width:182px;height:372px"><span class="tip"><b>50 METER POOL</b><span>meets run 25 yards across, five lanes in the middle</span></span></div>
 <div class="spot" tabindex="0" role="note" aria-label="ZERO DEPTH, the mushroom, the arch, and the duck" style="left:660px;top:274px;width:130px;height:288px"><span class="tip"><b>ZERO DEPTH</b><span>the mushroom, the arch, and the duck</span></span></div>
@@ -274,6 +296,12 @@
         <li class="who who-mel" style="--i:3"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Mel</h3><p class="role">Regular. Asks leva everything.</p></div><div class="who-body"><p class="now" id="s-mel"></p><p class="knows" id="k-mel"></p></div></li>
       </ul>
       <div class="panel water">
+        <div class="wx">
+          <h3>Dearborn right now</h3>
+          <div class="rtop"><span class="lbl" id="b-wxdesc">Checking the weather...</span><span class="val" id="b-temp">--</span></div>
+          <p class="wx-pool" id="b-wxpool"></p>
+          <p class="wx-src" id="b-wxsrc">National Weather Service, Detroit Metro.</p>
+        </div>
         <h3>The water</h3>
         <div class="reading">
           <div class="rtop"><span class="lbl">pH</span><span class="val" id="b-ph">--</span></div>
@@ -369,7 +397,8 @@
   </div>
 </footer>
 
-<script src="pool-life.js?v=1"></script>
+<script src="pool-weather.js?v=1"></script>
+<script src="pool-life.js?v=2"></script>
 <script>
 (function(){
   // scale the 1440 x 840 stage to the page width
@@ -451,11 +480,91 @@
   // leva decides what to do on his own in pool-life.js. This part draws him.
   var LF = {s: 0, n: 1, e: 2, w: 3};
   var HOME = [250, 80];
-  var leva = {x: HOME[0], y: HOME[1], face: 's', t: 0, hidden: true, act: null, tool: null, net: null, vt: 0, thinking: false};
+  var leva = {x: HOME[0], y: HOME[1], face: 's', t: 0, hidden: true, act: null, tool: null, net: null, vac: null, vt: 0, thinking: false};
   leva.step = function(dt){ leva.vt += dt; if (window.PoolLife) PoolLife.stepLeva(dt); };
   function inBuilding(x, y){ return x > 418 && y > 88 && y < 292; }
   function levaVisible(){ return !leva.hidden && !inBuilding(leva.x, leva.y); }
-  function vacHead(){ return [258 + Math.sin(leva.vt * 0.5) * 30, 214 + Math.sin(leva.vt * 1.1) * 60]; }
+  // The pool vacuum: a head on the floor, a pole down through the surface, a hose floating back to the skimmer.
+  // Anything under the surface gets the water's color over it and a little wobble, so it reads as in the water.
+  var vacCv = null, SKIMMER = {n: [252, 122], s: [252, 300]};
+  function vacHeadImg(dip){
+    if (!vacCv){ vacCv = document.createElement('canvas'); vacCv.width = 22; vacCv.height = 11; }
+    var c = vacCv.getContext('2d'); c.clearRect(0, 0, 22, 11);
+    c.fillStyle = '#1b2631'; c.fillRect(1, 2, 20, 8);
+    c.fillStyle = '#56708a'; c.fillRect(2, 3, 18, 5);
+    c.fillStyle = '#8fa7bb'; c.fillRect(2, 3, 18, 1);
+    c.fillStyle = '#2c3b49'; c.fillRect(2, 8, 18, 1);
+    c.fillStyle = '#0f171e'; c.fillRect(0, 3, 2, 4); c.fillRect(20, 3, 2, 4);
+    c.fillStyle = '#b8c6d2'; c.fillRect(9, 0, 4, 4);
+    if (dip > 0){
+      c.globalCompositeOperation = 'source-atop';
+      c.fillStyle = 'rgba(36,150,205,' + (0.6 * dip).toFixed(3) + ')'; c.fillRect(0, 0, 22, 11);
+      c.globalCompositeOperation = 'source-over';
+    }
+    return vacCv;
+  }
+  function vacGeom(){
+    // map coordinates. His hands are about 8 px up off the deck; the floor is 4 ft down at the shallow end, 8 at the deep end.
+    var v = leva.vac, south = v.zone === 's', hx = v.head[0], hy = v.head[1];
+    var side = hx < leva.x - 1 ? -1 : 1, handX = leva.x + side * 6, handY = leva.y - 8.5;
+    var gy = leva.y + (south ? -1 : 1), zh = 8.5, d = (south ? 32 : 16) * v.dip, t0 = zh / (zh + d);
+    var ex = handX + (hx - handX) * t0, ey = gy + (hy - gy) * t0;
+    ey = south ? Math.min(ey, 298) : Math.max(ey, 124.5);
+    return {hx: hx, hy: hy, handX: handX, handY: handY, ex: ex, ey: ey, side: side, south: south, dip: v.dip};
+  }
+  function drawVac(g){
+    var dip = g.dip, VX = g.hx * 2, VY = g.hy * 2, EX = g.ex * 2, EY = g.ey * 2, HX = g.handX * 2, HY = g.handY * 2;
+    lc.lineCap = 'round';
+    // the hose: floats on top from the skimmer, dives down to the head
+    var sk = SKIMMER[g.south ? 's' : 'n'], SX = sk[0] * 2, SY = sk[1] * 2;
+    var MX = (SX + VX) / 2 + g.side * 26, MY = (SY + VY) / 2;
+    function hoseAt(t){ var u = 1 - t; return [u * u * VX + 2 * u * t * MX + t * t * SX, u * u * VY + 2 * u * t * MY + t * t * SY]; }
+    var under = 0.28 * dip, i, p;
+    lc.fillStyle = '#16212b'; lc.fillRect(SX - 6, SY - (g.south ? 2 : 3), 12, 4);
+    lc.strokeStyle = 'rgba(40,100,140,' + (0.85 - 0.45 * dip).toFixed(3) + ')'; lc.lineWidth = 3;
+    lc.beginPath(); p = hoseAt(0); lc.moveTo(p[0], p[1]);
+    for (i = 1; i <= 8; i++){ p = hoseAt(under * i / 8); lc.lineTo(p[0], p[1]); }
+    lc.stroke();
+    lc.strokeStyle = '#27587c'; lc.lineWidth = 3.5;
+    lc.beginPath(); p = hoseAt(under); lc.moveTo(p[0], p[1]);
+    for (i = 1; i <= 20; i++){ p = hoseAt(under + (1 - under) * i / 20); lc.lineTo(p[0], p[1] + Math.sin(leva.vt * 2 + i) * 0.6); }
+    lc.stroke();
+    lc.strokeStyle = 'rgba(160,210,240,.7)'; lc.lineWidth = 1;
+    lc.beginPath(); p = hoseAt(under); lc.moveTo(p[0], p[1] - 1);
+    for (i = 1; i <= 20; i++){ p = hoseAt(under + (1 - under) * i / 20); lc.lineTo(p[0], p[1] - 1 + Math.sin(leva.vt * 2 + i) * 0.6); }
+    lc.stroke();
+    // the head on the floor, with its shadow, seen through the water
+    lc.fillStyle = 'rgba(6,40,72,' + (0.24 * dip).toFixed(3) + ')';
+    lc.beginPath(); lc.ellipse(VX + 3, VY + 5, 11, 3, 0, 0, Math.PI * 2); lc.fill();
+    var img = vacHeadImg(dip), x0 = Math.round(VX - 11), y0 = Math.round(VY - 6);
+    lc.save(); lc.globalAlpha = 1 - 0.3 * dip;
+    for (var r = 0; r < 11; r++) lc.drawImage(img, 0, r, 22, 1, x0 + Math.round(Math.sin(leva.vt * 3.2 + r * 0.9) * 1.2 * dip), y0 + r, 22, 1);
+    lc.restore();
+    // bubbles coming up off the head
+    if (dip > 0.5){
+      for (var b = 0; b < 4; b++){
+        var bt = (leva.vt * 0.8 + b * 0.27) % 1, bx = VX - 6 + b * 4 + Math.sin(bt * 9 + b) * 2, by = VY - 4 - bt * 12;
+        lc.fillStyle = 'rgba(255,255,255,' + (0.8 * (1 - bt)).toFixed(3) + ')'; lc.fillRect(Math.round(bx), Math.round(by), 2, 2);
+      }
+    }
+    // the pole: under the water it fades to the water's color and bends a little, above it's bright aluminum
+    lc.strokeStyle = 'rgba(122,172,204,' + (0.95 - 0.3 * dip).toFixed(3) + ')'; lc.lineWidth = 2.2;
+    lc.beginPath(); lc.moveTo(EX, EY); lc.lineTo(VX + (EX - VX) * 0.08, VY - 4); lc.stroke();
+    var ux = EX - HX, uy = EY - HY, ul = Math.hypot(ux, uy) || 1; ux /= ul; uy /= ul;
+    var TX = HX - ux * 12, TY = HY - uy * 12;
+    lc.strokeStyle = '#3f4750'; lc.lineWidth = 3.5;
+    lc.beginPath(); lc.moveTo(TX, TY); lc.lineTo(EX, EY); lc.stroke();
+    lc.strokeStyle = '#dde3e8'; lc.lineWidth = 1.6;
+    lc.beginPath(); lc.moveTo(TX, TY); lc.lineTo(EX, EY); lc.stroke();
+    // rings on the surface where the pole goes in
+    if (dip > 0.05){
+      for (var k = 0; k < 2; k++){
+        var ph = (leva.vt * 0.9 + k * 0.5) % 1;
+        lc.strokeStyle = 'rgba(255,255,255,' + (0.6 * (1 - ph) * dip).toFixed(3) + ')'; lc.lineWidth = 1;
+        lc.beginPath(); lc.ellipse(EX, EY, 3 + ph * 9, 1.5 + ph * 4, 0, 0, Math.PI * 2); lc.stroke();
+      }
+    }
+  }
   var clouds = [{x: 200, y: 180, rx: 260, ry: 120, v: 9}, {x: 900, y: 560, rx: 320, ry: 140, v: 7}, {x: -300, y: 700, rx: 240, ry: 110, v: 11}];
   function drawClouds(dt){
     if (isNight()) return;
@@ -477,25 +586,35 @@
   leva.drawSelf = function(){
     if (!levaVisible()) return;
     var X = Math.round(leva.x * 2), Y = Math.round(leva.y * 2);
-    var frame = !leva.act ? Math.floor(leva.t * 6) % 4 : 0;
+    var vg = leva.act === 'vac' && leva.vac ? vacGeom() : null;
+    var frame = !leva.act || (vg && leva.vac.walk) ? Math.floor(leva.t * 6) % 4 : 0;
     lc.lineCap = 'round';
     lc.fillStyle = 'rgba(12,14,28,.22)'; lc.beginPath(); lc.ellipse(X + 2, Y + 1, 14, 4, 0, 0, Math.PI * 2); lc.fill();
-    if (leva.act === 'vac'){
-      var h = vacHead(), hx = h[0] * 2, hy = h[1] * 2;
-      lc.strokeStyle = 'rgba(40,52,80,.85)'; lc.lineWidth = 3;
-      lc.beginPath(); lc.moveTo(X - 6, Y - 20); lc.quadraticCurveTo(X - 30, hy + 30, hx + 8, hy + 2); lc.stroke();
-      lc.fillStyle = '#5c6169'; lc.fillRect(hx - 4, hy - 12, 8, 24); lc.fillStyle = '#8b9098'; lc.fillRect(hx - 4, hy - 12, 3, 24);
-      lc.fillStyle = 'rgba(255,255,255,.85)';
-      for (var b = 0; b < 5; b++){ var bt = (leva.vt * 1.4 + b * 0.37) % 1; lc.fillRect(hx - 8 + b * 4, hy - 6 - bt * 16, 2, 2); }
-    }
+    // at the deep end he has his back to us and the vacuum is out past him, so it goes behind him
+    if (vg && vg.south) drawVac(vg);
     var sx, sy;
     if (leva.act === 'kit'){ sx = (leva.face === 'e' ? 1 : 0) * 40; sy = 4 * 56; }
     else { sx = frame * 40; sy = LF[leva.face] * 56; }
     lc.drawImage(imgs.leva, sx, sy, 40, 56, X - 20, Y - 53, 40, 56);
-    if (leva.act === 'vac'){
-      var h2 = vacHead();
-      lc.strokeStyle = '#c9cfd6'; lc.lineWidth = 2;
-      lc.beginPath(); lc.moveTo(X - 10, Y - 30); lc.lineTo(h2[0] * 2, h2[1] * 2); lc.stroke();
+    if (vg && !vg.south) drawVac(vg);
+    if (leva.tool === 'vac' && !vg){
+      // walking between ends, the pole rides on his shoulder with the head up top
+      var sw = Math.sin(leva.t * 6) * 2;
+      lc.strokeStyle = '#3f4750'; lc.lineWidth = 3.5;
+      lc.beginPath(); lc.moveTo(X - 8, Y - 20); lc.lineTo(X - 24 + sw, Y - 78); lc.stroke();
+      lc.strokeStyle = '#dde3e8'; lc.lineWidth = 1.6;
+      lc.beginPath(); lc.moveTo(X - 8, Y - 20); lc.lineTo(X - 24 + sw, Y - 78); lc.stroke();
+      lc.drawImage(vacHeadImg(0), Math.round(X - 35 + sw), Y - 86);
+    }
+    if (leva.tool === 'shovel'){
+      // snow shovel out in front of him, pushing
+      var fx = {e: 1, w: -1, s: 0, n: 0}[leva.face], fy = {s: 1, n: -1, e: 0, w: 0}[leva.face];
+      var bx = X + fx * 22, by = Y - 6 + fy * 12;
+      lc.strokeStyle = '#6b4a2f'; lc.lineWidth = 2.5;
+      lc.beginPath(); lc.moveTo(X + fx * 8, Y - 26); lc.lineTo(bx, by - 2); lc.stroke();
+      lc.fillStyle = '#9aa3ad'; lc.strokeStyle = '#3d444c'; lc.lineWidth = 1;
+      if (fx){ lc.fillRect(bx - 2, by - 8, 5, 14); lc.strokeRect(bx - 2, by - 8, 5, 14); }
+      else { lc.fillRect(bx - 7, by - 2, 14, 5); lc.strokeRect(bx - 7, by - 2, 14, 5); }
     }
     if (leva.tool === 'skim'){
       // the net goes out over the water to whatever leaf he is after
@@ -774,12 +893,15 @@
     if (!loaded) return;
     if (last === null) last = now;
     var dt = Math.min(0.05, (now - last) / 1000); last = now; T += dt;
-    var open = isOpen();
+    // real Dearborn weather: lightning, tornado warnings, snow and cold close the pool, and rain sends the picnics home
+    var wxw = window.PoolWeather, wxOn = !!(wxw && wxw.ok);
+    var open = isOpen() && !(wxOn && wxw.closedForWeather());
+    var wxWet = wxOn && /rain|drizzle|storm|sleet|snow|tornado/.test(wxw.kind);
     ctx.clearRect(0, 0, 720, 420);
     var cf = Math.floor(T * 4) % 4;
     ctx.drawImage(imgs.caustics, 0, cf * 420, 720, 420, 0, 0, 720, 420);
     var lightsOn = isNight() || isDusk();
-    if (!isNight()) drawPicnics(T);
+    if (!isNight() && !wxWet) drawPicnics(T);
     trafficStep(dt, open, lightsOn);
     bikeStep(dt, open);
     var fl = Math.floor(T * 2.2) % 2;
@@ -1081,6 +1203,6 @@
   });
 })();
 </script>
-<script src="leva-chat.js?v=1"></script>
+<script src="leva-chat.js?v=2"></script>
 </body>
 </html>

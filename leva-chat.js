@@ -90,12 +90,33 @@
         var did = pl.doTask(res.action);
         if (did === 'busy') add('leva', "Soon as I've got Ari out of the pool.");
         else if (did === 'clean') add('leva', "Water's clean right now. Not a leaf on it.");
+        else if (did === 'open') add('leva', 'Not with swimmers in the water. I vacuum before we open and after we close.');
+        else if (did === 'weather') add('leva', "Not till this weather passes. I'm staying inside, and you should too.");
       } else pl.say(first);
     }
     input.focus();
   }
 
   // ================= the pocket brain =================
+  function weatherNow(s, t){
+    var w = s && s.weather;
+    if (!w) return 'Still checking the weather. Ask me again in a second.';
+    if (w.down) return "I can't reach the weather service right now, so I don't know. weather.gov has Dearborn's conditions.";
+    var bits = [(w.test ? 'Test weather on this page: ' : 'Right now in Dearborn: ') + (w.tempF != null ? w.tempF + ' degrees, ' : '') + w.summary.charAt(0).toLowerCase() + w.summary.slice(1)];
+    if (w.why === 'tornado') bits.push("There's a tornado warning for Dearborn. If you're there, take shelter now: a basement, or an inside room on the lowest floor, away from windows.");
+    else if (w.why === 'storm') bits.push("Thunder's around, so the pool is closed until 30 minutes after the last rumble. If you can hear thunder, you're close enough to get struck. Get inside.");
+    else if (w.why === 'snow') bits.push("No swimming. I'm on the shovel.");
+    else if (w.why === 'cold') bits.push('Too cold to swim today.');
+    else if (w.why === 'rain') bits.push("Rain's fine for swimming. Thunder isn't. I'm listening.");
+    else if (w.why === 'heat') bits.push('Hot one. Drink water and put sunscreen back on every two hours.');
+    else if (w.why === 'wind') bits.push("Windy. The leaves are coming in fast, so I've got the net out.");
+    else if (w.why === 'fog') bits.push('Foggy. Swim where the guards can see you.');
+    if (w.alert && w.why !== 'tornado') bits.push('Active alert: ' + w.alert.event + '.');
+    if (t && /thunder|lightning|storm/i.test(t) && w.why !== 'storm') bits.push('Rule here: first rumble of thunder, everybody out. Back in 30 minutes after the last one.');
+    if (t && /forecast|tomorrow|later|tonight|this week/i.test(t)) bits.push("I only watch what's happening now, not the forecast. weather.gov has Dearborn's forecast.");
+    bits.push(w.test ? '' : 'That comes from the ' + w.source.charAt(0).toLowerCase() + w.source.slice(1));
+    return bits.filter(Boolean).join(' ').replace(/\.\s*\./g, '.');
+  }
   function reading(s){
     if (!s || !s.measured) return "I haven't tested yet this visit. Say \"test the water\" and I'll go do it.";
     var m = s.measured, ok = m.ph >= 7.2 && m.ph <= 7.8 && m.cl >= 1 && m.cl <= 3;
@@ -130,10 +151,19 @@
       var more = s.leaves ? ' ' + s.leaves + (s.leaves === 1 ? ' leaf' : ' leaves') + ' on it right now.' : ' Not a leaf on it.';
       return {text: reading(s).replace(/^Last reading was/, 'Water read') + more};
     }},
-    {re: /\b(safe to swim|can i swim|ok to swim|okay to swim|go swimming|swim today)\b/i, f: function(t, s){
+    {re: /\b(safe to swim|can (i|we|you|they|the kids|my kids?) (go )?(swim|get in)|(ok|okay|alright|good) (day )?to swim|go(ing)? swimming|swim today|(is|are) (the pool|you|you guys|y'?all) open|pool open)\b/i, f: function(t, s){
       if (!s) return {text: 'Give me a second to get my rounds going, then ask me again.'};
+      var w = s.weather && !s.weather.down ? s.weather : null, why = w ? w.why : null;
+      if (why === 'tornado') return {text: "No. There's a tornado warning for Dearborn, and everybody is inside. If you're there, take shelter now: a basement, or an inside room on the lowest floor, away from windows."};
+      if (why === 'storm') return {text: "Not right now. There's thunder around Dearborn, so the pool is closed until 30 minutes after the last rumble."};
+      if (why === 'snow') return {text: "Not today. It's snowing in Dearborn, and I'm on the shovel."};
+      if (why === 'cold') return {text: 'Too cold to swim today' + (w.tempF != null ? '. It\'s ' + w.tempF + ' degrees in Dearborn' : '') + '.'};
+      if (!s.open){ var h = new Date().getHours(); return {text: "We're closed right now." + (h >= 21 ? ' We open again at 8 tomorrow morning.' : h < 8 ? ' We open at 8.' : '')}; }
       var m = s.measured, ok = m && m.ph >= 7.2 && m.ph <= 7.8 && m.cl >= 1 && m.cl <= 3;
-      return {text: (s.open ? '' : "We're closed right now, so not tonight. ") + (m ? (ok ? 'Water tested good: ' : 'Not yet. Last test read ') + m.ph.toFixed(1) + ' pH and ' + m.cl.toFixed(1) + ' ppm chlorine' + (ok ? '. Swim with a buddy.' : ", so I'm fixing it first.") : "I haven't tested yet this visit. Say \"test the water\" and I'll check.")};
+      var out = m ? (ok ? "We're open, and the water tested good: " : "We're open, but not yet. Last test read ") + m.ph.toFixed(1) + ' pH and ' + m.cl.toFixed(1) + ' ppm chlorine' + (ok ? '. Swim with a buddy.' : ", so I'm fixing it first.") : "We're open. I haven't tested yet this visit, though. Say \"test the water\" and I'll check.";
+      if (why === 'rain') out += " It's raining, which is fine. If I hear thunder, everybody's out.";
+      if (why === 'heat') out += ' Hot one, so drink water and keep the sunscreen coming.';
+      return {text: out};
     }},
     {re: /\bhow\b.{0,24}\btest\b/i, f: function(){
       return {text: 'A drop test kit gives the truest read. Strips are fine for a quick look. Take the sample at elbow depth, away from the returns. At home, check pH and free chlorine a few times a week. A busy public pool gets checked all day.'};
@@ -172,12 +202,23 @@
     {re: /chlorin|chloramine|\bshock|\bppm\b|sanitiz|\bsmell/i, f: function(t, s){
       return {text: "Free chlorine is the part that's actually working. For a home pool you want 1 to 3 ppm, and public pools follow the local health code. Sun burns it off and swimmers use it up. That strong chlorine smell is usually chloramines, used-up chlorine, and it means the pool needs more chlorine, not less. Shocking burns them off. " + reading(s)};
     }},
-    {re: /\b(vacuum|vac|leaves|leaf|debris|dirt|net|skimmer)\b/i, f: function(t, s){
-      return {text: "Skimming gets what floats, and I get the leaves before they sink and stain. Vacuuming picks up what sinks. I run the vac head slow so I don't kick it all back up. " + (s ? 'There ' + (s.leaves === 1 ? 'is 1 leaf' : 'are ' + s.leaves + ' leaves') + ' on the water right now. Say the word and I\'ll skim.' : '')};
+    {act: true, re: /\b(vacuum|vac)\b/i, f: function(t, s){
+      if (/^\s*(how|why|what|when|where|do|does|did|is|are|should|tell me)\b/i.test(t)) return null;
+      var why = s && s.weather ? s.weather.why : null;
+      if (why === 'storm' || why === 'tornado') return {text: "Not till this weather passes. I'm staying inside, and you should too."};
+      if (s && s.open && why !== 'snow' && why !== 'cold') return {text: 'Not with swimmers in the water. I vacuum before we open and after we close.'};
+      return {text: "Grabbing the pole. Shallow end first, then I'll walk around and do the deep end.", action: 'vac'};
+    }},
+    {re: /\b(vacuum|vacuuming|vac)\b/i, f: function(t, s){
+      return {text: "Skimming gets what floats. Vacuuming gets what sinks. I do the lap pool before we open or after we close, never with swimmers in. The lane lines stay in, and the ropes stop the pole, so I work the open water at each end: shallow end first, then the deep end. Slow strokes, so I don't kick it all back up."};
+    }},
+    {re: /\b(leaves|leaf|debris|dirt|net|skimmer)\b/i, f: function(t, s){
+      return {text: "Skimming gets what floats, and I get the leaves before they sink and stain. Vacuuming picks up what sinks. " + (s ? 'There ' + (s.leaves === 1 ? 'is 1 leaf' : 'are ' + s.leaves + ' leaves') + ' on the water right now. Say the word and I\'ll skim.' : '')};
     }},
     {re: /\b(pump|filter|backwash|sand filter|cartridge|turnover|return|pressure|psi|pump room)\b/i, f: function(){
       return {text: "Water leaves through the main drains and the skimmers, goes through the pump's hair and lint pot, gets pushed through the filters, picks up chlorine, and comes back in through the returns. Here we've got three big filter tanks in a row with green pumps in front. Watch the pressure gauge. When it climbs 8 to 10 psi over clean, it's time to backwash. That's where I live, by the way."};
     }},
+    {re: /\b(weather|raining|rain|rainy|snow|snowing|storm|stormy|thunder|lightning|tornado|temperature|how (hot|cold|warm)|degrees|wind|windy|forecast|sunny|cloudy|foggy)\b/i, f: function(t, s){ return {text: weatherNow(s, t)}; }},
     {re: /\b(lightning|thunder|storm)\b/i, f: function(){ return {text: 'First rumble of thunder, everybody out. Wait 30 minutes after the last thunder before anybody gets back in.'}; }},
     {re: /\b(sunscreen|sunburn|spf)\b/i, f: function(){ return {text: 'SPF 30 or higher, broad spectrum. Put it on again every two hours and after swimming.'}; }},
     {re: /\b(dive|diving|deep end|how deep|jump in|cannonball)\b/i, f: function(){ return {text: "Feet first until you know the water. Dive only in the diving well. It's 12 feet with two 1 meter and two 3 meter boards. Never dive in the shallow end. Cannonballs, deep end only."}; }},
@@ -225,6 +266,7 @@
     {re: /\b(what'?s (going on|happening|new|up)|status|how'?s (it going|the pool|the water|everything|the deck)|how is (it going|the pool|the water|everything|the deck)|how are you|how you doing|what are you doing)\b/i, f: function(t, s){
       if (!s) return {text: "Doing good. Just getting my rounds started."};
       var bits = ["Doing good. Right now I'm " + lc(s.levaTask) + '.', reading(s)];
+      if (s.weather && s.weather.summary) bits.push('Weather in Dearborn: ' + (s.weather.tempF != null ? s.weather.tempF + ' degrees, ' : '') + s.weather.summary.charAt(0).toLowerCase() + s.weather.summary.slice(1));
       bits.push(s.ari.inWater ? 'Ari is in ' + s.ari.where + ', which he knows is not allowed.' : 'Ari is ' + lc(s.ari.task) + '.');
       if (s.m.here) bits.push(kidsNow(s));
       if (s.log.length) bits.push('Latest in the log: ' + s.log[s.log.length - 1].replace(/^\S+ \S+ /, ''));
@@ -240,7 +282,7 @@
     var s = snap();
     return new Promise(function(res){
       var out = null;
-      var asking = /\b(can you|could you|would you|will you|please|go|let'?s)\b/i.test(text) || /^\s*(test|check|skim|scoop|clean|grab|get)\b/i.test(text) || text.split(/\s+/).length <= 4;
+      var asking = /\b(can you|could you|would you|will you|please|go|let'?s)\b/i.test(text) || /^\s*(test|check|skim|scoop|clean|grab|get|vacuum)\b/i.test(text) || text.split(/\s+/).length <= 4;
       for (var i = 0; i < R.length && !out; i++){
         if (R[i].act && !asking) continue;
         var m = text.match(R[i].re);
@@ -278,7 +320,8 @@
       'The deck: Ari is your buddy, a corn red beagle. Beagles are not allowed in the pool, he sneaks in anyway, and you get him out, kindly and every time. M and Mel are two regulars. M is bold, wears goggles, loves cannonballs. Mel is curious, asks you everything, then explains it to M. They learn from each other and from you.',
       'You also start life as the rep for Connect Space (connectspace.com), a cloud-based community and event management platform for associations, economic development organizations, corporate B2B teams and professional event planners. Connect Space does not do custom work; it calls that configurations. Beyond that, say you do not have the detail yet.',
       'How you talk: plain Midwestern voice, warm, direct, peer to peer. One to four short sentences unless they ask for more. No em dashes. No headings or bullet lists.',
-      'If the visitor asks you to do something on the deck, end your reply with exactly one of these tags: [[test]] to test the water, [[skim]] to skim leaves, [[ari]] to check on Ari, [[pump]] to check the pump room, [[wave]] to wave. Only when they ask.'
+      'When you vacuum the lap pool, the lane lines stay in and the ropes stop your pole, so you work the open water at each end: the shallow end from the north deck first, then the deep end from the south deck. You only vacuum before opening or after close, never with swimmers in the water.',
+      'If the visitor asks you to do something on the deck, end your reply with exactly one of these tags: [[test]] to test the water, [[skim]] to skim leaves, [[vac]] to vacuum the lap pool, [[ari]] to check on Ari, [[pump]] to check the pump room, [[wave]] to wave. Only when they ask.'
     ];
     if (s){
       var d = ['What is happening on the deck right now (' + (s.open ? 'pool open' : 'pool closed') + ', ' + s.time + '):'];
@@ -291,6 +334,7 @@
       else d.push('M and Mel are home for the night.');
       if (s.jokes.length) d.push('Jokes M taught you: ' + s.jokes.map(function(j){ return j[0] + ' ' + j[1]; }).join(' / '));
       if (s.log.length) d.push('Recent deck log: ' + s.log.join(' | '));
+      if (s.weather && s.weather.summary) d.push('Real weather in Dearborn right now' + (s.weather.test ? ' (a test setting on this page)' : '') + ': ' + (s.weather.tempF != null ? s.weather.tempF + ' F, ' : '') + s.weather.summary + (s.weather.alert ? ' Active alert: ' + s.weather.alert.event + '. ' + (s.weather.alert.headline || '') : '') + ' Source: ' + s.weather.source + (s.weather.why === 'storm' ? ' The pool is closed for lightning until 30 minutes after the last thunder.' : s.weather.why === 'tornado' ? ' Everybody is inside. If the visitor is in Dearborn, tell them to take shelter now in a basement or an inside room on the lowest floor, away from windows.' : ''));
       if (s.visitor && s.visitor.name) d.push("The visitor's name is " + s.visitor.name + '.');
       lines.push(d.join(' '));
     }
@@ -325,7 +369,7 @@
     });
   }
   function clean(t){
-    var m = t.match(/\[\[(test|skim|ari|pump|wave)\]\]/), action = m ? m[1] : null;
+    var m = t.match(/\[\[(test|skim|vac|ari|pump|wave)\]\]/), action = m ? m[1] : null;
     t = t.replace(/\[\[[a-z]*\]?\]?/g, '').replace(/\s*—\s*/g, ', ').replace(/\*\*/g, '').trim();
     return {text: t, action: action};
   }
