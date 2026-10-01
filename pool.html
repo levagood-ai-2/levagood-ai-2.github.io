@@ -42,11 +42,11 @@
   .stage{position:absolute;left:0;top:0;width:1440px;height:840px;transform-origin:0 0;transform:scale(var(--s,1))}
   .stage canvas{position:absolute;left:0;top:0;width:1440px;height:840px;image-rendering:pixelated;image-rendering:crisp-edges}
   .stage canvas#anim,.stage canvas#levac,.stage canvas#lights,.stage canvas#wxc,#dark{pointer-events:none}
-  .stage canvas#levac,.stage canvas#lights,.stage canvas#wxc{image-rendering:auto}
+  .stage canvas#levac,.stage canvas#lights,.stage canvas#wxc,.stage canvas#dark{image-rendering:auto}
   #dark{position:absolute;left:0;top:0;width:1440px;height:840px;mix-blend-mode:multiply;opacity:0;transition:opacity 2s,background 2s}
   .stage canvas#lights{mix-blend-mode:screen}
   .park[data-time="dusk"] #dark{background:#ff9fbd;opacity:.42}
-  .park[data-time="night"] #dark{background:#24336e;opacity:.86}
+  .park[data-time="night"] #dark{background:transparent;opacity:1}
   .park[data-time="night"]{background:radial-gradient(60% 80% at 20% 10%,#2a2f6b 0%,transparent 60%),radial-gradient(50% 70% at 80% 20%,#3a2a66 0%,transparent 60%),#10142e}
   .park[data-time="night"] .park-note,.park[data-time="night"] .park-links{color:#c9cde6}
   .park[data-time="dusk"]{background:radial-gradient(60% 80% at 20% 10%,#ffc2d6 0%,transparent 60%),radial-gradient(50% 70% at 80% 20%,#c9b8ff 0%,transparent 60%),#f1dfee}
@@ -360,7 +360,7 @@
       <canvas id="base" width="720" height="420" aria-hidden="true"></canvas>
       <canvas id="anim" width="720" height="420" aria-hidden="true"></canvas>
       <canvas id="levac" width="1440" height="840" aria-hidden="true"></canvas>
-      <div id="dark" aria-hidden="true"></div>
+      <canvas id="dark" width="720" height="420" aria-hidden="true"></canvas>
       <canvas id="lights" width="1440" height="840" aria-hidden="true"></canvas>
       <canvas id="wxc" width="1440" height="840" aria-hidden="true"></canvas>
 <div class="spot" tabindex="0" role="note" aria-label="DIVING WELL, 12 feet, two 1 meter and two 3 meter boards" style="left:266px;top:236px;width:106px;height:236px"><span class="tip"><b>DIVING WELL</b><span>12 feet, two 1 meter and two 3 meter boards</span></span></div>
@@ -554,7 +554,7 @@
 </footer>
 
 <script src="pool-weather.js?v=1"></script>
-<script src="pool-life.js?v=5"></script>
+<script src="pool-life.js?v=6"></script>
 <script>
 (function(){
   // scale the 1440 x 840 stage to the page width
@@ -831,24 +831,101 @@
   }
 
   // ---------------- lights ----------------
+  // At night the dark is painted on its own canvas and every light cuts its own pool out of it, so what you see on
+  // the deck is what the light poles, the underwater pool lights and the building lights reach. Between the poles,
+  // and out on the lawn and the lot, it stays dark.
+
+  var LAMPS = [[96, 110], [92, 318], [312, 36], [410, 386], [65, 212], [160, 47], [300, 400], [182, 387]];
+  var NEW_LAMPS = LAMPS.slice(4), WALL_LAMPS = [[420, 140], [420, 252]];
+  var POOL_RECTS = [[132, 116, 188, 238], [206, 116, 304, 306], [326, 132, 402, 284]];
+  var dkCv = document.getElementById('dark'), dk = dkCv && dkCv.getContext ? dkCv.getContext('2d') : null, darkKey = '', darkCache = null;
   function glow(x, y, r, color, a){
     var g = lx.createRadialGradient(x, y, 0, x, y, r);
     g.addColorStop(0, color.replace('A', a)); g.addColorStop(1, color.replace('A', 0));
     lx.fillStyle = g; lx.fillRect(x - r, y - r, r * 2, r * 2);
   }
+  function hole(c, x, y, r, a){
+    var g = c.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, 'rgba(0,0,0,' + a + ')'); g.addColorStop(0.5, 'rgba(0,0,0,' + (a * 0.72) + ')'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    c.fillStyle = g; c.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  // a pole on the fence throws its light in over the deck
+  function throwOf(p){ var dx = 250 - p[0], dy = 212 - p[1], L = Math.hypot(dx, dy) || 1; return [(p[0] + dx / L * 42) * 2, (p[1] + dy / L * 42) * 2]; }
+  // the dark is soft, so it's painted at half size (map units) and the browser scales it up
+  function buildDark(open){
+    if (!darkCache){ darkCache = document.createElement('canvas'); darkCache.width = 720; darkCache.height = 420; }
+    var g = darkCache.getContext('2d');
+    g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, 720, 420);
+    g.fillStyle = 'rgba(36,51,110,.86)'; g.fillRect(0, 0, 720, 420);
+    g.globalCompositeOperation = 'destination-out';
+    LAMPS.concat(WALL_LAMPS).forEach(function(p){ var t = throwOf(p); hole(g, t[0] / 2, t[1] / 2, 87, 0.46); hole(g, t[0] / 2, t[1] / 2, 42, 0.36); hole(g, p[0], p[1], 25, 0.6); });
+    // the pools glow from their underwater lights
+    POOL_RECTS.forEach(function(r, i){
+      g.save(); g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 12; g.fillStyle = 'rgba(0,0,0,.55)';
+      // the zero depth is a half circle, so its light is too
+      if (i === 2){ g.beginPath(); g.moveTo(r[0], r[1]); g.arc(r[0], (r[1] + r[3]) / 2, (r[3] - r[1]) / 2, -Math.PI / 2, Math.PI / 2); g.closePath(); g.fill(); }
+      else g.fillRect(r[0], r[1], r[2] - r[0], r[3] - r[1]);
+      g.restore();
+    });
+    // lit doors and windows: the pump room, the front gate, the bathhouse, and the snack stand while it's open
+    [[250, 76, 35], [422, 196, 35], [540, 190, 60]].forEach(function(p){ hole(g, p[0], p[1], p[2], 0.6); });
+    if (open) hole(g, 392, 62, 45, 0.65);
+    g.globalCompositeOperation = 'source-over';
+  }
+  function darkness(T){
+    if (!dk) return;
+    if (!isNight()){ if (darkKey){ darkKey = ''; dk.clearRect(0, 0, 720, 420); } return; }
+    var open = isOpen(), key = 'n' + (open ? 1 : 0);
+    if (key !== darkKey){ darkKey = key; buildDark(open); }
+    dk.globalCompositeOperation = 'source-over'; dk.clearRect(0, 0, 720, 420); dk.drawImage(darkCache, 0, 0);
+    dk.globalCompositeOperation = 'destination-out';
+    // what moves brings its own light: leva's flashlight after close, headlights in the lot, the band's stage lights
+    if (levaVisible()){
+      hole(dk, leva.x, leva.y - 15, 23, 0.55);
+      if (!isOpen()){ var dir = {s: [0, 1], n: [0, -1], e: [1, 0], w: [-1, 0]}[leva.face] || [0, 1]; hole(dk, leva.x + dir[0] * 40, leva.y - 12 + dir[1] * 40, 45, 0.6); }
+    }
+    through.concat(moving).forEach(function(c){ if (!c.pos) return; var L = Math.hypot(c.pos.dx, c.pos.dy) || 1; hole(dk, c.pos.x + c.pos.dx / L * 15, c.pos.y + c.pos.dy / L * 15, 22, 0.7); });
+    if (isOpen() && bandOn()) hole(dk, 395, 340, 60, 0.6);
+    dk.globalCompositeOperation = 'source-over';
+  }
+  // the glow from the lights that don't move, painted once and reused every frame
+  var glowCache = null, glowKey = '';
+  function staticGlows(night, open){
+    var key = (night ? 'n' : 'd') + (open ? 1 : 0);
+    if (key === glowKey) return glowCache;
+    glowKey = key;
+    if (!glowCache){ glowCache = document.createElement('canvas'); glowCache.width = 1440; glowCache.height = 840; }
+    var keep = lx; lx = glowCache.getContext('2d'); lx.clearRect(0, 0, 1440, 840);
+    var k = night ? 1 : 0.45;
+    [[510, 422, 210], [320, 354, 100], [724, 418, 140]].forEach(function(p){ glow(p[0], p[1], p[2], 'rgba(0,240,255,A)', (night ? 0.3 : 0.42) * k); });
+    [[1080, 380], [500, 150], [844, 392]].forEach(function(p){ glow(p[0], p[1], 70, 'rgba(255,214,140,A)', 0.45 * k); });
+    if (open) glow(784, 124, 60, 'rgba(255,214,140,A)', 0.5 * k);
+    LAMPS.concat(WALL_LAMPS).forEach(function(p){ var t = throwOf(p); glow(p[0] * 2, p[1] * 2, 30, 'rgba(255,248,215,A)', 0.95 * k); glow(t[0], t[1], 170, 'rgba(255,196,120,A)', (night ? 0.13 : 0.2) * k); });
+    lx = keep;
+    return glowCache;
+  }
+  // the newer lamp heads, drawn the same as the ones painted on the map
+  function drawLamps(){
+    NEW_LAMPS.forEach(function(p){
+      var x = p[0] - 4, y = p[1] - 2;
+      ctx.fillStyle = '#5c6169'; ctx.fillRect(x + 2, y, 4, 1); ctx.fillRect(x, y + 1, 9, 1); ctx.fillRect(x, y + 2, 1, 1); ctx.fillRect(x + 8, y + 2, 1, 1); ctx.fillRect(x, y + 3, 9, 1);
+      ctx.fillStyle = '#fff4c8'; ctx.fillRect(x + 1, y + 2, 7, 1);
+      ctx.fillStyle = '#555a62'; ctx.fillRect(x + 6, y + 4, 2, 1);
+    });
+    WALL_LAMPS.forEach(function(p){
+      ctx.fillStyle = '#5c6169'; ctx.fillRect(p[0] - 2, p[1] - 3, 3, 7);
+      ctx.fillStyle = '#fff4c8'; ctx.fillRect(p[0] - 1, p[1] - 2, 1, 5);
+    });
+  }
   function lights(T){
     lx.clearRect(0, 0, 1440, 840);
+    darkness(T);
     var night = isNight(), dusk = isDusk();
-    if (night || dusk){
-      var k = night ? 1 : 0.45;
-      [[510, 422, 210], [320, 354, 100], [724, 418, 140]].forEach(function(p){ glow(p[0], p[1], p[2], 'rgba(0,240,255,A)', 0.42 * k); });
-      [[1080, 380], [500, 150], [844, 392]].forEach(function(p){ glow(p[0], p[1], 70, 'rgba(255,214,140,A)', 0.55 * k); });
-      if (isOpen()) glow(784, 124, 60, 'rgba(255,214,140,A)', 0.6 * k);
-      [[192, 220], [184, 636], [624, 72], [820, 772]].forEach(function(p){ glow(p[0], p[1], 34, 'rgba(255,248,215,A)', 0.95 * k); glow(p[0] + 60, p[1] + 60, 190, 'rgba(255,244,205,A)', 0.22 * k); });
-    }
+    if (night || dusk) lx.drawImage(staticGlows(night, isOpen()), 0, 0);
     if (night){
       // moths circling the light poles
-      [[192, 220], [184, 636], [624, 72], [820, 772]].forEach(function(p, i){
+      LAMPS.forEach(function(q, i){
+        var p = [q[0] * 2, q[1] * 2];
         for (var m = 0; m < 3; m++){
           var a = T * (2 + m * 0.7) + i + m * 2.1, r = 10 + m * 5;
           lx.fillStyle = 'rgba(255,250,225,.9)'; lx.fillRect(p[0] + Math.cos(a) * r, p[1] + Math.sin(a * 1.3) * r * 0.6, 2, 2);
@@ -872,8 +949,8 @@
       var X = leva.x * 2, Y = leva.y * 2;
       glow(X, Y - 38, 20, 'rgba(0,240,255,A)', 0.9);
       if (night && !isOpen()){
-        var dir = {s: [0, 1], n: [0, -1], e: [1, 0], w: [-1, 0]}[leva.face];
-        glow(X + dir[0] * 80, Y - 24 + dir[1] * 80, 70, 'rgba(255,248,220,A)', 0.55);
+        var dir = {s: [0, 1], n: [0, -1], e: [1, 0], w: [-1, 0]}[leva.face] || [0, 1];
+        glow(X + dir[0] * 80, Y - 24 + dir[1] * 80, 70, 'rgba(255,248,220,A)', 0.35);
       }
     }
   }
@@ -1080,6 +1157,7 @@
     ctx.clearRect(0, 0, 720, 420);
     var cf = Math.floor(T * 4) % 4;
     ctx.drawImage(imgs.caustics, 0, cf * 420, 720, 420, 0, 0, 720, 420);
+    drawLamps();
     var lightsOn = isNight() || isDusk();
     if (!isNight() && !wxWet) drawPicnics(T);
     trafficStep(dt, open, lightsOn);

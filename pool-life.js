@@ -327,13 +327,15 @@
     spoke(who, text);
     heardFact(who, text);
   }
-  // a conversation: lines play one after another, each waits for the last to be read
+  // a conversation: lines play one after another, each waits for the last to be read. A line marked keep (the
+  // fifth slot) is news for the visitor, like a new unlock, so a hurry-up line from someone else never knocks it out.
   var threads = [];
   function convo(lines, urgent){
-    var th = {items: lines.map(function(l){ return {who: l[0], text: l[1], pause: l[2] || 0, fn: l[3]}; }), wait: 0, born: W.clock};
+    var th = {items: lines.map(function(l){ return {who: l[0], text: l[1], pause: l[2] || 0, fn: l[3], keep: !!l[4]}; }), wait: 0, born: W.clock};
+    th.keep = th.items.some(function(i){ return i.keep; });
     if (urgent){
       var who = {}; th.items.forEach(function(i){ if (i.who) who[i.who] = 1; });
-      threads.forEach(function(t){ t.items = t.items.filter(function(i){ return !who[i.who]; }); });
+      threads.forEach(function(t){ t.items = t.items.filter(function(i){ return i.keep || !who[i.who]; }); });
     }
     threads.push(th);
   }
@@ -341,7 +343,7 @@
   function talkStep(dt){
     threads = threads.filter(function(th){
       if (th.wait > 0){ th.wait -= dt; return true; }
-      if (!th.items.length || W.clock - th.born > 30) return false;
+      if (!th.items.length || W.clock - th.born > (th.keep ? 90 : 30)) return false;
       var it = th.items[0];
       if (it.who && kids[it.who] && !kids[it.who].here){ th.items.shift(); return true; }
       if (it.who && speaking(it.who) && !th.mine) return true;
@@ -535,7 +537,15 @@
     B.task = task; setPlan(B, steps);
   }
   function leaveBuilding(){
-    if (!lv.hidden) return [];
+    if (!lv.hidden){
+      // caught in a doorway on the way out: finish walking out the door first, so he never cuts the corner through the wall
+      if (lv.x > 412 && lv.y > 88 && lv.y < 292){
+        var near = null, bd = 1e9;
+        ['office', 'pit', 'arcade'].forEach(function(k){ var d = PLACES[k].door, dd = Math.abs(d[1] - lv.y); if (dd < bd){ bd = dd; near = d; } });
+        return [{k: 'straight', x: near[0], y: near[1], show: true, speed: 13}];
+      }
+      return [];
+    }
     var pl = PLACES[B.inside] || PLACES.pump;
     return [fn(function(){ lv.x = pl.inside[0]; lv.y = pl.inside[1]; }), {k: 'straight', x: pl.door[0], y: pl.door[1], show: true, speed: 13}];
   }
@@ -1968,9 +1978,9 @@
   function levelUp(was, now){
     var n = now + 1, more = [];
     toast('Level ' + n, LEVELS[now][0], 0, 'cap' + n);
-    if (was + 1 < TOWEL_AT && n >= TOWEL_AT){ toast('Unlocked', 'Your towel on the deck', 0, 'towel'); more.push(['leva', 'I put a towel out for you. South deck, on the chair by the lap pool.']); towelTag(); }
-    if (was + 1 < COLOR_AT && n >= COLOR_AT){ toast('Unlocked', 'Pick your towel color', 0, 'towel'); more.push(['leva', 'Pick a color for your towel on your crew card.']); }
-    if (n >= TOP && openTryout()) more.push(['leva', 'The Swim Team tryout is open. Three jobs on your crew card.']);
+    if (was + 1 < TOWEL_AT && n >= TOWEL_AT){ toast('Unlocked', 'Your towel on the deck', 0, 'towel'); more.push(['leva', 'I put a towel out for you. South deck, on the chair by the lap pool.', 0, null, true]); towelTag(); }
+    if (was + 1 < COLOR_AT && n >= COLOR_AT){ toast('Unlocked', 'Pick your towel color', 0, 'towel'); more.push(['leva', 'Pick a color for your towel on your crew card.', 0, null, true]); }
+    if (n >= TOP && openTryout()) more.push(['leva', 'The Swim Team tryout is open. Three jobs on your crew card.', 0, null, true]);
     var cheers = cheer(n >= TOP ? 'top' : 'up', n);
     if (cheers.length) GM.cheered = Math.max(GM.cheered || 0, n);
     convo([['leva', COACH[now]]].concat(cheers, more));
@@ -2003,7 +2013,7 @@
     badge('team');
     var cheers = cheer('team', TOP);
     if (cheers.length) GM.cheered = TOP + 1;
-    convo([['leva', "You made the Swim Team. Your towel's got a team stripe now."]].concat(cheers));
+    convo([['leva', "You made the Swim Team. Your towel's got a team stripe now.", 0, null, true]].concat(cheers));
     if (!lv.hidden) heart(lv.x, lv.y);
     towelTag();
   }
@@ -2273,7 +2283,7 @@
     if (!gameUI.towelText) return;
     var has = n >= TOWEL_AT, pickOk = n >= COLOR_AT, cur = GM.towel || TOWEL_COLORS[0][0];
     var txt = !has ? 'Make Level ' + TOWEL_AT + ' and leva puts a towel out for you on the deck.'
-      : "It's on the south deck, on the lounge chair closest to the lap pool. Tap it on the map." + (team ? ' Team stripe and all.' : '');
+      : "It's on the south deck, on the lounge chair closest to the lap pool." + (reduce ? '' : ' Tap it on the map.') + (team ? ' Team stripe and all.' : '');
     if (gameUI.towelText.textContent !== txt) gameUI.towelText.textContent = txt;
     var note = !has ? '' : !pickOk ? 'Pick its color at Level ' + COLOR_AT + '.' : team ? '' : 'Make the Swim Team and it gets a team stripe.';
     if (gameUI.towelNote && gameUI.towelNote.textContent !== note) gameUI.towelNote.textContent = note;
@@ -2291,12 +2301,26 @@
   }
   function gameInit(){
     GM = MEM.game;
-    // swim levels took over from the old ranks. Your points carry over, so you start on the level they're worth.
-    if (GM.lvl == null){
-      GM.lvl = levelOf(GM.pts); GM.cheered = standing();
-      if (GM.pts > 0) setTimeout(function(){ toast('Swim levels are here', 'Level ' + (GM.lvl + 1) + ': ' + LEVELS[GM.lvl][0], 0, 'cap' + (GM.lvl + 1)); if (GM.lvl + 1 >= TOP) openTryout(); }, 3000);
-      save();
-    }
+    // swim levels took over from the old ranks. Your points carry over, so you start on the level they're worth,
+    // with whatever that level unlocks, and a word from leva about it.
+    var fresh = typeof GM.lvl !== 'number';
+    if (fresh || GM.lvl !== levelOf(GM.pts)) GM.lvl = levelOf(GM.pts);
+    if (GM.tryout && (typeof GM.tryout !== 'object' || !GM.tryout.n)) GM.tryout = {at: Date.now(), n: {}};
+    if (GM.tryout) TRY_IDS.forEach(function(k){ if (typeof GM.tryout.n[k] !== 'number') GM.tryout.n[k] = 0; });
+    if (GM.towel && !TOWEL_COLORS.some(function(c){ return c[0] === GM.towel; })) GM.towel = null;
+    var n0 = GM.lvl + 1, opened = n0 >= TOP && !GM.tryout && !GM.team;
+    if (opened) GM.tryout = {at: Date.now(), n: {sprint: 0, distance: 0, relay: 0}};
+    if (fresh){
+      GM.cheered = standing();
+      if (GM.pts > 0) setTimeout(function(){
+        toast('Swim levels are here', 'Level ' + n0 + ': ' + LEVELS[n0 - 1][0], 0, 'cap' + n0);
+        if (n0 >= TOWEL_AT){ toast('Unlocked', 'Your towel on the deck', 0, 'towel'); towelTag(); }
+        if (n0 >= COLOR_AT) toast('Unlocked', 'Pick your towel color', 0, 'towel');
+        if (opened) toast('Unlocked', 'Swim Team tryout', 0, 'team');
+        convo([['leva', 'Something new: swim levels. Your points put you at Level ' + n0 + ', ' + LEVELS[n0 - 1][0] + '.', 0, null, true]].concat(n0 >= TOWEL_AT ? [['leva', 'I put a towel out for you, too. South deck, on the chair by the lap pool.', 0, null, true]] : []));
+      }, 3000);
+    } else if (opened) setTimeout(function(){ toast('Unlocked', 'Swim Team tryout', 0, 'team'); }, 3000);
+    save();
     if (GM.cheered == null) GM.cheered = standing();
     buildGame();
     var stage = document.getElementById('stage');
@@ -2540,5 +2564,5 @@
   if (DO) window.__deck = {W: W, B: B, ari: ari, kids: kids, game: GAME, GM: function(){ return GM; }, award: award, badge: badge, witness: witness, job: workJob,
     sneak: function(){ ari.swimCool = 0; if (ari.hidden) ari.hidden = false; ariPlan(planSneak(), 'up to something'); },
     leaf: function(x, y, pool){ W.leaves.push({x: x, y: y, vx: 0, vy: 0, pool: pool || poolAt(x, y), c: '#6b8e23', k: 0, grab: 0}); },
-    render: function(){ gameDirty = true; renderGame(); }, say: say, FISH: FISH, LEVELS: LEVELS, tryJob: tryJob, towelTag: towelTag, MY_TOWEL: MY_TOWEL};
+    render: function(){ gameDirty = true; renderGame(); }, say: say, convo: convo, FISH: FISH, LEVELS: LEVELS, tryJob: tryJob, towelTag: towelTag, MY_TOWEL: MY_TOWEL};
 })();
