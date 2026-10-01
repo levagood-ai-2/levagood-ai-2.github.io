@@ -7,7 +7,7 @@
   'use strict';
 
   var DECK_RLE = "1427,a,2,a,1,a,2,9,2,4,1,8,2,7,1,a,2,a,104,35,2,4,1,8,2,1f,fe,3b,1,13,18,3,fb,a,1c,e,5,5,1,13,18,3,f8,d,1c,e,5,5,1,1,f,3,1a,1,f4,11,1c,18,1,1,f,3,1a,1,f2,13,1c,18,1,1,f,3,1a,1,f0,15,6,1,d,1,8,17,1,1,f,3,1a,1,ed,18,7,1,d,1,7,17,1,1,f,3,1a,1,eb,1a,4,1,2,1,a,1,2,1,6,1,1,16,1,1,f,3,1a,1,e9,7,5,10,5,2,c,2,9,16,1,1,11,1,102,9,6,f,1d,17,1,1,f,3,1a,1,e5,3,5,3,6,f,1c,1,1,15,2,1,f,3,1a,1,e4,4,5,3,6,f,1c,17,2,1,f,3,1a,1,e5,3,5,3,6,f,1d,17,1,1,f,3,1a,1,e5,3,5,3,6,f,1d,17,1,1,f,3,1a,1,df,1,5,3,5,3,6,4,4,7,1c,1,1,16,1,1,11,1,1a,1,de,2,5,3,5,3,6,2,8,5,1d,17,1,1,12,1b,de,2,5,3,5,3,6,1,a,4,1d,17,1,1,12,14,4,3,de,2,5,3,5,3,6,1,b,3,1c,1,1,16,1,3,1,b,3,15,4,3,de,2,5,3,5,3,12,3,1c,18,1,3,1,b,1,17,4,3,de,2,5,3,5,8,d,3,1d,17,1,2,9,1c,4,3,de,2,6,2,6,8,e,1,1e,16,1,2,a,1c,3,3,d6,2,6,2,5,11,c,6,2,1,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,16,1,2,9,23,d5,3,6,2,5,12,b,6,1,1,1,1,2,1,1,1,1,1,2,1,1,1,4,1,1,1,1,1,1,16,2,2,9,22,d5,4,6,19,b,36,2,2,9,22,d4,5,6,1a,8,1,1,37,1,2,9,23,d2,b,1,1c,4,3,1,37,1,2,9,23,d1,30,1,37,1,2,9,23,d0,31,1,37,1,2,9,23,d0,69,1,2,9,23,cf,69,2,2,a,a,2,a,2,a,ce,6a,2f,8,c6,88,7,9,1,9,c5,5f,4,26,7,9,1,9,c4,60,5,25,7,9,1,9,c4,60,5,25,7,9,1,9,c3,17,7,43,5,25,7,9,1,9,c2,18,7,6d,7,9,1,9,c2,18,2,3,2,7d,1,9,c1,19,2,3,2,1,1,7b,1,9,c1,19,2,3,2,1,1,1,2,2,4,b,2,2,4,18,2,2,4,3f,1,9,c0,1a,7,1,1,1,2,2,1,1,1,c,2,2,2,1,1,18,2,2,1,1,1,19,6,21,1,9,bf,1b,7,1,4,2,1,1,1,d,1,2,1,2,1,19,1,2,1,1,1,19,6,21,1,9,be,24,1,54,2,2,2,21,1,9,be,12,1b,b,2e,13,2,2,2,21,1,9,bd,b,1,7,2,2,2,2,2,2,2,2,2,2,2,2,3,b,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,13,9,1e,1,9,bd,d,1,5,1b,b,1,1,2a,1,1,13,6,21,1,9,bc,14,1,1,17,1,1,b,2e,3a,1,9,bc,14,1,1,17,1,1,b,2e,3a,1,9,bb,15,1b,b,1,1,2a,1,1,3a,1,9,bb,15,1b,8,35,36,1,9,ba,16,1,1,17,1,1,8,35,36,1,9,ba,f,20,1,1,8,1,3,1,1,2b,3,1,36,1,9,b9,10,22,8,1,4,2a,1,1,3,1,b,4,27,1,9,b9,10,22,8,35,b,3,1,5,22,1,9,b8,11,20,1,1,b,2e,f,1,1,3,2,5,1f,1,9,b8,18,1,1,17,1,1,b,2e,f,1,1,7,2,3,1d,1,9,b8,18,1b,b,1,1,2a,1,1,f,b,2,3,1b,1,5,bb,19,1b,b,1,1,2a,1,1,f,11,1a,1,5,bb,19,1,1,17,1,1,b,2e,f,1,1,11,18,1,5,ba,1a,1,1,17,1,1,b,2e,f,1,1,f,1,2,17,1,5,ba,1a,1b,b,1,1,2a,1,1,f,15,16,1,5,ba,1a,1b,b,1,1,2a,1,1,f,13,1,2,15,1,5,ba,1a,1,1,17,1,1,b,2e,f,1,1,15,14,1,5,ba,10,7,3,1,1,17,1,1,b,2e,f,1,1,13,1,2,13,1,5,b9,d,29,b,1,1,2a,1,1,f,19,12,1,5,b9,11,25,b,1,1,2a,1,1,f,17,1,1,12,1,5,b8,12,23,1,1,b,2e,f,1,1,18,11,1,5,b8,e,27,1,1,b,2e,f,1,1,19,10,1,5,b8,12,7,2,2,1,19,b,1,1,2a,1,1,f,1b,10,1,5,b8,1c,1,1,19,b,1,1,2a,1,1,f,1c,f,1,2,ba,1d,1,1,17,1,1,b,2e,f,1,1,18,1,2,e,1,2,1,6,b3,1d,1,1,17,1,1,b,2e,f,1,1,1b,e,1,2,1,6,b3,1d,1b,b,1,1,2a,1,1,f,1b,1,1,e,1,2,1,6,b3,1d,1b,b,1,1,2a,1,1,f,1c,1,1,d,1,2,ba,1d,1,1,17,1,1,b,2e,f,1,1,1c,d,1,2,b9,1e,1,1,17,1,1,b,2e,f,1,1,1d,c,1,2,1,6,b2,14,7,3,1b,b,1,1,2a,1,1,f,1f,c,1,2,1,6,b2,10,29,b,1,1,2a,1,1,f,1f,c,1,2,1,6,b2,14,23,1,1,6,33,f,1,1,1b,1,2,b,1,2,1,6,b2,14,23,1,1,6,33,f,1,1,1c,1,1,b,1,2,1,6,b2,10,29,6,6,1,2a,1,1,f,20,b,1,2,1,6,b2,14,7,3,1,1,19,6,6,1,2a,1,1,f,20,b,1,2,1,6,b2,6,b,d,1,1,17,1,1,6,33,f,1,1,1c,1,1,b,1,2,1,6,b1,7,b,d,1,1,17,1,1,6,33,f,1,1,1c,1,1,b,1,2,1,6,b1,7,b,d,1b,6,6,1,2a,1,1,f,1f,1,1,a,1,2,1,6,b2,6,b,d,1b,6,6,1,2a,1,1,f,1f,1,1,a,1,2,1,6,b2,6,b,d,1,1,17,1,1,6,33,f,1,1,1f,a,1,2,1,6,b1,d,1,11,1,1,17,1,1,6,33,f,1,1,1f,a,1,2,1,6,b1,1f,1b,6,6,1,2a,1,1,f,1f,1,1,a,1,2,1,6,b1,1f,1b,6,6,1,2a,1,1,f,1f,1,1,a,1,2,b8,18,20,1,1,6,33,f,1,1,1f,a,1,8,b2,18,20,1,1,6,33,f,1,1,1f,a,1,8,b2,18,22,6,6,1,2c,f,1f,1,1,a,1,8,b2,18,22,6,6,1,2a,1,1,f,20,b,1,8,b2,1f,1,1,1d,2,33,f,1,1,1c,1,1,b,1,8,b2,8,c,b,1,1,1d,2,33,f,1,1,1c,1,1,b,1,8,b2,8,c,b,1b,3,1,7,1,1,2c,f,20,b,1,8,b3,7,c,b,1b,3,1,2,6,1,2c,f,20,b,1,8,b3,7,c,b,1,1,1d,2,33,f,1,1,1b,1,2,b,1,8,b3,7,c,b,1,1,17,1,1,6,33,f,1,1,1b,1,1,c,1,8,b3,c,1,11,2,2,2,2,2,2,2,2,2,2,2,2,3,6,6,1,2a,1,1,f,1f,c,1,8,b3,1e,1b,b,1,1,2c,f,1f,c,1,8,b3,10,7,2d,2e,f,1,1,1c,d,1,9,b2,10,7,2d,2e,f,1,1,1c,d,1,9,b2,10,7,11,7,15,1,1,2a,1,1,f,1b,1,1,e,1,9,b3,f,7,11,7,15,1,1,2a,1,1,f,1b,1,1,e,1,9,b3,f,7,11,2,3,2,15,2e,f,1,1,18,1,2,e,1,9,b3,f,7,11,2,3,2,1,1,13,2e,f,1,1,18,1,1,f,1,9,b4,7,b,14,7,1,1,13,1,1,2a,1,1,f,1b,10,1,9,b4,7,b,14,7,1,1,13,1,1,2a,1,1,f,18,1,2,10,1,9,b4,7,b,1c,1,a,7,2,2e,f,1,1,18,11,1,9,b4,7,b,1c,1,a,7,2,2e,f,1,1,17,12,1,9,b4,7,b,1c,1,a,2,3,2,2,1,1,2a,1,1,f,19,12,1,9,b4,a,1,2e,2,3,2,2,1,1,2a,1,1,f,18,13,1,9,b5,38,7,2,2e,f,1,1,15,14,1,9,b5,38,7,2,2e,f,1,1,14,15,1,9,b5,3b,7,1,2a,1,1,f,15,16,1,9,b5,41,1,1,2a,1,1,f,14,17,1,9,b6,11,4,2b,2e,f,1,1,11,18,1,9,b6,f,8,29,2e,f,1,1,b,2,2,1a,1,9,b7,d,a,28,1,1,2a,1,1,f,b,2,3,1b,1,9,b7,5,12,28,1,1,2a,1,1,f,8,1,5,1d,1,9,b7,5,13,27,2e,f,1,1,3,2,5,1f,1,9,b8,4,13,24,35,b,1,2,6,22,1,9,b8,4,13,24,35,b,4,27,1,9,b8,4,13,24,1,4,2a,1,1,3,1,36,1,9,b9,5,1,5,a,25,1,3,1,1,2b,3,1,36,1,9,b9,b,a,25,35,c,2,1,1,2,a,1,1,18,1,9,ba,b,c,25,1,1,2a,1,1,10,4,2,2,1,3,1,5,18,1,9,ba,d,4,2b,1,1,2a,1,1,10,4,2,c,22,bb,e,3,2a,2e,44,bb,d,5,29,2e,44,bc,3a,1,1,2a,1,1,26,4,2,c,c,bc,3a,1,1,2a,1,1,26,4,2,1,1,8,1,1,c,bd,1,b,2d,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,26,2,1,1,3,b,c,bd,1,b,2d,2e,2f,4,9,1,7,c9,97,1,7,c9,9f,c9,2e,2,2,4,18,2,2,4,49,c0,37,2,2,2,1,1,18,2,2,1,1,1,4a,c0,37,2,2,1,2,1,18,2,2,1,1,1,4a,c2,a6,c2,3,b,20,2,76,c2,3,b,1f,4,75,c3,2,b,1e,6,74,c4,1,b,1e,6,74,c4,1,b,1f,4,75,c6,4,5,21,2,6e,1,7,c6,5,4,99,c7,4,4,92,cf,3,c,8a,d0,3,1,2,8,8a,d0,3,c,89,d2,1,b,8a,d2,1,b,7,5,3,5,3,5,3,5,3,5,5e,d3,a,1,7,5,3,5,3,5,3,5,3,5,5e,d4,11,5,3,5,3,5,3,5,3,5,5e,d5,10,5,3,5,3,5,3,5,3,5,5e,d8,d,5,3,5,3,5,3,5,3,5,5e,d8,d,5,3,5,3,5,3,5,3,5,5e,d9,c,5,3,5,3,5,3,5,3,5,5e,da,b,5,3,5,3,5,3,5,3,5,5e,db,a,5,3,5,3,5,3,5,3,5,5e,dc,9,5,3,5,3,5,3,5,3,5,5d,df,7,6,2,e,2,6,2,6,5c,e0,a,1,6,8,9,1,66,e1,e,a,6f,e2,d,a,6f,e4,a,c,6d,e6,9,c,6e,e7,7,c,6e,e9,5,c,6e,ec,3,a,6f,ed,2,a,6f,ef,1,8,70,f6,71,fc,65,5,2,f9,68,5,3,fb,1,1,6b,fe,69,104,64,10d,4,2,a,1,a,2,a,1,a,2,a,1,a,2,a,1,6,1175";
-  var WATER_RLE = "5775,15,11,28,11a,15,11,28,11a,15,11,28,11a,15,12,26,11b,15,12,26,122,e,12,26,122,e,12,26,122,e,12,26,122,e,11,28,11a,15,11,28,11a,15,11,28,11a,15,11,28,11a,15,11,28,11a,15,11,28,11a,15,11,28,15,1,104,15,11,28,16,1,103,15,11,28,15,5,1,1,fe,15,11,28,15,6,1,1,107,b,11,28,15,9,1,1,104,b,11,28,15,a,105,b,11,28,15,b,1,1,102,b,11,28,15,c,1,1,f7,15,11,28,15,f,f6,15,11,28,15,e,f7,15,11,28,15,5,2,8,1,1,f4,15,11,28,15,5,2,9,f5,15,11,28,15,5,2,a,f4,15,11,28,15,5,2,b,f3,15,11,28,15,5,2,c,f2,15,11,28,15,5,2,b,f3,15,11,28,15,5,2,c,fc,b,11,28,15,5,2,d,fb,b,4e,5,2,e,fa,b,11,1,1,25,16,5,2,d,fb,b,11,1,3c,5,2,e,f0,15,11,1,1,25,16,5,2,d,f1,15,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,5,2,e,f0,15,15,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,5,2,f,ef,15,11,1,3c,d,6,2,f0,15,11,1,1,25,16,c,8,2,ef,15,11,28,15,b,b,1,ee,15,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,14,b,a,1,ef,15,11,1,1,25,16,b,a,2,ee,15,11,1,3c,b,a,1,f6,e,11,1,1,25,16,b,b,1,f5,e,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,b,a,1,f6,e,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,c,8,1,f7,e,11,1,1,25,16,d,6,1,1,1,ef,14,12,1,3c,15,f0,14,12,1,1,25,16,14,f1,14,13,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,15,f0,14,16,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,14,f1,14,12,1,3c,15,116,1,1,25,16,14,117,28,15,13,155,12,119,28,15,13,118,28,15,12,119,28,15,11,11a,28,15,10,11b,28,15,f,1,1,11a,28,15,e,11d,28,15,6,4,3,1,1,11c,28,15,5,6,1,11f,28,15,5,7,1,11e,28,15,5,126,28,15,5,126,28,15,4,1,1,125,28,15,3,1,1,126,28,140,28,140,28,140,28,140,28,140,28,140,28,140,28,141,26,142,26,142,26,142,26,142,26,141,28,140,28,140,28,140,28,140,28,569d";
+  var WATER_RLE = "5775,15,11,28,11a,15,11,28,11a,15,11,28,11a,15,12,26,11b,15,12,26,122,e,12,26,122,e,12,26,122,e,12,26,122,e,11,28,11a,15,11,28,11a,15,11,28,15,5,100,15,11,28,15,8,fd,15,11,28,15,a,fb,15,11,28,15,b,fa,15,11,28,15,d,f8,15,11,28,15,e,f7,15,11,28,15,f,f6,15,11,28,15,10,ff,b,11,28,15,11,fe,b,11,28,15,12,fd,b,11,28,15,13,fc,b,11,28,15,14,f1,15,11,28,15,15,f0,15,11,28,15,15,f0,15,11,28,15,5,2,f,ef,15,11,28,15,5,2,f,ef,15,11,28,15,5,2,10,ee,15,11,28,15,5,2,10,ee,15,11,28,15,5,2,11,ed,15,11,28,15,5,2,11,ed,15,11,28,15,5,2,12,f6,b,11,28,15,5,2,12,f6,b,4e,5,2,12,f6,b,11,1,1,25,16,5,2,13,f5,b,11,1,3c,5,2,13,eb,15,11,1,1,25,16,5,2,13,eb,15,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,5,2,13,eb,15,15,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,5,2,13,eb,15,11,1,3c,d,6,8,ea,15,11,1,1,25,16,c,8,7,ea,15,11,28,15,b,a,6,ea,15,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,14,b,a,6,ea,15,11,1,1,25,16,b,a,6,ea,15,11,1,3c,b,a,1,1,4,f1,e,11,1,1,25,16,b,b,5,f1,e,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,b,a,1,1,4,f1,e,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,c,8,1,2,4,f1,e,11,1,1,25,16,d,6,1,1,5,eb,14,12,1,3c,15,1,4,eb,14,12,1,1,25,16,1a,eb,14,13,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,1a,eb,14,16,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,1a,eb,14,12,1,3c,19,112,1,1,25,16,19,112,28,15,19,14f,18,113,28,15,18,113,28,15,17,114,28,15,17,114,28,15,16,115,28,15,16,115,28,15,15,116,28,15,6,4,b,116,28,15,5,6,9,117,28,15,5,7,7,118,28,15,5,7,6,119,28,15,5,7,5,11a,28,15,6,6,4,11b,28,15,8,2,5,11c,28,15,e,11d,28,15,d,11e,28,15,b,120,28,15,a,121,28,15,8,123,28,15,5,126,28,140,28,141,26,142,26,142,26,142,26,142,26,141,28,140,28,140,28,140,28,140,28,569d";
   var CAST = {"m_s0":[0,0,21,33,10,32],"m_n0":[22,0,21,33,10,32],"m_e0":[44,0,21,33,10,32],"m_w0":[66,0,21,33,10,32],"m_s1":[88,0,21,33,10,32],"m_n1":[110,0,21,33,10,32],"m_e1":[132,0,21,33,10,32],"m_w1":[154,0,21,33,10,32],"m_s":[176,0,21,33,10,32],"m_n":[198,0,21,33,10,32],"m_e":[220,0,21,33,10,32],"m_w":[0,34,21,33,10,32],"m_swim0":[22,34,23,19,11,15],"m_swim1":[46,34,23,19,11,15],"m_float":[70,34,33,21,16,10],"m_tuck":[104,34,21,27,10,25],"m_sit":[126,34,21,33,10,29],"m_wave":[148,34,21,33,10,32],"mel_s0":[170,34,21,29,10,28],"mel_n0":[192,34,21,29,10,28],"mel_e0":[214,34,21,29,10,28],"mel_w0":[0,68,21,29,10,28],"mel_s1":[22,68,21,29,10,28],"mel_n1":[44,68,21,29,10,28],"mel_e1":[66,68,21,29,10,28],"mel_w1":[88,68,21,29,10,28],"mel_s":[110,68,21,29,10,28],"mel_n":[132,68,21,29,10,28],"mel_e":[154,68,21,29,10,28],"mel_w":[176,68,21,29,10,28],"mel_swim0":[198,68,23,19,11,15],"mel_swim1":[222,68,23,19,11,15],"mel_float":[0,98,33,21,16,10],"mel_tuck":[34,98,21,27,10,25],"mel_sit":[56,98,21,32,10,28],"mel_wave":[78,98,21,29,10,28],"ari_e0":[100,98,31,21,15,18],"ari_w0":[132,98,31,21,15,18],"ari_e1":[164,98,31,21,15,18],"ari_w1":[196,98,31,21,15,18],"ari_sniff_e":[0,131,31,21,15,18],"ari_sniff_w":[32,131,31,21,15,18],"ari_happy_e":[64,131,31,21,15,18],"ari_happy_w":[96,131,31,21,15,18],"ari_sit_e":[128,131,31,21,13,19],"ari_sit_w":[160,131,31,21,17,19],"ari_sleep_e":[192,131,30,17,13,15],"ari_sleep_w":[223,131,30,17,16,15],"ari_swim_e0":[0,153,31,15,18,11],"ari_swim_w0":[32,153,31,15,12,11],"ari_s0":[64,153,21,21,10,19],"ari_n0":[86,153,21,21,10,19],"ari_swim_e1":[108,153,31,15,18,11],"ari_swim_w1":[140,153,31,15,12,11],"ari_s1":[172,153,21,21,10,19],"ari_n1":[194,153,21,21,10,19]};
   var GW = 360, GH = 210, N = GW * GH;
   // test the deck faster with ?fast=4 (up to 10), the same way ?time= and ?open= test the clock
@@ -37,8 +37,25 @@
     return out;
   }
   var DECK = unrle(DECK_RLE), WATER = unrle(WATER_RLE);
-  var BIG = erode(DECK, 2), SMALL = erode(DECK, 1), SWIM = erode(WATER, 2);
+  var BIG = mainDeck(erode(DECK, 2)), SMALL = mainDeck(erode(DECK, 1)), SWIM = erode(WATER, 2);
   var WORLD = {GW: GW, GH: GH, N: N, DECK: DECK, WATER: WATER, SWIM: SWIM};
+  // The deck stops at the bathhouse wall and the fence by the lot (x 420). Past that is roof or outside the fence.
+  // The little pockets behind the lounge chairs and the snack stand patio can't be walked to from the deck either.
+  // Keep only the one deck everybody can get around, so a spot someone picks always has a way there.
+  function mainDeck(m){
+    for (var y = 0; y < GH; y++) for (var x = 210; x < GW; x++) m[y * GW + x] = 0;
+    var keep = new Uint8Array(N), seed = 50 * GW + 125, q = [seed], h = 0;
+    if (!m[seed]) return m;
+    keep[seed] = 1;
+    while (h < q.length){
+      var i = q[h++], x0 = i % GW, y0 = (i / GW) | 0;
+      if (x0 > 0 && m[i - 1] && !keep[i - 1]){ keep[i - 1] = 1; q.push(i - 1); }
+      if (x0 < GW - 1 && m[i + 1] && !keep[i + 1]){ keep[i + 1] = 1; q.push(i + 1); }
+      if (y0 > 0 && m[i - GW] && !keep[i - GW]){ keep[i - GW] = 1; q.push(i - GW); }
+      if (y0 < GH - 1 && m[i + GW] && !keep[i + GW]){ keep[i + GW] = 1; q.push(i + GW); }
+    }
+    return keep;
+  }
   // the real Dearborn weather, from pool-weather.js, once it has something to say
   function WXS(){ var w = window.PoolWeather; return w && w.ok ? w : null; }
   function wxWhy(){ var w = WXS(); return w ? w.reason() : null; }
@@ -91,14 +108,15 @@
   function path(mask, sx, sy, tx, ty){
     var s = snap(mask, sx, sy), t = snap(mask, tx, ty);
     var si = cellIdx(s[0], s[1]), ti = cellIdx(t[0], t[1]);
-    if (si < 0 || ti < 0) return [[tx, ty]];
+    if (si < 0 || ti < 0) return [];
     var tgx = ti % GW, tgy = (ti / GW) | 0;
     function h(i){ var dx = Math.abs(i % GW - tgx), dy = Math.abs(((i / GW) | 0) - tgy); return dx + dy - 0.5858 * Math.min(dx, dy); }
     gen++; hn = 0; gS[si] = 0; seen[si] = gen; from[si] = -1; hpush(si, h(si));
-    var found = false, iters = 0;
+    var found = false, iters = 0, best = si, bestH = h(si);
     while (hn){
       var cur = hpop(); if (shut[cur] === gen) continue; shut[cur] = gen;
       if (cur === ti){ found = true; break; }
+      var hc = h(cur); if (hc < bestH){ bestH = hc; best = cur; }
       if (++iters > 70000) break;
       var cx = cur % GW, cy = (cur / GW) | 0;
       for (var k = 0; k < 8; k++){
@@ -110,7 +128,8 @@
         if (seen[ni] !== gen || ng < gS[ni]){ seen[ni] = gen; gS[ni] = ng; from[ni] = cur; hpush(ni, ng + h(ni)); }
       }
     }
-    if (!found) return [[t[0], t[1]]];
+    // no way all the way there: get as close as the deck allows, never a straight line across whatever is in between
+    if (!found){ if (best === si) return [[s[0], s[1]]]; ti = best; }
     var cells = []; for (var c = ti; c !== -1; c = from[c]) cells.push(c);
     cells.reverse();
     var pts = cells.map(function(i){ return [(i % GW) * 2 + 1, ((i / GW) | 0) * 2 + 1]; });
@@ -135,18 +154,34 @@
     for (var k in POOLS){ var b = POOLS[k].box; if (x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3]) return k; }
     return null;
   }
-  function randomWater(pool, near, radius){
+  // a spot in the water. Swimming from somewhere, it has to be a straight swim there, not through the mushroom
+  // fountain or the life ring. If nothing works, stay put (and pick again next time).
+  function randomWater(pool, near, radius, from){
     var b = POOLS[pool].box;
     for (var tries = 0; tries < 80; tries++){
       var x = near ? near[0] + (Math.random() * 2 - 1) * radius : b[0] + Math.random() * (b[2] - b[0]);
       var y = near ? near[1] + (Math.random() * 2 - 1) * radius : b[1] + Math.random() * (b[3] - b[1]);
-      if (poolAt(x, y) === pool && on(SWIM, x, y)) return [x, y];
+      if (poolAt(x, y) === pool && on(SWIM, x, y) && (!from || los(on(SWIM, from[0], from[1]) ? SWIM : WATER, from[0], from[1], x, y))) return [x, y];
     }
-    return snap(SWIM, (b[0] + b[2]) / 2, (b[1] + b[3]) / 2);
+    if (from) return [from[0], from[1]];
+    return snap(SWIM, near ? near[0] : (b[0] + b[2]) / 2, near ? near[1] : (b[1] + b[3]) / 2);
+  }
+  // the closest place to climb out of the pool someone is in
+  function exitFor(a){
+    var best = null, bd = 1e9;
+    for (var key in SPOTS){ var sp = SPOTS[key]; if (a.pool && sp.pool !== a.pool) continue; var d = Math.hypot(sp.water[0] - a.x, sp.water[1] - a.y); if (d < bd){ bd = d; best = sp; } }
+    return best || SPOTS.lapN;
+  }
+  // swim to a point the long way around anything in the way
+  function swimTo(a, dt, st, tx, ty, speed){
+    if (!st.route){ var m = on(SWIM, a.x, a.y) ? SWIM : WATER; st.route = los(m, a.x, a.y, tx, ty) ? [[tx, ty]] : path(m, a.x, a.y, tx, ty); }
+    var p = st.route[0]; if (!p) return true;
+    if (moveTo(a, p[0], p[1], speed, dt)){ st.route.shift(); return !st.route.length; }
+    return false;
   }
   // where you get in and out; deck spots for small feet, water spots just off the edge
   var SPOTS = {
-    zero: {pool: 'zero', deck: [408, 212], water: [383, 232]},
+    zero: {pool: 'zero', deck: [404, 214], water: [381, 226]},
     lapN: {pool: 'lap', deck: [255, 109], water: [255, 132]},
     lapS: {pool: 'lap', deck: [255, 313], water: [255, 292]},
     dive: {pool: 'dive', deck: [171, 241], water: [165, 224]}
@@ -161,7 +196,16 @@
   };
   var KIT_SPOTS = {lap: [[263, 109, 'e'], [247, 313, 'w']], zero: [[409, 213, 'w']], dive: [[171, 241, 'w']]};
   var GATE_SPOT = [371, 107];
-  var TOWELS = {m: [351, 331], mel: [373, 337]};
+  // Their towels are on the south deck. Friday nights the band takes the south deck, so the towels move up
+  // by the zero depth, nobody walks through the crowd, and volleyball waits for another night.
+  var TOWELS_DAY = {m: [351, 331], mel: [373, 337]}, TOWELS_BAND = {m: [372, 124], mel: [390, 124]};
+  var TOWELS = {m: TOWELS_DAY.m, mel: TOWELS_DAY.mel};
+  function withoutBand(m){
+    var c = new Uint8Array(m);
+    for (var y = 157; y <= 197; y++) for (var x = 124; x <= 207; x++) c[y * GW + x] = 0;
+    return mainDeck(c);
+  }
+  var BIG_DAY = BIG, SMALL_DAY = SMALL, BIG_BAND = withoutBand(BIG), SMALL_BAND = withoutBand(SMALL);
   // The lane lines run across the middle of the lap pool (rope to rope, y 188 to 235). They float on top and
   // stop a vacuum pole cold, so leva vacuums the open water at each end from the deck behind it.
   var LANE_TOP = 188, LANE_BOTTOM = 235;
@@ -174,7 +218,7 @@
   // kept in this browser, so the deck picks up where it left off next time you visit
   var KEY = 'levagood-deck-v1';
   function today(){ var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
-  function freshDay(){ return {ariSwims: 0, ariTime: 0, leaves: 0, tests: 0, fixes: 0, reminders: 0, treats: 0, volleyBest: 0, newFacts: 0}; }
+  function freshDay(){ return {ariSwims: 0, ariTime: 0, leaves: 0, youLeaves: 0, tests: 0, fixes: 0, reminders: 0, treats: 0, volleyBest: 0, newFacts: 0}; }
   var MEM = {
     v: 1, day: today(), today: freshDay(), visits: 0,
     ari: {spots: {zero: 0.5, lapN: 0.5, lapS: 0.5, dive: 0.5}, best: null, sit: 0, paw: 0, roll: 0, treats: 0},
@@ -183,7 +227,9 @@
     // Mel: curious, asks leva everything, loves fishing and catfish, sings all day.
     m: {cannonball: 1, float: 0.2, handstand: 0.75, run: 0.55, facts: 0, volley: 0.35, volleyBest: 4, volleys: 0, rallyBest: 0},
     mel: {cannonball: 0.1, float: 1, handstand: 0.2, run: 0.2, facts: 0, fish: 2, bump: 0.35, sings: 0},
-    chem: null, log: [], visitor: {name: '', chats: 0, topics: {}, met: {}, likes: {}}
+    chem: null, log: [], visitor: {name: '', chats: 0, topics: {}, met: {}, likes: {}},
+    // the visitor's game: points, badges, and leva's daily work order
+    game: {pts: 0, badges: {}, n: {spots: 0, leaves: 0, cards: {}, rooms: {}}, order: null, streak: {last: '', n: 0, best: 0}, daily: {day: '', watch: 0, ask: 0}, hello: false, fresh: null}
   };
   // anything new since a visitor was last here gets its starting value
   var DEFAULTS = JSON.parse(JSON.stringify(MEM));
@@ -278,6 +324,7 @@
     bubbleLayer.appendChild(el);
     bubbles.push({who: who, el: el, left: dur || Math.min(6.5, 1.8 + text.length * 0.055)});
     spoke(who, text);
+    heardFact(who, text);
   }
   // a conversation: lines play one after another, each waits for the last to be read
   var threads = [];
@@ -314,12 +361,15 @@
       return true;
     });
   }
+  // Past the bathhouse wall line you're inside, even on the last step of walking in or the first step out.
+  // Same line the page uses for leva, so nobody is ever drawn on the roof.
+  function walled(x, y){ return x > 418 && y > 88 && y < 292; }
   function headOf(a){
     if (a.id === 'leva'){
-      if (lv.hidden){ var pl = PLACES[B.inside || 'pump']; return [pl.door[0] * 2, pl.door[1] * 2 - 30]; }
+      if (lv.hidden || walled(lv.x, lv.y)){ var pl = PLACES[B.inside || 'pump']; return [pl.door[0] * 2, pl.door[1] * 2 - 30]; }
       return [lv.x * 2, lv.y * 2 - 60];
     }
-    if (a.hidden) return null;
+    if (a.hidden || walled(a.x, a.y)) return null;
     var h = a.id === 'ari' ? (a.inWater ? 16 : 26) : (a.inWater ? 24 : (a.pose === 'sit' ? 30 : 36));
     return [a.x * 2, a.y * 2 - h];
   }
@@ -342,6 +392,15 @@
       }
       else if (f.k === 'drop'){ f.x += f.vx * dt / 2; f.y += f.vy * dt / 2; f.vy += 140 * dt; lc.fillStyle = 'rgba(170,225,255,' + a + ')'; lc.fillRect(Math.round(f.x * 2), Math.round(f.y * 2), 3, 3); }
       else if (f.k === 'z'){ lc.fillStyle = 'rgba(40,50,90,' + a + ')'; lc.font = '10px Silkscreen, monospace'; lc.fillText('z', f.x * 2 + 8 + f.t * 6, f.y * 2 - 18 - f.t * 12); }
+      else if (f.k === 'pts'){
+        var px = Math.round(f.x * 2), py = Math.round(f.y * 2 - 14 - f.t * 26);
+        lc.save(); lc.globalAlpha = Math.min(1, a * 1.6); lc.font = '16px Silkscreen, monospace'; lc.textAlign = 'center'; lc.lineJoin = 'round';
+        lc.lineWidth = 4; lc.strokeStyle = '#0A0A0A'; lc.strokeText(f.text, px, py); lc.fillStyle = '#FFD23A'; lc.fillText(f.text, px, py); lc.restore();
+      }
+      else if (f.k === 'scoop'){
+        lc.save(); lc.globalAlpha = a * (f.faint ? 0.5 : 0.9); lc.strokeStyle = '#ffffff'; lc.lineWidth = f.faint ? 1.5 : 2.5;
+        lc.beginPath(); lc.arc(f.x * 2, f.y * 2, 5 + f.t / f.life * (f.faint ? 10 : 16), 0, Math.PI * 2); lc.stroke(); lc.restore();
+      }
       return true;
     });
     if (spawn.length) fx = fx.concat(spawn);
@@ -421,7 +480,7 @@
     if (!a.plan || a.si >= a.plan.length){ a.plan = null; return 'done'; }
     var st = a.plan[a.si];
     if (st.k === 'go'){
-      if (!st.started){ st.started = true; a.act = null; a.hidden = false; a.running = !!st.run; a.path = path(a.mask, a.x, a.y, st.x, st.y); if (st.tool !== undefined) a.tool = st.tool; }
+      if (!st.started){ st.started = true; a.act = null; a.hidden = false; a.running = !!st.run; if (st.at){ var at = st.at(); st.x = at[0]; st.y = at[1]; } a.path = path(a.mask, a.x, a.y, st.x, st.y); if (st.tool !== undefined) a.tool = st.tool; }
       a.moving = true;
       var sp = st.speed || a.speed;
       if (follow(a, dt, sp)){ a.moving = false; if (st.face) a.face = st.face; a.si++; }
@@ -454,10 +513,10 @@
   var api = null, lv = null, castImg = null, reduce = false, ready = false, T = 0;
   // leva's brain sits beside the leva object the page already draws
   var B = {id: 'leva', task: 'starting', inside: 'pump', lastPick: {}, talking: 0, thinking: false, rescue: null, busyLine: 0, walkRemind: 0, patrolFav: null};
-  var ari = {id: 'ari', x: 262, y: 96, face: 'e', t: 0, mask: SMALL, speed: 16, task: 'waking up', inWater: false, pool: null, pose: 'stand', swimCool: 25, noticed: false, hold: 0};
+  var ari = {id: 'ari', x: 262, y: 96, face: 'e', t: 0, mask: BIG, speed: 16, task: 'waking up', inWater: false, pool: null, pose: 'stand', swimCool: 25, noticed: false, hold: 0};
   var kids = {
-    m: {id: 'm', x: TOWELS.m[0], y: TOWELS.m[1], face: 's', t: 0, mask: SMALL, speed: 12, task: 'on her towel', pose: 'sit', inWater: false, pool: null, hidden: false, here: false, cool: 4},
-    mel: {id: 'mel', x: TOWELS.mel[0], y: TOWELS.mel[1], face: 's', t: 0, mask: SMALL, speed: 11, task: 'on her towel', pose: 'sit', inWater: false, pool: null, hidden: false, here: false, cool: 9}
+    m: {id: 'm', x: TOWELS.m[0], y: TOWELS.m[1], face: 's', t: 0, mask: BIG, speed: 12, task: 'on her towel', pose: 'sit', inWater: false, pool: null, hidden: false, here: false, cool: 4},
+    mel: {id: 'mel', x: TOWELS.mel[0], y: TOWELS.mel[1], face: 's', t: 0, mask: BIG, speed: 11, task: 'on her towel', pose: 'sit', inWater: false, pool: null, hidden: false, here: false, cool: 9}
   };
   var ACT = {leva: B, ari: ari, m: kids.m, mel: kids.mel};
   var lesson = null;
@@ -938,29 +997,31 @@
         if (ari.hold > 0){ ari.hold -= dt; return false; }
         if (B.rescue && Math.hypot(lv.x - ari.x, lv.y - ari.y) < 90){
           var tgt = snap(SWIM, lv.x, lv.y);
-          if (poolAt(tgt[0], tgt[1]) === s.pool) moveTo(a, tgt[0], tgt[1], 7, dt);
+          if (poolAt(tgt[0], tgt[1]) === s.pool && los(on(SWIM, a.x, a.y) ? SWIM : WATER, a.x, a.y, tgt[0], tgt[1])) moveTo(a, tgt[0], tgt[1], 7, dt);
           return false;
         }
-        if (!st.tgt || moveTo(a, st.tgt[0], st.tgt[1], 6, dt)) st.tgt = randomWater(s.pool, s.water, 26);
-        if (st.el > 40){ climbOut(s); return true; }
+        if (!st.tgt || moveTo(a, st.tgt[0], st.tgt[1], 6, dt)) st.tgt = randomWater(s.pool, s.water, 26, [a.x, a.y]);
+        // climbOut hands him a new plan; returning false keeps its first step from being skipped
+        if (st.el > 40){ climbOut(s); return false; }
         return false;
       }}
     ];
   }
   function a_inWater(key){
-    ari.inWater = true; ari.pool = SPOTS[key].pool; ari.noticed = false; ari.enterClock = W.clock; ari.pose = 'swim';
+    ari.inWater = true; ari.pool = SPOTS[key].pool; ari.noticed = false; ari.enterClock = W.clock; ari.pose = 'swim'; ari.spotted = false; ari.byVisitor = false;
     ari.task = 'swimming in ' + SPOT_NAME[key] + '. Not allowed.';
     MEM.today.ariSwims++; boardDirty = true;
   }
   function climbOut(s){
-    // nobody came, so he let himself out
+    // nobody came, so he let himself out: a hop up onto the deck where he got in
     var secs = W.clock - ari.enterClock;
     learnSpot(ari.spot, secs);
-    ari.inWater = false; ari.pose = 'stand';
-    var p = snap(SMALL, s.deck[0], s.deck[1]); ari.x = p[0]; ari.y = p[1];
-    drops(ari.x, ari.y - 6, 10); splash(ari.x, ari.y - 4);
+    var p = snap(SMALL, s.deck[0], s.deck[1]);
     log('Ari swam in ' + SPOT_NAME[ari.spot] + ' for ' + Math.round(secs) + ' seconds and let himself out.', 'ari');
-    ariPlan([act('shake', 1.2), wait(1)], 'drying off');
+    ariPlan([{k: 'custom', step: function(a, dt, st){ return swimTo(a, dt, st, s.water[0], s.water[1], 8); }},
+      {k: 'custom', step: function(a, dt, st){ return hop(a, dt, st, p, 'hop', true); }},
+      fn(function(){ ari.inWater = false; ari.pose = 'stand'; ari.noticed = false; ari.spotted = false; drops(ari.x, ari.y - 6, 10); splash(ari.x, ari.y - 4); }),
+      act('shake', 1.2), wait(1)], 'drying off');
   }
   function learnSpot(key, secs){
     var r = Math.min(1, secs / 30), before = bestSpot();
@@ -988,13 +1049,14 @@
     var r = B.rescue;
     ariPlan([
       {k: 'custom', step: function(a, dt, st){ return hop(a, dt, st, p, 'lift', true); }},
-      fn(function(){ ari.inWater = false; ari.pose = 'stand'; ari.face = ari.x < lv.x ? 'e' : 'w'; drops(ari.x, ari.y - 6, 12); }),
+      fn(function(){ ari.inWater = false; ari.noticed = false; ari.spotted = false; ari.pose = 'stand'; ari.face = ari.x < lv.x ? 'e' : 'w'; drops(ari.x, ari.y - 6, 12); }),
       act('shake', 1.3, {tick: function(){ if (Math.random() < 0.3) drops(ari.x, ari.y - 6, 2); }}),
       act(MEM.ari.sit >= 1 ? 'sit' : 'happy', 3.2),
       wait(0.5)
     ], 'drying off');
     MEM.today.reminders++;
-    log('Ari snuck into ' + SPOT_NAME[key] + '. leva had him out in ' + Math.round(secs) + ' seconds.', 'leva');
+    log('Ari snuck into ' + SPOT_NAME[key] + '. ' + (ari.byVisitor ? 'A visitor spotted him first, and leva had him out in ' : 'leva had him out in ') + Math.round(secs) + ' seconds.', 'leva');
+    ari.byVisitor = false;
     var tail = (r && r.after) || [];
     var extra = AFTER[Math.floor(Math.random() * AFTER.length)];
     if (MEM.ari.paw >= 1 && Math.random() < 0.5) extra = [['ari', 'Shake?'], ['leva', 'Nice try.']];
@@ -1003,12 +1065,14 @@
   }
   // a hop from the deck into the water, or back out, with a little arc and a splash
   function hop(a, dt, st, to, kind, outOfWater){
-    if (!st.from){ st.from = [a.x, a.y]; st.t = 0; a.hopping = kind; a.face = faceOf(to[0] - a.x, to[1] - a.y, a.face); }
+    // a hop is never part of a float or a handstand, so that pose doesn't come up onto the deck with her
+    if (!st.from){ st.from = [a.x, a.y]; st.t = 0; a.hopping = kind; a.act = null; a.face = faceOf(to[0] - a.x, to[1] - a.y, a.face); }
     st.t += dt / (kind === 'tuck' ? 0.75 : 0.55);
     var t = Math.min(1, st.t);
     a.x = st.from[0] + (to[0] - st.from[0]) * t; a.y = st.from[1] + (to[1] - st.from[1]) * t;
     a.lift = Math.sin(t * Math.PI) * (kind === 'tuck' ? 16 : 9);
-    if (t >= 1){ a.lift = 0; a.hopping = null; if (!outOfWater) splash(to[0], to[1], kind === 'tuck'); return true; }
+    // wet or dry the moment they land, so nobody stands on the water or swims on the deck for a frame
+    if (t >= 1){ a.lift = 0; a.hopping = null; a.inWater = !outOfWater; if (!outOfWater) splash(to[0], to[1], kind === 'tuck'); if (kind === 'tuck' && a.id !== 'ari') witness('cannonball'); return true; }
     return false;
   }
   function pickAri(){
@@ -1036,7 +1100,7 @@
       return ariPlan([{k: 'custom', step: function(a, dt, st){
         st.el = (st.el || 0) + dt; if (lv.hidden || st.el > 18 + Math.random() * 2) return true;
         var d = Math.hypot(lv.x - a.x, lv.y - a.y);
-        if (d > 20){ st.re = (st.re || 0) - dt; if (st.re <= 0 || !a.path || !a.path.length){ st.re = 0.8; a.path = path(SMALL, a.x, a.y, lv.x - 12, lv.y + 4); } a.moving = true; follow(a, dt, 17); }
+        if (d > 20){ st.re = (st.re || 0) - dt; if (st.re <= 0 || !a.path || !a.path.length){ st.re = 0.8; a.path = path(a.mask, a.x, a.y, lv.x - 12, lv.y + 4); } a.moving = true; follow(a, dt, 17); }
         else { a.moving = false; a.face = lv.x > a.x ? 'e' : 'w'; }
         return false;
       }}], 'following leva');
@@ -1051,6 +1115,20 @@
     }
     var tx = ari.x + (Math.random() - 0.5) * 160, ty = ari.y + (Math.random() - 0.5) * 110, q = snap(SMALL, tx, ty);
     ariPlan([go(q[0], q[1], {speed: 14}), act('sniff', 1.5 + Math.random() * 2.5)], 'sniffing around the deck');
+  }
+  function bandNight(){ return !!(api && api.bandOn && api.bandOn()); }
+  var towelBand = null;
+  function bandStep(){
+    var band = bandNight(); if (band === towelBand) return;
+    var first = towelBand === null; towelBand = band;
+    var t = band ? TOWELS_BAND : TOWELS_DAY; TOWELS.m = t.m; TOWELS.mel = t.mel;
+    BIG = band ? BIG_BAND : BIG_DAY; SMALL = band ? SMALL_BAND : SMALL_DAY;
+    // everybody keeps leva's room around chairs, coolers and the diving boards, so nobody brushes over them
+    B.mask = BIG; ari.mask = BIG; kids.m.mask = BIG; kids.mel.mask = BIG;
+    if (first) return;
+    // the band just started (or just packed up): the girls pick up their towels and move them
+    if (VB){ VB = null; }
+    ['m', 'mel'].forEach(function(id){ var k = kids[id]; if (k.here && !k.inWater && !k.hopping && !k.leaving && !lesson) kidPlan(k, towelSteps(k, 4 + Math.random() * 4), 'on her towel'); });
   }
   function stepAri(dt){
     ari.swimCool -= dt;
@@ -1136,18 +1214,18 @@
     if (show === 'handstand') steps.push(act('handstand', 3.5));
     steps.push({k: 'custom', step: function(a, dt, st){
       st.el = (st.el || 0) + dt;
-      if (!st.tgt || moveTo(a, st.tgt[0], st.tgt[1], 9, dt)) st.tgt = randomWater(s.pool, s.water, 36);
+      if (!st.tgt || moveTo(a, st.tgt[0], st.tgt[1], 9, dt)) st.tgt = randomWater(s.pool, s.water, 36, [a.x, a.y]);
       return st.el > secs;
     }});
-    steps.push({k: 'custom', step: function(a, dt, st){ return moveTo(a, s.water[0], s.water[1], 10, dt); }});
+    steps.push({k: 'custom', step: function(a, dt, st){ return swimTo(a, dt, st, s.water[0], s.water[1], 10); }});
     steps.push({k: 'custom', step: function(a, dt, st){ if (!st.p) st.p = snap(SMALL, s.deck[0] + (k.id === 'm' ? -6 : 6), s.deck[1]); return hop(a, dt, st, st.p, 'hop', true); }});
     steps.push(fn(function(){ k.inWater = false; k.pool = null; k.pose = 'walk'; drops(k.x, k.y - 10, 6); }));
     return steps;
   }
   function towelSteps(k, secs){
-    var t = TOWELS[k.id];
-    return [kidGo(k, t[0], t[1]), fn(function(){ k.face = 's'; k.task = 'on her towel'; }), act('sit', secs)];
+    return [toTowel(k), fn(function(){ k.face = 's'; k.task = 'on her towel'; }), act('sit', secs)];
   }
+  function toTowel(k){ var g = kidGo(k, TOWELS[k.id][0], TOWELS[k.id][1]); g.at = function(){ return TOWELS[k.id]; }; return g; }
   function kidGo(k, x, y){ var run = Math.random() < MEM[k.id].run; return go(x, y, {speed: run ? 26 : k.speed, run: run}); }
   function pickKid(k){
     if (!api.isOpen()){ leaveKid(k); return; }
@@ -1163,10 +1241,10 @@
     // Em's volleyball, pepper with Mel, Mel's songs, and talk on the towels
     var r2 = Math.random();
     if (k.id === 'm' && !k.inWater){
-      if (free && other.here && !other.inWater && !other.leaving && r2 < 0.2 && W.clock - pickKid.lastRally > 100) return startRally(k, other, k);
-      if (r2 < 0.42 && W.clock - pickKid.lastVolley > 45){ pickKid.lastVolley = W.clock; return kidPlan(k, volleySteps(k).concat(towelSteps(k, 5 + Math.random() * 4)), 'practicing volleyball'); }
+      if (free && other.here && !other.inWater && !other.leaving && r2 < 0.2 && W.clock - pickKid.lastRally > 100 && !bandNight()) return startRally(k, other, k);
+      if (r2 < 0.42 && W.clock - pickKid.lastVolley > 45 && !bandNight()){ pickKid.lastVolley = W.clock; return kidPlan(k, volleySteps(k).concat(towelSteps(k, 5 + Math.random() * 4)), 'practicing volleyball'); }
     }
-    if (k.id === 'mel' && !k.inWater && free && other.here && !other.inWater && !other.leaving && r2 >= 0.28 && r2 < 0.38 && W.clock - pickKid.lastRally > 100) return startRally(other, k, k);
+    if (k.id === 'mel' && !k.inWater && free && other.here && !other.inWater && !other.leaving && r2 >= 0.28 && r2 < 0.38 && W.clock - pickKid.lastRally > 100 && !bandNight()) return startRally(other, k, k);
     if (k.id === 'mel' && r2 < 0.28 && W.clock - pickKid.lastSing > 55){ pickKid.lastSing = W.clock; return kidPlan(k, singSteps(k), 'singing her favorite song'); }
     if (other.here && !other.inWater && other.task === 'on her towel' && r2 > 0.78 && W.clock - pickKid.lastChat > 45){ pickKid.lastChat = W.clock; return kidPlan(k, chatSteps(k), 'on her towel'); }
     if (k.id === 'mel' && r < 0.5 && !lv.hidden && !B.rescue && B.talking <= 0 && W.clock - pickKid.lastQ > 55){ pickKid.lastQ = W.clock; return askLeva(k); }
@@ -1224,7 +1302,7 @@
       if (giveUp() || st.el > 30){ st.failed = true; k.missed = true; return true; }
       st.re = (st.re || 0) - dt;
       var t = target();
-      if (st.re <= 0 || !a.path || !a.path.length){ st.re = 1; var p = snap(SMALL, t.x + dx, t.y + 4); a.path = path(SMALL, a.x, a.y, p[0], p[1]); }
+      if (st.re <= 0 || !a.path || !a.path.length){ st.re = 1; var p = snap(a.mask, t.x + dx, t.y + 4); a.path = path(a.mask, a.x, a.y, p[0], p[1]); }
       a.moving = true; follow(a, dt, a.speed);
       if (Math.hypot(t.x - a.x, t.y - a.y) < near){ k.missed = false; return true; }
       return false;
@@ -1348,6 +1426,7 @@
       var near = !lv.hidden && !B.rescue && Math.hypot(lv.x - k.x, lv.y - k.y) < 170;
       convo([['m', n + ' in a row! New record!']].concat(kids.mel.here && !kids.mel.inWater ? [['mel', 'Whoa, Em!']] : []).concat(near ? [['leva', 'Nice hands, Em.']] : []));
       log('Em kept the volleyball up ' + n + ' times in a row. A new best.', 'm');
+      witness('record');
     } else if (n >= 3 && Math.random() < 0.4) say('m', n + '! ' + pick(['Almost.', 'So close.', 'Again!']));
   }
   function startRally(em, mel, by){
@@ -1356,15 +1435,21 @@
     var R = {done: false}, a = by === mel ? 'mel' : 'm', b = a === 'm' ? 'mel' : 'm';
     var call = !MEM.m.rallyBest ? [[a, NAME[b] + '! Want to play pepper?'], [b, "Let's go! Bump, set, hit."]]
       : [[a, pick([NAME[b] + '! Pepper?', 'Rally time!', "Let's beat our record, " + NAME[b] + '.'])], [b, pick(['Okay!', "Let's go!", 'This time for sure.'])]];
+    // if either one gets called off to something else before the first bump, the other one stops waiting
+    var melIn = function(){ return mel.task === 'playing volleyball with Em' && mel.here && !mel.inWater; };
+    var emIn = function(){ return em.task === 'playing volleyball with Mel' && em.here && !em.inWater; };
     kidPlan(em, [kidGo(em, A[0], A[1]),
       fn(function(){ em.face = 'e'; convo(call); }),
-      until(function(){ return Math.hypot(mel.x - Bp[0], mel.y - Bp[1]) < 5 && !mel.moving; }, 25),
-      {k: 'custom', step: function(a, dt, st){ return rallyStep(dt, st, em, mel, R); }}
+      until(function(){ return (Math.hypot(mel.x - Bp[0], mel.y - Bp[1]) < 5 && !mel.moving) || !melIn(); }, 25),
+      {k: 'custom', step: function(a, dt, st){
+        if (!st.go && (!melIn() || Math.hypot(mel.x - Bp[0], mel.y - Bp[1]) > 8)){ R.done = true; return true; }
+        return rallyStep(dt, st, em, mel, R);
+      }}
     ].concat(towelSteps(em, 6)), 'playing volleyball with Mel');
-    kidPlan(mel, [kidGo(mel, Bp[0], Bp[1]), fn(function(){ mel.face = 'w'; }), until(function(){ return R.done; }, 45), fn(function(){ mel.act = null; })].concat(towelSteps(mel, 6)), 'playing volleyball with Em');
+    kidPlan(mel, [kidGo(mel, Bp[0], Bp[1]), fn(function(){ mel.face = 'w'; }), until(function(){ return R.done || !emIn(); }, 45), fn(function(){ mel.act = null; })].concat(towelSteps(mel, 6)), 'playing volleyball with Em');
   }
   function rallyStep(dt, st, em, mel, R){
-    if (!st.go){ st.go = true; st.left = 12 + Math.random() * 5; st.count = 0; st.pause = 0; st.best = 0; VB = {a: em, b: mel, from: 0, t: 0, dur: 1, down: false}; em.face = 'e'; mel.face = 'w'; }
+    if (!st.go){ st.go = true; st.left = 12 + Math.random() * 5; st.count = 0; st.pause = 0; st.best = 0; VB = {a: em, b: mel, from: 0, t: 0, dur: 1, down: false}; em.face = 'e'; mel.face = 'w'; witness('pepper'); }
     if (!VB){ R.done = true; return true; }
     st.left -= dt;
     if (st.pause > 0){ st.pause -= dt; VB.t = 0; VB.from = 0; if (st.pause <= 0) VB.down = false; em.act = mel.act = null; }
@@ -1387,6 +1472,7 @@
         MEM.m.rallyBest = st.best;
         convo([['mel', st.best + ' back and forth!'], ['m', 'New record!']]);
         log('Em and Mel kept a volley going ' + st.best + ' times. A new record.', 'm');
+        witness('record');
       } else convo([['mel', pick(['One more time?', 'I almost had it!', 'Your serve next time.'])], ['m', pick(['Tomorrow we beat it.', 'Good hustle.', 'Call the ball!'])]]);
       save(); boardDirty = true;
       return true;
@@ -1396,13 +1482,13 @@
   // ---- Mel's singing ----
   // Her favorite songs are Freya Skye's. She hums on her towel, and if Ari's close he howls along.
   function singSteps(k){
-    var t = TOWELS[k.id], st = {n: 0};
-    return [kidGo(k, t[0], t[1]),
-      fn(function(){ k.face = 's'; say('mel', pick(['\u266a La la la \u266a', '\u266a Hmm hmm hmm \u266a', 'This one is my favorite! \u266a'])); MEM.mel.sings++; }),
+    var st = {n: 0};
+    return [toTowel(k),
+      fn(function(){ k.face = 's'; say('mel', pick(['\u266a La la la \u266a', '\u266a Hmm hmm hmm \u266a', 'This one is my favorite! \u266a'])); MEM.mel.sings++; witness('sing'); }),
       act('sit', 9 + Math.random() * 4, {tick: function(dt){ st.n -= dt; if (st.n <= 0){ st.n = 0.55; fx.push({k: 'note', x: k.x + (Math.random() - 0.5) * 6, y: k.y - 12, t: 0, life: 1.9, c: Math.random() < 0.5 ? '#16876a' : '#FF2E88', s: Math.random() < 0.5 ? 1 : 2}); } }}),
       fn(function(){
         var howl = !ari.inWater && !ari.hidden && Math.hypot(ari.x - k.x, ari.y - k.y) < 90;
-        if (howl) convo([['ari', 'Awoooo!'], ['mel', 'Ari! You know the words!']]);
+        if (howl){ convo([['ari', 'Awoooo!'], ['mel', 'Ari! You know the words!']]); witness('howl'); }
         if (howl || Math.random() < 0.35) log('Mel sang her favorite Freya Skye song on her towel.' + (howl ? ' Ari howled along.' : ''), 'mel');
         save(); boardDirty = true;
       })];
@@ -1428,8 +1514,7 @@
     return pick(list);
   }
   function chatSteps(k){
-    var t = TOWELS[k.id];
-    return [kidGo(k, t[0], t[1]), fn(function(){ k.face = 's'; k.task = 'on her towel'; convo(chatter()); }), act('sit', 12 + Math.random() * 4)];
+    return [toTowel(k), fn(function(){ k.face = 's'; k.task = 'on her towel'; convo(chatter()); }), act('sit', 12 + Math.random() * 4)];
   }
   // Ari sits by a towel, very politely, until somebody opens a pool bag
   function begTreat(k){
@@ -1451,7 +1536,12 @@
     if (k.leaving) return;
     k.leaving = true; lesson = null; k.awayWhy = why || null;
     var steps = [];
-    if (k.inWater){ steps = [{k: 'custom', step: function(a, dt, st){ if (!st.p){ st.p = snap(SMALL, a.x, a.y); } return hop(a, dt, st, st.p, 'hop', true); }}, fn(function(){ k.inWater = false; k.pose = 'walk'; })]; }
+    if (k.inWater){
+      var ex = exitFor(k);
+      steps = [{k: 'custom', step: function(a, dt, st){ return swimTo(a, dt, st, ex.water[0], ex.water[1], why === 'storm' || why === 'tornado' ? 16 : 12); }},
+        {k: 'custom', step: function(a, dt, st){ if (!st.p){ st.p = snap(SMALL, ex.deck[0] + (k.id === 'm' ? -6 : 6), ex.deck[1]); } return hop(a, dt, st, st.p, 'hop', true); }},
+        fn(function(){ k.inWater = false; k.pool = null; k.pose = 'walk'; })];
+    }
     var away = {tornado: 'inside for the tornado warning', storm: 'waiting out the storm inside', snow: 'home. No swimming in the snow.', cold: 'home. Too cold to swim today.'}[why] || 'home for the night';
     if (k.id === 'm'){
       if (why === 'storm') convo([['m', 'Come on, Mel!'], ['mel', 'Can we come back after?'], ['leva', 'Thirty minutes after the last thunder.']]);
@@ -1481,7 +1571,8 @@
     ['m', 'mel'].forEach(function(id){
       var k = kids[id];
       if (open && !k.here) arriveKid(k, W.clock > 3);
-      if (!open && k.here && !k.leaving) leaveKid(k, api.isOpen() ? why : null);
+      // (not in the middle of a jump: she lands first, then heads out)
+      if (!open && k.here && !k.leaving && !k.hopping) leaveKid(k, api.isOpen() ? why : null);
       if (!k.here) return;
       if (k.talkWave > 0) k.talkWave -= dt;
       if (k.talking > 0 && !k.hopping){ k.talking -= dt; k.moving = false; if (!k.inWater) k.face = 's'; }
@@ -1515,7 +1606,7 @@
     c.strokeStyle = 'rgba(255,255,255,.3)'; c.beginPath(); c.ellipse(X, Y + 1, rx + 6 + w, (rx + 6 + w) * 0.32, 0, 0, Math.PI * 2); c.stroke();
   }
   function drawAri(c){
-    if (ari.hidden) return;
+    if (ari.hidden || walled(ari.x, ari.y)) return;
     var X = ari.x * 2, Y = ari.y * 2 - (ari.lift || 0) * 2, f = Math.floor(ari.t * 5) % 2, side = ari.face === 'w' ? 'w' : 'e';
     if (ari.hopping === 'lift'){ spr(c, 'ari_s0', X, Y); return; }
     if (ari.inWater || ari.hopping === 'swim'){
@@ -1541,7 +1632,7 @@
     else spr(c, 'ari_' + side + f, X, Y);
   }
   function drawKid(c, k){
-    if (!k.here || k.hidden) return;
+    if (!k.here || k.hidden || walled(k.x, k.y)) return;
     var X = k.x * 2, Y = k.y * 2 - (k.lift || 0) * 2, n = k.id, f = Math.floor(k.t * 4) % 2;
     if (k.hopping){ spr(c, n + (k.hopping === 'tuck' ? '_tuck' : '_s' + f), X, Y); return; }
     if (k.pose === 'float'){ spr(c, n + '_float', X, Y); ripple(c, X, Y + 1, 18); return; }
@@ -1566,7 +1657,7 @@
     });
   }
   function drawLevaExtras(c){
-    if (lv.hidden) return;
+    if (lv.hidden || walled(lv.x, lv.y)) return;
     var X = lv.x * 2, Y = lv.y * 2;
     if (B.thinking){ var s = beat(T); drawHeartPx(c, X, Y - 70, s, 1); }
   }
@@ -1656,11 +1747,13 @@
     drawVacTrail(api.ctx);
     drawLeaves(api.ctx);
     splashStep(dt, api.ctx);
+    bandStep();
     stepAri(dt);
     stepKids(dt);
     talkStep(dt);
     bubbleStep(dt);
     placeSpots();
+    gameStep(dt);
     saveAt -= dt; if (saveAt <= 0){ saveAt = 20; MEM.chem = {ph: W.ph, cl: W.cl, measured: W.measured}; save(); }
     boardClock -= dt; if (boardClock <= 0 || boardDirty){ boardClock = 1; boardDirty = false; renderBoard(); }
   }
@@ -1686,7 +1779,7 @@
     gauge(board.clg, m ? m.cl : null, 0, 5, 1, 3);
     board.tested.textContent = m ? 'Tested ' + ago(m.at) + ' at ' + POOLS[m.pool].name + '.' : 'Not tested yet. leva will get to it.';
     board.leaves.textContent = String(W.leaves.length);
-    board.today.textContent = MEM.today.tests + (MEM.today.tests === 1 ? ' test' : ' tests') + ', ' + MEM.today.leaves + ' leaves skimmed, ' + MEM.today.ariSwims + (MEM.today.ariSwims === 1 ? ' beagle' : ' beagles') + ' pulled from the pool, ' + MEM.today.treats + ' of ' + TREAT_LIMIT + ' treats for Ari.';
+    board.today.textContent = MEM.today.tests + (MEM.today.tests === 1 ? ' test' : ' tests') + ', ' + MEM.today.leaves + (MEM.today.youLeaves ? ' leaves skimmed by leva and ' + MEM.today.youLeaves + ' netted by you, ' : ' leaves skimmed, ') + MEM.today.ariSwims + (MEM.today.ariSwims === 1 ? ' beagle' : ' beagles') + ' pulled from the pool, ' + MEM.today.treats + ' of ' + TREAT_LIMIT + ' treats for Ari.';
     board.s.leva.textContent = B.talking > 0 && !B.rescue ? 'Talking with ' + (B.talkWith || 'you') : cap(B.task);
     board.s.ari.textContent = cap(ari.task);
     board.s.m.textContent = cap(kids.m.task);
@@ -1719,11 +1812,360 @@
   function cap(s){ s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
   function spoke(who, text){ if (window.PoolLifeSpoke) window.PoolLifeSpoke(who, text); }
 
+  // ================= the game =================
+  // Visitors play along. Spot Ari when he sneaks into the pool before leva does, net the floating leaves, and knock
+  // out leva's daily work order. Points, badges and ranks save in this browser with the rest of the deck. Nothing here
+  // gives points for chatting with Em and Mel. Their badges come from watching what they do on the deck.
+  var GAME_ART = {"pal":{"k":"#0A0A0A","w":"#FFFFFF","p":"#FF2E88","q":"#FF96C8","c":"#16B8D0","d":"#9FE7F2","b":"#2f6fd6","e":"#9cc3ff","g":"#3fa34d","h":"#a7d957","y":"#FFD23A","o":"#F28C28","r":"#b4501f","s":"#e8a86a","n":"#6b4424","a":"#8f96a3","l":"#d9dbe3","v":"#8C6BFF","m":"#1b2a4a","R":"#d7263b","u":"#5d6675"},"icons":{"glass":["..kkkk....",".kddddk...","kdwddddk..","kdwddddk..","kddddddk..","kddddddk..",".kddddkk..","..kkkkkoo.",".......ooo","........oo"],"bolt":[".....yyyy.","....yyyy..","...yyyy...","..yyyy....",".yyyyyyyy.","....yyyy..","...yyyy...","..yyy.....",".yy.......",".y........"],"paw":["..rr..rr..","..rr..rr..","rr......rr","rr......rr","...rrrr...","..rrrrrr..",".rrrrrrrr.",".rrrrrrrr.","..rr..rr..",".........."],"leaf":[".......ggg",".....ggggg","...gggghgg","..ggghgggg",".gghggggg.",".ghggggg..","ghgggg....","hggg......","h.........","h........."],"net":["aaaaaaaaaa","algllhllga","allhllglla","alllgllhla","aaaaaaaaaa","....aa....","....aa....","....aa....","....aa....","....aa...."],"bone":["..........","..........","ss......ss","sss....sss",".ssssssss.",".ssssssss.","sss....sss","ss......ss","..........",".........."],"roll":["...pppp...",".pppppppp.",".pp....ppp","pp.....ppp","pp......p.","pp........","pp......pp",".pp....pp.",".pppppppp.","...pppp..."],"splash":["....c.....","..c.c..c..","...ccc.c..","c..ccc....",".c.cdc.c..","..cdddc...",".cddddddc.","cddddddddc","dddddddddd",".........."],"ball":["...wwww...",".wwbbwwww.",".wbbwwyyw.","wwbwwwyyyw","wbbwwwwyww","wwwwbbwwww","wyywbbbwww",".wyywwbbw.",".wwwwwwww.","...wwww..."],"note":["......pppp","....pppppp","....pp..pp","....pp..pp","....pp..pp","....pp..pp","..pppp..pp",".ppppp.ppp",".pppp.pppp","..pp..ppp."],"catfish":["..........","...uuuu...",".uuuuuuu.u","uwuuuuuuuu","uuuuuuuuuu",".uauuuuu.u","n..aaaa...",".n........","n.........",".........."],"drop":["....b.....","....b.....","...bbb....","...bbb....","..bbbbb...","..bebbb...",".bbebbbb..",".bbbbbbb..","..bbbbb...","...bbb...."],"talk":["..........",".pppppppp.","pppppppppp","ppwppwppwp","pppppppppp",".pppppppp.","..pp......","..p.......","..........",".........."],"key":["..yyy.....",".yy.yy....",".yy.yy....","..yyy.....","...y......","...y......","...yyy....","...y......","...yy.....","...y......"],"invader":["..........","..vvvvvv..","..vvvvvv..","vvvvvvvvvv","vvvvvvvvvv","vv..vv..vv","vv..vv..vv","..vv..vv..","..vv..vv..",".........."],"star":["....yy....","....yy....","...yyyy...","yyyyyyyyyy",".yyyyyyyy.","..yyyyyy..","..yyyyyy..",".yyy..yyy.",".yy....yy.",".........."],"rain":["..........","...llll...",".llllllll.","llllllllll","llllllllll",".llllllll.","..........",".b..b..b..","b..b..b...",".........."],"snow":["....e.....",".e..e..e..","..e.e.e...","...eee....","eeeeeeeee.","...eee....","..e.e.e...",".e..e..e..","....e.....",".........."],"storm":["...aaaa...",".aaaaaaaa.","aaaaaaaaaa",".aaaaaaaa.","....yy....","...yy.....","..yyyy....","....yy....","...yy.....","...y......"],"sun":["y...y...y.",".y..y..y..","...ooo....","..ooyoo...","yyoyyyoyy.","..ooyoo...","...ooo....",".y..y..y..","y...y...y.",".........."],"wind":["..........","eeeeee....","......e...","eeeeeee...","..........","eeeeeeeee.",".........e","eeeee...e.",".....eee..",".........."],"moon":["...yyyy...","..yyy.....",".yyy......",".yy......w",".yy.......",".yyy......","..yyy.....","...yyyy...","..........","....w....."],"rise":["....y.....",".y..y..y..","..y...y...","...ooo....","..ooooo...",".ooooooo..","bbbbbbbbbb","eeeeeeeeee","bbbbbbbbbb",".........."],"clip":["...nnnn...",".nnaaaann.",".nwwwwwwn.",".nwmmmmwn.",".nwwwwwwn.",".nwmmmmwn.",".nwwwwwwn.",".nwmmmwwn.",".nwwwwwwn.",".nnnnnnnn."],"flame":["....o.....","...oo.....","...ooo..o.","..oooo.oo.",".ooyoooooo",".oyyyoooo.",".oyyyyooo.",".ooyyyooo.","..oooooo..","...oooo..."],"cup":["yyyyyyyyyy","y.yyyyyy.y","y.yyyyyy.y",".yyyyyyyy.","..yyyyyy..","...yyyy...","....yy....","....yy....","..yyyyyy..","..nnnnnn.."],"tadpole":["..........","...mmm....","..mmmmm...","..mwmmm...","..mmmmm...","...mmmm...","....mmm...",".....mm...","......mm..",".......m.."],"minnow":["..........","..........","...aaaa..a",".aaaaaaaaa","awaaaaaaa.",".aaaaaaaaa","...aaaa..a","..........","..........",".........."],"bluegill":["..........","...bbbb..b",".bbbbbbbbb","bwbbbbbbb.","bbooooobb.",".bbooobbbb","...bbbb..b","..........","..........",".........."],"ring":["...RwwR...",".RRRwwRRR.",".RR....RR.","ww......ww","ww......ww",".RR....RR.",".RRRwwRRR.","...RwwR...","..........",".........."]}};
+  var BADGES = [
+    {id: 'spotter', name: 'Beagle Spotter', desc: 'Spot Ari in the pool before leva does.', pts: 25, icon: 'glass'},
+    {id: 'eagle', name: 'Eagle Eye', desc: 'Spot Ari within 2 seconds of him jumping in.', pts: 40, icon: 'bolt'},
+    {id: 'ten', name: 'Ten Beagles', desc: 'Spot Ari 10 times.', pts: 60, icon: 'paw'},
+    {id: 'leaf', name: 'First Leaf', desc: 'Tap a floating leaf to net it.', pts: 10, icon: 'leaf'},
+    {id: 'leaves', name: 'Leaf Machine', desc: 'Net 100 leaves.', pts: 75, icon: 'net'},
+    {id: 'treat', name: 'Snack Bar', desc: 'Give Ari a treat in the chat.', pts: 10, icon: 'bone'},
+    {id: 'roll', name: 'Trick Trainer', desc: 'Teach Ari to roll over.', pts: 50, icon: 'roll'},
+    {id: 'cannon', name: 'Front Row', desc: "Catch one of Em's cannonballs.", pts: 15, icon: 'splash'},
+    {id: 'record', name: 'Record Witness', desc: 'Be there when a volleyball record falls.', pts: 40, icon: 'ball'},
+    {id: 'howl', name: 'Sing-Along', desc: 'Hear Ari howl along with Mel.', pts: 25, icon: 'note'},
+    {id: 'cards', name: 'Catfish Cards', desc: 'Hear all 10 catfish facts on the deck as Mel learns them from leva.', pts: 100, icon: 'catfish'},
+    {id: 'test', name: 'Water Tester', desc: 'Ask leva to test the water.', pts: 10, icon: 'drop'},
+    {id: 'connect', name: 'Networker', desc: 'Ask leva what Connect Space does.', pts: 15, icon: 'talk'},
+    {id: 'explorer', name: 'Explorer', desc: 'Open every pink building on the map.', pts: 40, icon: 'key'},
+    {id: 'gamer', name: 'Guard Shack Gamer', desc: 'Score 15 in Invaders.', pts: 25, icon: 'invader'},
+    {id: 'clear', name: 'All Clear', desc: 'Clear every invader.', pts: 75, icon: 'star'},
+    {id: 'rain', name: 'Rain Day', desc: "Stop by while it's raining in Dearborn.", pts: 20, icon: 'rain'},
+    {id: 'snow', name: 'Snow Day', desc: "Stop by while it's snowing in Dearborn.", pts: 30, icon: 'snow'},
+    {id: 'storm', name: 'Storm Watch', desc: 'Stop by while thunder has the pool closed.', pts: 30, icon: 'storm'},
+    {id: 'heat', name: 'Hot One', desc: 'Stop by on a hot day in Dearborn.', pts: 20, icon: 'sun'},
+    {id: 'wind', name: 'Blown In', desc: 'Stop by on a windy day. More leaves, more points.', pts: 20, icon: 'wind'},
+    {id: 'night', name: 'Night Owl', desc: 'Stop by after the pool closes for the night.', pts: 15, icon: 'moon'},
+    {id: 'early', name: 'Early Bird', desc: 'Stop by before the pool opens in the morning.', pts: 15, icon: 'rise'},
+    {id: 'order', name: 'Clocked In', desc: "Finish leva's daily work order.", pts: 20, icon: 'clip'},
+    {id: 'streak3', name: 'Three-Day Shift', desc: 'Finish work orders 3 days in a row.', pts: 50, icon: 'flame'},
+    {id: 'streak7', name: 'Full Week', desc: 'Finish work orders 7 days in a row.', pts: 100, icon: 'cup'}
+  ];
+  var BADGE = {}; BADGES.forEach(function(b){ BADGE[b.id] = b; });
+  var RANKS = [['Tadpole', 0, 'tadpole'], ['Minnow', 100, 'minnow'], ['Bluegill', 300, 'bluegill'], ['Catfish', 700, 'catfish'], ['Lifeguard', 1500, 'ring'], ['Head of Maintenance', 3000, 'heart']];
+  // leva's work order: one job from each group, the same for everybody that day
+  var JOBS = {
+    spot: {g: 'a', text: 'Spot Ari in the pool before leva does.', need: 1, say: 'spot Ari in the pool before I do'},
+    leaves: {g: 'a', text: 'Net 5 leaves off the water.', need: 5, say: 'net 5 leaves off the water'},
+    test: {g: 'b', text: 'Ask leva to test the water.', need: 1, say: 'ask me to test the water'},
+    weather: {g: 'b', text: 'Ask leva how the weather is in Dearborn.', need: 1, say: 'ask me how the weather is in Dearborn'},
+    connect: {g: 'b', text: 'Ask leva what Connect Space does.', need: 1, say: 'ask me what Connect Space does'},
+    pump: {g: 'b', text: 'Take the pump room tour on the map.', need: 1, say: 'take the pump room tour on the map'},
+    treat: {g: 'c', text: 'Give Ari a treat in the chat.', need: 1, say: 'give Ari a treat in the chat'},
+    trick: {g: 'c', text: 'Ask Ari to sit, shake or roll over.', need: 1, say: 'ask Ari to sit, shake or roll over'},
+    cannonball: {g: 'c', text: "Catch one of Em's cannonballs.", need: 1, say: "catch one of Em's cannonballs", kids: true},
+    sing: {g: 'c', text: 'Hear Mel sing on her towel.', need: 1, say: 'hear Mel sing on her towel', kids: true},
+    pepper: {g: 'c', text: 'Watch Em and Mel play pepper.', need: 1, say: 'watch Em and Mel play pepper', kids: true},
+    explore: {g: 'c', text: 'Open 2 buildings on the map.', need: 2, say: 'open 2 buildings on the map'},
+    invaders: {g: 'c', text: 'Play a game of Invaders in the guard shack.', need: 1, say: 'play a game of Invaders in the guard shack'}
+  };
+  var ROOMS = ['pump', 'nutty', 'firstaid', 'pit', 'entrance', 'arcade'];
+  var ORDER_BONUS = 50, JOB_PTS = 15;
+  var GM = null, gameDirty = true, gameClock = 0, watchClock = 0, thankedAt = -99, gameUI = null, flushT = null;
+  function flushSoon(){ if (flushT) return; flushT = setTimeout(function(){ flushT = null; if (gameDirty){ gameDirty = false; renderGame(); } }, 60); }
+  var TIME_TEST = /[?&](time|open)=/.test(location.search);
+  function rankOf(p){ var i = 0; for (var k = 0; k < RANKS.length; k++) if (p >= RANKS[k][1]) i = k; return i; }
+  function yesterday(){ var d = new Date(); d.setDate(d.getDate() - 1); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+  function seeded(str){
+    var h = 2166136261; for (var i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return function(){ h += 0x6D2B79F5; var t = h; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  }
+  function chatLocked(){ try { return sessionStorage.getItem('lchat-locked') === '1'; } catch (e) { return false; } }
+  function newOrder(){
+    var why = wxWhy(), rough = why === 'storm' || why === 'snow' || why === 'cold' || why === 'tornado', kidsOk = api.isOpen() && !rough;
+    var rnd = seeded('work order ' + today());
+    // (no pepper on a band night: the band has their spot)
+    function ok(id){ if (id === 'spot') return !rough; if (id === 'pepper' && bandNight()) return false; if (JOBS[id].kids) return kidsOk; if (id === 'treat') return MEM.today.treats < TREAT_LIMIT - 1; return true; }
+    var ids = ['a', 'b', 'c'].map(function(g){
+      var list = Object.keys(JOBS).filter(function(id){ return JOBS[id].g === g && ok(id); });
+      return list[Math.floor(rnd() * list.length)];
+    });
+    GM.order = {day: today(), jobs: ids.map(function(id){ return {id: id, n: 0}; }), done: false, rooms: {}, told: false};
+    gameDirty = true;
+  }
+  function orderReady(){ return !!(GM.order && GM.order.day === today()); }
+  function orderNow(){ if (!orderReady()) newOrder(); return GM.order; }
+  function capped(kind, pts){
+    var d = GM.daily; if (d.day !== today()) GM.daily = d = {day: today(), watch: 0, ask: 0};
+    var give = Math.max(0, Math.min(pts, (kind === 'watch' ? 60 : 30) - d[kind])); d[kind] += give; return give;
+  }
+  // points: in the total, floating over the map where you earned them, and a new rank when you cross the line
+  function award(pts, at){
+    if (!GM || !pts) return;
+    var before = rankOf(GM.pts); GM.pts += pts;
+    if (at) fx.push({k: 'pts', x: at[0], y: at[1], t: 0, life: 1.4, text: '+' + pts});
+    var after = rankOf(GM.pts); if (after > before) rankUp(after);
+    gameDirty = true; save(); flushSoon();
+  }
+  function badge(id){
+    if (!GM || GM.badges[id] || !BADGE[id]) return;
+    var b = BADGE[id]; GM.badges[id] = Date.now(); GM.fresh = id;
+    toast('Badge', b.name, b.pts, b.icon);
+    award(b.pts);
+  }
+  function rankUp(i){
+    toast('New rank', RANKS[i][0], 0, RANKS[i][2]);
+    var mel = kids.mel.here && !kids.mel.hidden && !chatLocked();
+    var lines = {1: [['leva', 'Minnow already. Not bad.']], 2: [['leva', "Bluegill. You're getting the hang of it."]],
+      3: mel ? [['mel', "Catfish rank! That's the best one. Obviously."]] : [['leva', 'Catfish rank. Mel would approve.']],
+      4: [['leva', "Lifeguard. I'll let you watch the deep end."]], 5: [['leva', 'Head of Maintenance. Welcome to the crew.']]}[i];
+    if (lines) convo(lines);
+    if (i === 5 && !lv.hidden) heart(lv.x, lv.y);
+  }
+  function workJob(id, n){
+    if (!GM) return;
+    var o = orderNow();
+    o.jobs.forEach(function(j){
+      var need = JOBS[j.id].need; if (j.id !== id || j.n >= need) return;
+      j.n = Math.min(need, j.n + (n || 1)); gameDirty = true;
+      if (j.n >= need){ toast('Work order', JOBS[j.id].text.replace(/\.$/, ''), JOB_PTS, 'clip'); award(JOB_PTS); }
+    });
+    if (!o.done && o.jobs.every(function(j){ return j.n >= JOBS[j.id].need; })){
+      o.done = true;
+      var s = GM.streak; s.n = s.last === yesterday() ? s.n + 1 : s.last === today() ? s.n : 1; s.last = today(); s.best = Math.max(s.best, s.n);
+      toast('Work order done', s.n > 1 ? s.n + ' days in a row' : "That's the whole list", ORDER_BONUS, 'clip');
+      award(ORDER_BONUS);
+      badge('order'); if (s.n >= 3) badge('streak3'); if (s.n >= 7) badge('streak7');
+      if (!B.rescue) convo([['leva', pick(['Work order done. Thanks for the help.', "That's the whole list. Nice work.", 'All done. I could get used to this.'])]]);
+    }
+    save(); flushSoon();
+  }
+  // tap Ari while he's paddling around, and leva hears about it
+  function spotAri(){
+    if (!GM || !ari.inWater || ari.hopping) return false;
+    if (ari.spotted) return true;
+    ari.spotted = true;
+    var secs = W.clock - ari.enterClock, at = [ari.x + 16, ari.y - 4];
+    if (ari.noticed){ award(5, at); return true; }
+    GM.n.spots++;
+    award(20 + (secs < 2 ? 30 : secs < 5 ? 15 : 0), at);
+    ari.noticed = true; ari.noticeT = 0; ari.byVisitor = true;
+    var r = pickRescue(ari.spot); B.rescue = r;
+    levaPlan(planRescue(), 'getting Ari out of the pool');
+    convo([['leva', pick(['Thanks. I see him.', 'Good eye. On my way.', 'Got it. Thanks for the heads up.'])]].concat(r.call), true);
+    badge('spotter'); if (secs < 2) badge('eagle'); if (GM.n.spots >= 10) badge('ten');
+    workJob('spot');
+    return true;
+  }
+  // tap a floating leaf and the net takes it, and whatever's floating right next to it
+  function netAt(x, y, radius){
+    if (!GM) return 0;
+    var hit = null, bd = radius;
+    W.leaves.forEach(function(l){ var d = Math.hypot(l.x - x, l.y - y); if (d < bd){ bd = d; hit = l; } });
+    if (!hit) return 0;
+    var n = 0;
+    W.leaves = W.leaves.filter(function(l){ var h = l === hit || (l.pool === hit.pool && Math.hypot(l.x - hit.x, l.y - hit.y) < 9); if (h) n++; return !h; });
+    GM.n.leaves += n; MEM.today.youLeaves = (MEM.today.youLeaves || 0) + n; boardDirty = true;
+    fx.push({k: 'scoop', x: hit.x, y: hit.y, t: 0, life: 0.5});
+    award(2 * n, [hit.x, hit.y - 4]);
+    badge('leaf'); if (GM.n.leaves >= 100) badge('leaves');
+    workJob('leaves', n);
+    if (!lv.hidden && !B.rescue && Math.random() < 0.3 && W.clock - thankedAt > 40){ thankedAt = W.clock; say('leva', pick(['Thanks for the help.', 'Nice scoop.', 'You want a job?', 'Beat me to it.'])); }
+    return n;
+  }
+  // things you watch happen on the deck
+  function witness(kind){
+    if (!GM) return;
+    if (kind === 'cannonball'){ workJob('cannonball'); badge('cannon'); award(capped('watch', 3)); }
+    else if (kind === 'sing'){ workJob('sing'); award(capped('watch', 3)); }
+    else if (kind === 'pepper'){ workJob('pepper'); award(capped('watch', 5)); }
+    else if (kind === 'howl'){ badge('howl'); award(capped('watch', 10)); }
+    else if (kind === 'record'){ badge('record'); award(capped('watch', 25)); }
+  }
+  // a catfish fact heard on the deck is a card
+  function card(i){
+    if (!GM || GM.n.cards[i]) return;
+    GM.n.cards[i] = 1;
+    var have = Object.keys(GM.n.cards).length;
+    toast('Catfish card', have + ' of ' + FISH.length, 10, 'catfish');
+    award(10); gameDirty = true;
+    if (have >= FISH.length) badge('cards');
+  }
+  function heardFact(who, text){
+    if (!GM || (who !== 'mel' && who !== 'leva')) return;
+    for (var i = 0; i < FISH.length; i++){
+      if (text.indexOf(FISH[i]) >= 0 || (who === 'leva' && text === FISH_QA[i][1])){ card(i); return; }
+    }
+  }
+  var GAME = {
+    // the chat, the rooms and the arcade tell the game what happened
+    event: function(name, v){
+      if (!GM) return;
+      if (name === 'test'){ workJob('test'); badge('test'); award(capped('ask', 5)); }
+      else if (name === 'skim' || name === 'vac'){ award(capped('ask', 5)); }
+      else if (name === 'weather'){ workJob('weather'); award(capped('ask', 3)); }
+      else if (name === 'connect'){ workJob('connect'); badge('connect'); }
+      else if (name === 'treat'){ workJob('treat'); badge('treat'); award(capped('ask', 3)); }
+      else if (name === 'trick'){ workJob('trick'); award(capped('ask', 2)); }
+      else if (name === 'roll'){ badge('roll'); }
+      else if (name === 'room' && ROOMS.indexOf(v) >= 0){
+        var o = orderNow();
+        if (!o.rooms[v]){ o.rooms[v] = 1; workJob('explore'); }
+        if (v === 'pump') workJob('pump');
+        GM.n.rooms[v] = 1;
+        if (ROOMS.every(function(r){ return GM.n.rooms[r]; })) badge('explorer');
+        gameDirty = true; save(); flushSoon();
+      }
+      else if (name === 'arcade'){
+        var sc = v && +v.score || 0;
+        workJob('invaders');
+        if (sc >= 15) badge('gamer');
+        if (v && v.won) badge('clear');
+      }
+    },
+    spot: spotAri, netAt: netAt
+  };
+  // real Dearborn weather and your own clock, checked every few seconds. Test weather and test times don't count.
+  function gameWatch(){
+    if (!GM) return;
+    var w = WXS();
+    if (w && !w.test){
+      var why = w.reason(), k = w.kind;
+      if (why === 'rain' || k === 'rain' || k === 'drizzle') badge('rain');
+      if (why === 'snow' || k === 'snow') badge('snow');
+      if (why === 'storm') badge('storm');
+      if (why === 'heat') badge('heat');
+      if (why === 'wind') badge('wind');
+    }
+    if (!TIME_TEST){ var h = new Date().getHours(); if (h >= 21 || h < 5) badge('night'); else if (h < 8) badge('early'); }
+    // the work order gets written once the weather is in, so leva doesn't hand out pool jobs on a snow day
+    if (!orderReady() && !(WXS() || (window.PoolWeather && window.PoolWeather.failed) || W.clock > 12)) return;
+    var o = orderNow();
+    if (!o.told){ o.told = true; setTimeout(function(){ toast(GM.hello ? "Today's work order" : 'leva left you a work order', 'Three jobs. See your crew card.', 0, 'clip'); GM.hello = true; save(); }, 4500); }
+  }
+  function gameStep(dt){
+    if (!GM) return;
+    watchClock -= dt; if (watchClock <= 0){ watchClock = 5; gameWatch(); }
+    gameClock -= dt; if (gameClock <= 0 || gameDirty){ gameClock = 1; if (gameDirty){ gameDirty = false; renderGame(); } }
+  }
+
+  // ---- how it looks ----
+  // pixel icons with a one pixel black outline, and the official leva heart for the top rank
+  function iconCanvas(name){
+    var c = document.createElement('canvas'); c.className = 'px-icon'; c.setAttribute('aria-hidden', 'true');
+    if (name === 'heart'){
+      c.width = 21; c.height = 20; c.getContext('2d').drawImage(heartImg(), 1, 1); return c;
+    }
+    c.width = 12; c.height = 12;
+    var g = c.getContext('2d'), rows = GAME_ART.icons[name] || GAME_ART.icons.star, on = [];
+    for (var y = 0; y < 12; y++){ on[y] = []; for (var x = 0; x < 12; x++) on[y][x] = y > 0 && y < 11 && x > 0 && x < 11 && rows[y - 1].charAt(x - 1) !== '.'; }
+    for (var y2 = 0; y2 < 12; y2++) for (var x2 = 0; x2 < 12; x2++){
+      if (on[y2][x2]){ g.fillStyle = GAME_ART.pal[rows[y2 - 1].charAt(x2 - 1)]; g.fillRect(x2, y2, 1, 1); }
+      else if ((on[y2 - 1] && on[y2 - 1][x2]) || (on[y2 + 1] && on[y2 + 1][x2]) || on[y2][x2 - 1] || on[y2][x2 + 1]){ g.fillStyle = '#0A0A0A'; g.fillRect(x2, y2, 1, 1); }
+    }
+    return c;
+  }
+  // a few things can happen at once, like a spot, a badge and a new rank. They show one after another.
+  var toastAt = 0;
+  function toast(kind, name, pts, icon){
+    var gap = window.matchMedia && window.matchMedia('(max-width: 560px)').matches ? 1500 : 900;
+    var now = Date.now(), when = Math.max(now, toastAt + gap); toastAt = when;
+    if (when > now) setTimeout(function(){ showToast(kind, name, pts, icon); }, when - now); else showToast(kind, name, pts, icon);
+  }
+  function showToast(kind, name, pts, icon){
+    var box = document.getElementById('toasts'); if (!box) return;
+    var max = window.matchMedia && window.matchMedia('(max-width: 560px)').matches ? 2 : 3;
+    while (box.children.length >= max) box.removeChild(box.firstChild);
+    var t = document.createElement('div'); t.className = 'toast';
+    t.appendChild(iconCanvas(icon));
+    var tx = document.createElement('div'); tx.className = 't-text';
+    var k = document.createElement('span'); k.className = 't-kind'; k.textContent = kind;
+    var n = document.createElement('span'); n.className = 't-name'; n.textContent = name;
+    tx.appendChild(k); tx.appendChild(n); t.appendChild(tx);
+    if (pts){ var p = document.createElement('span'); p.className = 't-pts'; p.textContent = '+' + pts; t.appendChild(p); }
+    box.appendChild(t);
+    setTimeout(function(){ t.classList.add('bye'); setTimeout(function(){ if (t.parentNode) t.parentNode.removeChild(t); }, 320); }, 4200);
+  }
+  function mkEl(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function pad4(n){ n = Math.max(0, Math.floor(n)); return n > 9999 ? String(n) : ('0000' + n).slice(-4); }
+  function buildGame(){
+    var q = function(id){ return document.getElementById(id); };
+    gameUI = {pts: q('sb-pts'), rank: q('sb-rank'), jobs: q('sb-jobs'), badges: q('sb-badges'), card: q('crew')};
+    var sb = q('scorebar');
+    if (sb) sb.addEventListener('click', function(){ if (gameUI.card) gameUI.card.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'start'}); });
+    if (!gameUI.card) return;
+    gameUI.rankIcon = q('crew-rank-icon'); gameUI.rankName = q('crew-rank-name'); gameUI.rankPts = q('crew-rank-pts');
+    gameUI.bar = q('crew-bar'); gameUI.next = q('crew-next'); gameUI.ladder = q('crew-ladder');
+    gameUI.jobList = q('crew-jobs'); gameUI.streak = q('crew-streak'); gameUI.count = q('crew-count'); gameUI.grid = q('crew-badges');
+    gameUI.tiles = {};
+    RANKS.forEach(function(r, i){
+      var li = mkEl('li'); li.appendChild(iconCanvas(r[2])); li.appendChild(mkEl('b', null, r[0])); li.appendChild(mkEl('span', null, r[1] ? r[1] + ' pts' : 'start'));
+      gameUI.ladder.appendChild(li); r.li = li;
+    });
+    BADGES.forEach(function(b){
+      var li = mkEl('li', 'badge locked'); li.appendChild(iconCanvas(b.icon));
+      var d = mkEl('div'); d.appendChild(mkEl('b', null, b.name)); d.appendChild(mkEl('span', null, b.desc)); li.appendChild(d);
+      li.appendChild(mkEl('em', 'b-pts', '+' + b.pts));
+      var sr = mkEl('span', 'sr', 'Not earned yet.'); li.appendChild(sr); li.sr = sr;
+      gameUI.grid.appendChild(li); gameUI.tiles[b.id] = li;
+    });
+  }
+  function renderGame(){
+    if (!GM || !gameUI) return;
+    var o = orderReady() ? GM.order : null, done = o ? o.jobs.filter(function(j){ return j.n >= JOBS[j.id].need; }).length : 0, nb = Object.keys(GM.badges).length, ri = rankOf(GM.pts), r = RANKS[ri], nx = RANKS[ri + 1];
+    if (gameUI.pts){ var txt = pad4(GM.pts); if (gameUI.pts.textContent !== txt){ gameUI.pts.textContent = txt; gameUI.pts.classList.remove('bump'); void gameUI.pts.offsetWidth; gameUI.pts.classList.add('bump'); } }
+    if (gameUI.rank) gameUI.rank.textContent = r[0] === 'Head of Maintenance' ? 'HEAD OF MAINT.' : r[0].toUpperCase();
+    if (gameUI.jobs) gameUI.jobs.textContent = o ? done + '/3' : '-/3';
+    if (gameUI.badges) gameUI.badges.textContent = nb + '/' + BADGES.length;
+    if (!gameUI.card) return;
+    if (gameUI.rankIcon && gameUI.rankIcon.dataset.icon !== r[2]){ var ic = iconCanvas(r[2]); ic.id = 'crew-rank-icon'; ic.dataset.icon = r[2]; gameUI.rankIcon.parentNode.replaceChild(ic, gameUI.rankIcon); gameUI.rankIcon = ic; }
+    gameUI.rankName.textContent = r[0];
+    gameUI.rankPts.textContent = GM.pts + (GM.pts === 1 ? ' point' : ' points');
+    var pct = nx ? Math.round((GM.pts - r[1]) / (nx[1] - r[1]) * 100) : 100;
+    gameUI.bar.style.setProperty('--v', Math.max(0, Math.min(100, pct)) + '%');
+    gameUI.next.textContent = nx ? (nx[1] - GM.pts) + ' more to ' + nx[0] + '.' : 'Top of the crew. leva says thanks.';
+    RANKS.forEach(function(x, i){ x.li.className = i < ri ? 'past' : i === ri ? 'at' : ''; });
+    gameUI.jobList.textContent = '';
+    if (!o){ gameUI.jobList.appendChild(mkEl('li', 'wait', "leva is writing up today's work order.")); gameUI.streak.textContent = ''; }
+    else o.jobs.forEach(function(j){
+      var need = JOBS[j.id].need, fin = j.n >= need, li = mkEl('li', fin ? 'done' : '');
+      li.appendChild(mkEl('span', 'box'));
+      var t = mkEl('span', 'jt', JOBS[j.id].text); if (need > 1 && !fin) t.appendChild(mkEl('em', null, ' ' + j.n + ' of ' + need)); li.appendChild(t);
+      li.appendChild(mkEl('b', null, '+' + JOB_PTS)); gameUI.jobList.appendChild(li);
+    });
+    var s = GM.streak, live = s.last === today() || s.last === yesterday();
+    if (o) gameUI.streak.textContent = o.done ? "Today's work order is done. " + (s.n > 1 ? s.n + ' days in a row.' : 'Come back tomorrow for a new one.') + (s.best > 1 ? ' Best streak: ' + s.best + ' days.' : '')
+      : 'Finish all three for ' + ORDER_BONUS + ' bonus points. ' + (live && s.n ? 'Keep your ' + s.n + (s.n === 1 ? ' day' : ' days') + ' going.' : 'Do it again tomorrow to start a streak.');
+    gameUI.count.textContent = nb + ' of ' + BADGES.length;
+    BADGES.forEach(function(b){
+      var t = gameUI.tiles[b.id], got = !!GM.badges[b.id], cls = 'badge' + (got ? '' : ' locked') + (GM.fresh === b.id ? ' new' : '');
+      if (t.className !== cls) t.className = cls;
+      var srt = got ? 'Earned.' : 'Not earned yet.'; if (t.sr.textContent !== srt) t.sr.textContent = srt;
+    });
+  }
+  function gameInit(){
+    GM = MEM.game;
+    buildGame();
+    var stage = document.getElementById('stage');
+    if (stage) stage.addEventListener('click', function(e){
+      if (!ready || reduce || !GM) return;
+      if (e.target.closest && e.target.closest('button, a')) return;
+      var r = stage.getBoundingClientRect(), s = r.width / 1440; if (!s) return;
+      var x = (e.clientX - r.left) / s / 2, y = (e.clientY - r.top) / s / 2;
+      var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      if (netAt(x, y, coarse ? 16 : 10)){ var a = document.activeElement; if (a && a.classList && a.classList.contains('spot')) a.blur(); }
+      else if (on(WATER, x, y)) fx.push({k: 'scoop', x: x, y: y, t: 0, life: 0.4, faint: true});
+    });
+    window.addEventListener('leva-room', function(e){ GAME.event('room', e.detail && e.detail.id); });
+    window.addEventListener('leva-arcade', function(e){ GAME.event('arcade', e.detail); });
+    gameDirty = true; renderGame();
+    // write up today's order as soon as the weather is in, even before the map scrolls into view
+    var tries = 0, wt = setInterval(function(){
+      if (orderReady() || ++tries > 15){ clearInterval(wt); return; }
+      if (WXS() || (window.PoolWeather && window.PoolWeather.failed) || tries > 12){ orderNow(); gameDirty = true; renderGame(); clearInterval(wt); }
+    }, 1000);
+  }
+
   // ================= setup =================
   function init(a){
     api = a; lv = a.leva; reduce = !!a.reduce;
     load();
     MEM.visits++;
+    gameInit();
     if (MEM.chem){ W.ph = MEM.chem.ph; W.cl = MEM.chem.cl; W.measured = MEM.chem.measured || null; }
     else { W.ph = 7.72 + Math.random() * 0.06; W.cl = 1.25 + Math.random() * 0.15; }
     // drift a little for the time you were gone, so there is something to do when you come back
@@ -1745,6 +2187,7 @@
     var im = new Image();
     im.onload = function(){
       castImg = im; ready = true;
+      bandStep();
       lv.hidden = false; lv.x = PLACES.pump.door[0]; lv.y = PLACES.pump.door[1]; lv.act = null;
       levaPlan([act('watch', 2.5, {face: 's'})], 'starting his rounds');
       var den = snap(SMALL, 270, 94); ari.x = den[0]; ari.y = den[1];
@@ -1773,19 +2216,34 @@
       b.style.width = d[3] + 'px'; b.style.height = d[4] + 'px'; b.setAttribute('aria-label', d[1] + ', ' + d[2]);
       var tip = document.createElement('span'); tip.className = 'tip'; var tb = document.createElement('b'); tb.textContent = d[1]; var ts = document.createElement('span'); ts.textContent = d[2];
       tip.appendChild(tb); tip.appendChild(ts); b.appendChild(tip);
-      b.addEventListener('click', function(){ if (window.levaChat) window.levaChat.open(d[0]); });
-      stage.appendChild(b); spots[d[0]] = {el: b, w: d[3], h: d[4]};
+      b.addEventListener('click', function(e){
+        e.stopPropagation();
+        // the label steps aside for a moment so you can see your points go up
+        if (d[0] === 'ari' && ari.inWater){ spotAri(); b.classList.add('quiet'); setTimeout(function(){ b.classList.remove('quiet'); }, 2500); return; }
+        if (window.levaChat) window.levaChat.open(d[0]);
+      });
+      stage.appendChild(b); spots[d[0]] = {el: b, w: d[3], h: d[4], ts: ts, say: d[2], label: d[1] + ', ' + d[2]};
     });
+    // a screen reader hears when Ari jumps in, since that's the one thing on the map you have to catch in time
+    srNote = document.createElement('div'); srNote.className = 'sr'; srNote.setAttribute('aria-live', 'polite');
+    stage.parentNode.appendChild(srNote);
   }
+  var srNote = null;
   function placeSpots(){
     for (var id in spots){
       var sp = spots[id], a = id === 'leva' ? lv : id === 'ari' ? ari : kids[id];
-      var show = id === 'leva' ? !lv.hidden : id === 'ari' ? !ari.hidden : (a.here && !a.hidden);
+      var show = (id === 'leva' ? !lv.hidden : id === 'ari' ? !ari.hidden : (a.here && !a.hidden)) && !walled(a.x, a.y);
       if (sp.el.hidden === show) sp.el.hidden = !show;
       if (!show) continue;
-      var h = a.inWater ? Math.round(sp.h * 0.55) : sp.h;
-      sp.el.style.left = Math.round(a.x * 2 - sp.w / 2) + 'px'; sp.el.style.top = Math.round(a.y * 2 - h + 2) + 'px';
-      if (sp.lastH !== h){ sp.el.style.height = h + 'px'; sp.lastH = h; }
+      // Ari in the pool is a bigger target, so you can tap him on a phone
+      var swim = id === 'ari' && a.inWater, w = swim ? 84 : sp.w, h = swim ? 60 : a.inWater ? Math.round(sp.h * 0.55) : sp.h;
+      sp.el.style.left = Math.round(a.x * 2 - w / 2) + 'px'; sp.el.style.top = Math.round(swim ? a.y * 2 - 38 : a.y * 2 - h + 2) + 'px';
+      if (sp.lastH !== h || sp.lastW !== w){ sp.el.style.height = h + 'px'; sp.el.style.width = w + 'px'; sp.lastH = h; sp.lastW = w; }
+      var st = id !== 'ari' ? '' : !swim ? 'out' : ari.spotted || ari.noticed ? 'on' : 'in';
+      if (id === 'ari' && sp.st !== st){ sp.st = st; sp.ts.textContent = st === 'in' ? "he's in the pool! tap him" : st === 'on' ? "leva's on his way" : sp.say; sp.el.setAttribute('aria-label', st === 'in' ? "ARI, he's in the pool, tap to tell leva" : st === 'on' ? "ARI, leva's on his way" : sp.label);
+        // the moving spots stay out of the tab order, except Ari while he's in the pool, so the keyboard can spot him too
+        sp.el.tabIndex = st === 'in' ? 0 : -1;
+        if (srNote && !reduce) srNote.textContent = st === 'in' ? 'Ari just jumped in the pool. Tab to him and press Enter to tell leva.' : ''; }
     }
   }
   function staticFrame(){
@@ -1813,6 +2271,12 @@
         jokes: MEM.leva.jokes.map(function(q){ for (var i = 0; i < JOKES.length; i++) if (JOKES[i][0] === q) return JOKES[i]; return [q, '']; }), today: Object.assign({}, MEM.today),
         log: MEM.log.slice(-8).map(function(l){ return clock(l.t) + ' ' + l.text; }),
         visitor: MEM.visitor,
+        game: GM ? (function(){
+          if (!orderReady() && (WXS() || (window.PoolWeather && window.PoolWeather.failed))){ orderNow(); gameDirty = true; }
+          var ri = rankOf(GM.pts), nx = RANKS[ri + 1], o = orderReady() ? GM.order : null;
+          return {pts: GM.pts, rank: RANKS[ri][0], next: nx ? {name: nx[0], need: nx[1] - GM.pts} : null, badges: Object.keys(GM.badges).length, total: BADGES.length,
+            order: o ? o.jobs.map(function(j){ return {text: JOBS[j.id].text, say: JOBS[j.id].say, done: j.n >= JOBS[j.id].need}; }) : [], streak: GM.streak.n};
+        })() : null,
         weather: (function(){ var w = WXS(); return w ? {kind: w.kind, summary: w.summary(), tempF: w.tempF, windMph: w.windMph, why: w.reason(), alert: w.alert ? {event: w.alert.event, headline: w.alert.headline} : null, source: w.source(), test: w.test} : (window.PoolWeather && window.PoolWeather.failed ? {down: true} : null); })()
       };
     },
@@ -1852,12 +2316,12 @@
       if (id === 'ari'){
         if (ari.inWater || ari.hidden || ari.hopping) return 'busy';
         ari.talking = Math.max(ari.talking || 0, 4);
-        if (what === 'treat'){ if (!giveTreat(null)) return 'limit'; ari.talkAct = 'happy'; save(); return 'ok'; }
-        if (what === 'sit'){ var ks = MEM.ari.sit >= 1; MEM.ari.sit = Math.min(1, MEM.ari.sit + 0.05); ari.talkAct = ks ? 'sit' : 'happy'; save(); return ks ? 'ok' : 'learning'; }
-        if (what === 'shake'){ var kp = MEM.ari.paw >= 1; MEM.ari.paw = Math.min(1, MEM.ari.paw + 0.05); ari.talkAct = 'happy'; save(); return kp ? 'ok' : 'learning'; }
+        if (what === 'treat'){ if (!giveTreat(null)) return 'limit'; ari.talkAct = 'happy'; save(); GAME.event('treat'); return 'ok'; }
+        if (what === 'sit'){ var ks = MEM.ari.sit >= 1; MEM.ari.sit = Math.min(1, MEM.ari.sit + 0.05); ari.talkAct = ks ? 'sit' : 'happy'; save(); GAME.event('trick'); return ks ? 'ok' : 'learning'; }
+        if (what === 'shake'){ var kp = MEM.ari.paw >= 1; MEM.ari.paw = Math.min(1, MEM.ari.paw + 0.05); ari.talkAct = 'happy'; save(); GAME.event('trick'); return kp ? 'ok' : 'learning'; }
         if (what === 'roll'){
-          var before = MEM.ari.roll; MEM.ari.roll = Math.min(1, before + 0.25); ari.talkAct = 'roll'; save(); boardDirty = true;
-          if (MEM.ari.roll >= 1 && before < 1){ log('Ari learned to roll over. A visitor in the chat taught him.', 'ari'); return 'learned'; }
+          var before = MEM.ari.roll; MEM.ari.roll = Math.min(1, before + 0.25); ari.talkAct = 'roll'; save(); boardDirty = true; GAME.event('trick');
+          if (MEM.ari.roll >= 1 && before < 1){ log('Ari learned to roll over. A visitor in the chat taught him.', 'ari'); GAME.event('roll'); return 'learned'; }
           return MEM.ari.roll >= 1 ? 'ok' : 'learning';
         }
         if (what === 'speak'){ ari.talkAct = 'happy'; return 'ok'; }
@@ -1869,6 +2333,8 @@
       if (k.inWater) return 'wet';
       k.talking = 0;
       if (what === 'cannonball' && id === 'm'){ kidPlan(k, swimSteps(k, 'dive', 8, 'cannonball').concat(towelSteps(k, 6)), 'doing a cannonball for you'); return 'ok'; }
+      // Friday nights the band is set up right where they play
+      if ((what === 'volley' || what === 'rally') && bandNight()) return 'band';
       if (what === 'volley' && id === 'm'){ pickKid.lastVolley = W.clock; kidPlan(k, volleySteps(k).concat(towelSteps(k, 5)), 'practicing volleyball'); return 'ok'; }
       if (what === 'rally' || what === 'volley'){
         var o = kids[id === 'm' ? 'mel' : 'm'];
@@ -1887,9 +2353,9 @@
       var why = wxWhy(); if (why === 'storm' || why === 'tornado') return 'weather';
       if (what === 'vac' && !noSwimmers()) return 'open';
       B.talking = 0;
-      if (what === 'vac'){ levaPlan(planVac(), 'vacuuming the lap pool for you'); return true; }
-      if (what === 'test'){ var p = ['lap', 'zero', 'dive'][Math.floor(Math.random() * 3)]; levaPlan(planTest(p), 'testing ' + POOLS[p].name + ' for you'); return true; }
-      if (what === 'skim'){ var w = nearestLeafPool(); if (!w) return 'clean'; levaPlan(planSkim(w), 'skimming ' + POOLS[w].name + ' for you'); return true; }
+      if (what === 'vac'){ levaPlan(planVac(), 'vacuuming the lap pool for you'); GAME.event('vac'); return true; }
+      if (what === 'test'){ var p = ['lap', 'zero', 'dive'][Math.floor(Math.random() * 3)]; levaPlan(planTest(p), 'testing ' + POOLS[p].name + ' for you'); GAME.event('test'); return true; }
+      if (what === 'skim'){ var w = nearestLeafPool(); if (!w) return 'clean'; levaPlan(planSkim(w), 'skimming ' + POOLS[w].name + ' for you'); GAME.event('skim'); return true; }
       if (what === 'pump'){ levaPlan(planRest(), 'checking the pumps'); return true; }
       if (what === 'ari'){ if (ari.inWater){ ari.noticeT = 99; return true; } var p2 = snap(BIG, ari.x + 14, ari.y); levaPlan(leaveBuilding().concat([go(p2[0], p2[1]), act('watch', 5, {face: ari.x < p2[0] ? 'w' : 'e'})]), 'checking on Ari'); setTimeout(function(){ convo([['leva', 'Hey, buddy.'], ['ari', 'Hi! Are we swimming?'], ['leva', 'No.']]); }, 4000); return true; }
       if (what === 'wave'){ levaPlan(leaveBuilding().concat([act('talk', 4, {face: 's'})]), 'waving at you'); say('leva', 'Hey there!'); return true; }
@@ -1901,10 +2367,15 @@
       save();
     },
     forget: function(){ MEM.visitor = {name: '', chats: 0, topics: {}, met: {}, likes: {}}; save(); },
+    // the chat tells the game when you asked leva about the weather or Connect Space
+    game: function(name, v){ if (ready) GAME.event(name, v); },
     ready: function(){ return ready; }
   };
 
   window.PoolLife = {init: init, step: step, drawCast: drawCast, stepLeva: stepLeva, chat: chat, drawHeart: drawHeartPx};
   // with a ?do= test switch on, the deck's state is open to the console for checking
-  if (DO) window.__deck = {W: W, B: B, ari: ari};
+  if (DO) window.__deck = {W: W, B: B, ari: ari, kids: kids, game: GAME, GM: function(){ return GM; }, award: award, badge: badge, witness: witness, job: workJob,
+    sneak: function(){ ari.swimCool = 0; if (ari.hidden) ari.hidden = false; ariPlan(planSneak(), 'up to something'); },
+    leaf: function(x, y, pool){ W.leaves.push({x: x, y: y, vx: 0, vy: 0, pool: pool || poolAt(x, y), c: '#6b8e23', k: 0, grab: 0}); },
+    render: function(){ gameDirty = true; renderGame(); }, say: say, FISH: FISH};
 })();

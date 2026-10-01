@@ -31,7 +31,7 @@
   .hero .lead{font-size:clamp(17px,1.8vw,22px);color:var(--grey);max-width:54ch;font-weight:500;line-height:1.5}
 
   /* the park: the page's own wash behind the map */
-  .park{position:relative;padding:32px 0 48px;overflow:hidden;
+  .park{position:relative;padding:32px 0 48px;overflow:hidden;overflow:clip;
     background:radial-gradient(60% 80% at 20% 10%,var(--wpink) 0%,transparent 60%),radial-gradient(50% 70% at 80% 20%,var(--lilac) 0%,transparent 60%),
       radial-gradient(60% 60% at 70% 80%,var(--mint) 0%,transparent 60%),radial-gradient(50% 60% at 15% 85%,var(--sky) 0%,transparent 60%),
       radial-gradient(40% 40% at 50% 50%,var(--peach) 0%,transparent 70%),#F4F1FA}
@@ -150,6 +150,7 @@
   .who .talk:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--pink)}
   .who .talk:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
   .cast-spot{border-radius:8px}
+  .cast-spot.quiet .tip{opacity:0 !important;visibility:hidden !important}
   .log-list{list-style:none;display:flex;flex-direction:column;gap:12px;max-height:520px;overflow-y:auto}
   .log-list li{font-size:14px;line-height:1.45;padding:2px 0 2px 12px;border-left:4px solid var(--line)}
   .log-list li.w-leva{border-left-color:var(--pink)} .log-list li.w-ari{border-left-color:#c65a28} .log-list li.w-m{border-left-color:#26358c} .log-list li.w-mel{border-left-color:#3fbf93}
@@ -173,6 +174,78 @@
   .wx-pool{font-size:14px;font-weight:600;line-height:1.4;margin-top:10px;color:#2a2a30}
   .wx-pool.bad{color:#B00020}
   .wx-src{font-size:12px;color:var(--grey);margin-top:6px;line-height:1.4}
+
+  /* the game: a scoreboard over the map, pop-ups when you earn something, and your crew card */
+  .scorebar-row{max-width:1440px;margin:0 auto 12px;padding:0 24px;display:flex;justify-content:flex-end}
+  .scorebar{display:inline-flex;align-items:stretch;padding:0;background:#0A0A0A;border:2px solid #0A0A0A;box-shadow:4px 4px 0 var(--pink);cursor:pointer;font:inherit;color:#fff;transition:transform .12s,box-shadow .12s}
+  .scorebar:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--pink)}
+  .scorebar:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+  .sb-cell{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:7px 12px 8px;border-left:2px solid #2a2a33;text-align:left}
+  .sb-cell:first-child{border-left:0}
+  .sb-cell i{font-style:normal;font-family:Silkscreen,monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#FF96C8;line-height:1;white-space:nowrap}
+  .sb-cell b{font-family:Silkscreen,monospace;font-weight:400;font-size:17px;letter-spacing:.06em;color:#00F0FF;line-height:1;white-space:nowrap}
+  .sb-cell b.bump{animation:sbbump .7s ease-out}
+  .sb-go{display:flex;align-items:center;padding:0 12px;border-left:2px solid #2a2a33;font-family:Silkscreen,monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#fff;white-space:nowrap}
+  @keyframes sbbump{0%{color:#FFD23A}100%{color:#00F0FF}}
+  /* on a laptop the map is taller than the window, so the scoreboard rides along under the nav while you play */
+  @media(min-width:701px){.scorebar-row{position:sticky;top:78px;z-index:9;pointer-events:none} .scorebar{pointer-events:auto}}
+  @media(min-width:701px) and (max-width:1200px){.sb-go{display:none} .sb-cell{padding:6px 9px 7px} .sb-cell b{font-size:15px}}
+  @media(max-width:700px){.scorebar-row{justify-content:center;padding:0 12px} .sb-cell{padding:6px 8px 7px} .sb-cell b{font-size:13px} .sb-cell i{font-size:8px} .sb-go{display:none}}
+  .toasts{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:45;display:flex;flex-direction:column;align-items:flex-start;gap:10px;pointer-events:none;max-width:min(380px,calc(100vw - 32px))}
+  .toast{display:flex;align-items:center;gap:12px;min-width:250px;max-width:100%;background:#0A0A0A;color:#fff;border:2px solid #0A0A0A;box-shadow:4px 4px 0 var(--pink);padding:9px 14px 9px 9px;animation:toastin .28s ease-out}
+  .toast .px-icon{flex:none;width:40px;height:40px;background:#fff;border:2px solid #fff}
+  .t-text{min-width:0}
+  .t-kind{display:block;font-family:Silkscreen,monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#FF96C8;margin-bottom:5px;line-height:1}
+  .t-name{display:block;font-weight:800;font-size:15px;line-height:1.25}
+  .t-pts{margin-left:auto;padding-left:6px;font-family:Silkscreen,monospace;font-size:15px;color:#FFD23A;white-space:nowrap}
+  .toast.bye{opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s}
+  @keyframes toastin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  @media(max-width:560px){.toasts{left:50%;transform:translateX(-50%);bottom:auto;top:76px;align-items:center;gap:8px} .toast{min-width:0;gap:10px;padding:7px 12px 7px 7px} .toast .px-icon{width:32px;height:32px} .t-name{font-size:14px} .t-pts{font-size:13px}}
+  .px-icon{image-rendering:pixelated;image-rendering:crisp-edges}
+  .crew{padding:72px 0 8px;background:#fff}
+  .crew-wrap{max-width:1180px;margin:0 auto;padding:0 32px}
+  .crew-head{max-width:720px;margin-bottom:32px}
+  .crew-head h2{font-weight:900;letter-spacing:-.04em;line-height:1.02;font-size:clamp(32px,4.4vw,52px);margin-bottom:16px;text-wrap:balance}
+  .crew-lead{font-size:18px;color:var(--grey);font-weight:500;line-height:1.55;max-width:62ch}
+  .crew-grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:28px;align-items:start}
+  .crew-badges{grid-column:1 / -1}
+  .rank-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+  .rank-top .px-icon{width:60px;height:60px;flex:none}
+  .rank-top b{display:block;font-weight:900;font-size:28px;letter-spacing:-.03em;line-height:1.05}
+  .rank-top span{display:block;font-family:Silkscreen,monospace;font-size:12px;letter-spacing:.06em;color:var(--grey);margin-top:6px}
+  .rank-bar{position:relative;height:14px;background:#EFEDF4;border:2px solid #0A0A0A}
+  .rank-bar i{position:absolute;left:0;top:0;bottom:0;width:var(--v,0%);background:var(--pink);transition:width .6s}
+  .rank-next{font-size:14px;color:#2a2a30;margin:8px 0 16px}
+  .ladder{list-style:none;display:flex;flex-direction:column;gap:6px;border-top:2px solid #0A0A0A;padding-top:14px}
+  .ladder li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:10px;font-size:14px;color:#9a9aa2}
+  .ladder .px-icon{width:28px;height:28px;filter:grayscale(1);opacity:.4}
+  .ladder li span{font-family:Silkscreen,monospace;font-size:10px;letter-spacing:.06em}
+  .ladder li.past,.ladder li.at{color:#0A0A0A} .ladder li.past .px-icon,.ladder li.at .px-icon{filter:none;opacity:1}
+  .ladder li.at b{color:var(--pink)}
+  .jobs{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+  .jobs li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:12px;align-items:start;font-size:16px;font-weight:600;line-height:1.35;padding:12px;border:2px solid #0A0A0A;background:#fff}
+  .jobs li.wait{display:block;color:var(--grey);border-style:dashed}
+  .jobs .box{width:22px;height:22px;border:2px solid #0A0A0A;background:#fff;margin-top:1px}
+  .jobs li.done{background:var(--mint)} .jobs li.done .box{background:#0A0A0A;box-shadow:inset 0 0 0 3px var(--mint)} .jobs li.done .jt{text-decoration:line-through;text-decoration-thickness:2px}
+  .jobs em{font-style:normal;font-family:Silkscreen,monospace;font-size:11px;letter-spacing:.04em;color:var(--pink);white-space:nowrap}
+  .jobs b{font-family:Silkscreen,monospace;font-weight:400;font-size:12px;color:var(--grey);white-space:nowrap;margin-top:3px}
+  .streak{font-size:14px;color:#2a2a30;line-height:1.5}
+  .how{margin-top:16px;padding-top:14px;border-top:2px solid #0A0A0A;font-size:14px;line-height:1.55;color:#2a2a30}
+  .how b{font-family:Silkscreen,monospace;font-weight:400;font-size:10px;letter-spacing:.1em;text-transform:uppercase;display:block;color:var(--grey);margin-bottom:6px}
+  .badges-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .badges-head span{font-family:Silkscreen,monospace;font-size:12px;letter-spacing:.06em;color:var(--grey)}
+  .badges{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+  .badge{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px 10px 10px;border:2px solid #0A0A0A;background:#fff}
+  .badge .px-icon{width:44px;height:44px}
+  .badge b{display:block;font-weight:800;font-size:14px;line-height:1.2}
+  .badge div span{display:block;font-size:12.5px;color:var(--grey);line-height:1.35;margin-top:3px}
+  .badge .b-pts{font-style:normal;font-family:Silkscreen,monospace;font-size:11px;color:var(--grey);align-self:start;margin-top:2px}
+  .badge.locked{border-style:dashed;border-color:#b9b9c2;background:#FBFAFD}
+  .badge.locked .px-icon{filter:grayscale(1);opacity:.3}
+  .badge.locked b{color:#5f5f66}
+  .badge.new{box-shadow:4px 4px 0 var(--pink)}
+  @media(max-width:720px){.crew{padding:48px 0 0} .crew-wrap{padding:0 16px} .crew-grid{grid-template-columns:minmax(0,1fr)} .badges{grid-template-columns:minmax(0,1fr)}}
+  @media (prefers-reduced-motion:reduce){.toast{animation:none} .toast.bye{transition:none} .sb-cell b.bump{animation:none} .rank-bar i{transition:none} .scorebar{transition:none}}
 
   /* the chat box */
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -260,6 +333,15 @@
     <a href="https://forecast.weather.gov/MapClick.php?lat=42.3223&amp;lon=-83.1763" target="_blank" rel="noopener">Details at weather.gov</a>
   </div>
   <p class="swipe-hint">Swipe across to see the whole park. Tap a building to see what it is.</p>
+  <div class="scorebar-row">
+    <button type="button" class="scorebar" id="scorebar" aria-label="Your points, rank, work order and badges. Go to your crew card.">
+      <span class="sb-cell"><i>Points</i><b id="sb-pts">0000</b></span>
+      <span class="sb-cell"><i>Rank</i><b id="sb-rank">TADPOLE</b></span>
+      <span class="sb-cell"><i>Work order</i><b id="sb-jobs">-/3</b></span>
+      <span class="sb-cell"><i>Badges</i><b id="sb-badges">0/26</b></span>
+      <span class="sb-go" aria-hidden="true">Crew card &darr;</span>
+    </button>
+  </div>
   <div class="park-wrap">
    <div class="sizer">
     <div class="stage" id="stage">
@@ -292,7 +374,7 @@
     </div>
    </div>
   </div>
-  <p class="park-note">Point at a building or a pool to see what it is. The pink ones open: the pump room, the pit, first aid, the entrance, Nutty Dip, and the arcade in the guard shack. On a phone, tap.</p>
+  <p class="park-note">Point at a building or a pool to see what it is. The pink ones open: the pump room, the pit, first aid, the entrance, Nutty Dip, and the arcade in the guard shack. On a phone, tap. When Ari sneaks into the pool, tap him before leva sees him, and tap floating leaves to net them. It all counts on your crew card.</p>
   <ul class="park-links">
     <li><a href="index.html">Home</a></li>
     <li><a href="account.html">Head guard office, get leva for your Mac</a></li>
@@ -302,6 +384,35 @@
     <li><a href="terms.html">Storage, terms</a></li>
     <li><a href="privacy.html">Storage, privacy</a></li>
   </ul>
+</section>
+
+<section class="crew" id="crew" aria-labelledby="crew-title">
+  <div class="crew-wrap">
+    <div class="crew-head">
+      <div class="eyebrow">The game</div>
+      <h2 id="crew-title">Your crew card.</h2>
+      <p class="crew-lead">Help leva run the deck. Tap Ari when he sneaks into the pool, before leva sees him. Tap floating leaves to net them. Knock out leva's work order every day. Points, badges and your rank save in this browser, same as the deck.</p>
+    </div>
+    <div class="crew-grid">
+      <div class="panel crew-rank">
+        <h3>Your rank</h3>
+        <div class="rank-top"><span id="crew-rank-icon"></span><div><b id="crew-rank-name">Tadpole</b><span id="crew-rank-pts">0 points</span></div></div>
+        <div class="rank-bar" id="crew-bar"><i></i></div>
+        <p class="rank-next" id="crew-next">100 more to Minnow.</p>
+        <ol class="ladder" id="crew-ladder"></ol>
+      </div>
+      <div class="panel crew-order">
+        <h3>Today's work order</h3>
+        <ul class="jobs" id="crew-jobs"></ul>
+        <p class="streak" id="crew-streak"></p>
+        <div class="how"><b>How points work</b>Spot Ari before leva does: 20 points, and more the faster you are. A leaf is 2. Each job on the work order is 15, and finishing all three is 50 more. Badges pay extra.</div>
+      </div>
+      <div class="panel crew-badges">
+        <div class="badges-head"><h3>Badges</h3><span id="crew-count">0 of 26</span></div>
+        <ul class="badges" id="crew-badges"></ul>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section class="deck" aria-labelledby="deck-title">
@@ -369,6 +480,7 @@
 </div>
 
 
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
 <div class="lchat" id="lchat">
   <div class="lchat-panel" id="lchat-panel" role="dialog" aria-label="Chat on the pool deck" hidden>
     <div class="lchat-top">
@@ -421,7 +533,7 @@
 </footer>
 
 <script src="pool-weather.js?v=1"></script>
-<script src="pool-life.js?v=3"></script>
+<script src="pool-life.js?v=4"></script>
 <script>
 (function(){
   // scale the 1440 x 840 stage to the page width
@@ -484,7 +596,8 @@
     return w;
   }
   var crew = [
-    walker('crew',  [[140,264],[186,264],[186,296],[140,296]], 12, 'mop'),
+    walker('crew',  [[138,266],[178,266],[178,296],[138,296]], 12, 'mop'),
+    walker('crew2', [[398,256],[398,284]], 7, 'mop'),
     walker('crew3', [[284,88],[322,88]], 10, 'bucket'),
     walker('guard', [[214,320],[300,320]], 8, null),
     walker('guard', [[322,302],[404,302]], 8, null)
@@ -493,10 +606,11 @@
   cart.draw = function(){ var v = cart.face === 'n' || cart.face === 's'; draw(v ? 'cart_v' : 'cart_h', cart.x - (v ? 4 : 6), cart.y - (v ? 6 : 4), cart.face === 'w'); };
   // meet lanes run east and west across the middle; the ends are open swim
   var swimmers = [{x: 216, y: 198, dir: 1, t: 0, speed: 16}, {x: 288, y: 216, dir: -1, t: 0.7, speed: 14}];
-  var heads = [{x: 340, y: 168, t: 0, s: 'head0'}, {x: 372, y: 236, t: 1.1, s: 'head1'}, {x: 350, y: 222, t: 0.4, s: 'head0'},
-    {x: 232, y: 146, t: 0.2, s: 'head1'}, {x: 268, y: 160, t: 0.9, s: 'head0'}, {x: 246, y: 262, t: 1.5, s: 'head0'}, {x: 280, y: 276, t: 0.6, s: 'head1'}];
+  // swimmers' heads bob and drift up to 8 px east, so each one starts far enough from the edge to stay in the water
+  var heads = [{x: 346, y: 152, t: 0, s: 'head0'}, {x: 366, y: 236, t: 1.1, s: 'head1'}, {x: 350, y: 222, t: 0.4, s: 'head0'},
+    {x: 232, y: 146, t: 0.2, s: 'head1'}, {x: 268, y: 160, t: 0.9, s: 'head0'}, {x: 246, y: 262, t: 1.5, s: 'head0'}, {x: 276, y: 276, t: 0.6, s: 'head1'}];
   var chairs = [[153, 103], [153, 240], [191, 252], [338, 112]];
-  var duck = {y: 170, dir: 1, t: 0};
+  var duck = {x: 356, dir: 1, t: 0};
   var diver = {t: 0};
 
   // ---------------- leva ----------------
@@ -780,11 +894,18 @@
     return {x: x, y: y, fwd: fwd, vert: vert};
   }
   // the south lot: two rows of stalls with an aisle between
-  var STALLS = [];
-  for (var k = 0; k < 14; k++){ STALLS.push({x: 416 + k * 12, y: 357, row: 1, car: null}); STALLS.push({x: 416 + k * 12, y: 405, row: 2, car: null}); }
+  // Stall 0 up top would sit on the pool deck and stall 0 below has no way out except across it, so neither gets
+  // a car. Stall 1 in both rows is the bike lane up to the rack, and 11 and 12 up top stay open where the drive
+  // comes in and families walk up to the plaza.
+  var STALLS = [], NOPARK = {'1-0': 1, '2-0': 1, '1-1': 1, '2-1': 1, '1-11': 1, '1-12': 1};
+  for (var k = 0; k < 14; k++){
+    if (!NOPARK['1-' + k]) STALLS.push({x: 416 + k * 12, y: 357, row: 1, car: null});
+    if (!NOPARK['2-' + k]) STALLS.push({x: 416 + k * 12, y: 405, row: 2, car: null});
+  }
   function seedLot(n){
     STALLS.forEach(function(s){ s.car = null; });
-    for (var i = 0; i < n; i++){ var s = STALLS[(i * 11 + 3) % STALLS.length]; if (!s.car) s.car = {col: CAR_COLORS[i % CAR_COLORS.length]}; }
+    // step through the 22 stalls 7 at a time (7 shares no factor with 22, so no stall comes up twice)
+    for (var i = 0; i < n; i++){ var s = STALLS[(i * 7 + 3) % STALLS.length]; if (!s.car) s.car = {col: CAR_COLORS[i % CAR_COLORS.length]}; }
   }
   var lotMode = null;
   var moving = [], walkers2 = [], through = [];
@@ -831,10 +952,10 @@
       if (p.done){
         if (c.kind === 'arrive'){
           c.stall.car = {col: c.col}; c.stall.claimed = false;
-          // the family climbs out and walks in the front door
-          var start = [c.stall.x, c.stall.row === 1 ? 346 : 394];
+          // the family climbs out behind the car, walks up the open lane and in the front door under the sign
+          var start = [c.stall.x, c.stall.row === 1 ? 368 : 394];
           ['f1', 'kid1', 'kid3', 'f4'].slice(0, 2 + Math.floor(Math.random() * 3)).forEach(function(who, i){
-            walkers2.push({who: who, path: [start, [start[0], 381], [548, 381], [548, 318], [544, 300], [544, 196]], d: -i * 5, v: 11 + (i % 2) * 2});
+            walkers2.push({who: who, path: [start, [start[0], 381], [548, 381], [548, 322], [544, 304], [544, 218]], d: -i * 5, v: 11 + (i % 2) * 2});
           });
         }
         return false;
@@ -845,7 +966,7 @@
   // kids biking in on the park path and locking up at the rack
   var ring = [];
   for (var a = 0; a <= 180; a += 10){ var r = a * Math.PI / 180; ring.push([250 - 192.6 * Math.sin(r), 212 - 196.6 * Math.cos(r)]); }
-  var BIKE_PATH = [[249, -12]].concat(ring).concat([[400, 409], [432, 400], [432, 318], [470, 310]]);
+  var BIKE_PATH = [[249, -12]].concat(ring).concat([[400, 409], [428, 398], [428, 318], [470, 310]]);
   var RACK = [498, 503, 508, 513, 518, 523, 528];
   var bikes = [], racked = [], bikeClock = 3;
   function bikeStep(dt, open){
@@ -854,15 +975,16 @@
     bikeClock -= dt;
     if (bikeClock <= 0){ bikeClock = 11 + Math.random() * 9;
       var who = ['kid1', 'kid2', 'kid3'][Math.floor(Math.random() * 3)];
-      bikes.push({who: who, d: 0, v: 22 + Math.random() * 5, col: CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)], slot: Math.floor(Math.random() * RACK.length)});
+      var slot = Math.floor(Math.random() * RACK.length);
+      bikes.push({who: who, d: 0, v: 22 + Math.random() * 5, col: CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)], slot: slot, path: BIKE_PATH.concat([[RACK[slot], 312]])});
     }
     // bikes at the rack
     racked.forEach(function(b){ var x = RACK[b.slot]; ctx.fillStyle = '#1c1d22'; ctx.fillRect(x - 1, 297, 1, 2); ctx.fillRect(x - 1, 303, 1, 2); ctx.fillStyle = b.col; ctx.fillRect(x - 1, 299, 1, 4); });
     bikes = bikes.filter(function(b){
-      b.d += b.v * dt; var p = along(BIKE_PATH, b.d);
+      b.d += b.v * dt; var p = along(b.path, b.d);
       if (p.done){
         racked = racked.filter(function(r){ return r.slot !== b.slot; }); racked.push({slot: b.slot, col: b.col});
-        walkers2.push({who: b.who, path: [[RACK[b.slot], 310], [544, 310], [544, 300], [544, 196]], d: 0, v: 12});
+        walkers2.push({who: b.who, path: [[RACK[b.slot], 310], [544, 310], [544, 300], [544, 218]], d: 0, v: 12});
         return false;
       }
       var vert = Math.abs(p.dy) >= Math.abs(p.dx), face = vert ? (p.dy > 0 ? 's' : 'n') : (p.dx > 0 ? 'e' : 'w');
@@ -884,6 +1006,20 @@
       draw(name, p.x - 4, p.y - 11);
       return true;
     });
+  }
+  // The park's trees hang over the path. Their tops are drawn again over the bikes and the picnic kids,
+  // so anybody going by passes under a tree instead of across the top of it.
+  var TREES = [[12, 111, 13], [15, 241, 14], [21, 361, 15], [24, 171.5, 13.5], [32, 41.5, 14.5], [42, 301.5, 14.5], [62, 401.5, 13.5], [71, 31, 14],
+    [121.5, 12, 12.5], [131.5, 408, 12.5], [191.5, 15.5, 11.5], [241, 409, 14], [301, 409.5, 15], [361, 407.5, 13.5], [393.5, 13.5, 9.5]];
+  var treeTops = null;
+  function drawTreeTops(){
+    if (!treeTops){
+      treeTops = document.createElement('canvas'); treeTops.width = 720; treeTops.height = 420;
+      var t = treeTops.getContext('2d'); t.imageSmoothingEnabled = false; t.beginPath();
+      TREES.forEach(function(c){ t.moveTo(c[0] + c[2] + 1, c[1]); t.arc(c[0], c[1], c[2] + 1, 0, Math.PI * 2); });
+      t.clip(); t.drawImage(imgs.base, 0, 0);
+    }
+    ctx.drawImage(treeTops, 0, 0);
   }
   // picnics on the lawn, and a frisbee game
   var PICNICS = [
@@ -927,6 +1063,7 @@
     if (!isNight() && !wxWet) drawPicnics(T);
     trafficStep(dt, open, lightsOn);
     bikeStep(dt, open);
+    drawTreeTops();
     var fl = Math.floor(T * 2.2) % 2;
     [227, 282].forEach(function(fx){
       ctx.fillStyle = '#5c6169'; ctx.fillRect(fx, 184, 1, 56);
@@ -943,8 +1080,9 @@
         ctx.fillStyle = PC[(k / 4) % 3]; ctx.fillRect(px0 + sway, py0 + 1, 2, 1); ctx.fillRect(px0 + sway, py0 + 2, 1, 1);
       }
     }
-    duck.t += dt; duck.y += duck.dir * 3 * dt; if (duck.y > 250) duck.dir = -1; if (duck.y < 164) duck.dir = 1;
-    draw('duck' + (Math.floor(duck.t * 2) % 2), 356, duck.y);
+    // the rubber duck drifts back and forth above the mushroom, clear of the fountain, the rail and the life ring
+    duck.t += dt; duck.x += duck.dir * 2 * dt; if (duck.x > 366) duck.dir = -1; if (duck.x < 352) duck.dir = 1;
+    draw('duck' + (Math.floor(duck.t * 2) % 2), duck.x, 168, duck.dir < 0);
     if (open){
       var f2 = Math.floor(T * 2.2) % 2, f3 = Math.floor(T * 4) % 3;
       draw('spray' + f3, 348, 190); draw('fan' + f2, 338, 176); draw('fan' + (1 - f2), 342, 244);
@@ -967,18 +1105,19 @@
       else if (d < 10) draw('swim_s' + (Math.floor(d * 3) % 2), tip + 6, Math.min(222, by + (d - 6.4) * 14));
       else if (d < 11.5) draw('guard_w0', 176, 212);
       var bob = Math.floor(T * 1.5) % 2;
-      draw('kid1_n' + bob, 374, 64); draw('kid3_n' + (1 - bob), 375, 74); draw('kid2_n0', 374, 84);
-      // customers come in from the park and leave the same way, ice cream in hand
-      var OUT_PATH = [[392, 66], [348, 66], [348, 34], [348, 20], [300, 15], [262, 15]];
-      var IN_PATH = [[262, 15], [300, 15], [348, 20], [348, 40], [366, 52]];
+      draw('kid1_n' + bob, 379, 57); draw('kid3_n' + (1 - bob), 380, 66); draw('kid2_n0', 379, 75);
+      // customers come in from the park and leave the same way, ice cream in hand. The gate opens under the
+      // red canopy, so they walk under it (out of sight) instead of across the top of it.
+      var OUT_PATH = [[374, 66], [360, 67], [348, 60], [348, 34], [348, 20], [300, 15], [262, 15]];
+      var IN_PATH = [[262, 15], [300, 15], [348, 20], [348, 34], [348, 62], [357, 68], [376, 86]];
       [[OUT_PATH, 0, 'kid2', true], [IN_PATH, 5, 'kid1', false]].forEach(function(w){
         var tk = ((T + w[1]) % 10) / 10, P2 = w[0], p = along(P2, tk * pathLen(P2));
         if (!p || p.done) return;
+        if (p.x > 330 && p.x < 363 && p.y > 34 && p.y < 67) return;
         var vert = Math.abs(p.dy) >= Math.abs(p.dx), face = vert ? (p.dy > 0 ? 's' : 'n') : (p.dx > 0 ? 'e' : 'w');
         draw(w[2] + '_' + face + (Math.floor(T * 4) % 2), p.x - 4, p.y - 11);
         if (w[3]) draw('food', p.x - 2, p.y - 7);
       });
-      draw('crew2_e' + (Math.floor(T * 2) % 2), 470, 196); draw('mop', 480, 198);
       if (bandOn()) drawBand(T);
       var all = crew.concat([cart]); all.forEach(function(w){ w.step(dt); });
       all.sort(function(a, b){ return a.y - b.y; }).forEach(function(w){ w.draw(); });
@@ -997,7 +1136,7 @@
   function start(){
     loaded = true; window.__levaImg = imgs.leva;
     base.drawImage(imgs.base, 0, 0);
-    if (window.PoolLife) PoolLife.init({ctx: ctx, lc: lc, draw: draw, leva: leva, isOpen: isOpen, isNight: isNight, isDusk: isDusk, reduce: reduce,
+    if (window.PoolLife) PoolLife.init({ctx: ctx, lc: lc, draw: draw, leva: leva, isOpen: isOpen, isNight: isNight, isDusk: isDusk, reduce: reduce, bandOn: bandOn,
       redraw: function(){ if (reduce){ last = null; frame(performance.now()); } }});
     if (reduce){ last = 0; leva.hidden = false; leva.act = 'kit'; leva.face = 'e'; leva.x = 262; leva.y = 108; frame(0); return; }
     requestAnimationFrame(frame);
@@ -1110,6 +1249,7 @@
   }
   function open(id){
     var r = ROOMS[id]; if (!r) return; cur = r;
+    try { window.dispatchEvent(new CustomEvent('leva-room', {detail: {id: id}})); } catch (e) {}
     opener = document.activeElement;
     document.getElementById('room-title').textContent = r.title;
     document.getElementById('room-note').textContent = r.note;
@@ -1205,9 +1345,14 @@
     if (won){ ctx.fillStyle = CYN; ctx.font = '22px Silkscreen, monospace'; ctx.fillText('ALL CLEAR', W / 2, H / 2 - 8); ctx.fillStyle = '#fff'; ctx.font = '10px Silkscreen, monospace'; ctx.fillText('MAINTENANCE WINS   CLICK TO PLAY AGAIN', W / 2, H / 2 + 18); }
     ctx.textAlign = 'left';
   }
-  function loop(ts){ var dt = Math.min(ts - lastT, 80); lastT = ts; update(dt); draw(); raf = requestAnimationFrame(loop); }
+  function loop(ts){
+    var dt = Math.min(ts - lastT, 80); lastT = ts; update(dt); draw();
+    // a finished game counts on your crew card
+    if ((over || won) && !st.told){ st.told = true; try { window.dispatchEvent(new CustomEvent('leva-arcade', {detail: {score: st.score, won: won}})); } catch (e) {} }
+    raf = requestAnimationFrame(loop);
+  }
   function toX(e){ var r = C.getBoundingClientRect(); return (e.clientX - r.left) * (W / r.width); }
-  function open(){ opener = document.activeElement; ov.hidden = false; init(); draw(); lastT = performance.now(); if (raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); document.getElementById('arcade-close').focus(); }
+  function open(){ try { window.dispatchEvent(new CustomEvent('leva-room', {detail: {id: 'arcade'}})); } catch (e) {} opener = document.activeElement; ov.hidden = false; init(); draw(); lastT = performance.now(); if (raf) cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); document.getElementById('arcade-close').focus(); }
   function close(){ ov.hidden = true; active = false; if (raf) cancelAnimationFrame(raf); raf = null; if (opener && opener.focus) opener.focus(); }
   document.getElementById('play-invaders').addEventListener('click', open);
   document.getElementById('arcade-close').addEventListener('click', close);
@@ -1226,6 +1371,6 @@
   });
 })();
 </script>
-<script src="leva-chat.js?v=3"></script>
+<script src="leva-chat.js?v=4"></script>
 </body>
 </html>

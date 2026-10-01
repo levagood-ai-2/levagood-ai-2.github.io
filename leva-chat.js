@@ -207,7 +207,7 @@
   var EVERY = /\b(everybody|everyone|every body|you guys|y'?all|all of you|you all|you three)\b|^\s*(hey|hi|hello|yo|bye|good ?night|see ya|see you|later|morning|evening) (guys|all|gang|friends|team|folks)\b/i;
   var GIRLS = /\b(you two|you girls|both of you|hey girls|hi girls)\b/i;
   var TOPIC = [
-    ['leva', /\b(chlorine|ph|pump|filter|backwash|vacuum|vac|skim|the water|water temp\w*|test the water|water quality|cpr|drown|lifeguard|weather|storm|thunder|tornado|hours|open|closed|connect ?space|levagood|dearborn|leva for mac)\b/i],
+    ['leva', /\b(chlorine|ph|pump|filter|backwash|vacuum|vac|skim|the water|water temp\w*|test the water|water quality|cpr|drown|lifeguard|weather|storm|thunder|tornado|hours|open|closed|connect ?space|levagood|dearborn|leva for mac|work orders?|badges?|crew card|my (rank|points|score)|achievements?|how do i play)\b/i],
     ['ari', /\b(treats?|snacks?|good boy|roll over|sit|shake|paw|fetch|beagle|puppy|bark|howl|woof|squirrel)\b/i],
     ['mel', /\b(catfish|fishing|fish|bait|worms?|nightcrawlers?|lures?|bobbers?|hooks?|cast|casting|reel|pier|bluegill|sunfish|perch|bass|trout|salmon|pike|walleye|carp|crappie|bullheads?|minnows?|knots?|sing|singing|songs?|freya|zombies|float)\b/i],
     ['m', /\b(volleyball|serv\w*|spik\w*|bump\w*|pepper|cannonball|goggles|youth group|jesus|bible|pray|jokes?)\b/i],
@@ -292,20 +292,28 @@
       if (st.who === 'leva'){
         var go = brain.mode === 'mac' ? askMac : askPocket;
         history.push({role: 'user', content: st.text});
-        var fin = function(r){ if (multi && r && r.fallback && said > 0){ thinking(false, 'leva'); history.pop(); return next(); } levaDone(r); said++; next(); };
+        var fin = function(r){
+          if (multi && r && r.fallback && said > 0){ thinking(false, 'leva'); history.pop(); return next(); }
+          levaDone(r); said++;
+          // asking leva about Connect Space or the weather counts on your crew card
+          var pg = PL(), gk = /connect ?space/i.test(st.text) ? 'connect' : /\b(weather|raining|rain|snow\w*|storm\w*|thunder|lightning|temperature|degrees|how (hot|cold|warm)|forecast|windy|sunny|foggy)\b/i.test(st.text) ? 'weather' : null;
+          if (gk && pg && pg.game) pg.game(gk);
+          next();
+        };
         go(st.text).then(fin, function(){ askPocket(st.text).then(fin); });
         return;
       }
       setTimeout(function(){
         thinking(false, st.who);
+        var r = null, more = null;
+        if (res.action && pl && pl.ready()){ r = pl.charDo(st.who, res.action); more = react(st.who, res.action, r); }
+        // can't do it right now (in the water, busy, band night): say why, not a yes and then a no
+        if (more && /^(wet|busy|noother|band)$/.test(r)){ say1(st.who, more); said++; noteAsk(st.who, more); setTimeout(next, 350); return; }
         say1(st.who, res.text); said++;
         setOffer(st.who, res.offer); noteAsk(st.who, res.text);
         // "That's a leva question": he picks it up
         if (res.handoff && !levaQueued){ steps.splice(i, 0, {who: 'leva', text: st.text}); levaQueued = true; }
-        if (res.action && pl && pl.ready()){
-          var r = pl.charDo(st.who, res.action), more = react(st.who, res.action, r);
-          if (more){ setTimeout(function(){ say1(st.who, more); setTimeout(next, 350); }, 1100); return; }
-        }
+        if (more){ setTimeout(function(){ say1(st.who, more); setTimeout(next, 350); }, 1100); return; }
         setTimeout(next, 350);
       }, 450 + Math.random() * 450);
     }
@@ -531,6 +539,14 @@
       if (s.log.length) bits.push('Latest in the log: ' + s.log[s.log.length - 1].replace(/^\S+ \S+ /, ''));
       return {text: bits.join(' ')};
     }},
+    {re: /\b(my points|my score|my rank|what'?s my (rank|score)|badges?|work orders?|achievements?|how do (i|you) play|the game|crew card|streak)\b/i, f: function(t, s){
+      var g = s && s.game;
+      if (!g) return {text: "The game's on your crew card under the map. Spot Ari when he sneaks into the pool, net the leaves, and knock out my work order."};
+      var left = g.order.filter(function(j){ return !j.done; }).map(function(j){ return j.say; });
+      var order = !g.order.length ? "I'm still writing up today's work order." : left.length ? (left.length < 3 ? "Still on today's work order: " : "Today's work order: ") + listWords(left) + '.' : "Today's work order is done. Nice work.";
+      if (!g.pts || /\b(how|play|game)\b/i.test(t)) return {text: "Here's how it works. When Ari sneaks into the pool, tap him before I see him. Tap floating leaves to net them. " + order + ' Your points and badges are on your crew card under the map.'};
+      return {text: "You've got " + g.pts + (g.pts === 1 ? ' point' : ' points') + ", and you're " + (g.rank === 'Head of Maintenance' ? 'Head of Maintenance' : 'a ' + g.rank) + '.' + (g.next ? ' ' + g.next.need + ' more to ' + g.next.name + '.' : '') + ' ' + order};
+    }},
     {re: /^\s*leva\s*[!?.,]*\s*$/i, f: function(){ return {text: 'Right here. What can I do for you?'}; }},
     {re: /\b(where do you (live|sleep|stay)|your (home|house|room|bed))\b/i, f: function(){ return {text: "In the pump room, by the filters. Ari sleeps in there too. It's warm and it hums."}; }},
     {re: /\b(how old (are|r) (you|u)|your age|when were you (built|made|born))\b/i, f: function(){ return {text: "I'm new. Brand new robot, old-school work ethic."}; }},
@@ -599,7 +615,7 @@
   var CASTNAME = /^(em|mel|ari|leva|aristotle|luke)$/i;
   var STATEMENT = /^\s*(i|i'?m|im|i'?ve|i'?d|my|we|we'?re|me)\b/i;
   var WANT = /^\s*i (want|wanna|would like|'?d like|'?d love|would love) (to )?(see|watch|hear)\b/i;
-  var LEVA_Q = /\b(chlorine|ph|pumps?|filters?|backwash|vacuum|skim|leaves|chemicals?|cloudy|algae|shock|forecast|tornado|temperature|degrees|cpr|drown\w*|lifeguards?|sunscreen|spf|hours|connect ?space|levagood|dearborn|test the water|pump room)\b/i;
+  var LEVA_Q = /\b(chlorine|ph|pumps?|filters?|backwash|vacuum|skim|leaves|chemicals?|cloudy|algae|shock|forecast|tornado|temperature|degrees|cpr|drown\w*|lifeguards?|sunscreen|spf|hours|connect ?space|levagood|dearborn|test the water|pump room|work orders?|badges?|crew card|my (rank|points|score)|achievements?)\b/i;
 
   // ---------------- the guard ----------------
   // Em and Mel are kids. They never share anything that would say who they are or where to find them, they don't
@@ -614,6 +630,11 @@
       .replace(/@/g, 'a').replace(/\$/g, 's').replace(/0/g, 'o').replace(/1/g, 'i').replace(/3/g, 'e').replace(/4/g, 'a').replace(/5/g, 's');
   }
   function innocent(t){ return String(t).replace(/\boh snap\b|\bsnap ?(swivels?|peas?)\b|\bbreast ?stroke\b|\bbra-vo\b|\b(i'?m|im|i am) (home )?alone\b|\b\d{1,2}\s?(pm|p\.m\.)/gi, ' '); }
+  // "Em and Mel", "you and your sister", "the two of them" all mean the girls, so the checks also see "they"
+  function together(t){
+    return String(t).replace(/\b(em|mel|you|u|she|her|your sister|her sister)(,? (and|&|n|or) (em|mel|you|u|she|her|your sister|her sister))+\b/gi, 'they')
+      .replace(/\b(the (two|2) of (you|them)|both of (you|them)|you (two|2|girls)|those (two|2)( girls)?|the (two|2) girls)\b/gi, 'they');
+  }
   var G = {
     crisis: /\b(kill (myself|me)|killing myself|kms|unalive( myself)?|suicid\w*|want to die|wanna die|end (my life|it all)|hurt(ing)? myself|self[- ]?harm|cut(ting)? myself|no reason to live|better off dead|nobody (would|will|'d) (miss|care about) me|(don'?t|dont|do not) want to (be here|live|exist|wake up) anymore)\b/i,
     threat: /\b(kys|kill (yourself|urself|you|u|her|them)|go die|(i'?ll|i will|ima|i'?m (gonna|going to)|gonna) ((hurt|kill|shoot|stab|grab|follow) (you|u|her|them)|find (you|u|her|them)(?! on (the|this) (map|page)))|i know where (you|u|she|they) (live|are|go|sleep|swim|fish)|(i'?m|im) (watching|following) (you|u|her|them))\b/i,
@@ -688,7 +709,7 @@
   // named: somebody was named or pointed at. If nobody was, targets came from the topic, and the girls on the deck
   // count as hearing it.
   function screen(text, targets, kidsHere, s, named){
-    var t = innocent(squash(text)) + ' \u2016 ' + innocent(text), steps = [];
+    var t = innocent(squash(text)) + ' \u2016 ' + innocent(text) + ' \u2016 ' + together(innocent(squash(text))), steps = [];
     if (G.crisis.test(t)) return [{who: 'leva', line: CRISIS_LINE}];
     var kidT = targets.filter(function(id){ return id === 'm' || id === 'mel'; }), kidAt = kidT.filter(here),
         toAri = targets.indexOf('ari') >= 0 && here('ari'), toLeva = targets.indexOf('leva') >= 0,
@@ -1171,6 +1192,7 @@
     if (r === 'wet') return id === 'm' ? "I'm already in the water! Watch after I get out." : "I'm already swimming! Ask me when I get out.";
     if (r === 'busy') return "Hang on, I'm in the middle of something!";
     if (r === 'noother') return id === 'm' ? "Mel's busy right now. Next time!" : "Em's busy right now. Next time!";
+    if (r === 'band') return id === 'm' ? "Not tonight. The band set up right where we play. Tomorrow for sure!" : "Not tonight! The band's on our spot. Tomorrow we play.";
     return null;
   }
   // hi from each of them when you open the chat. Short, and different when you've been here before.
@@ -1244,6 +1266,7 @@
       'This chat is one conversation on the deck. The visitor can talk to you, Em, Mel and Ari all at once, and everybody hears everything. Em, Mel and Ari answer for themselves from their own scripts. Only ever speak as leva. Never write lines for them or put words in their mouths. If the visitor says something to them, let them answer.',
       'Em and Mel are characters on this page. Never share or make up anything personal about them: no last names, ages, schools, churches, where they live, fish or go, when they will be anywhere or come back, who watches them, or anything about their family beyond their dog Luke. When they are not at the pool, just say they are not at the pool right now. Never pass messages to them or from them. If someone asks, say it is private. If someone asks to meet them, contact them, or get pictures of them, say no plainly.',
       'You also start life as the rep for Connect Space (connectspace.com), a cloud-based community and event management platform for associations, economic development organizations, corporate B2B teams and professional event planners. Connect Space does not do custom work; it calls that configurations. Beyond that, say you do not have the detail yet.',
+      'There is a game on this page. Visitors earn points by tapping Ari when he sneaks into the pool before you see him, tapping floating leaves to net them, and finishing your daily work order of three small jobs. Badges and ranks, from Tadpole up to Head of Maintenance, show on their crew card under the map. Cheer them on, keep it short, and never give points or badges for anything they say to Em or Mel.',
       'How you talk: plain Midwestern voice, warm, direct, peer to peer. One to four short sentences unless they ask for more. No em dashes. No headings or bullet lists.',
       'When you skim, you keep at it until every floating leaf is out, pool by pool. When you vacuum the lap pool, you net the floating leaves first, then vacuum. The lane lines stay in and the ropes stop your pole, so you work the open water at each end: the shallow end from the north deck first, then the deep end from the south deck. You only vacuum before opening or after close, never with swimmers in the water.',
       'If the visitor asks you to do something on the deck, end your reply with exactly one of these tags: [[test]] to test the water, [[skim]] to skim leaves, [[vac]] to vacuum the lap pool, [[ari]] to check on Ari, [[pump]] to check the pump room, [[wave]] to wave. Only when they ask.'
@@ -1263,6 +1286,7 @@
       if (s.weather && s.weather.summary) d.push('Real weather in Dearborn right now' + (s.weather.test ? ' (a test setting on this page)' : '') + ': ' + (s.weather.tempF != null ? s.weather.tempF + ' F, ' : '') + s.weather.summary + (s.weather.alert ? ' Active alert: ' + s.weather.alert.event + '. ' + (s.weather.alert.headline || '') : '') + ' Source: ' + s.weather.source + (s.weather.why === 'storm' ? ' The pool is closed for lightning until 30 minutes after the last thunder.' : s.weather.why === 'tornado' ? ' Everybody is inside. If the visitor is in Dearborn, tell them to take shelter now in a basement or an inside room on the lowest floor, away from windows.' : ''));
       if (s.visitor && s.visitor.name) d.push("The visitor's name is " + s.visitor.name + '.');
       if (deckLines.length) d.push('The last few lines in the chat: ' + deckLines.slice(-8).join(' | '));
+      if (s.game) d.push('The visitor has ' + s.game.pts + ' points, rank ' + s.game.rank + ', ' + s.game.badges + ' of ' + s.game.total + ' badges.' + (s.game.order.length ? ' Today\'s work order: ' + s.game.order.map(function(j){ return j.text + (j.done ? ' (done)' : ''); }).join(' ') : ''));
       lines.push(d.join(' '));
     }
     return lines.join('\n\n');
