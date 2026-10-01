@@ -228,8 +228,9 @@
     m: {cannonball: 1, float: 0.2, handstand: 0.75, run: 0.55, facts: 0, volley: 0.35, volleyBest: 4, volleys: 0, rallyBest: 0},
     mel: {cannonball: 0.1, float: 1, handstand: 0.2, run: 0.2, facts: 0, fish: 2, bump: 0.35, sings: 0},
     chem: null, log: [], visitor: {name: '', chats: 0, topics: {}, met: {}, likes: {}},
-    // the visitor's game: points, badges, and leva's daily work order
-    game: {pts: 0, badges: {}, n: {spots: 0, leaves: 0, cards: {}, rooms: {}}, order: null, streak: {last: '', n: 0, best: 0}, daily: {day: '', watch: 0, ask: 0}, hello: false, fresh: null}
+    // the visitor's game: points, badges, leva's daily work order, your swim level, your towel and the Swim Team
+    game: {pts: 0, badges: {}, n: {spots: 0, leaves: 0, cards: {}, rooms: {}}, order: null, streak: {last: '', n: 0, best: 0}, daily: {day: '', watch: 0, ask: 0}, hello: false, fresh: null,
+      lvl: null, towel: null, tryout: null, team: 0}
   };
   // anything new since a visitor was last here gets its starting value
   var DEFAULTS = JSON.parse(JSON.stringify(MEM));
@@ -396,6 +397,13 @@
         var px = Math.round(f.x * 2), py = Math.round(f.y * 2 - 14 - f.t * 26);
         lc.save(); lc.globalAlpha = Math.min(1, a * 1.6); lc.font = '16px Silkscreen, monospace'; lc.textAlign = 'center'; lc.lineJoin = 'round';
         lc.lineWidth = 4; lc.strokeStyle = '#0A0A0A'; lc.strokeText(f.text, px, py); lc.fillStyle = '#FFD23A'; lc.fillText(f.text, px, py); lc.restore();
+      }
+      else if (f.k === 'tag'){
+        var tx2 = Math.round(f.x * 2), ty2 = Math.round(f.y * 2 - 12 - Math.abs(Math.sin(f.t * 3)) * 4);
+        lc.save(); lc.globalAlpha = Math.min(1, a * 3); lc.font = '14px Silkscreen, monospace'; lc.textAlign = 'center'; lc.lineJoin = 'round';
+        lc.lineWidth = 4; lc.strokeStyle = '#0A0A0A'; lc.strokeText(f.text, tx2, ty2); lc.fillStyle = '#ffffff'; lc.fillText(f.text, tx2, ty2);
+        lc.fillStyle = '#0A0A0A'; lc.fillRect(tx2 - 4, ty2 + 4, 8, 3); lc.fillRect(tx2 - 2, ty2 + 7, 4, 2);
+        lc.fillStyle = '#ffffff'; lc.fillRect(tx2 - 3, ty2 + 4, 6, 2); lc.fillRect(tx2 - 1, ty2 + 6, 2, 2); lc.restore();
       }
       else if (f.k === 'scoop'){
         lc.save(); lc.globalAlpha = a * (f.faint ? 0.5 : 0.9); lc.strokeStyle = '#ffffff'; lc.lineWidth = f.faint ? 1.5 : 2.5;
@@ -1656,6 +1664,24 @@
       for (var r = 0; r < 16; r++){ ctx.fillStyle = Math.floor(r / 2) % 2 ? t[2] : t[1]; ctx.fillRect(x, y + r, 10, 1); }
     });
   }
+  // your towel, once you make Level 3: on the lounge chair, in your color, with a team stripe if you made the team
+  function towelColor(){ var k = GM && GM.towel; for (var i = 0; i < TOWEL_COLORS.length; i++) if (TOWEL_COLORS[i][0] === k) return TOWEL_COLORS[i][2]; return TOWEL_COLORS[0][2]; }
+  function hasTowel(){ return !!(GM && levelOf(GM.pts) + 1 >= TOWEL_AT); }
+  function paintTowel(c, x, y, color, team){
+    c.fillStyle = 'rgba(20,24,40,.18)'; c.fillRect(x + 1, y + 1, 10, 14);
+    c.fillStyle = color; c.fillRect(x, y, 10, 14);
+    c.fillStyle = '#ffffff'; c.fillRect(x, y + 2, 10, 1); c.fillRect(x, y + 11, 10, 1);
+    for (var i = 0; i < 10; i += 2){ c.fillRect(x + i, y, 1, 1); c.fillRect(x + i, y + 13, 1, 1); }
+    if (team){ c.fillStyle = '#1b2a4a'; c.fillRect(x + 3, y, 4, 14); c.fillStyle = '#FFD23A'; c.fillRect(x + 4, y, 2, 14); }
+  }
+  function drawYourTowel(ctx){ if (hasTowel()) paintTowel(ctx, MY_TOWEL[0], MY_TOWEL[1], towelColor(), !!GM.team); }
+  function towelTag(){
+    // with reduced motion the map is one still frame, so it gets redrawn to show the towel as it is now
+    if (reduce && api && api.redraw) api.redraw();
+    if (!hasTowel()) return;
+    fx = fx.filter(function(f){ return f.k !== 'tag'; });
+    fx.push({k: 'tag', x: MY_TOWEL[0] + 5, y: MY_TOWEL[1], t: 0, life: 4, text: 'YOUR TOWEL'});
+  }
   function drawLevaExtras(c){
     if (lv.hidden || walled(lv.x, lv.y)) return;
     var X = lv.x * 2, Y = lv.y * 2;
@@ -1744,6 +1770,7 @@
     weatherStep(dt);
     chemStep(dt, open);
     drawTowels(api.ctx);
+    drawYourTowel(api.ctx);
     drawVacTrail(api.ctx);
     drawLeaves(api.ctx);
     splashStep(dt, api.ctx);
@@ -1814,9 +1841,10 @@
 
   // ================= the game =================
   // Visitors play along. Spot Ari when he sneaks into the pool before leva does, net the floating leaves, and knock
-  // out leva's daily work order. Points, badges and ranks save in this browser with the rest of the deck. Nothing here
+  // out leva's daily work order. Points move you up the swim levels, and Level 10 opens the Swim Team tryout. Points,
+  // badges, your level and your towel save in this browser with the rest of the deck. Nothing here
   // gives points for chatting with Em and Mel. Their badges come from watching what they do on the deck.
-  var GAME_ART = {"pal":{"k":"#0A0A0A","w":"#FFFFFF","p":"#FF2E88","q":"#FF96C8","c":"#16B8D0","d":"#9FE7F2","b":"#2f6fd6","e":"#9cc3ff","g":"#3fa34d","h":"#a7d957","y":"#FFD23A","o":"#F28C28","r":"#b4501f","s":"#e8a86a","n":"#6b4424","a":"#8f96a3","l":"#d9dbe3","v":"#8C6BFF","m":"#1b2a4a","R":"#d7263b","u":"#5d6675"},"icons":{"glass":["..kkkk....",".kddddk...","kdwddddk..","kdwddddk..","kddddddk..","kddddddk..",".kddddkk..","..kkkkkoo.",".......ooo","........oo"],"bolt":[".....yyyy.","....yyyy..","...yyyy...","..yyyy....",".yyyyyyyy.","....yyyy..","...yyyy...","..yyy.....",".yy.......",".y........"],"paw":["..rr..rr..","..rr..rr..","rr......rr","rr......rr","...rrrr...","..rrrrrr..",".rrrrrrrr.",".rrrrrrrr.","..rr..rr..",".........."],"leaf":[".......ggg",".....ggggg","...gggghgg","..ggghgggg",".gghggggg.",".ghggggg..","ghgggg....","hggg......","h.........","h........."],"net":["aaaaaaaaaa","algllhllga","allhllglla","alllgllhla","aaaaaaaaaa","....aa....","....aa....","....aa....","....aa....","....aa...."],"bone":["..........","..........","ss......ss","sss....sss",".ssssssss.",".ssssssss.","sss....sss","ss......ss","..........",".........."],"roll":["...pppp...",".pppppppp.",".pp....ppp","pp.....ppp","pp......p.","pp........","pp......pp",".pp....pp.",".pppppppp.","...pppp..."],"splash":["....c.....","..c.c..c..","...ccc.c..","c..ccc....",".c.cdc.c..","..cdddc...",".cddddddc.","cddddddddc","dddddddddd",".........."],"ball":["...wwww...",".wwbbwwww.",".wbbwwyyw.","wwbwwwyyyw","wbbwwwwyww","wwwwbbwwww","wyywbbbwww",".wyywwbbw.",".wwwwwwww.","...wwww..."],"note":["......pppp","....pppppp","....pp..pp","....pp..pp","....pp..pp","....pp..pp","..pppp..pp",".ppppp.ppp",".pppp.pppp","..pp..ppp."],"catfish":["..........","...uuuu...",".uuuuuuu.u","uwuuuuuuuu","uuuuuuuuuu",".uauuuuu.u","n..aaaa...",".n........","n.........",".........."],"drop":["....b.....","....b.....","...bbb....","...bbb....","..bbbbb...","..bebbb...",".bbebbbb..",".bbbbbbb..","..bbbbb...","...bbb...."],"talk":["..........",".pppppppp.","pppppppppp","ppwppwppwp","pppppppppp",".pppppppp.","..pp......","..p.......","..........",".........."],"key":["..yyy.....",".yy.yy....",".yy.yy....","..yyy.....","...y......","...y......","...yyy....","...y......","...yy.....","...y......"],"invader":["..........","..vvvvvv..","..vvvvvv..","vvvvvvvvvv","vvvvvvvvvv","vv..vv..vv","vv..vv..vv","..vv..vv..","..vv..vv..",".........."],"star":["....yy....","....yy....","...yyyy...","yyyyyyyyyy",".yyyyyyyy.","..yyyyyy..","..yyyyyy..",".yyy..yyy.",".yy....yy.",".........."],"rain":["..........","...llll...",".llllllll.","llllllllll","llllllllll",".llllllll.","..........",".b..b..b..","b..b..b...",".........."],"snow":["....e.....",".e..e..e..","..e.e.e...","...eee....","eeeeeeeee.","...eee....","..e.e.e...",".e..e..e..","....e.....",".........."],"storm":["...aaaa...",".aaaaaaaa.","aaaaaaaaaa",".aaaaaaaa.","....yy....","...yy.....","..yyyy....","....yy....","...yy.....","...y......"],"sun":["y...y...y.",".y..y..y..","...ooo....","..ooyoo...","yyoyyyoyy.","..ooyoo...","...ooo....",".y..y..y..","y...y...y.",".........."],"wind":["..........","eeeeee....","......e...","eeeeeee...","..........","eeeeeeeee.",".........e","eeeee...e.",".....eee..",".........."],"moon":["...yyyy...","..yyy.....",".yyy......",".yy......w",".yy.......",".yyy......","..yyy.....","...yyyy...","..........","....w....."],"rise":["....y.....",".y..y..y..","..y...y...","...ooo....","..ooooo...",".ooooooo..","bbbbbbbbbb","eeeeeeeeee","bbbbbbbbbb",".........."],"clip":["...nnnn...",".nnaaaann.",".nwwwwwwn.",".nwmmmmwn.",".nwwwwwwn.",".nwmmmmwn.",".nwwwwwwn.",".nwmmmwwn.",".nwwwwwwn.",".nnnnnnnn."],"flame":["....o.....","...oo.....","...ooo..o.","..oooo.oo.",".ooyoooooo",".oyyyoooo.",".oyyyyooo.",".ooyyyooo.","..oooooo..","...oooo..."],"cup":["yyyyyyyyyy","y.yyyyyy.y","y.yyyyyy.y",".yyyyyyyy.","..yyyyyy..","...yyyy...","....yy....","....yy....","..yyyyyy..","..nnnnnn.."],"tadpole":["..........","...mmm....","..mmmmm...","..mwmmm...","..mmmmm...","...mmmm...","....mmm...",".....mm...","......mm..",".......m.."],"minnow":["..........","..........","...aaaa..a",".aaaaaaaaa","awaaaaaaa.",".aaaaaaaaa","...aaaa..a","..........","..........",".........."],"bluegill":["..........","...bbbb..b",".bbbbbbbbb","bwbbbbbbb.","bbooooobb.",".bbooobbbb","...bbbb..b","..........","..........",".........."],"ring":["...RwwR...",".RRRwwRRR.",".RR....RR.","ww......ww","ww......ww",".RR....RR.",".RRRwwRRR.","...RwwR...","..........",".........."]}};
+  var GAME_ART = {"pal":{"k":"#0A0A0A","w":"#FFFFFF","p":"#FF2E88","q":"#FF96C8","c":"#16B8D0","d":"#9FE7F2","b":"#2f6fd6","e":"#9cc3ff","g":"#3fa34d","h":"#a7d957","y":"#FFD23A","o":"#F28C28","r":"#b4501f","s":"#e8a86a","n":"#6b4424","a":"#8f96a3","l":"#d9dbe3","v":"#8C6BFF","m":"#1b2a4a","R":"#d7263b","u":"#5d6675"},"icons":{"glass":["..kkkk....",".kddddk...","kdwddddk..","kdwddddk..","kddddddk..","kddddddk..",".kddddkk..","..kkkkkoo.",".......ooo","........oo"],"bolt":[".....yyyy.","....yyyy..","...yyyy...","..yyyy....",".yyyyyyyy.","....yyyy..","...yyyy...","..yyy.....",".yy.......",".y........"],"paw":["..rr..rr..","..rr..rr..","rr......rr","rr......rr","...rrrr...","..rrrrrr..",".rrrrrrrr.",".rrrrrrrr.","..rr..rr..",".........."],"leaf":[".......ggg",".....ggggg","...gggghgg","..ggghgggg",".gghggggg.",".ghggggg..","ghgggg....","hggg......","h.........","h........."],"net":["aaaaaaaaaa","algllhllga","allhllglla","alllgllhla","aaaaaaaaaa","....aa....","....aa....","....aa....","....aa....","....aa...."],"bone":["..........","..........","ss......ss","sss....sss",".ssssssss.",".ssssssss.","sss....sss","ss......ss","..........",".........."],"roll":["...pppp...",".pppppppp.",".pp....ppp","pp.....ppp","pp......p.","pp........","pp......pp",".pp....pp.",".pppppppp.","...pppp..."],"splash":["....c.....","..c.c..c..","...ccc.c..","c..ccc....",".c.cdc.c..","..cdddc...",".cddddddc.","cddddddddc","dddddddddd",".........."],"ball":["...wwww...",".wwbbwwww.",".wbbwwyyw.","wwbwwwyyyw","wbbwwwwyww","wwwwbbwwww","wyywbbbwww",".wyywwbbw.",".wwwwwwww.","...wwww..."],"note":["......pppp","....pppppp","....pp..pp","....pp..pp","....pp..pp","....pp..pp","..pppp..pp",".ppppp.ppp",".pppp.pppp","..pp..ppp."],"catfish":["..........","...uuuu...",".uuuuuuu.u","uwuuuuuuuu","uuuuuuuuuu",".uauuuuu.u","n..aaaa...",".n........","n.........",".........."],"drop":["....b.....","....b.....","...bbb....","...bbb....","..bbbbb...","..bebbb...",".bbebbbb..",".bbbbbbb..","..bbbbb...","...bbb...."],"talk":["..........",".pppppppp.","pppppppppp","ppwppwppwp","pppppppppp",".pppppppp.","..pp......","..p.......","..........",".........."],"key":["..yyy.....",".yy.yy....",".yy.yy....","..yyy.....","...y......","...y......","...yyy....","...y......","...yy.....","...y......"],"invader":["..........","..vvvvvv..","..vvvvvv..","vvvvvvvvvv","vvvvvvvvvv","vv..vv..vv","vv..vv..vv","..vv..vv..","..vv..vv..",".........."],"star":["....yy....","....yy....","...yyyy...","yyyyyyyyyy",".yyyyyyyy.","..yyyyyy..","..yyyyyy..",".yyy..yyy.",".yy....yy.",".........."],"rain":["..........","...llll...",".llllllll.","llllllllll","llllllllll",".llllllll.","..........",".b..b..b..","b..b..b...",".........."],"snow":["....e.....",".e..e..e..","..e.e.e...","...eee....","eeeeeeeee.","...eee....","..e.e.e...",".e..e..e..","....e.....",".........."],"storm":["...aaaa...",".aaaaaaaa.","aaaaaaaaaa",".aaaaaaaa.","....yy....","...yy.....","..yyyy....","....yy....","...yy.....","...y......"],"sun":["y...y...y.",".y..y..y..","...ooo....","..ooyoo...","yyoyyyoyy.","..ooyoo...","...ooo....",".y..y..y..","y...y...y.",".........."],"wind":["..........","eeeeee....","......e...","eeeeeee...","..........","eeeeeeeee.",".........e","eeeee...e.",".....eee..",".........."],"moon":["...yyyy...","..yyy.....",".yyy......",".yy......w",".yy.......",".yyy......","..yyy.....","...yyyy...","..........","....w....."],"rise":["....y.....",".y..y..y..","..y...y...","...ooo....","..ooooo...",".ooooooo..","bbbbbbbbbb","eeeeeeeeee","bbbbbbbbbb",".........."],"clip":["...nnnn...",".nnaaaann.",".nwwwwwwn.",".nwmmmmwn.",".nwwwwwwn.",".nwmmmmwn.",".nwwwwwwn.",".nwmmmwwn.",".nwwwwwwn.",".nnnnnnnn."],"flame":["....o.....","...oo.....","...ooo..o.","..oooo.oo.",".ooyoooooo",".oyyyoooo.",".oyyyyooo.",".ooyyyooo.","..oooooo..","...oooo..."],"cup":["yyyyyyyyyy","y.yyyyyy.y","y.yyyyyy.y",".yyyyyyyy.","..yyyyyy..","...yyyy...","....yy....","....yy....","..yyyyyy..","..nnnnnn.."],"tadpole":["..........","...mmm....","..mmmmm...","..mwmmm...","..mmmmm...","...mmmm...","....mmm...",".....mm...","......mm..",".......m.."],"minnow":["..........","..........","...aaaa..a",".aaaaaaaaa","awaaaaaaa.",".aaaaaaaaa","...aaaa..a","..........","..........",".........."],"bluegill":["..........","...bbbb..b",".bbbbbbbbb","bwbbbbbbb.","bbooooobb.",".bbooobbbb","...bbbb..b","..........","..........",".........."],"ring":["...RwwR...",".RRRwwRRR.",".RR....RR.","ww......ww","ww......ww",".RR....RR.",".RRRwwRRR.","...RwwR...","..........",".........."],"cap1":["...dddd...",".ddwddddd.",".dddddddd.","dddddkdddd","ddddkkdddd","dddddkdddd","dddddkdddd","ddddkkkddd","dddddddddd",".........."],"cap2":["...yyyy...",".yywyyyyy.",".yyyyyyyy.","yyyykkkyyy","yyyyyykyyy","yyyykkkyyy","yyyykyyyyy","yyyykkkyyy","yyyyyyyyyy",".........."],"cap3":["...oooo...",".oowooooo.",".oooooooo.","ooookkkooo","ooooookooo","oooookkooo","ooooookooo","ooookkkooo","oooooooooo",".........."],"cap4":["...RRRR...",".RRqRRRRR.",".RRRRRRRR.","RRRRwRwRRR","RRRRwRwRRR","RRRRwwwRRR","RRRRRRwRRR","RRRRRRwRRR","RRRRRRRRRR",".........."],"cap5":["...pppp...",".ppqppppp.",".pppppppp.","ppppwwwppp","ppppwppppp","ppppwwwppp","ppppppwppp","ppppwwwppp","pppppppppp",".........."],"cap6":["...vvvv...",".vvevvvvv.",".vvvvvvvv.","vvvvwwwvvv","vvvvwvvvvv","vvvvwwwvvv","vvvvwvwvvv","vvvvwwwvvv","vvvvvvvvvv",".........."],"cap7":["...bbbb...",".bbebbbbb.",".bbbbbbbb.","bbbbwwwbbb","bbbbbbwbbb","bbbbbbwbbb","bbbbbwbbbb","bbbbbwbbbb","bbbbbbbbbb",".........."],"cap8":["...gggg...",".gghggggg.",".gggggggg.","ggggwwwggg","ggggwgwggg","ggggwwwggg","ggggwgwggg","ggggwwwggg","gggggggggg",".........."],"cap9":["...mmmm...",".mmummmmm.",".mmmmmmmm.","mmmmwwwmmm","mmmmwmwmmm","mmmmwwwmmm","mmmmmmwmmm","mmmmwwwmmm","mmmmmmmmmm",".........."],"cap10":["...kkkk...",".kkukkkkk.",".kkkkkkkk.","kkkykyyykk","kkyykykykk","kkkykykykk","kkkykykykk","kkkykyyykk","kkkkkkkkkk",".........."],"team":["...ymmy...",".yywmmyyy.",".yyymmyyy.","yyyymmyyyy","yyyymmyyyy","yyyymmyyyy","yyyymmyyyy","yyyymmyyyy","yyyymmyyyy",".........."],"towel":["..........","bbbbbbbbbb","wwwwwwwwww","bbbbbbbbbb","wwwwwwwwww","bbbbbbbbbb","wwwwwwwwww","bbbbbbbbbb","l.l.l.l.l.",".........."]}};
   var BADGES = [
     {id: 'spotter', name: 'Beagle Spotter', desc: 'Spot Ari in the pool before leva does.', pts: 25, icon: 'glass'},
     {id: 'eagle', name: 'Eagle Eye', desc: 'Spot Ari within 2 seconds of him jumping in.', pts: 40, icon: 'bolt'},
@@ -1843,10 +1871,36 @@
     {id: 'early', name: 'Early Bird', desc: 'Stop by before the pool opens in the morning.', pts: 15, icon: 'rise'},
     {id: 'order', name: 'Clocked In', desc: "Finish leva's daily work order.", pts: 20, icon: 'clip'},
     {id: 'streak3', name: 'Three-Day Shift', desc: 'Finish work orders 3 days in a row.', pts: 50, icon: 'flame'},
-    {id: 'streak7', name: 'Full Week', desc: 'Finish work orders 7 days in a row.', pts: 100, icon: 'cup'}
+    {id: 'streak7', name: 'Full Week', desc: 'Finish work orders 7 days in a row.', pts: 100, icon: 'cup'},
+    {id: 'team', name: 'Swim Team', desc: 'Reach Level 10 and pass the Swim Team tryout.', pts: 100, icon: 'team'}
   ];
   var BADGE = {}; BADGES.forEach(function(b){ BADGE[b.id] = b; });
-  var RANKS = [['Tadpole', 0, 'tadpole'], ['Minnow', 100, 'minnow'], ['Bluegill', 300, 'bluegill'], ['Catfish', 700, 'catfish'], ['Lifeguard', 1500, 'ring'], ['Head of Maintenance', 3000, 'heart']];
+  // Swim levels. Your points move you up one swim skill at a time, and each level has its own numbered cap.
+  var LEVELS = [['Bubbles', 0], ['Floater', 50], ['Glider', 125], ['Kicker', 250], ['Freestyle', 400], ['Side Breather', 600], ['Backstroke', 850], ['Breaststroke', 1150], ['Deep Water', 1500], ['Butterfly', 2000]];
+  var TOP = LEVELS.length, TOWEL_AT = 3, COLOR_AT = 5;
+  // leva coaches you up each level
+  var COACH = [null, 'Floater. Lie back and let the water hold you up.', 'Glider. Push off the wall and stay long.', 'Kicker. Small kicks, from the hips.',
+    'Freestyle. Long arms, steady kick.', "Side Breather. Turn your head. Don't lift it.", "Backstroke. Watch for the flags so you don't bonk the wall.",
+    'Breaststroke. Pull, breathe, kick, glide.', "Deep Water. You're cleared for the diving well.", "Butterfly. That's the hard one."];
+  // Level 10 opens the Swim Team tryout: three jobs that count from the day it opens
+  var TRYOUT = {
+    sprint: {text: 'Sprint: spot Ari within 5 seconds of him jumping in.', need: 1, say: 'spot Ari within 5 seconds of him jumping in'},
+    distance: {text: 'Distance: net 25 leaves off the water.', need: 25, say: 'net 25 leaves off the water'},
+    relay: {text: "Teamwork: finish a whole day's work order.", need: 1, say: "finish a whole day's work order"}
+  };
+  var TRY_IDS = ['sprint', 'distance', 'relay'], TRY_PTS = 25;
+  // your towel: a pool towel at Level 3, the color you pick at Level 5, and a team stripe when you make the team.
+  // It goes on the south lounge chair closest to the lap pool, where nobody walks.
+  var TOWEL_COLORS = [['blue', 'Blue', '#2f6fd6'], ['pink', 'Pink', '#FF2E88'], ['orange', 'Orange', '#F28C28'], ['yellow', 'Yellow', '#FFD23A'], ['green', 'Green', '#3fa34d'], ['teal', 'Teal', '#16B8D0'], ['purple', 'Purple', '#8C6BFF'], ['navy', 'Navy', '#1b2a4a']];
+  var MY_TOWEL = [224, 345];
+  // Em and Mel cheer you on. Scripted lines only, and never any points for it.
+  var CHEERS = {
+    up: {m: ['Level {n}! Nice!', 'Whoa, {name}! Go you!', 'Yes! {name}!', 'Level {n}! Look at you go!'], mel: ['Level {n}! I knew it.', '{name}! Ari, did you see that?', 'Level {n}! That is so cool.', 'Go, go, go! {name}!']},
+    top: {m: ['Level 10! Butterfly is the hardest one!'], mel: ['Butterfly! Ari, did you see that?']},
+    team: {m: ['You made the Swim Team! Yes!'], mel: ['Swim Team! I knew it!']},
+    late: {m: ['You hit Level {n} while we were gone! Nice!', 'Whoa, {name} already? Go you!'], mel: ['{name}! You leveled up while we were gone.', 'Level {n} while we were gone? So cool.']},
+    lateTeam: {m: ['You made the Swim Team while we were gone? Yes!'], mel: ['Swim Team! I knew it!']}
+  };
   // leva's work order: one job from each group, the same for everybody that day
   var JOBS = {
     spot: {g: 'a', text: 'Spot Ari in the pool before leva does.', need: 1, say: 'spot Ari in the pool before I do'},
@@ -1868,7 +1922,9 @@
   var GM = null, gameDirty = true, gameClock = 0, watchClock = 0, thankedAt = -99, gameUI = null, flushT = null;
   function flushSoon(){ if (flushT) return; flushT = setTimeout(function(){ flushT = null; if (gameDirty){ gameDirty = false; renderGame(); } }, 60); }
   var TIME_TEST = /[?&](time|open)=/.test(location.search);
-  function rankOf(p){ var i = 0; for (var k = 0; k < RANKS.length; k++) if (p >= RANKS[k][1]) i = k; return i; }
+  function levelOf(p){ var i = 0; for (var k = 0; k < LEVELS.length; k++) if (p >= LEVELS[k][1]) i = k; return i; }
+  // where you stand: your level number, or one past the top once you make the team
+  function standing(){ return GM.team ? TOP + 1 : levelOf(GM.pts) + 1; }
   function yesterday(){ var d = new Date(); d.setDate(d.getDate() - 1); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
   function seeded(str){
     var h = 2166136261; for (var i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
@@ -1893,12 +1949,13 @@
     var d = GM.daily; if (d.day !== today()) GM.daily = d = {day: today(), watch: 0, ask: 0};
     var give = Math.max(0, Math.min(pts, (kind === 'watch' ? 60 : 30) - d[kind])); d[kind] += give; return give;
   }
-  // points: in the total, floating over the map where you earned them, and a new rank when you cross the line
+  // points: in the total, floating over the map where you earned them, and a new swim level when you cross the line
   function award(pts, at){
     if (!GM || !pts) return;
-    var before = rankOf(GM.pts); GM.pts += pts;
+    GM.pts += pts;
     if (at) fx.push({k: 'pts', x: at[0], y: at[1], t: 0, life: 1.4, text: '+' + pts});
-    var after = rankOf(GM.pts); if (after > before) rankUp(after);
+    var now = levelOf(GM.pts);
+    if (GM.lvl == null) GM.lvl = now; else if (now > GM.lvl){ var was = GM.lvl; GM.lvl = now; levelUp(was, now); }
     gameDirty = true; save(); flushSoon();
   }
   function badge(id){
@@ -1907,14 +1964,48 @@
     toast('Badge', b.name, b.pts, b.icon);
     award(b.pts);
   }
-  function rankUp(i){
-    toast('New rank', RANKS[i][0], 0, RANKS[i][2]);
-    var mel = kids.mel.here && !kids.mel.hidden && !chatLocked();
-    var lines = {1: [['leva', 'Minnow already. Not bad.']], 2: [['leva', "Bluegill. You're getting the hang of it."]],
-      3: mel ? [['mel', "Catfish rank! That's the best one. Obviously."]] : [['leva', 'Catfish rank. Mel would approve.']],
-      4: [['leva', "Lifeguard. I'll let you watch the deep end."]], 5: [['leva', 'Head of Maintenance. Welcome to the crew.']]}[i];
-    if (lines) convo(lines);
-    if (i === 5 && !lv.hidden) heart(lv.x, lv.y);
+  // a new swim level: its cap, a word from leva, a cheer from the girls if they're here, and whatever it unlocks
+  function levelUp(was, now){
+    var n = now + 1, more = [];
+    toast('Level ' + n, LEVELS[now][0], 0, 'cap' + n);
+    if (was + 1 < TOWEL_AT && n >= TOWEL_AT){ toast('Unlocked', 'Your towel on the deck', 0, 'towel'); more.push(['leva', 'I put a towel out for you. South deck, on the chair by the lap pool.']); towelTag(); }
+    if (was + 1 < COLOR_AT && n >= COLOR_AT){ toast('Unlocked', 'Pick your towel color', 0, 'towel'); more.push(['leva', 'Pick a color for your towel on your crew card.']); }
+    if (n >= TOP && openTryout()) more.push(['leva', 'The Swim Team tryout is open. Three jobs on your crew card.']);
+    var cheers = cheer(n >= TOP ? 'top' : 'up', n);
+    if (cheers.length) GM.cheered = Math.max(GM.cheered || 0, n);
+    convo([['leva', COACH[now]]].concat(cheers, more));
+  }
+  function cheer(kind, n){
+    if (chatLocked()) return [];
+    var who = ['m', 'mel'].filter(function(id){ var k = kids[id]; return k.here && !k.hidden && !k.leaving && !walled(k.x, k.y); });
+    if ((kind === 'up' || kind === 'late') && who.length > 1) who = [pick(who)];
+    return who.map(function(id){ return [id, pick(CHEERS[kind][id]).replace('{n}', n).replace('{name}', LEVELS[Math.min(TOP, n) - 1][0])]; });
+  }
+  function openTryout(){
+    if (GM.tryout || GM.team) return false;
+    GM.tryout = {at: Date.now(), n: {sprint: 0, distance: 0, relay: 0}};
+    toast('Unlocked', 'Swim Team tryout', 0, 'team'); gameDirty = true; save();
+    return true;
+  }
+  // a tryout job only counts once the tryout is open
+  function tryJob(id, n){
+    var t = GM && GM.tryout; if (!t || GM.team) return;
+    var need = TRYOUT[id].need; if (t.n[id] >= need) return;
+    t.n[id] = Math.min(need, t.n[id] + (n || 1)); gameDirty = true;
+    if (t.n[id] >= need){ toast('Tryout', TRYOUT[id].text.split(':')[0], TRY_PTS, 'team'); award(TRY_PTS); }
+    if (TRY_IDS.every(function(k){ return t.n[k] >= TRYOUT[k].need; })) makeTeam();
+    save(); flushSoon();
+  }
+  function makeTeam(){
+    if (GM.team) return;
+    GM.team = Date.now(); gameDirty = true;
+    toast('Swim Team', 'You made the team!', 0, 'team');
+    badge('team');
+    var cheers = cheer('team', TOP);
+    if (cheers.length) GM.cheered = TOP + 1;
+    convo([['leva', "You made the Swim Team. Your towel's got a team stripe now."]].concat(cheers));
+    if (!lv.hidden) heart(lv.x, lv.y);
+    towelTag();
   }
   function workJob(id, n){
     if (!GM) return;
@@ -1928,6 +2019,7 @@
       o.done = true;
       var s = GM.streak; s.n = s.last === yesterday() ? s.n + 1 : s.last === today() ? s.n : 1; s.last = today(); s.best = Math.max(s.best, s.n);
       toast('Work order done', s.n > 1 ? s.n + ' days in a row' : "That's the whole list", ORDER_BONUS, 'clip');
+      tryJob('relay');
       award(ORDER_BONUS);
       badge('order'); if (s.n >= 3) badge('streak3'); if (s.n >= 7) badge('streak7');
       if (!B.rescue) convo([['leva', pick(['Work order done. Thanks for the help.', "That's the whole list. Nice work.", 'All done. I could get used to this.'])]]);
@@ -1942,6 +2034,7 @@
     var secs = W.clock - ari.enterClock, at = [ari.x + 16, ari.y - 4];
     if (ari.noticed){ award(5, at); return true; }
     GM.n.spots++;
+    if (secs < 5) tryJob('sprint');
     award(20 + (secs < 2 ? 30 : secs < 5 ? 15 : 0), at);
     ari.noticed = true; ari.noticeT = 0; ari.byVisitor = true;
     var r = pickRescue(ari.spot); B.rescue = r;
@@ -1961,6 +2054,7 @@
     W.leaves = W.leaves.filter(function(l){ var h = l === hit || (l.pool === hit.pool && Math.hypot(l.x - hit.x, l.y - hit.y) < 9); if (h) n++; return !h; });
     GM.n.leaves += n; MEM.today.youLeaves = (MEM.today.youLeaves || 0) + n; boardDirty = true;
     fx.push({k: 'scoop', x: hit.x, y: hit.y, t: 0, life: 0.5});
+    tryJob('distance', n);
     award(2 * n, [hit.x, hit.y - 4]);
     badge('leaf'); if (GM.n.leaves >= 100) badge('leaves');
     workJob('leaves', n);
@@ -2032,6 +2126,11 @@
       if (why === 'wind') badge('wind');
     }
     if (!TIME_TEST){ var h = new Date().getHours(); if (h >= 21 || h < 5) badge('night'); else if (h < 8) badge('early'); }
+    // Em and Mel catch up on a level you made while they were gone
+    if (ready && W.clock > 15 && (GM.cheered || 0) < standing()){
+      var late = cheer(GM.team ? 'lateTeam' : 'late', levelOf(GM.pts) + 1);
+      if (late.length){ GM.cheered = standing(); convo(late); save(); }
+    }
     // the work order gets written once the weather is in, so leva doesn't hand out pool jobs on a snow day
     if (!orderReady() && !(WXS() || (window.PoolWeather && window.PoolWeather.failed) || W.clock > 12)) return;
     var o = orderNow();
@@ -2084,7 +2183,7 @@
   function pad4(n){ n = Math.max(0, Math.floor(n)); return n > 9999 ? String(n) : ('0000' + n).slice(-4); }
   function buildGame(){
     var q = function(id){ return document.getElementById(id); };
-    gameUI = {pts: q('sb-pts'), rank: q('sb-rank'), jobs: q('sb-jobs'), badges: q('sb-badges'), card: q('crew')};
+    gameUI = {pts: q('sb-pts'), rank: q('sb-rank'), rankLbl: q('sb-rank-lbl'), jobs: q('sb-jobs'), badges: q('sb-badges'), card: q('crew')};
     var sb = q('scorebar');
     if (sb) sb.addEventListener('click', function(){ if (gameUI.card) gameUI.card.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'start'}); });
     if (!gameUI.card) return;
@@ -2092,9 +2191,24 @@
     gameUI.bar = q('crew-bar'); gameUI.next = q('crew-next'); gameUI.ladder = q('crew-ladder');
     gameUI.jobList = q('crew-jobs'); gameUI.streak = q('crew-streak'); gameUI.count = q('crew-count'); gameUI.grid = q('crew-badges');
     gameUI.tiles = {};
-    RANKS.forEach(function(r, i){
-      var li = mkEl('li'); li.appendChild(iconCanvas(r[2])); li.appendChild(mkEl('b', null, r[0])); li.appendChild(mkEl('span', null, r[1] ? r[1] + ' pts' : 'start'));
+    gameUI.tryout = q('crew-tryout'); gameUI.tryJobs = q('crew-tryjobs');
+    LEVELS.forEach(function(r, i){
+      var li = mkEl('li'); li.appendChild(iconCanvas('cap' + (i + 1))); li.appendChild(mkEl('b', null, (i + 1) + '. ' + r[0])); li.appendChild(mkEl('span', null, r[1] ? r[1] + ' pts' : 'start'));
       gameUI.ladder.appendChild(li); r.li = li;
+    });
+    var tl = mkEl('li', 'team-row'); tl.appendChild(iconCanvas('team')); tl.appendChild(mkEl('b', null, 'Swim Team')); tl.appendChild(mkEl('span', null, 'tryout'));
+    gameUI.ladder.appendChild(tl); gameUI.teamLi = tl;
+    // your towel: a picture of it, where it is, and the colors once you can pick one
+    gameUI.towelCv = q('crew-towel-cv'); gameUI.towelText = q('crew-towel-text'); gameUI.towelPick = q('crew-towel-pick'); gameUI.towelNote = q('crew-towel-note');
+    if (gameUI.towelPick) TOWEL_COLORS.forEach(function(c){
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'swatch'; b.style.setProperty('--c', c[2]);
+      b.setAttribute('aria-label', c[1] + ' towel'); b.setAttribute('aria-pressed', 'false'); b.title = c[1];
+      b.addEventListener('click', function(){
+        if (!GM || levelOf(GM.pts) + 1 < COLOR_AT) return;
+        GM.towel = c[0]; save(); gameDirty = true; renderGame();
+        if (ready) towelTag();
+      });
+      gameUI.towelPick.appendChild(b); c.el = b;
     });
     BADGES.forEach(function(b){
       var li = mkEl('li', 'badge locked'); li.appendChild(iconCanvas(b.icon));
@@ -2106,19 +2220,37 @@
   }
   function renderGame(){
     if (!GM || !gameUI) return;
-    var o = orderReady() ? GM.order : null, done = o ? o.jobs.filter(function(j){ return j.n >= JOBS[j.id].need; }).length : 0, nb = Object.keys(GM.badges).length, ri = rankOf(GM.pts), r = RANKS[ri], nx = RANKS[ri + 1];
+    var o = orderReady() ? GM.order : null, done = o ? o.jobs.filter(function(j){ return j.n >= JOBS[j.id].need; }).length : 0, nb = Object.keys(GM.badges).length, ri = levelOf(GM.pts), r = LEVELS[ri], nx = LEVELS[ri + 1], n = ri + 1, team = !!GM.team;
     if (gameUI.pts){ var txt = pad4(GM.pts); if (gameUI.pts.textContent !== txt){ gameUI.pts.textContent = txt; gameUI.pts.classList.remove('bump'); void gameUI.pts.offsetWidth; gameUI.pts.classList.add('bump'); } }
-    if (gameUI.rank) gameUI.rank.textContent = r[0] === 'Head of Maintenance' ? 'HEAD OF MAINT.' : r[0].toUpperCase();
+    if (gameUI.rank){ var top = team ? 'SWIM TEAM' : r[0].toUpperCase(); if (gameUI.rank.textContent !== top) gameUI.rank.textContent = top; }
+    if (gameUI.rankLbl){ var lb = 'Level ' + n; if (gameUI.rankLbl.textContent !== lb) gameUI.rankLbl.textContent = lb; }
     if (gameUI.jobs) gameUI.jobs.textContent = o ? done + '/3' : '-/3';
     if (gameUI.badges) gameUI.badges.textContent = nb + '/' + BADGES.length;
     if (!gameUI.card) return;
-    if (gameUI.rankIcon && gameUI.rankIcon.dataset.icon !== r[2]){ var ic = iconCanvas(r[2]); ic.id = 'crew-rank-icon'; ic.dataset.icon = r[2]; gameUI.rankIcon.parentNode.replaceChild(ic, gameUI.rankIcon); gameUI.rankIcon = ic; }
-    gameUI.rankName.textContent = r[0];
-    gameUI.rankPts.textContent = GM.pts + (GM.pts === 1 ? ' point' : ' points');
-    var pct = nx ? Math.round((GM.pts - r[1]) / (nx[1] - r[1]) * 100) : 100;
+    var icon = team ? 'team' : 'cap' + n;
+    if (gameUI.rankIcon && gameUI.rankIcon.dataset.icon !== icon){ var ic = iconCanvas(icon); ic.id = 'crew-rank-icon'; ic.dataset.icon = icon; gameUI.rankIcon.parentNode.replaceChild(ic, gameUI.rankIcon); gameUI.rankIcon = ic; }
+    gameUI.rankName.textContent = team ? 'Swim Team' : r[0];
+    gameUI.rankPts.textContent = 'Level ' + n + ' \u00b7 ' + GM.pts + (GM.pts === 1 ? ' point' : ' points');
+    var tr = GM.tryout, tryDone = tr ? TRY_IDS.filter(function(k){ return tr.n[k] >= TRYOUT[k].need; }).length : 0;
+    var pct = team ? 100 : nx ? Math.round((GM.pts - r[1]) / (nx[1] - r[1]) * 100) : Math.round(tryDone / TRY_IDS.length * 100);
     gameUI.bar.style.setProperty('--v', Math.max(0, Math.min(100, pct)) + '%');
-    gameUI.next.textContent = nx ? (nx[1] - GM.pts) + ' more to ' + nx[0] + '.' : 'Top of the crew. leva says thanks.';
-    RANKS.forEach(function(x, i){ x.li.className = i < ri ? 'past' : i === ri ? 'at' : ''; });
+    gameUI.next.textContent = team ? 'You made the Swim Team. leva says thanks.' : nx ? (nx[1] - GM.pts) + ' more to Level ' + (n + 1) + ': ' + nx[0] + '.'
+      : 'Top level. The Swim Team tryout is open. ' + (tryDone ? tryDone + ' of 3 done.' : 'Three jobs to make the team.');
+    LEVELS.forEach(function(x, i){ x.li.className = team || i < ri ? 'past' : i === ri ? 'at' : ''; });
+    if (gameUI.teamLi){ gameUI.teamLi.className = 'team-row' + (team ? ' at' : ''); var tsp = gameUI.teamLi.lastChild, tt = team ? 'made it' : 'tryout'; if (tsp.textContent !== tt) tsp.textContent = tt; }
+    if (gameUI.tryout){
+      var showTry = !!(tr && !team); if (gameUI.tryout.hidden === showTry) gameUI.tryout.hidden = !showTry;
+      if (showTry){
+        gameUI.tryJobs.textContent = '';
+        TRY_IDS.forEach(function(id){
+          var J = TRYOUT[id], v = tr.n[id], fin = v >= J.need, li = mkEl('li', fin ? 'done' : '');
+          li.appendChild(mkEl('span', 'box'));
+          var t = mkEl('span', 'jt', J.text); if (J.need > 1 && !fin) t.appendChild(mkEl('em', null, ' ' + v + ' of ' + J.need)); li.appendChild(t);
+          li.appendChild(mkEl('b', null, '+' + TRY_PTS)); gameUI.tryJobs.appendChild(li);
+        });
+      }
+    }
+    renderTowel(n, team);
     gameUI.jobList.textContent = '';
     if (!o){ gameUI.jobList.appendChild(mkEl('li', 'wait', "leva is writing up today's work order.")); gameUI.streak.textContent = ''; }
     else o.jobs.forEach(function(j){
@@ -2137,8 +2269,35 @@
       var srt = got ? 'Earned.' : 'Not earned yet.'; if (t.sr.textContent !== srt) t.sr.textContent = srt;
     });
   }
+  function renderTowel(n, team){
+    if (!gameUI.towelText) return;
+    var has = n >= TOWEL_AT, pickOk = n >= COLOR_AT, cur = GM.towel || TOWEL_COLORS[0][0];
+    var txt = !has ? 'Make Level ' + TOWEL_AT + ' and leva puts a towel out for you on the deck.'
+      : "It's on the south deck, on the lounge chair closest to the lap pool. Tap it on the map." + (team ? ' Team stripe and all.' : '');
+    if (gameUI.towelText.textContent !== txt) gameUI.towelText.textContent = txt;
+    var note = !has ? '' : !pickOk ? 'Pick its color at Level ' + COLOR_AT + '.' : team ? '' : 'Make the Swim Team and it gets a team stripe.';
+    if (gameUI.towelNote && gameUI.towelNote.textContent !== note) gameUI.towelNote.textContent = note;
+    if (gameUI.towelPick){
+      var lock = !pickOk; if (gameUI.towelPick.hidden === has) gameUI.towelPick.hidden = !has;
+      TOWEL_COLORS.forEach(function(c){ if (!c.el) return; c.el.disabled = lock; var on = String(c[0] === cur); if (c.el.getAttribute('aria-pressed') !== on) c.el.setAttribute('aria-pressed', on); });
+    }
+    var cv = gameUI.towelCv, key = [has, cur, team].join();
+    if (cv && cv.dataset.k !== key){
+      cv.dataset.k = key; var g = cv.getContext('2d'); g.clearRect(0, 0, cv.width, cv.height);
+      if (has) paintTowel(g, 1, 1, towelColor(), team);
+      else { g.save(); g.globalAlpha = 0.35; paintTowel(g, 1, 1, '#b9b9c2', false); g.restore(); }
+      cv.classList.toggle('locked', !has);
+    }
+  }
   function gameInit(){
     GM = MEM.game;
+    // swim levels took over from the old ranks. Your points carry over, so you start on the level they're worth.
+    if (GM.lvl == null){
+      GM.lvl = levelOf(GM.pts); GM.cheered = standing();
+      if (GM.pts > 0) setTimeout(function(){ toast('Swim levels are here', 'Level ' + (GM.lvl + 1) + ': ' + LEVELS[GM.lvl][0], 0, 'cap' + (GM.lvl + 1)); if (GM.lvl + 1 >= TOP) openTryout(); }, 3000);
+      save();
+    }
+    if (GM.cheered == null) GM.cheered = standing();
     buildGame();
     var stage = document.getElementById('stage');
     if (stage) stage.addEventListener('click', function(e){
@@ -2146,7 +2305,8 @@
       if (e.target.closest && e.target.closest('button, a')) return;
       var r = stage.getBoundingClientRect(), s = r.width / 1440; if (!s) return;
       var x = (e.clientX - r.left) / s / 2, y = (e.clientY - r.top) / s / 2;
-      var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches, pad = coarse ? 5 : 2;
+      if (hasTowel() && x >= MY_TOWEL[0] - pad && x <= MY_TOWEL[0] + 10 + pad && y >= MY_TOWEL[1] - pad && y <= MY_TOWEL[1] + 14 + pad){ towelTag(); return; }
       if (netAt(x, y, coarse ? 16 : 10)){ var a = document.activeElement; if (a && a.classList && a.classList.contains('spot')) a.blur(); }
       else if (on(WATER, x, y)) fx.push({k: 'scoop', x: x, y: y, t: 0, life: 0.4, faint: true});
     });
@@ -2273,8 +2433,11 @@
         visitor: MEM.visitor,
         game: GM ? (function(){
           if (!orderReady() && (WXS() || (window.PoolWeather && window.PoolWeather.failed))){ orderNow(); gameDirty = true; }
-          var ri = rankOf(GM.pts), nx = RANKS[ri + 1], o = orderReady() ? GM.order : null;
-          return {pts: GM.pts, rank: RANKS[ri][0], next: nx ? {name: nx[0], need: nx[1] - GM.pts} : null, badges: Object.keys(GM.badges).length, total: BADGES.length,
+          var ri = levelOf(GM.pts), nx = LEVELS[ri + 1], o = orderReady() ? GM.order : null, tr = GM.tryout && !GM.team ? GM.tryout : null;
+          return {pts: GM.pts, level: ri + 1, levelName: LEVELS[ri][0], rank: 'Level ' + (ri + 1) + ', ' + LEVELS[ri][0] + (GM.team ? ', on the Swim Team' : ''),
+            next: nx ? {level: ri + 2, name: nx[0], need: nx[1] - GM.pts} : null, team: !!GM.team,
+            tryout: tr ? TRY_IDS.map(function(id){ return {text: TRYOUT[id].text, say: TRYOUT[id].say, done: tr.n[id] >= TRYOUT[id].need, n: tr.n[id], need: TRYOUT[id].need}; }) : null,
+            towel: ri + 1 >= TOWEL_AT ? (GM.towel || TOWEL_COLORS[0][0]) : null, badges: Object.keys(GM.badges).length, total: BADGES.length,
             order: o ? o.jobs.map(function(j){ return {text: JOBS[j.id].text, say: JOBS[j.id].say, done: j.n >= JOBS[j.id].need}; }) : [], streak: GM.streak.n};
         })() : null,
         weather: (function(){ var w = WXS(); return w ? {kind: w.kind, summary: w.summary(), tempF: w.tempF, windMph: w.windMph, why: w.reason(), alert: w.alert ? {event: w.alert.event, headline: w.alert.headline} : null, source: w.source(), test: w.test} : (window.PoolWeather && window.PoolWeather.failed ? {down: true} : null); })()
@@ -2377,5 +2540,5 @@
   if (DO) window.__deck = {W: W, B: B, ari: ari, kids: kids, game: GAME, GM: function(){ return GM; }, award: award, badge: badge, witness: witness, job: workJob,
     sneak: function(){ ari.swimCool = 0; if (ari.hidden) ari.hidden = false; ariPlan(planSneak(), 'up to something'); },
     leaf: function(x, y, pool){ W.leaves.push({x: x, y: y, vx: 0, vy: 0, pool: pool || poolAt(x, y), c: '#6b8e23', k: 0, grab: 0}); },
-    render: function(){ gameDirty = true; renderGame(); }, say: say, FISH: FISH};
+    render: function(){ gameDirty = true; renderGame(); }, say: say, FISH: FISH, LEVELS: LEVELS, tryJob: tryJob, towelTag: towelTag, MY_TOWEL: MY_TOWEL};
 })();

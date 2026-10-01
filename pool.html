@@ -207,8 +207,8 @@
   .crew-head{max-width:720px;margin-bottom:32px}
   .crew-head h2{font-weight:900;letter-spacing:-.04em;line-height:1.02;font-size:clamp(32px,4.4vw,52px);margin-bottom:16px;text-wrap:balance}
   .crew-lead{font-size:18px;color:var(--grey);font-weight:500;line-height:1.55;max-width:62ch}
-  .crew-grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:28px;align-items:start}
-  .crew-badges{grid-column:1 / -1}
+  .crew-grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);grid-template-areas:"lvl order" "lvl towel" "badges badges";gap:28px;align-items:start}
+  .crew-rank{grid-area:lvl} .crew-order{grid-area:order} .crew-towel{grid-area:towel} .crew-badges{grid-area:badges}
   .rank-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
   .rank-top .px-icon{width:60px;height:60px;flex:none}
   .rank-top b{display:block;font-weight:900;font-size:28px;letter-spacing:-.03em;line-height:1.05}
@@ -217,8 +217,20 @@
   .rank-bar i{position:absolute;left:0;top:0;bottom:0;width:var(--v,0%);background:var(--pink);transition:width .6s}
   .rank-next{font-size:14px;color:#2a2a30;margin:8px 0 16px}
   .ladder{list-style:none;display:flex;flex-direction:column;gap:6px;border-top:2px solid #0A0A0A;padding-top:14px}
-  .ladder li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:10px;font-size:14px;color:#9a9aa2}
-  .ladder .px-icon{width:28px;height:28px;filter:grayscale(1);opacity:.4}
+  .ladder li{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:10px;font-size:14px;color:#9a9aa2}
+  .ladder .px-icon{width:24px;height:24px;filter:grayscale(1);opacity:.4}
+  .ladder li.team-row{margin-top:4px;padding-top:8px;border-top:2px dashed #d9d9e0}
+  .tryout{margin:0 0 16px} .tryout[hidden]{display:none}
+  .tryout h4{font-family:Silkscreen,monospace;font-weight:400;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--pink);margin-bottom:8px}
+  .tryout .jobs{margin-bottom:0;gap:8px} .tryout .jobs li{font-size:14px;padding:10px;grid-template-columns:20px minmax(0,1fr) auto;gap:10px} .tryout .jobs .box{width:20px;height:20px}
+  .towel-row{display:flex;gap:16px;align-items:center}
+  .towel-cv{flex:none;width:48px;height:64px;padding:8px;box-sizing:content-box;background:#EFEDF4;border:2px solid #0A0A0A;image-rendering:pixelated;image-rendering:crisp-edges}
+  .towel-text{font-size:15px;line-height:1.5;color:#2a2a30} .towel-note{font-size:13px;line-height:1.45;color:var(--grey);margin-top:4px} .towel-note:empty{display:none}
+  .swatches{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px} .swatches[hidden]{display:none}
+  .swatch{width:36px;height:36px;padding:0;background:var(--c);border:2px solid #0A0A0A;box-shadow:inset 0 0 0 3px #fff;cursor:pointer}
+  .swatch[aria-pressed="true"]{outline:3px solid #0A0A0A;outline-offset:2px}
+  .swatch:disabled{cursor:not-allowed;opacity:.3}
+  .swatch:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
   .ladder li span{font-family:Silkscreen,monospace;font-size:10px;letter-spacing:.06em}
   .ladder li.past,.ladder li.at{color:#0A0A0A} .ladder li.past .px-icon,.ladder li.at .px-icon{filter:none;opacity:1}
   .ladder li.at b{color:var(--pink)}
@@ -244,7 +256,7 @@
   .badge.locked .px-icon{filter:grayscale(1);opacity:.3}
   .badge.locked b{color:#5f5f66}
   .badge.new{box-shadow:4px 4px 0 var(--pink)}
-  @media(max-width:720px){.crew{padding:48px 0 0} .crew-wrap{padding:0 16px} .crew-grid{grid-template-columns:minmax(0,1fr)} .badges{grid-template-columns:minmax(0,1fr)}}
+  @media(max-width:720px){.crew{padding:48px 0 0} .crew-wrap{padding:0 16px} .crew-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"lvl" "order" "towel" "badges"} .badges{grid-template-columns:minmax(0,1fr)}}
   @media (prefers-reduced-motion:reduce){.toast{animation:none} .toast.bye{transition:none} .sb-cell b.bump{animation:none} .rank-bar i{transition:none} .scorebar{transition:none}}
 
   /* the chat box */
@@ -334,11 +346,11 @@
   </div>
   <p class="swipe-hint">Swipe across to see the whole park. Tap a building to see what it is.</p>
   <div class="scorebar-row">
-    <button type="button" class="scorebar" id="scorebar" aria-label="Your points, rank, work order and badges. Go to your crew card.">
+    <button type="button" class="scorebar" id="scorebar" aria-label="Your points, swim level, work order and badges. Go to your crew card.">
       <span class="sb-cell"><i>Points</i><b id="sb-pts">0000</b></span>
-      <span class="sb-cell"><i>Rank</i><b id="sb-rank">TADPOLE</b></span>
+      <span class="sb-cell"><i id="sb-rank-lbl">Level 1</i><b id="sb-rank">BUBBLES</b></span>
       <span class="sb-cell"><i>Work order</i><b id="sb-jobs">-/3</b></span>
-      <span class="sb-cell"><i>Badges</i><b id="sb-badges">0/26</b></span>
+      <span class="sb-cell"><i>Badges</i><b id="sb-badges">0/27</b></span>
       <span class="sb-go" aria-hidden="true">Crew card &darr;</span>
     </button>
   </div>
@@ -391,24 +403,33 @@
     <div class="crew-head">
       <div class="eyebrow">The game</div>
       <h2 id="crew-title">Your crew card.</h2>
-      <p class="crew-lead">Help leva run the deck. Tap Ari when he sneaks into the pool, before leva sees him. Tap floating leaves to net them. Knock out leva's work order every day. Points, badges and your rank save in this browser, same as the deck.</p>
+      <p class="crew-lead">Help leva run the deck. Tap Ari when he sneaks into the pool, before leva sees him. Tap floating leaves to net them. Knock out leva's work order every day. Your points move you up the swim levels, from Bubbles to Butterfly, and Level 10 opens the Swim Team tryout. Everything saves in this browser, same as the deck.</p>
     </div>
     <div class="crew-grid">
       <div class="panel crew-rank">
-        <h3>Your rank</h3>
-        <div class="rank-top"><span id="crew-rank-icon"></span><div><b id="crew-rank-name">Tadpole</b><span id="crew-rank-pts">0 points</span></div></div>
+        <h3>Your swim level</h3>
+        <div class="rank-top"><span id="crew-rank-icon"></span><div><b id="crew-rank-name">Bubbles</b><span id="crew-rank-pts">Level 1 &middot; 0 points</span></div></div>
         <div class="rank-bar" id="crew-bar"><i></i></div>
-        <p class="rank-next" id="crew-next">100 more to Minnow.</p>
-        <ol class="ladder" id="crew-ladder"></ol>
+        <p class="rank-next" id="crew-next">50 more to Level 2: Floater.</p>
+        <div class="tryout" id="crew-tryout" hidden><h4>Swim Team tryout</h4><ul class="jobs" id="crew-tryjobs"></ul></div>
+        <ol class="ladder" id="crew-ladder" aria-label="Swim levels"></ol>
       </div>
       <div class="panel crew-order">
         <h3>Today's work order</h3>
         <ul class="jobs" id="crew-jobs"></ul>
         <p class="streak" id="crew-streak"></p>
-        <div class="how"><b>How points work</b>Spot Ari before leva does: 20 points, and more the faster you are. A leaf is 2. Each job on the work order is 15, and finishing all three is 50 more. Badges pay extra.</div>
+        <div class="how"><b>How points work</b>Spot Ari before leva does: 20 points, and more the faster you are. A leaf is 2. Each job on the work order is 15, and finishing all three is 50 more. Badges pay extra. Points move you up the swim levels.</div>
+      </div>
+      <div class="panel crew-towel">
+        <h3>Your towel</h3>
+        <div class="towel-row">
+          <canvas class="towel-cv" id="crew-towel-cv" width="12" height="16" aria-hidden="true"></canvas>
+          <div><p class="towel-text" id="crew-towel-text">Make Level 3 and leva puts a towel out for you on the deck.</p><p class="towel-note" id="crew-towel-note"></p></div>
+        </div>
+        <div class="swatches" id="crew-towel-pick" role="group" aria-label="Towel color" hidden></div>
       </div>
       <div class="panel crew-badges">
-        <div class="badges-head"><h3>Badges</h3><span id="crew-count">0 of 26</span></div>
+        <div class="badges-head"><h3>Badges</h3><span id="crew-count">0 of 27</span></div>
         <ul class="badges" id="crew-badges"></ul>
       </div>
     </div>
@@ -533,7 +554,7 @@
 </footer>
 
 <script src="pool-weather.js?v=1"></script>
-<script src="pool-life.js?v=4"></script>
+<script src="pool-life.js?v=5"></script>
 <script>
 (function(){
   // scale the 1440 x 840 stage to the page width
@@ -1371,6 +1392,6 @@
   });
 })();
 </script>
-<script src="leva-chat.js?v=4"></script>
+<script src="leva-chat.js?v=5"></script>
 </body>
 </html>
