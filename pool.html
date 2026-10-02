@@ -129,6 +129,30 @@
   .arcade-close{font:inherit;font-size:22px;line-height:1;color:#fff;background:none;border:0;cursor:pointer;padding:2px 6px} .arcade-close:hover{color:var(--pink)}
   #si{display:block;width:100%;aspect-ratio:4/3;background:#05060a;cursor:crosshair;touch-action:none}
   .arcade-hint{margin-top:10px;font-size:12px;color:#8a8a94;text-align:center}
+  /* roof ball, off the boys' bathhouse roof */
+  #rb{display:block;width:100%;aspect-ratio:4/3;background:#9fd8f5;cursor:pointer;touch-action:none;outline:0;image-rendering:pixelated}
+  #roofball{overflow-y:auto}
+  .rb-cab{width:min(600px,calc(100vw - 40px),calc((100vh - 230px) * 4 / 3 + 28px))}
+  @supports (height:100dvh){ .rb-cab{width:min(600px,calc(100vw - 40px),calc((100dvh - 230px) * 4 / 3 + 28px))} }
+  @media (max-height:520px){
+    #roofball{padding:6px}
+    .rb-cab{padding:8px 12px;width:min(600px,calc(100vw - 40px),calc((100vh - 150px) * 4 / 3 + 24px))}
+    .rb-cab .arcade-top{margin-bottom:4px} .rb-cab .arcade-hint{display:none} .rb-cab .rb-row{margin-top:6px}
+    @supports (height:100dvh){ .rb-cab{width:min(600px,calc(100vw - 40px),calc((100dvh - 150px) * 4 / 3 + 24px))} }
+  }
+  .rb-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center}
+  .rb-row[hidden]{display:none}
+  .rb-row button{font-family:Silkscreen,monospace;font-size:12px;letter-spacing:.06em;color:#fff;background:#0A0A0A;border:2px solid var(--pink);padding:10px 12px;cursor:pointer;min-height:44px;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:none}
+  .rb-row button:hover,.rb-row button:focus-visible{background:var(--pink);color:#0A0A0A;outline:0}
+  .rb-row button:disabled{border-color:#44444c;color:#8a8a94;cursor:default;background:#0A0A0A}
+  #rb-pad{justify-content:space-between;flex-wrap:nowrap}
+  #rb-pad span{display:flex;gap:8px}
+  #rb-pad button{min-width:56px}
+  #rb-pad #rb-hit,#rb-pad #rb-kick{border-color:var(--cyan);min-width:72px}
+  #rb-pad button:active{background:var(--cyan);color:#0A0A0A}
+  @media (hover:hover) and (pointer:fine){ #rb-pad{display:none} }
+  @media (hover:none),(pointer:coarse){ .rb-keys{display:none} }
+  @media (hover:hover) and (pointer:fine){ .rb-touch{display:none} }
   .arcade-cab.wide{width:min(960px,96vw);border-color:#2F8F86;box-shadow:8px 8px 0 var(--pink)}
   .arcade-cab.wide .arcade-title{color:#7fe3d9}
   #entc{display:block;width:100%;aspect-ratio:16/9;image-rendering:pixelated;image-rendering:crisp-edges;background:#15171d}
@@ -241,7 +265,7 @@
   @media(min-width:701px){.scorebar-row{position:sticky;top:78px;z-index:9;pointer-events:none} .scorebar{pointer-events:auto}}
   @media(min-width:701px) and (max-width:1200px){.sb-go{display:none} .sb-cell{padding:6px 9px 7px} .sb-cell b{font-size:15px}}
   @media(max-width:700px){.scorebar-row{justify-content:center;padding:0 12px} .sb-cell{padding:6px 8px 7px} .sb-cell b{font-size:13px} .sb-cell i{font-size:8px} .sb-go{display:none}}
-  .toasts{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:45;display:flex;flex-direction:column;align-items:flex-start;gap:10px;pointer-events:none;max-width:min(380px,calc(100vw - 32px))}
+  .toasts{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;flex-direction:column;align-items:flex-start;gap:10px;pointer-events:none;max-width:min(380px,calc(100vw - 32px))}
   .toast{display:flex;align-items:center;gap:12px;min-width:250px;max-width:100%;background:#0A0A0A;color:#fff;border:2px solid #0A0A0A;box-shadow:4px 4px 0 var(--pink);padding:9px 14px 9px 9px;animation:toastin .28s ease-out}
   .toast .px-icon{flex:none;width:40px;height:40px;background:#fff;border:2px solid #fff}
   .t-text{min-width:0}
@@ -415,7 +439,7 @@
       <span class="sb-cell"><i>Points</i><b id="sb-pts">0000</b></span>
       <span class="sb-cell"><i id="sb-rank-lbl">Level 1</i><b id="sb-rank">BUBBLES</b></span>
       <span class="sb-cell"><i>Work order</i><b id="sb-jobs">-/3</b></span>
-      <span class="sb-cell"><i>Badges</i><b id="sb-badges">0/27</b></span>
+      <span class="sb-cell"><i>Badges</i><b id="sb-badges">0/29</b></span>
       <span class="sb-go" aria-hidden="true">Crew card &darr;</span>
     </button>
   </div>
@@ -443,15 +467,15 @@
 <button type="button" class="spot link" data-room="pit" style="left:844px;top:360px;width:200px;height:64px" aria-label="THE PIT, where it started, come on in"><span class="tip"><b>THE PIT</b><span>where it started, come on in</span></span></button>
 <div class="spot" tabindex="0" role="note" aria-label="MAINTENANCE STORAGE" style="left:868px;top:424px;width:62px;height:46px"><span class="tip"><b>MAINTENANCE STORAGE</b></span></div>
 <button type="button" class="spot link" id="play-invaders" style="left:930px;top:424px;width:114px;height:46px" aria-label="GUARD SHACK, play invaders"><span class="tip"><b>GUARD SHACK</b><span>play invaders</span></span></button>
-<div class="spot" tabindex="0" role="note" aria-label="GUYS GUARD SHACK" style="left:898px;top:470px;width:52px;height:46px"><span class="tip"><b>GUYS GUARD SHACK</b></span></div>
-<div class="spot" tabindex="0" role="note" aria-label="MENS BATHROOM" style="left:950px;top:470px;width:130px;height:108px"><span class="tip"><b>MENS BATHROOM</b></span></div>
+<button type="button" class="spot link" data-roofball style="left:898px;top:470px;width:52px;height:46px" aria-label="GUYS GUARD SHACK, play roof ball"><span class="tip"><b>GUYS GUARD SHACK</b><span>play roof ball</span></span></button>
+<button type="button" class="spot link" data-roofball style="left:950px;top:470px;width:130px;height:108px" aria-label="MENS BATHROOM, play roof ball"><span class="tip"><b>MENS BATHROOM</b><span>play roof ball</span></span></button>
 <button type="button" class="spot link" data-room="entrance" style="left:1044px;top:290px;width:36px;height:180px" aria-label="ENTRANCE, come on in"><span class="tip"><b>ENTRANCE</b><span>come on in</span></span></button>
 <div class="spot" tabindex="0" role="note" id="chip-band" hidden aria-label="FRIDAY MUSIC, on the deck till close" style="left:736px;top:636px;width:88px;height:112px"><span class="tip"><b>FRIDAY MUSIC</b><span>on the deck till close</span></span></div>
       <div class="bubbles" id="bubbles" aria-hidden="true"></div>
     </div>
    </div>
   </div>
-  <p class="park-note">Point at a building or a pool to see what it is. The pink ones open: the pump room, the pit, first aid, the entrance, Nutty Dip, and the arcade in the guard shack. On a phone, tap. When Ari sneaks into the pool, tap him before leva sees him, and tap floating leaves to net them. It all counts on your crew card.</p>
+  <p class="park-note">Point at a building or a pool to see what it is. The pink ones open: the pump room, the pit, first aid, the entrance, Nutty Dip, and the arcade in the guard shack. The roof of the boys' bathhouse is where we play roof ball. On a phone, tap. When Ari sneaks into the pool, tap him before leva sees him, and tap floating leaves to net them. It all counts on your crew card.</p>
   <ul class="park-links">
     <li><a href="index.html">Home</a></li>
     <li><a href="account.html">Head guard office, get leva for your Mac</a></li>
@@ -494,7 +518,7 @@
         <div class="swatches" id="crew-towel-pick" role="group" aria-label="Towel color" hidden></div>
       </div>
       <div class="panel crew-badges">
-        <div class="badges-head"><h3>Badges</h3><span id="crew-count">0 of 27</span></div>
+        <div class="badges-head"><h3>Badges</h3><span id="crew-count">0 of 29</span></div>
         <ul class="badges" id="crew-badges"></ul>
       </div>
     </div>
@@ -554,6 +578,24 @@
       <p id="room-note"></p>
       <a class="entrance-home" id="room-action" href="index.html">Go to home</a>
     </div>
+  </div>
+</div>
+
+<div class="arcade" id="roofball" hidden>
+  <div class="arcade-cab rb-cab" role="dialog" aria-modal="true" aria-label="Roof ball, on the boys' bathhouse roof">
+    <div class="arcade-top"><span class="arcade-title">ROOF BALL</span><button type="button" class="arcade-close" id="rb-close" aria-label="Close">×</button></div>
+    <canvas id="rb" width="560" height="420" tabindex="-1" role="img" aria-label="Roof ball court: the pool deck and the bathhouse roof"></canvas>
+    <div class="rb-row" id="rb-pick">
+      <button type="button" id="rb-em">Play Em</button>
+      <button type="button" id="rb-guard">Play a lifeguard</button>
+      <button type="button" id="rb-friend" disabled>Play a friend: coming soon</button>
+    </div>
+    <div class="rb-row" id="rb-pad" hidden>
+      <span><button type="button" id="rb-left" aria-label="Move left">&#9664;</button><button type="button" id="rb-right" aria-label="Move right">&#9654;</button></span>
+      <span><button type="button" id="rb-hit">HIT</button><button type="button" id="rb-kick">KICK</button></span>
+    </div>
+    <div class="arcade-hint"><span class="rb-keys">Move with the mouse or the arrow keys. Hold, then let go to swing: J hits, K kicks, and a click or Space picks for you. The longer you hold, the farther up the roof it goes. Esc closes.</span><span class="rb-touch">Drag on the court to move. Hold HIT or KICK, then let go. The longer you hold, the farther up the roof it goes.</span></div>
+    <span class="sr" id="rb-live" aria-live="polite"></span>
   </div>
 </div>
 
@@ -620,7 +662,7 @@
 
 <script src="pool-weather.js?v=1"></script>
 <script src="pool-radio.js?v=1"></script>
-<script src="pool-life.js?v=7"></script>
+<script src="pool-life.js?v=8"></script>
 <script>
 (function(){
   // scale the 1440 x 840 stage to the page width
@@ -1552,6 +1594,7 @@
   });
 })();
 </script>
-<script src="leva-chat.js?v=6"></script>
+<script src="pool-roofball.js?v=1"></script>
+<script src="leva-chat.js?v=7"></script>
 </body>
 </html>
