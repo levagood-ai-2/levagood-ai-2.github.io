@@ -18,7 +18,7 @@
   var prefs = {station: 'wnic', vol: 0.7, auto: true, offDay: ''};
   try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved && typeof saved === 'object') for (var k in prefs) if (saved[k] !== undefined) prefs[k] = saved[k]; } catch (e) {}
   if (!STATIONS.some(function(s){ return s.id === prefs.station; })) prefs.station = 'wnic';
-  prefs.vol = Math.max(0, Math.min(1, +prefs.vol || 0)); if (isNaN(prefs.vol)) prefs.vol = 0.7;
+  prefs.vol = Math.round(Math.max(0, Math.min(1, +prefs.vol || 0)) * 10) / 10;
   function save(){ try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch (e) {} }
   function today(){ var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
   function station(){ for (var i = 0; i < STATIONS.length; i++) if (STATIONS[i].id === prefs.station) return STATIONS[i]; return STATIONS[0]; }
@@ -28,18 +28,19 @@
   var root = document.getElementById('radio'); if (!root) return;
   var q = function(id){ return document.getElementById(id); };
   var ui = {power: q('r-power'), down: q('r-down'), up: q('r-up'), dial: q('r-dial'), needle: q('r-needle'), lcd: q('r-lcd'), freq: q('r-freq'), call: q('r-call'),
-    panel: q('r-panel'), list: q('r-list'), auto: q('r-auto'), vol: q('r-vol'), live: q('r-live')};
+    panel: q('r-panel'), list: q('r-list'), auto: q('r-auto'), vol: q('r-vol'), live: q('r-live'), volGrp: q('r-volgrp'), volDn: q('r-voldn'), volUp: q('r-volup'), meter: q('r-vmeter'), volLbl: q('r-vollbl')};
 
   // ---- the sound ----
   var audio = new Audio(); audio.preload = 'none'; audio.volume = prefs.vol;
   // off, waiting (it should be on, but the browser needs one tap first), tuning (connecting), on, nosignal
-  var state = 'off', wantOn = false, retries = 0, retryT = null, stallT = null;
+  var state = 'off', wantOn = false, retries = 0, retryT = null, stallT = null, flashT = null;
   function setState(s){
     state = s;
     root.dataset.state = s;
     ui.power.setAttribute('aria-pressed', String(wantOn));
     var st = station();
-    ui.call.textContent = s === 'waiting' ? 'TAP TO PLAY' : s === 'nosignal' ? 'NO SIGNAL' : s === 'tuning' ? 'TUNING' : st.call;
+    clearTimeout(flashT); flashT = null;
+    ui.call.textContent = s === 'waiting' ? 'TAP TO PLAY' : s === 'nosignal' ? 'NO SIGNAL' : s === 'tuning' ? 'TUNING' : s === 'off' ? 'OFF' : st.call;
     var say = s === 'on' ? 'Radio on, ' + st.label + '.' : s === 'waiting' ? 'The radio is on for pool hours. Tap or click anywhere on the page to hear it.' : s === 'nosignal' ? "Can't reach " + st.call + ' right now.' : s === 'off' ? 'Radio off.' : '';
     if (say && ui.live.textContent !== say) ui.live.textContent = say;
     ui.power.title = wantOn ? 'Turn the radio off' : 'Turn the radio on';
@@ -172,8 +173,29 @@
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !ui.panel.hidden){ openPanel(false); ui.lcd.focus(); } });
   ui.auto.checked = !!prefs.auto;
   ui.auto.addEventListener('change', function(){ prefs.auto = ui.auto.checked; prefs.offDay = ''; save(); });
-  ui.vol.value = String(prefs.vol);
-  ui.vol.addEventListener('input', function(){ prefs.vol = +ui.vol.value; audio.volume = prefs.vol; save(); });
+  // ---- volume: the down and up buttons step it a tenth at a time, and the meter shows where it's at ----
+  // (an iPhone only lets its own side buttons set the volume, so there the buttons step aside)
+  var canVol = (function(){ try { var a = new Audio(); a.volume = 0.5; return Math.abs(a.volume - 0.5) < 0.01; } catch (e) { return false; } })();
+  function drawVol(){
+    var n = Math.round(prefs.vol * 10), bars = ui.meter ? ui.meter.children : [];
+    for (var i = 0; i < bars.length; i++){ bars[i].style.height = (4 + i * 1.5) + 'px'; bars[i].className = i < n ? 'on' : ''; }
+    if (ui.vol) ui.vol.value = String(prefs.vol);
+    if (ui.volDn) ui.volDn.setAttribute('aria-disabled', String(n <= 0));
+    if (ui.volUp) ui.volUp.setAttribute('aria-disabled', String(n >= 10));
+  }
+  function setVol(v, quiet){
+    v = Math.round(Math.max(0, Math.min(1, v)) * 10) / 10;
+    prefs.vol = v; audio.volume = v; save(); drawVol();
+    if (quiet) return;
+    // the readout shows the new volume for a second, then goes back to the station
+    ui.call.textContent = 'VOL ' + Math.round(v * 10); ui.live.textContent = 'Volume ' + Math.round(v * 10) + ' of 10.';
+    clearTimeout(flashT); flashT = setTimeout(function(){ flashT = null; setState(state); }, 1200);
+  }
+  if (!canVol){ if (ui.volGrp) ui.volGrp.hidden = true; if (ui.volLbl) ui.volLbl.hidden = true; }
+  if (ui.volDn) ui.volDn.addEventListener('click', function(){ setVol(prefs.vol - 0.1); });
+  if (ui.volUp) ui.volUp.addEventListener('click', function(){ setVol(prefs.vol + 0.1); });
+  ui.vol.addEventListener('input', function(){ setVol(+ui.vol.value, true); });
+  drawVol();
 
   // ---- pool hours: on at open, off at close ----
   var wasOpen = poolOpen();
@@ -194,7 +216,7 @@
   // what the map and the chat can ask
   window.levaRadio = {
     isOn: function(){ return state === 'on'; },
-    info: function(){ var st = station(); return {on: state === 'on', state: state, wantOn: wantOn, label: st.label, freq: st.freq || '', call: st.call, about: st.about, auto: !!prefs.auto}; },
+    info: function(){ var st = station(); return {on: state === 'on', state: state, wantOn: wantOn, label: st.label, freq: st.freq || '', call: st.call, about: st.about, auto: !!prefs.auto, vol: prefs.vol}; },
     stations: STATIONS
   };
 })();
