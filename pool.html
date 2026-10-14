@@ -193,7 +193,7 @@
   .bub.bye{opacity:0}
   .bub b{display:block;margin-bottom:3px;font-family:Silkscreen,"Press Start 2P",monospace;font-weight:400;font-size:9px;letter-spacing:.08em;line-height:1;color:var(--who)}
   .bub::after{content:"";position:absolute;left:50%;bottom:-7px;width:10px;height:10px;background:#fff;border-right:2px solid #0A0A0A;border-bottom:2px solid #0A0A0A;transform:translateX(-50%) rotate(45deg)}
-  .bub-leva{--who:#FF2E88} .bub-ari{--who:#b4501f} .bub-m{--who:#26358c} .bub-mel{--who:#16876a} .bub-yenny{--who:#8a5a2b}
+  .bub-leva{--who:#FF2E88} .bub-ari{--who:#b4501f} .bub-m{--who:#26358c} .bub-mel{--who:#16876a} .bub-yenny{--who:#8a5a2b} .bub-gma{--who:#5b7fbf}
 
   /* the board under the map */
   .deck{padding:72px 0 88px;background:#fff}
@@ -224,6 +224,8 @@
   .who-leva .face{background-color:var(--sky)} .who-ari .face{background-color:var(--peach)} .who-m .face{background-color:var(--wpink)} .who-mel .face{background-color:var(--lilac)}
   .who-yenny .face{background:var(--mint) url(pool/yenny_face.png) 0 0/100% 100% no-repeat}
   .lchat-tface.yface,.lchat-mface.yface{background-image:url(pool/yenny_face.png);background-size:100% 100%;background-position:0 0}
+  .who-gma .face{background:var(--sky) url(pool/gma_face.png) 0 0/100% 100% no-repeat}
+  .lchat-tface.gface,.lchat-mface.gface{background-image:url(pool/gma_face.png);background-size:100% 100%;background-position:0 0}
   .who-head{grid-area:head;min-width:0;align-self:center}
   .who-body{grid-area:body;min-width:0;border-top:2px solid #0A0A0A;padding-top:12px}
   .who h3{font-family:"Inter Tight",system-ui,sans-serif;font-weight:900;font-size:24px;letter-spacing:-.03em;text-transform:none;margin:0 0 4px;line-height:1}
@@ -238,7 +240,7 @@
   .cast-spot.quiet .tip{opacity:0 !important;visibility:hidden !important}
   .log-list{list-style:none;display:flex;flex-direction:column;gap:12px;max-height:520px;overflow-y:auto}
   .log-list li{font-size:14px;line-height:1.45;padding:2px 0 2px 12px;border-left:4px solid var(--line)}
-  .log-list li.w-leva{border-left-color:var(--pink)} .log-list li.w-ari{border-left-color:#c65a28} .log-list li.w-m{border-left-color:#26358c} .log-list li.w-mel{border-left-color:#3fbf93} .log-list li.w-yenny{border-left-color:#8a5a2b}
+  .log-list li.w-leva{border-left-color:var(--pink)} .log-list li.w-ari{border-left-color:#c65a28} .log-list li.w-m{border-left-color:#26358c} .log-list li.w-mel{border-left-color:#3fbf93} .log-list li.w-yenny{border-left-color:#8a5a2b} .log-list li.w-gma{border-left-color:#5b7fbf}
   .log-list time{display:block;font-family:Silkscreen,monospace;font-size:10px;letter-spacing:.06em;color:var(--grey);margin-bottom:2px;font-variant-numeric:tabular-nums}
   .log-list .empty{color:var(--grey)}
   @media(max-width:1100px){.cast{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -273,7 +275,18 @@
   .sb-go{display:flex;align-items:center;padding:0 12px;border-left:2px solid #2a2a33;font-family:Silkscreen,monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#fff;white-space:nowrap}
   @keyframes sbbump{0%{color:#FFD23A}100%{color:#00F0FF}}
   /* on a laptop the map is taller than the window, so the scoreboard rides along under the nav while you play */
-  @media(min-width:701px){.scorebar-row{position:sticky;top:78px;z-index:9;pointer-events:none} .scorebar{pointer-events:auto}}
+  @media(min-width:701px){.scorebar-row{position:sticky;top:78px;z-index:9;pointer-events:none} .scorebar,.fullbtn{pointer-events:auto}}
+  /* full screen: the whole park fills the browser, scaled to fit */
+  .fullbtn{display:inline-flex;align-items:center;gap:8px;padding:0 14px;min-height:44px;background:#0A0A0A;color:#fff;border:2px solid #0A0A0A;box-shadow:4px 4px 0 var(--pink);font:700 13px/1 "Inter Tight",system-ui,sans-serif;cursor:pointer}
+  .fullbtn:hover{background:var(--pink);border-color:var(--pink)} .fullbtn:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+  .fb-ic{width:12px;height:12px;flex:none;background:linear-gradient(#fff,#fff) 0 0/5px 2px,linear-gradient(#fff,#fff) 0 0/2px 5px,linear-gradient(#fff,#fff) 100% 0/5px 2px,linear-gradient(#fff,#fff) 100% 0/2px 5px,linear-gradient(#fff,#fff) 0 100%/5px 2px,linear-gradient(#fff,#fff) 0 100%/2px 5px,linear-gradient(#fff,#fff) 100% 100%/5px 2px,linear-gradient(#fff,#fff) 100% 100%/2px 5px;background-repeat:no-repeat}
+  .park.full{position:fixed;inset:0;z-index:35;padding:10px 0 0;display:flex;flex-direction:column;overflow:hidden}
+  .park.full .swipe-hint,.park.full .park-note,.park.full .park-links,.park.full .gate-band{display:none}
+  .park.full .scorebar-row{position:static;margin:0 auto 10px;max-width:none;width:100%;pointer-events:auto;flex:none}
+  .park.full .park-wrap{flex:1;min-height:0;max-width:none;overflow:auto}
+  .park.full .sizer{margin:0 auto}
+  body.pool-full{overflow:hidden}
+  @media(max-width:700px){.fb-t{display:none} .fullbtn{padding:0 13px}}
   @media(min-width:701px) and (max-width:1200px){.sb-go{display:none} .sb-cell{padding:6px 9px 7px} .sb-cell b{font-size:15px}}
   @media(max-width:700px){.scorebar-row{justify-content:center;padding:0 12px} .sb-cell{padding:6px 8px 7px} .sb-cell b{font-size:13px} .sb-cell i{font-size:8px} .sb-go{display:none}}
   .toasts{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;flex-direction:column;align-items:flex-start;gap:10px;pointer-events:none;max-width:min(380px,calc(100vw - 32px))}
@@ -419,7 +432,7 @@
   <div class="wrap">
     <div class="eyebrow">Where it started</div>
     <h1>Levagood Pool,<br>from above.</h1>
-    <p class="lead">Dearborn, Michigan. The 50 meter pool, the diving well, the zero depth pool, the pump room, and the building with every room where it really is. leva is Maintenance, and he runs the place on his own. He tests the water, keeps the chemistry right, skims the leaves, and gets Ari out of the pool. Again. Em and Mel are sisters with big plans for the deep end, and their mom Yenny brings them every day. The map follows your clock, day and night, and the real weather in Dearborn. Say hi in the chat. leva, Em, Mel, Ari and Yenny are all in there.</p>
+    <p class="lead">Dearborn, Michigan. The 50 meter pool, the diving well, the zero depth pool, the pump room, and the building with every room where it really is. leva is Maintenance, and he runs the place on his own. He tests the water, keeps the chemistry right, skims the leaves, and gets Ari out of the pool. Again. Em and Mel are sisters with big plans for the deep end, their mom Yenny brings them every day, and Grandma Sweetheart drives up with snacks and waits for them on her bench in the park. The map follows your clock, day and night, and the real weather in Dearborn. Say hi in the chat. leva, Em, Mel, Ari, Yenny and Grandma Sweetheart are all in there.</p>
   </div>
 </section>
 
@@ -458,6 +471,7 @@
       <span class="sb-cell"><i>Badges</i><b id="sb-badges">0/29</b></span>
       <span class="sb-go" aria-hidden="true">Crew card &darr;</span>
     </button>
+    <button type="button" class="fullbtn" id="fullbtn" aria-pressed="false"><span class="fb-ic" aria-hidden="true"></span><span class="fb-t">Full screen</span></button>
   </div>
   <div class="park-wrap">
    <div class="sizer">
@@ -546,7 +560,7 @@
     <div class="deck-head">
       <div class="eyebrow">Live from the deck</div>
       <h2 id="deck-title">Nobody tells leva what to do next.</h2>
-      <p class="deck-lead">He reads the water and decides. Ari, Em, Mel and Yenny learn from each other, and from him. Tap Talk on any of them and you're in one chat with the whole deck. Everything below updates as it happens, and the deck remembers where it left off the next time you come by.</p>
+      <p class="deck-lead">He reads the water and decides. Ari, Em, Mel, Yenny and Grandma Sweetheart learn from each other, and from him. Tap Talk on any of them and you're in one chat with the whole deck. Everything below updates as it happens, and the deck remembers where it left off the next time you come by.</p>
     </div>
     <div class="deck-grid">
       <ul class="cast" aria-label="Who is on the deck">
@@ -555,6 +569,7 @@
         <li class="who who-m" style="--i:2"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Em</h3><p class="role">Goggles on, cannonballs first. All about volleyball, and plays soccer too.</p></div><div class="who-body"><p class="now" id="s-m"></p><p class="knows" id="k-m"></p><button type="button" class="talk" data-talk="m">Talk to Em</button></div></li>
         <li class="who who-mel" style="--i:3"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Mel</h3><p class="role">Fishing, catfish and singing. Plays volleyball and soccer with Em.</p></div><div class="who-body"><p class="now" id="s-mel"></p><p class="knows" id="k-mel"></p><button type="button" class="talk" data-talk="mel">Talk to Mel</button></div></li>
         <li class="who who-yenny" style="--i:4"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Yenny</h3><p class="role">Em and Mel's mom. Em's volleyball coach, the lunch and snack runs, and Ari's favorite person.</p></div><div class="who-body"><p class="now" id="s-yenny"></p><p class="knows" id="k-yenny"></p><button type="button" class="talk" data-talk="yenny">Talk to Yenny</button></div></li>
+        <li class="who who-gma" style="--i:5"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Grandma Sweetheart</h3><p class="role">Em and Mel's great grandma. Comes every day in her gold Cutlass, sits on her bench in the park, and brings the snacks.</p></div><div class="who-body"><p class="now" id="s-gma"></p><p class="knows" id="k-gma"></p><button type="button" class="talk" data-talk="gma">Talk to Grandma Sweetheart</button></div></li>
       </ul>
       <div class="panel water">
         <div class="wx">
@@ -680,7 +695,7 @@
 <script src="pool-gate.js?v=2"></script>
 <script src="pool-weather.js?v=1"></script>
 <script src="pool-radio.js?v=2"></script>
-<script src="pool-life.js?v=9"></script>
+<script src="pool-life.js?v=11"></script>
 <script>
 (function(){
   // scale the 1440 x 840 stage to the page width
@@ -688,11 +703,39 @@
   // on phones the park shows at half size and you swipe across it, starting on the pools
   var centered = false;
   function fit(){
-    var w = wrap.clientWidth, s = w < 700 ? 0.5 : Math.min(1, w / 1440);
+    var w = wrap.clientWidth, full = park.classList.contains('full'), h = wrap.clientHeight;
+    // full screen: as big as the window allows. A phone held up tall fills the height and you swipe across.
+    var s = full ? (w < 700 && h > w ? h / 840 : Math.min(w / 1440, h / 840)) : w < 700 ? 0.5 : Math.min(1, w / 1440);
     wrap.style.setProperty('--s', s);
     if (!centered && w < 700){ wrap.scrollLeft = Math.max(0, 250 * 2 * s - w / 2); centered = true; }
   }
   fit(); if (window.ResizeObserver) new ResizeObserver(fit).observe(wrap); else window.addEventListener('resize', fit);
+  // the Full screen button: the park takes the whole window, and the browser goes full screen where it can
+  (function(){
+    var btn = document.getElementById('fullbtn'); if (!btn) return;
+    var viaApi = false;
+    function set(on){
+      park.classList.toggle('full', on); document.body.classList.toggle('pool-full', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false'); btn.querySelector('.fb-t').textContent = on ? 'Exit full screen' : 'Full screen';
+      btn.setAttribute('aria-label', on ? 'Exit full screen' : 'Full screen');
+      centered = false; fit(); if (!on) window.addEventListener('resize', fit, {once: true});
+    }
+    btn.addEventListener('click', function(){
+      var on = !park.classList.contains('full');
+      set(on);
+      var de = document.documentElement;
+      if (on && de.requestFullscreen && !document.fullscreenElement){ de.requestFullscreen().then(function(){ viaApi = true; }, function(){}); }
+      if (!on && document.fullscreenElement && document.exitFullscreen){ viaApi = false; document.exitFullscreen().catch(function(){}); }
+    });
+    // Esc out of the browser's full screen puts the page back too
+    document.addEventListener('fullscreenchange', function(){ if (!document.fullscreenElement && viaApi){ viaApi = false; if (park.classList.contains('full')) set(false); } });
+    window.addEventListener('keydown', function(e){
+      if (e.key !== 'Escape' || !park.classList.contains('full')) return;
+      // a room, a game or the chat closes first
+      if (document.querySelector('.arcade:not([hidden])') || !document.getElementById('lchat-panel').hidden) return;
+      set(false); if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function(){});
+    });
+  })();
 
   // time of day and pool hours, same rules as the front page. Test with ?time=day|dusk|night and ?open=1|0
   function tod(){
@@ -714,7 +757,7 @@
     var im = new Image();
     im.onload = function(){ imgs[n] = im; if (--todo === 0) start(); };
     im.onerror = function(){ console.error('leva pool: could not load pool/' + n + '.png'); };
-    im.src = 'pool/' + n + '.png?v=9';
+    im.src = 'pool/' + n + '.png?v=10';
   });
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -1114,7 +1157,7 @@
   function drawCar(x, y, dx, dy, col, lightsOn){
     var vert = Math.abs(dy) >= Math.abs(dx), fwd = vert ? (dy >= 0 ? 1 : -1) : (dx >= 0 ? 1 : -1);
     x = Math.round(x); y = Math.round(y);
-    var w = vert ? 8 : 14, h = vert ? 14 : 8, x0 = x - w / 2, y0 = y - h / 2;
+    var w = vert ? 10 : 17, h = vert ? 17 : 10, x0 = x - w / 2, y0 = y - h / 2;
     ctx.fillStyle = 'rgba(20,22,40,.35)'; ctx.fillRect(x0 + 1, y0 + 1, w, h);
     ctx.fillStyle = col; ctx.fillRect(x0, y0, w, h);
     ctx.fillStyle = 'rgba(255,255,255,.18)'; vert ? ctx.fillRect(x0 + 1, y0 + 1, 1, h - 2) : ctx.fillRect(x0 + 1, y0 + 1, w - 2, 1);
@@ -1132,18 +1175,17 @@
     }
     return {x: x, y: y, fwd: fwd, vert: vert};
   }
-  // the south lot: two rows of stalls with an aisle between
-  // Stall 0 up top would sit on the pool deck and stall 0 below has no way out except across it, so neither gets
-  // a car. Stall 1 in both rows is the bike lane up to the rack, and 11 and 12 up top stay open where the drive
+  // the south lot: two rows of full-size stalls with an aisle between
+  // Stall 0 in both rows is the bike lane up to the rack, stall 1 down below is Grandma Sweetheart's, and 7 and 8 up top stay open where the drive
   // comes in and families walk up to the plaza.
-  var STALLS = [], NOPARK = {'1-0': 1, '2-0': 1, '1-1': 1, '2-1': 1, '1-11': 1, '1-12': 1};
-  for (var k = 0; k < 14; k++){
-    if (!NOPARK['1-' + k]) STALLS.push({x: 416 + k * 12, y: 357, row: 1, car: null});
-    if (!NOPARK['2-' + k]) STALLS.push({x: 416 + k * 12, y: 405, row: 2, car: null});
+  var STALLS = [], NOPARK = {'1-0': 1, '2-0': 1, '2-1': 1, '1-7': 1, '1-8': 1};
+  for (var k = 0; k < 10; k++){
+    if (!NOPARK['1-' + k]) STALLS.push({x: 430 + k * 16, y: 357, row: 1, car: null});
+    if (!NOPARK['2-' + k]) STALLS.push({x: 430 + k * 16, y: 405, row: 2, car: null});
   }
   function seedLot(n){
     STALLS.forEach(function(s){ s.car = null; });
-    // step through the 22 stalls 7 at a time (7 shares no factor with 22, so no stall comes up twice)
+    // step through the 16 stalls 7 at a time (7 shares no factor with 16, so no stall comes up twice)
     for (var i = 0; i < n; i++){ var s = STALLS[(i * 7 + 3) % STALLS.length]; if (!s.car) s.car = {col: CAR_COLORS[i % CAR_COLORS.length]}; }
   }
   var lotMode = null;
@@ -1158,7 +1200,7 @@
   function trafficStep(dt, open, lightsOn){
     // how full the lot is follows the clock
     var mode = open ? 'open' : (isNight() ? 'night' : 'closed');
-    if (mode !== lotMode){ lotMode = mode; seedLot(mode === 'open' ? 16 : mode === 'night' ? 2 : 5); moving = []; walkers2 = []; }
+    if (mode !== lotMode){ lotMode = mode; seedLot(mode === 'open' ? 12 : mode === 'night' ? 2 : 4); moving = []; walkers2 = []; }
     // cars passing on the street, both directions
     throughClock -= dt;
     if (throughClock <= 0){
@@ -1178,7 +1220,7 @@
       if (leaveClock <= 0){
         leaveClock = 20 + Math.random() * 14;
         var full = STALLS.filter(function(s){ return s.car && !s.claimed; });
-        if (full.length > 6){ var s2 = full[Math.floor(Math.random() * full.length)]; var c = s2.car; s2.car = null;
+        if (full.length > 5){ var s2 = full[Math.floor(Math.random() * full.length)]; var c = s2.car; s2.car = null;
           moving.push({kind: 'leave', stall: s2, path: leavePath(s2), d: 0, v: 24, col: c.col}); }
       }
     }
@@ -1279,8 +1321,8 @@
       var a = T * 1.6 + i * 2, kx = x + 9 + Math.cos(a) * 16, ky = y + 6 + Math.sin(a) * 12, face = Math.abs(Math.sin(a)) > 0.7 ? (Math.cos(a) > 0 ? 'n' : 's') : (Math.sin(a) > 0 ? 'w' : 'e');
       draw(pc.kid + '_' + face + (Math.floor(T * 5) % 2), kx - 4, ky - 10);
     });
-    // two people throwing a frisbee on the west lawn
-    var ph = (T * 0.5) % 2, t = ph < 1 ? ph : 2 - ph, ax = 44, ay = 196, bx = 38, by = 228;
+    // two people throwing a frisbee on the west lawn, down past Grandma Sweetheart's bench
+    var ph = (T * 0.5) % 2, t = ph < 1 ? ph : 2 - ph, ax = 19, ay = 313, bx = 31, by = 342;
     draw('f6_s' + (Math.floor(T * 2) % 2), ax - 4, ay - 11); draw('f1_n' + (Math.floor(T * 2 + 1) % 2), bx - 4, by - 11);
     var fx = ax + (bx - ax) * t + Math.sin(t * Math.PI) * 8, fy = ay - 4 + (by - ay) * t;
     ctx.fillStyle = '#ff2e88'; ctx.fillRect(Math.round(fx), Math.round(fy), 2, 2);
@@ -1613,6 +1655,6 @@
 })();
 </script>
 <script src="pool-roofball.js?v=1"></script>
-<script src="leva-chat.js?v=9"></script>
+<script src="leva-chat.js?v=11"></script>
 </body>
 </html>
