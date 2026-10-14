@@ -280,10 +280,12 @@
   .fullbtn{display:inline-flex;align-items:center;gap:8px;padding:0 14px;min-height:44px;background:#0A0A0A;color:#fff;border:2px solid #0A0A0A;box-shadow:4px 4px 0 var(--pink);font:700 13px/1 "Inter Tight",system-ui,sans-serif;cursor:pointer}
   .fullbtn:hover{background:var(--pink);border-color:var(--pink)} .fullbtn:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
   .fb-ic{width:12px;height:12px;flex:none;background:linear-gradient(#fff,#fff) 0 0/5px 2px,linear-gradient(#fff,#fff) 0 0/2px 5px,linear-gradient(#fff,#fff) 100% 0/5px 2px,linear-gradient(#fff,#fff) 100% 0/2px 5px,linear-gradient(#fff,#fff) 0 100%/5px 2px,linear-gradient(#fff,#fff) 0 100%/2px 5px,linear-gradient(#fff,#fff) 100% 100%/5px 2px,linear-gradient(#fff,#fff) 100% 100%/2px 5px;background-repeat:no-repeat}
-  .park.full{position:fixed;inset:0;z-index:35;padding:10px 0 0;display:flex;flex-direction:column;overflow:hidden}
+  .park.full{position:fixed;inset:0;z-index:35;padding:0;display:block;overflow:hidden;background:#5a9a4a}
   .park.full .swipe-hint,.park.full .park-note,.park.full .park-links,.park.full .gate-band{display:none}
-  .park.full .scorebar-row{position:static;margin:0 auto 10px;max-width:none;width:100%;pointer-events:auto;flex:none}
-  .park.full .park-wrap{flex:1;min-height:0;max-width:none;overflow:auto}
+  .park.full .scorebar-row{position:absolute;top:10px;left:0;right:0;z-index:12;margin:0;max-width:none;width:100%;pointer-events:none}
+  .park.full .scorebar-row>*{pointer-events:auto}
+  .park.full .park-wrap{position:absolute;inset:0;max-width:none;overflow:auto;scrollbar-width:none}
+  .park.full .park-wrap::-webkit-scrollbar{display:none}
   .park.full .sizer{margin:0 auto}
   body.pool-full{overflow:hidden}
   @media(max-width:700px){.fb-t{display:none} .fullbtn{padding:0 13px}}
@@ -432,7 +434,7 @@
   <div class="wrap">
     <div class="eyebrow">Where it started</div>
     <h1>Levagood Pool,<br>from above.</h1>
-    <p class="lead">Dearborn, Michigan. The 50 meter pool, the diving well, the zero depth pool, the pump room, and the building with every room where it really is. leva is Maintenance, and he runs the place on his own. He tests the water, keeps the chemistry right, skims the leaves, and gets Ari out of the pool. Again. Em and Mel are sisters with big plans for the deep end, their mom Yenny brings them every day, and Grandma Sweetheart drives up with snacks and waits for them on her bench in the park. The map follows your clock, day and night, and the real weather in Dearborn. Say hi in the chat. leva, Em, Mel, Ari, Yenny and Grandma Sweetheart are all in there.</p>
+    <p class="lead">Dearborn, Michigan. The 50 meter pool, the diving well, the zero depth pool, the pump room, and the building with every room where it really is. leva is Maintenance, and he runs the place on his own. He tests the water, keeps the chemistry right, skims the leaves, and gets Ari out of the pool. Again. Em and Mel are sisters with big plans for the deep end, their mom Yenny brings them every day, and Grandma Sweetheart drives up with snacks and waits for them on her bench by the pool. The map follows your clock, day and night, and the real weather in Dearborn. Say hi in the chat. leva, Em, Mel, Ari, Yenny and Grandma Sweetheart are all in there.</p>
   </div>
 </section>
 
@@ -569,7 +571,7 @@
         <li class="who who-m" style="--i:2"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Em</h3><p class="role">Goggles on, cannonballs first. All about volleyball, and plays soccer too.</p></div><div class="who-body"><p class="now" id="s-m"></p><p class="knows" id="k-m"></p><button type="button" class="talk" data-talk="m">Talk to Em</button></div></li>
         <li class="who who-mel" style="--i:3"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Mel</h3><p class="role">Fishing, catfish and singing. Plays volleyball and soccer with Em.</p></div><div class="who-body"><p class="now" id="s-mel"></p><p class="knows" id="k-mel"></p><button type="button" class="talk" data-talk="mel">Talk to Mel</button></div></li>
         <li class="who who-yenny" style="--i:4"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Yenny</h3><p class="role">Em and Mel's mom. Em's volleyball coach, the lunch and snack runs, and Ari's favorite person.</p></div><div class="who-body"><p class="now" id="s-yenny"></p><p class="knows" id="k-yenny"></p><button type="button" class="talk" data-talk="yenny">Talk to Yenny</button></div></li>
-        <li class="who who-gma" style="--i:5"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Grandma Sweetheart</h3><p class="role">Em and Mel's great grandma. Comes every day in her gold Cutlass, sits on her bench in the park, and brings the snacks.</p></div><div class="who-body"><p class="now" id="s-gma"></p><p class="knows" id="k-gma"></p><button type="button" class="talk" data-talk="gma">Talk to Grandma Sweetheart</button></div></li>
+        <li class="who who-gma" style="--i:5"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Grandma Sweetheart</h3><p class="role">Em and Mel's great grandma. Comes every day in her gold Cutlass, sits on her bench by the girls, and brings the snacks.</p></div><div class="who-body"><p class="now" id="s-gma"></p><p class="knows" id="k-gma"></p><button type="button" class="talk" data-talk="gma">Talk to Grandma Sweetheart</button></div></li>
       </ul>
       <div class="panel water">
         <div class="wx">
@@ -695,7 +697,7 @@
 <script src="pool-gate.js?v=2"></script>
 <script src="pool-weather.js?v=1"></script>
 <script src="pool-radio.js?v=2"></script>
-<script src="pool-life.js?v=11"></script>
+<script src="pool-life.js?v=12"></script>
 <script>
 (function(){
   // scale the 1440 x 840 stage to the page width
@@ -704,10 +706,11 @@
   var centered = false;
   function fit(){
     var w = wrap.clientWidth, full = park.classList.contains('full'), h = wrap.clientHeight;
-    // full screen: as big as the window allows. A phone held up tall fills the height and you swipe across.
-    var s = full ? (w < 700 && h > w ? h / 840 : Math.min(w / 1440, h / 840)) : w < 700 ? 0.5 : Math.min(1, w / 1440);
+      // full screen covers the whole window; anything trimmed off an edge is a scroll or a swipe away
+    var s = full ? Math.max(w / 1440, h / 840) : w < 700 ? 0.5 : Math.min(1, w / 1440);
     wrap.style.setProperty('--s', s);
     if (!centered && w < 700){ wrap.scrollLeft = Math.max(0, 250 * 2 * s - w / 2); centered = true; }
+    if (!centered && full){ wrap.scrollLeft = Math.max(0, (1440 * s - w) / 2); wrap.scrollTop = Math.max(0, (840 * s - h) / 2); centered = true; }
   }
   fit(); if (window.ResizeObserver) new ResizeObserver(fit).observe(wrap); else window.addEventListener('resize', fit);
   // the Full screen button: the park takes the whole window, and the browser goes full screen where it can
@@ -1176,9 +1179,9 @@
     return {x: x, y: y, fwd: fwd, vert: vert};
   }
   // the south lot: two rows of full-size stalls with an aisle between
-  // Stall 0 in both rows is the bike lane up to the rack, stall 1 down below is Grandma Sweetheart's, and 7 and 8 up top stay open where the drive
+  // Stall 0 in both rows is the bike lane up to the rack, and 7 and 8 up top stay open where the drive
   // comes in and families walk up to the plaza.
-  var STALLS = [], NOPARK = {'1-0': 1, '2-0': 1, '2-1': 1, '1-7': 1, '1-8': 1};
+  var STALLS = [], NOPARK = {'1-0': 1, '2-0': 1, '1-7': 1, '1-8': 1};
   for (var k = 0; k < 10; k++){
     if (!NOPARK['1-' + k]) STALLS.push({x: 430 + k * 16, y: 357, row: 1, car: null});
     if (!NOPARK['2-' + k]) STALLS.push({x: 430 + k * 16, y: 405, row: 2, car: null});
@@ -1321,8 +1324,8 @@
       var a = T * 1.6 + i * 2, kx = x + 9 + Math.cos(a) * 16, ky = y + 6 + Math.sin(a) * 12, face = Math.abs(Math.sin(a)) > 0.7 ? (Math.cos(a) > 0 ? 'n' : 's') : (Math.sin(a) > 0 ? 'w' : 'e');
       draw(pc.kid + '_' + face + (Math.floor(T * 5) % 2), kx - 4, ky - 10);
     });
-    // two people throwing a frisbee on the west lawn, down past Grandma Sweetheart's bench
-    var ph = (T * 0.5) % 2, t = ph < 1 ? ph : 2 - ph, ax = 19, ay = 313, bx = 31, by = 342;
+    // two people throwing a frisbee on the west lawn
+    var ph = (T * 0.5) % 2, t = ph < 1 ? ph : 2 - ph, ax = 44, ay = 196, bx = 38, by = 228;
     draw('f6_s' + (Math.floor(T * 2) % 2), ax - 4, ay - 11); draw('f1_n' + (Math.floor(T * 2 + 1) % 2), bx - 4, by - 11);
     var fx = ax + (bx - ax) * t + Math.sin(t * Math.PI) * 8, fy = ay - 4 + (by - ay) * t;
     ctx.fillStyle = '#ff2e88'; ctx.fillRect(Math.round(fx), Math.round(fy), 2, 2);
@@ -1655,6 +1658,6 @@
 })();
 </script>
 <script src="pool-roofball.js?v=1"></script>
-<script src="leva-chat.js?v=11"></script>
+<script src="leva-chat.js?v=12"></script>
 </body>
 </html>

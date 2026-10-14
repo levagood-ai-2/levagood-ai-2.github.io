@@ -211,7 +211,7 @@
   var GIRLS = /\b(you two|you girls|both of you|hey girls|hi girls)\b/i;
   var TOPIC = [
     ['leva', /\b(roof ?ball|chlorine|ph|pump|filter|backwash|vacuum|vac|skim|the water|water temp\w*|test the water|water quality|cpr|drown|lifeguard|weather|storm|thunder|tornado|hours|open|closed|connect ?space|levagood|dearborn|leva for mac|work orders?|badges?|crew card|my (rank|points|score|towel|(swim )?level)|what level am i|swim (team|levels?)|tryouts?|achievements?|how do i play|radio|what'?s playing)\b/i],
-    ['gma', /\b(cookies?|bak(e|ing)|banana bread|grandkids|grandchildren|great grand\w*|cutlass|hymns?|park bench)\b/i],
+    ['gma', /\b(cookies?|bak(e|ing)|banana bread|grandkids|grandchildren|great grand\w*|cutlass|hymns?)\b/i],
     ['yenny', /\b(lunch|sunscreen|sunblock|sun ?burn|coach(es|ing)?|drills?|navigator|lincoln|parenting)\b/i],
     ['ari', /\b(treats?|snacks?|good boy|roll over|sit|shake|paw|fetch|beagle|puppy|bark|howl|woof|squirrel)\b/i],
     ['mel', /\b(catfish|fishing|fish|bait|worms?|nightcrawlers?|lures?|bobbers?|hooks?|cast|casting|reel|pier|bluegill|sunfish|perch|bass|trout|salmon|pike|walleye|carp|crappie|bullheads?|minnows?|knots?|sing|singing|songs?|freya|zombies|float)\b/i],
@@ -741,7 +741,7 @@
     contact: "I keep that private, sweetheart. Nothing personal online.", photo: "I keep that private, sweetheart. Nothing personal online.",
     alone: "I'm never alone, honey. I've got my family and the good Lord.", gift: "That's kind of you, but I don't take gifts from folks online.", romance: "Oh, honey, no. We don't talk like that."};
   var GMA_SOFT = {name: ['Grandma Sweetheart is plenty, honey.', 'Just Grandma Sweetheart on here. No last names online.'], family: ["I have grandbabies all over, and I love every one of them. That's all I share online.", 'Family stays private, sweetheart. But I can tell you how proud I am of them.'],
-    looks: ["Look on the map, honey. I'm the one on the bench in the park.", 'Find the bench under the trees. That\'s me.'], where: ["I keep where we live private, honey. Safety first.", 'That stays private, sweetheart.'],
+    looks: ["Look on the map, honey. I'm the one on the bench by the girls.", 'Find the bench by the pool. That\'s me.'], where: ["I keep where we live private, honey. Safety first.", 'That stays private, sweetheart.'],
     when: ["I don't share my comings and goings online. Safety first.", 'That stays private, honey.'], age: ['Old enough to be a great grandma, and young enough to beat you to the cookie basket!', 'A lady never tells, honey.'],
     sweet: ['Well, aren\'t you a sweetheart.', 'Bless your heart. Thank you, honey.']};
   var YEN_ABOUT = /\b(yenny|(their|the girls'?|em'?s|mel'?s) (mom|mother))\b/i;
@@ -1313,7 +1313,7 @@
 
   // ---------------- Grandma Sweetheart ----------------
   // Em and Mel's great grandma. The sweetest grandma on the planet: strong, loving, always watching out for her
-  // grandkids, and kindness and the love of Jesus all the way through. She sits on her bench in the park, brings
+  // grandkids, and kindness and the love of Jesus all the way through. She sits on her bench by the girls, brings
   // the snacks, and loves every one of her grandkids and great grandkids, here and far away.
   function gmaNow(s){
     var g = s && s.gma, t = (g && g.task) || '';
@@ -1322,11 +1322,12 @@
     if (/Ari/.test(t)) return 'Loving on Ari. He knows Grandma always has a dog cookie.';
     if (/card/.test(t)) return 'Reading a card from some of my grandbabies. I have them all over the country, you know.';
     if (/leva/.test(t)) return 'Chatting with leva over the fence. He is such a hard worker.';
-    if (/walk/.test(t)) return 'Taking a little walk on the park path. Got to keep these legs going.';
+    if (/walk around/.test(t)) return 'Taking a little walk around the deck. Got to keep these legs going.';
     if (/humming/.test(t)) return 'Just humming a hymn and enjoying the shade.';
-    if (/car|storm/.test(t)) return 'Sitting in my Cutlass until the weather passes. Safe and sound.';
-    if (/walking over/.test(t)) return 'Walking over from my car. I take it slow and enjoy the trees.';
-    return 'Sitting on my bench in the park, waiting for the kids to come see me.';
+    if (/storm/.test(t)) return 'Inside with the family until the storm passes. Safe and sound.';
+    if (/walking in/.test(t)) return 'Walking in from my car. I parked right next to Yenny.';
+    if (/walking out|Cutlass/.test(t)) return 'Heading home with the family. I follow the Navigator.';
+    return 'Sitting on my bench by the girls, watching the water and waiting for the kids to come see me.';
   }
   function gmaFact(s){
     var f = s && s.gma && s.gma.facts;
@@ -1363,8 +1364,8 @@
       if (f.mel) bits.push('Mel would eat my ' + f.mel.replace(/,.*$/, '') + ' every day');
       return {text: (bits.length ? bits.join(', and ') + '. ' : '') + 'I always bring a basket. Cookies, banana bread, sandwiches cut in triangles. Want me to call the girls over?', offer: 'gsnack'};
     }},
-    {re: /\b(cutlass|your car|the car|gold car|drive|driving)\b/i, f: function(){ return {text: "My gold Cutlass. She's old, but so am I, and we both still get where we're going."}; }},
-    {re: /\b(bench|park|trees|shade)\b/i, f: function(){ return {text: "I like my bench in the park. Shade, a breeze, and sooner or later every one of the kids comes to see me."}; }},
+    {re: /\b(cutlass|your car|the car|gold car|drive|driving)\b/i, f: function(){ return {text: "My gold Cutlass. She's old, but so am I, and we both still get where we're going. I park right next to Yenny and follow the Navigator home."}; }},
+    {re: /\b(bench|where do you sit|shade)\b/i, f: function(){ return {text: "My bench is right by the girls' towels, facing the pool. I can watch them swim, and sooner or later every one of the kids comes to see me."}; }},
     // faith
     {re: /\b(jesus|god|lord|church|pray\w*|faith|bible|bless\w*|hymn\w*)\b/i, f: function(){ return {text: vary('gma', 'faith', ['Jesus loves you, honey, and so do I. I pray for all my grandbabies every morning, and I\'ll say one for you too.', "My faith gets me through everything. Every good thing in my life is a gift from God, and these kids are the best of them."])}; }},
     // Ari and leva
@@ -1380,7 +1381,7 @@
       if (/song|hymn|music/i.test(t)) return {text: 'Amazing Grace. I hum it on my bench every day.'};
       return {text: 'Being with my grandbabies. Every last one of them.'};
     }},
-    {re: /\b(tell me about (yourself|you|grandma)|who are you|who('?s| is) (grandma|grandma sweetheart))\b|^\s*(and |what |how )?about you\s*[?!.]*\s*$/i, f: function(){ return {text: "I'm Grandma Sweetheart, Em and Mel's great grandma. I bring the snacks, I sit on my bench in the park, and I love my family with my whole heart."}; }},
+    {re: /\b(tell me about (yourself|you|grandma)|who are you|who('?s| is) (grandma|grandma sweetheart))\b|^\s*(and |what |how )?about you\s*[?!.]*\s*$/i, f: function(){ return {text: "I'm Grandma Sweetheart, Em and Mel's great grandma. I bring the snacks, I sit on my bench by the pool, and I love my family with my whole heart."}; }},
     {re: /\b(what'?s|what is) (your|ur) name\b/i, f: function(){ return {text: 'Everybody calls me Grandma Sweetheart. You can too, honey.'}; }},
     {re: /\bhow are (you|u)\b/i, f: function(t, s){ return {text: "I'm blessed, sweetheart. Thank you for asking. " + gmaNow(s)}; }},
     {re: THANKS, f: function(){ return {text: vary('gma', 'thx', ["You're so welcome, honey.", 'Anytime, sweetheart.', 'Bless your heart.'])}; }},
@@ -1572,7 +1573,7 @@
       'If someone describes an emergency happening now, tell them to call 911 first, in your first sentence.',
       'The deck: Ari is your buddy, a corn red beagle and a loyal companion. Beagles are not allowed in the pool, he sneaks in anyway, and you get him out, kindly and every time. He would do anything for a treat. Em and Mel are sisters. They both play volleyball and soccer. Em is bold, wears goggles, loves cannonballs, and is all about volleyball right now. Serving is her favorite. She fishes off the pier, and she loves youth group with her friends, where she is learning about Jesus. Mel is curious, asks you everything, then explains it to Em. She loves fishing and learning how to fish, catfish are her favorite, and she sings her favorite Freya Skye songs all day. She is the better bumper of the two, and they play pepper by their towels. They both love their dog Luke, and they bring Ari treats to the pool. Your rule: six treats a day. They learn from each other and from you.',
       'Yenny is Em and Mel\'s mom and Em\'s volleyball coach. She drives them to the pool each day in a white Lincoln Navigator, stays with them, brings lunch and snacks, and always has a treat for Ari, who loves her more than anybody. She is warm, kind and gracious, and she trusts you with the girls. Never share or make up anything personal about her either: no last name, where she lives, her husband, her phone, or her schedule. If anyone flirts with her or comments on her looks, it is not okay, and you say so plainly.',
-      'Grandma Sweetheart is Em and Mel\'s great grandma. She drives up every day in her gold Cutlass, sits on her bench in the park, brings snacks for the girls, Yenny and Ari, and loves all her grandkids and great grandkids, near and far. She is kind, strong and full of faith. Never share or make up anything personal about her: no last name, where she or her family live, or her schedule.',
+      'Grandma Sweetheart is Em and Mel\'s great grandma. She drives up every day in her gold Cutlass, parks next to the Navigator, sits on her bench by the girls facing the pool, brings snacks for the girls, Yenny and Ari, and loves all her grandkids and great grandkids, near and far. She is kind, strong and full of faith. Never share or make up anything personal about her: no last name, where she or her family live, or her schedule.',
       'This chat is one conversation on the deck. The visitor can talk to you, Em, Mel, Ari, Yenny and Grandma Sweetheart all at once, and everybody hears everything. Em, Mel, Ari, Yenny and Grandma Sweetheart answer for themselves from their own scripts. Only ever speak as leva. Never write lines for them or put words in their mouths. If the visitor says something to them, let them answer.',
       'Em and Mel are characters on this page. Never share or make up anything personal about them: no last names, ages, schools, churches, where they live, fish or go, when they will be anywhere or come back, who watches them, or anything about their family beyond their dog Luke. When they are not at the pool, just say they are not at the pool right now. Never pass messages to them or from them. If someone asks, say it is private. If someone asks to meet them, contact them, or get pictures of them, say no plainly.',
       'You also start life as the rep for Connect Space (connectspace.com), a cloud-based community and event management platform for associations, economic development organizations, corporate B2B teams and professional event planners. Connect Space does not do custom work; it calls that configurations. Beyond that, say you do not have the detail yet.',

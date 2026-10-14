@@ -8,7 +8,7 @@
 
   var DECK_RLE = "1427,a,2,a,1,a,2,9,2,4,1,8,2,7,1,a,2,a,104,35,2,4,1,8,2,1f,fe,3b,1,13,18,3,fb,a,1c,e,5,5,1,13,18,3,f8,d,1c,e,5,5,1,1,f,3,1a,1,f4,11,1c,18,1,1,f,3,1a,1,f2,13,1c,18,1,1,f,3,1a,1,f0,15,6,1,d,1,8,17,1,1,f,3,1a,1,ed,18,7,1,d,1,7,17,1,1,f,3,1a,1,eb,1a,4,1,2,1,a,1,2,1,6,1,1,16,1,1,f,3,1a,1,e9,7,5,10,5,2,c,2,9,16,1,1,11,1,102,9,6,f,1d,17,1,1,f,3,1a,1,e5,3,5,3,6,f,1c,1,1,15,2,1,f,3,1a,1,e4,4,5,3,6,f,1c,17,2,1,f,3,1a,1,e5,3,5,3,6,f,1d,17,1,1,f,3,1a,1,e5,3,5,3,6,f,1d,17,1,1,f,3,1a,1,df,1,5,3,5,3,6,4,4,7,1c,1,1,16,1,1,11,1,1a,1,de,2,5,3,5,3,6,2,8,5,1d,17,1,1,12,1b,de,2,5,3,5,3,6,1,a,4,1d,17,1,1,12,14,4,3,de,2,5,3,5,3,6,1,b,3,1c,1,1,16,1,3,1,b,3,15,4,3,de,2,5,3,5,3,12,3,1c,18,1,3,1,b,1,17,4,3,de,2,5,3,5,8,d,3,1d,17,1,2,9,1c,4,3,de,2,6,2,6,8,e,1,1e,16,1,2,a,1c,3,3,d6,2,6,2,5,11,c,6,2,1,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,16,1,2,9,23,d5,3,6,2,5,12,b,6,1,1,1,1,2,1,1,1,1,1,2,1,1,1,4,1,1,1,1,1,1,16,2,2,9,22,d5,4,6,19,b,36,2,2,9,22,d4,5,6,1a,8,1,1,37,1,2,9,23,d2,b,1,1c,4,3,1,37,1,2,9,23,d1,30,1,37,1,2,9,23,d0,31,1,37,1,2,9,23,d0,69,1,2,9,23,cf,69,2,2,a,a,2,a,2,a,ce,6a,2f,8,c6,88,7,9,1,9,c5,5f,4,26,7,9,1,9,c4,60,5,25,7,9,1,9,c4,60,5,25,7,9,1,9,c3,17,7,43,5,25,7,9,1,9,c2,18,7,6d,7,9,1,9,c2,18,2,3,2,7d,1,9,c1,19,2,3,2,1,1,7b,1,9,c1,19,2,3,2,1,1,1,2,2,4,b,2,2,4,18,2,2,4,3f,1,9,c0,1a,7,1,1,1,2,2,1,1,1,c,2,2,2,1,1,18,2,2,1,1,1,19,6,21,1,9,bf,1b,7,1,4,2,1,1,1,d,1,2,1,2,1,19,1,2,1,1,1,19,6,21,1,9,be,24,1,54,2,2,2,21,1,9,be,12,1b,b,2e,13,2,2,2,21,1,9,bd,b,1,7,2,2,2,2,2,2,2,2,2,2,2,2,3,b,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,13,9,1e,1,9,bd,d,1,5,1b,b,1,1,2a,1,1,13,6,21,1,9,bc,14,1,1,17,1,1,b,2e,3a,1,9,bc,14,1,1,17,1,1,b,2e,3a,1,9,bb,15,1b,b,1,1,2a,1,1,3a,1,9,bb,15,1b,8,35,36,1,9,ba,16,1,1,17,1,1,8,35,36,1,9,ba,f,20,1,1,8,1,3,1,1,2b,3,1,36,1,9,b9,10,22,8,1,4,2a,1,1,3,1,b,4,27,1,9,b9,10,22,8,35,b,3,1,5,22,1,9,b8,11,20,1,1,b,2e,f,1,1,3,2,5,1f,1,9,b8,18,1,1,17,1,1,b,2e,f,1,1,7,2,3,1d,1,9,b8,18,1b,b,1,1,2a,1,1,f,b,2,3,1b,1,5,bb,19,1b,b,1,1,2a,1,1,f,11,1a,1,5,bb,19,1,1,17,1,1,b,2e,f,1,1,11,18,1,5,ba,1a,1,1,17,1,1,b,2e,f,1,1,f,1,2,17,1,5,ba,1a,1b,b,1,1,2a,1,1,f,15,16,1,5,ba,1a,1b,b,1,1,2a,1,1,f,13,1,2,15,1,5,ba,1a,1,1,17,1,1,b,2e,f,1,1,15,14,1,5,ba,10,7,3,1,1,17,1,1,b,2e,f,1,1,13,1,2,13,1,5,b9,d,29,b,1,1,2a,1,1,f,19,12,1,5,b9,11,25,b,1,1,2a,1,1,f,17,1,1,12,1,5,b8,12,23,1,1,b,2e,f,1,1,18,11,1,5,b8,e,27,1,1,b,2e,f,1,1,19,10,1,5,b8,12,7,2,2,1,19,b,1,1,2a,1,1,f,1b,10,1,5,b8,1c,1,1,19,b,1,1,2a,1,1,f,1c,f,1,2,ba,1d,1,1,17,1,1,b,2e,f,1,1,18,1,2,e,1,2,1,6,b3,1d,1,1,17,1,1,b,2e,f,1,1,1b,e,1,2,1,6,b3,1d,1b,b,1,1,2a,1,1,f,1b,1,1,e,1,2,1,6,b3,1d,1b,b,1,1,2a,1,1,f,1c,1,1,d,1,2,ba,1d,1,1,17,1,1,b,2e,f,1,1,1c,d,1,2,b9,1e,1,1,17,1,1,b,2e,f,1,1,1d,c,1,2,1,6,b2,14,7,3,1b,b,1,1,2a,1,1,f,1f,c,1,2,1,6,b2,10,29,b,1,1,2a,1,1,f,1f,c,1,2,1,6,b2,14,23,1,1,6,33,f,1,1,1b,1,2,b,1,2,1,6,b2,14,23,1,1,6,33,f,1,1,1c,1,1,b,1,2,1,6,b2,10,29,6,6,1,2a,1,1,f,20,b,1,2,1,6,b2,14,7,3,1,1,19,6,6,1,2a,1,1,f,20,b,1,2,1,6,b2,6,b,d,1,1,17,1,1,6,33,f,1,1,1c,1,1,b,1,2,1,6,b1,7,b,d,1,1,17,1,1,6,33,f,1,1,1c,1,1,b,1,2,1,6,b1,7,b,d,1b,6,6,1,2a,1,1,f,1f,1,1,a,1,2,1,6,b2,6,b,d,1b,6,6,1,2a,1,1,f,1f,1,1,a,1,2,1,6,b2,6,b,d,1,1,17,1,1,6,33,f,1,1,1f,a,1,2,1,6,b1,d,1,11,1,1,17,1,1,6,33,f,1,1,1f,a,1,2,1,6,b1,1f,1b,6,6,1,2a,1,1,f,1f,1,1,a,1,2,1,6,b1,1f,1b,6,6,1,2a,1,1,f,1f,1,1,a,1,2,b8,18,20,1,1,6,33,f,1,1,1f,a,1,8,b2,18,20,1,1,6,33,f,1,1,1f,a,1,8,b2,18,22,6,6,1,2c,f,1f,1,1,a,1,8,b2,18,22,6,6,1,2a,1,1,f,20,b,1,8,b2,1f,1,1,1d,2,33,f,1,1,1c,1,1,b,1,8,b2,8,c,b,1,1,1d,2,33,f,1,1,1c,1,1,b,1,8,b2,8,c,b,1b,3,1,7,1,1,2c,f,20,b,1,8,b3,7,c,b,1b,3,1,2,6,1,2c,f,20,b,1,8,b3,7,c,b,1,1,1d,2,33,f,1,1,1b,1,2,b,1,8,b3,7,c,b,1,1,17,1,1,6,33,f,1,1,1b,1,1,c,1,8,b3,c,1,11,2,2,2,2,2,2,2,2,2,2,2,2,3,6,6,1,2a,1,1,f,1f,c,1,8,b3,1e,1b,b,1,1,2c,f,1f,c,1,8,b3,10,7,2d,2e,f,1,1,1c,d,1,9,b2,10,7,2d,2e,f,1,1,1c,d,1,9,b2,10,7,11,7,15,1,1,2a,1,1,f,1b,1,1,e,1,9,b3,f,7,11,7,15,1,1,2a,1,1,f,1b,1,1,e,1,9,b3,f,7,11,2,3,2,15,2e,f,1,1,18,1,2,e,1,9,b3,f,7,11,2,3,2,1,1,13,2e,f,1,1,18,1,1,f,1,9,b4,7,b,14,7,1,1,13,1,1,2a,1,1,f,1b,10,1,9,b4,7,b,14,7,1,1,13,1,1,2a,1,1,f,18,1,2,10,1,9,b4,7,b,1c,1,a,7,2,2e,f,1,1,18,11,1,9,b4,7,b,1c,1,a,7,2,2e,f,1,1,17,12,1,9,b4,7,b,1c,1,a,2,3,2,2,1,1,2a,1,1,f,19,12,1,9,b4,a,1,2e,2,3,2,2,1,1,2a,1,1,f,18,13,1,9,b5,38,7,2,2e,f,1,1,15,14,1,9,b5,38,7,2,2e,f,1,1,14,15,1,9,b5,3b,7,1,2a,1,1,f,15,16,1,9,b5,41,1,1,2a,1,1,f,14,17,1,9,b6,11,4,2b,2e,f,1,1,11,18,1,9,b6,f,8,29,2e,f,1,1,b,2,2,1a,1,9,b7,d,a,28,1,1,2a,1,1,f,b,2,3,1b,1,9,b7,5,12,28,1,1,2a,1,1,f,8,1,5,1d,1,9,b7,5,13,27,2e,f,1,1,3,2,5,1f,1,9,b8,4,13,24,35,b,1,2,6,22,1,9,b8,4,13,24,35,b,4,27,1,9,b8,4,13,24,1,4,2a,1,1,3,1,36,1,9,b9,5,1,5,a,25,1,3,1,1,2b,3,1,36,1,9,b9,b,a,25,35,c,2,1,1,2,a,1,1,18,1,9,ba,b,c,25,1,1,2a,1,1,10,4,2,2,1,3,1,5,18,1,9,ba,d,4,2b,1,1,2a,1,1,10,4,2,c,22,bb,e,3,2a,2e,44,bb,d,5,29,2e,44,bc,3a,1,1,2a,1,1,26,4,2,c,c,bc,3a,1,1,2a,1,1,26,4,2,1,1,8,1,1,c,bd,1,b,2d,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,26,2,1,1,3,b,c,bd,1,b,2d,2e,2f,4,9,1,7,c9,97,1,7,c9,9f,c9,2e,2,2,4,18,2,2,4,49,c0,37,2,2,2,1,1,18,2,2,1,1,1,4a,c0,37,2,2,1,2,1,18,2,2,1,1,1,4a,c2,a6,c2,3,b,20,2,76,c2,3,b,1f,4,75,c3,2,b,1e,6,74,c4,1,b,1e,6,74,c4,1,b,1f,4,75,c6,4,5,21,2,6e,1,7,c6,5,4,99,c7,4,4,92,cf,3,c,8a,d0,3,1,2,8,8a,d0,3,c,89,d2,1,b,8a,d2,1,b,7,5,3,5,3,5,3,5,3,5,5e,d3,a,1,7,5,3,5,3,5,3,5,3,5,5e,d4,11,5,3,5,3,5,3,5,3,5,5e,d5,10,5,3,5,3,5,3,5,3,5,5e,d8,d,5,3,5,3,5,3,5,3,5,5e,d8,d,5,3,5,3,5,3,5,3,5,5e,d9,c,5,3,5,3,5,3,5,3,5,5e,da,b,5,3,5,3,5,3,5,3,5,5e,db,a,5,3,5,3,5,3,5,3,5,5e,dc,9,5,3,5,3,5,3,5,3,5,5d,df,7,6,2,e,2,6,2,6,5c,e0,a,1,6,8,9,1,66,e1,e,a,6f,e2,d,a,6f,e4,a,c,6d,e6,9,c,6e,e7,7,c,6e,e9,5,c,6e,ec,3,a,6f,ed,2,a,6f,ef,1,8,70,f6,71,fc,65,5,2,f9,68,5,3,fb,1,1,6b,fe,69,104,64,10d,4,2,a,1,a,2,a,1,a,2,a,1,a,2,a,1,6,1175";
   var WATER_RLE = "5775,15,11,28,11a,15,11,28,11a,15,11,28,11a,15,12,26,11b,15,12,26,122,e,12,26,122,e,12,26,122,e,12,26,122,e,11,28,11a,15,11,28,11a,15,11,28,15,5,100,15,11,28,15,8,fd,15,11,28,15,a,fb,15,11,28,15,b,fa,15,11,28,15,d,f8,15,11,28,15,e,f7,15,11,28,15,f,f6,15,11,28,15,10,ff,b,11,28,15,11,fe,b,11,28,15,12,fd,b,11,28,15,13,fc,b,11,28,15,14,f1,15,11,28,15,15,f0,15,11,28,15,15,f0,15,11,28,15,5,2,f,ef,15,11,28,15,5,2,f,ef,15,11,28,15,5,2,10,ee,15,11,28,15,5,2,10,ee,15,11,28,15,5,2,11,ed,15,11,28,15,5,2,11,ed,15,11,28,15,5,2,12,f6,b,11,28,15,5,2,12,f6,b,4e,5,2,12,f6,b,11,1,1,25,16,5,2,13,f5,b,11,1,3c,5,2,13,eb,15,11,1,1,25,16,5,2,13,eb,15,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,5,2,13,eb,15,15,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,5,2,13,eb,15,11,1,3c,d,6,8,ea,15,11,1,1,25,16,c,8,7,ea,15,11,28,15,b,a,6,ea,15,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,14,b,a,6,ea,15,11,1,1,25,16,b,a,6,ea,15,11,1,3c,b,a,1,1,4,f1,e,11,1,1,25,16,b,b,5,f1,e,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,b,a,1,1,4,f1,e,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,c,8,1,2,4,f1,e,11,1,1,25,16,d,6,1,1,5,eb,14,12,1,3c,15,1,4,eb,14,12,1,1,25,16,1a,eb,14,13,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,1a,eb,14,16,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,1a,eb,14,12,1,3c,19,112,1,1,25,16,19,112,28,15,19,14f,18,113,28,15,18,113,28,15,17,114,28,15,17,114,28,15,16,115,28,15,16,115,28,15,15,116,28,15,6,4,b,116,28,15,5,6,9,117,28,15,5,7,7,118,28,15,5,7,6,119,28,15,5,7,5,11a,28,15,6,6,4,11b,28,15,8,2,5,11c,28,15,e,11d,28,15,d,11e,28,15,b,120,28,15,a,121,28,15,8,123,28,15,5,126,28,140,28,141,26,142,26,142,26,142,26,142,26,141,28,140,28,140,28,140,28,140,28,569d";
-  var CAST = {"m_s0":[0,0,21,33,10,32],"m_n0":[22,0,21,33,10,32],"m_e0":[44,0,21,33,10,32],"m_w0":[66,0,21,33,10,32],"m_s1":[88,0,21,33,10,32],"m_n1":[110,0,21,33,10,32],"m_e1":[132,0,21,33,10,32],"m_w1":[154,0,21,33,10,32],"m_s":[176,0,21,33,10,32],"m_n":[198,0,21,33,10,32],"m_e":[220,0,21,33,10,32],"m_w":[0,34,21,33,10,32],"m_swim0":[22,34,23,19,11,15],"m_swim1":[46,34,23,19,11,15],"m_float":[70,34,33,21,16,10],"m_tuck":[104,34,21,27,10,25],"m_sit":[126,34,21,33,10,29],"m_wave":[148,34,21,33,10,32],"m_sg0":[170,34,21,33,10,32],"m_swimg0":[192,34,23,19,11,15],"m_sg1":[216,34,21,33,10,32],"m_swimg1":[0,68,23,19,11,15],"m_tuckg":[24,68,21,27,10,25],"mel_s0":[46,68,21,29,10,28],"mel_n0":[68,68,21,29,10,28],"mel_e0":[90,68,21,29,10,28],"mel_w0":[112,68,21,29,10,28],"mel_s1":[134,68,21,29,10,28],"mel_n1":[156,68,21,29,10,28],"mel_e1":[178,68,21,29,10,28],"mel_w1":[200,68,21,29,10,28],"mel_s":[222,68,21,29,10,28],"mel_n":[0,98,21,29,10,28],"mel_e":[22,98,21,29,10,28],"mel_w":[44,98,21,29,10,28],"mel_swim0":[66,98,23,19,11,15],"mel_swim1":[90,98,23,19,11,15],"mel_float":[114,98,33,21,16,10],"mel_tuck":[148,98,21,27,10,25],"mel_sit":[170,98,21,32,10,28],"mel_wave":[192,98,21,29,10,28],"ari_e0":[214,98,31,21,15,18],"ari_w0":[0,131,31,21,15,18],"ari_e1":[32,131,31,21,15,18],"ari_w1":[64,131,31,21,15,18],"ari_sniff_e":[96,131,31,21,15,18],"ari_sniff_w":[128,131,31,21,15,18],"ari_happy_e":[160,131,31,21,15,18],"ari_happy_w":[192,131,31,21,15,18],"ari_sit_e":[224,131,31,21,13,19],"ari_sit_w":[0,153,31,21,17,19],"ari_sleep_e":[32,153,30,17,13,15],"ari_sleep_w":[63,153,30,17,16,15],"ari_swim_e0":[94,153,31,15,18,11],"ari_swim_w0":[126,153,31,15,12,11],"ari_s0":[158,153,21,21,10,19],"ari_n0":[180,153,21,21,10,19],"ari_swim_e1":[202,153,31,15,18,11],"ari_swim_w1":[0,175,31,15,12,11],"ari_s1":[32,175,21,21,10,19],"ari_n1":[54,175,21,21,10,19],"y_s0":[0,197,21,37,10,36],"y_s1":[22,197,21,37,10,36],"y_s":[44,197,21,37,10,36],"y_n0":[66,197,21,37,10,36],"y_n1":[88,197,21,37,10,36],"y_n":[110,197,21,37,10,36],"y_e0":[132,197,21,37,10,36],"y_e1":[154,197,21,37,10,36],"y_e":[176,197,21,37,10,36],"y_w0":[198,197,21,37,10,36],"y_w1":[220,197,21,37,10,36],"y_w":[0,235,21,37,10,36],"y_wave":[22,235,21,37,10,36],"y_swim0":[44,235,23,19,11,15],"y_swim1":[68,235,23,19,11,15],"y_sit":[92,235,21,34,10,30],"y_float":[114,235,33,21,16,10],"g_s":[0,274,21,33,10,32],"g_s0":[22,274,21,34,10,33],"g_s1":[44,274,21,34,10,33],"g_n":[66,274,21,33,10,32],"g_n0":[88,274,21,34,10,33],"g_n1":[110,274,21,34,10,33],"g_e":[132,274,21,33,10,32],"g_e0":[154,274,21,33,10,32],"g_e1":[176,274,21,33,10,32],"g_w":[198,274,21,33,10,32],"g_w0":[220,274,21,33,10,32],"g_w1":[0,309,21,33,10,32],"g_wave":[22,309,21,33,10,32],"g_sit":[44,309,21,27,10,26]};
+  var CAST = {"m_s0":[0,0,21,33,10,32],"m_n0":[22,0,21,33,10,32],"m_e0":[44,0,21,33,10,32],"m_w0":[66,0,21,33,10,32],"m_s1":[88,0,21,33,10,32],"m_n1":[110,0,21,33,10,32],"m_e1":[132,0,21,33,10,32],"m_w1":[154,0,21,33,10,32],"m_s":[176,0,21,33,10,32],"m_n":[198,0,21,33,10,32],"m_e":[220,0,21,33,10,32],"m_w":[0,34,21,33,10,32],"m_swim0":[22,34,23,19,11,15],"m_swim1":[46,34,23,19,11,15],"m_float":[70,34,33,21,16,10],"m_tuck":[104,34,21,27,10,25],"m_sit":[126,34,21,33,10,29],"m_wave":[148,34,21,33,10,32],"m_sg0":[170,34,21,33,10,32],"m_swimg0":[192,34,23,19,11,15],"m_sg1":[216,34,21,33,10,32],"m_swimg1":[0,68,23,19,11,15],"m_tuckg":[24,68,21,27,10,25],"mel_s0":[46,68,21,29,10,28],"mel_n0":[68,68,21,29,10,28],"mel_e0":[90,68,21,29,10,28],"mel_w0":[112,68,21,29,10,28],"mel_s1":[134,68,21,29,10,28],"mel_n1":[156,68,21,29,10,28],"mel_e1":[178,68,21,29,10,28],"mel_w1":[200,68,21,29,10,28],"mel_s":[222,68,21,29,10,28],"mel_n":[0,98,21,29,10,28],"mel_e":[22,98,21,29,10,28],"mel_w":[44,98,21,29,10,28],"mel_swim0":[66,98,23,19,11,15],"mel_swim1":[90,98,23,19,11,15],"mel_float":[114,98,33,21,16,10],"mel_tuck":[148,98,21,27,10,25],"mel_sit":[170,98,21,32,10,28],"mel_wave":[192,98,21,29,10,28],"ari_e0":[214,98,31,21,15,18],"ari_w0":[0,131,31,21,15,18],"ari_e1":[32,131,31,21,15,18],"ari_w1":[64,131,31,21,15,18],"ari_sniff_e":[96,131,31,21,15,18],"ari_sniff_w":[128,131,31,21,15,18],"ari_happy_e":[160,131,31,21,15,18],"ari_happy_w":[192,131,31,21,15,18],"ari_sit_e":[224,131,31,21,13,19],"ari_sit_w":[0,153,31,21,17,19],"ari_sleep_e":[32,153,30,17,13,15],"ari_sleep_w":[63,153,30,17,16,15],"ari_swim_e0":[94,153,31,15,18,11],"ari_swim_w0":[126,153,31,15,12,11],"ari_s0":[158,153,21,21,10,19],"ari_n0":[180,153,21,21,10,19],"ari_swim_e1":[202,153,31,15,18,11],"ari_swim_w1":[0,175,31,15,12,11],"ari_s1":[32,175,21,21,10,19],"ari_n1":[54,175,21,21,10,19],"y_s0":[0,197,21,37,10,36],"y_s1":[22,197,21,37,10,36],"y_s":[44,197,21,37,10,36],"y_n0":[66,197,21,37,10,36],"y_n1":[88,197,21,37,10,36],"y_n":[110,197,21,37,10,36],"y_e0":[132,197,21,37,10,36],"y_e1":[154,197,21,37,10,36],"y_e":[176,197,21,37,10,36],"y_w0":[198,197,21,37,10,36],"y_w1":[220,197,21,37,10,36],"y_w":[0,235,21,37,10,36],"y_wave":[22,235,21,37,10,36],"y_swim0":[44,235,23,19,11,15],"y_swim1":[68,235,23,19,11,15],"y_sit":[92,235,21,34,10,30],"y_float":[114,235,33,21,16,10],"g_s":[0,274,21,33,10,32],"g_s0":[22,274,21,34,10,33],"g_s1":[44,274,21,34,10,33],"g_n":[66,274,21,33,10,32],"g_n0":[88,274,21,34,10,33],"g_n1":[110,274,21,34,10,33],"g_e":[132,274,21,33,10,32],"g_e0":[154,274,21,33,10,32],"g_e1":[176,274,21,33,10,32],"g_w":[198,274,21,33,10,32],"g_w0":[220,274,21,33,10,32],"g_w1":[0,309,21,33,10,32],"g_wave":[22,309,21,33,10,32],"g_sit":[44,309,21,27,10,26],"g_sitn":[66,309,21,24,10,23]};
   var GW = 360, GH = 210, N = GW * GH;
   // test the deck faster with ?fast=4 (up to 10), the same way ?time= and ?open= test the clock
   var FAST = Math.max(1, Math.min(10, +new URLSearchParams(location.search).get('fast') || 1));
@@ -1638,7 +1638,7 @@
   // coaches Em's volleyball, swims with Mel, brings out lunch and snacks, and always has a treat for Ari.
   // Ari loves leva. Ari loves Yenny more. She picks things up as the days go by, same as the girls:
   // new drills from coaching Em, the girls' favorite lunches, and pool sense from leva.
-  var CAR_PARK = [454, 68], CAR_AISLE = 42, CAR_ROAD = 612, CAR_DOOR = [462, 66], BLDG_NORTH = [440, 90];
+  var CAR_PARK = [454, 68], CAR_AISLE = 42, CAR_ROAD = 612, CAR_DOOR = [462, 66];
   var car = {state: 'gone', x: CAR_ROAD, y: -40, face: 's', path: null, unloaded: false};
   function carGo(pts, then){ car.path = pts.slice(); car.then = then || null; }
   function carCome(){ car.state = 'in'; car.x = CAR_ROAD; car.y = -40; car.face = 's'; car.unloaded = false; carGo([[CAR_ROAD, CAR_AISLE], [CAR_PARK[0], CAR_AISLE], [CAR_PARK[0], CAR_PARK[1]]], function(){ car.state = 'parked'; car.face = 's'; unload(); }); }
@@ -1657,12 +1657,12 @@
   function unload(){
     yen.x = CAR_DOOR[0]; yen.y = CAR_DOOR[1]; yen.here = false; yen.lot = true; yen.hidden = false; yen.face = 'w';
     yen.task = 'parking the Navigator';
-    setPlan(yen, [wait(1.2), {k: 'straight', x: BLDG_NORTH[0], y: BLDG_NORTH[1], show: true, speed: 12}, fn(function(){ yen.hidden = true; yen.lot = false; }), wait(2.5), fn(function(){ car.unloaded = true; })]);
+    setPlan(yen, [wait(1.2), {k: 'straight', x: CAR_DOOR[0], y: 84, show: true, speed: 12}, {k: 'straight', x: 548, y: 84, speed: 12}, {k: 'straight', x: 548, y: 218, speed: 12}, {k: 'straight', x: 543, y: 218, speed: 12}, fn(function(){ yen.hidden = true; yen.lot = false; }), wait(2.5), fn(function(){ car.unloaded = true; })]);
   }
   // after close: she walks back out to the car and they drive home
   function loadUp(){
-    yen.lot = true; yen.x = BLDG_NORTH[0]; yen.y = BLDG_NORTH[1]; yen.hidden = false; yen.task = 'heading home';
-    setPlan(yen, [{k: 'straight', x: CAR_DOOR[0], y: CAR_DOOR[1], show: true, speed: 12}, fn(function(){ yen.hidden = true; yen.lot = false; }), wait(1.5), fn(function(){ carLeave(); })]);
+    yen.lot = true; yen.x = 543; yen.y = 218; yen.hidden = false; yen.task = 'heading home';
+    setPlan(yen, [{k: 'straight', x: 548, y: 218, show: true, speed: 12}, {k: 'straight', x: 548, y: 84, speed: 12}, {k: 'straight', x: CAR_DOOR[0], y: 84, speed: 12}, {k: 'straight', x: CAR_DOOR[0], y: CAR_DOOR[1], speed: 12}, fn(function(){ yen.hidden = true; yen.lot = false; }), wait(1.5), fn(function(){ carLeave(); })]);
   }
   // the girls come in once Mom has parked. On a fresh page during pool hours, everyone's already here.
   function familyIn(walk){
@@ -1843,12 +1843,13 @@
     var em = kids.m; YEN.lastCoach = W.clock;
     var A = snap(SMALL, RALLY_SPOTS[0][0], RALLY_SPOTS[0][1]), Bp = snap(SMALL, RALLY_SPOTS[1][0], RALLY_SPOTS[1][1]), R = {done: false};
     var tipsKnown = Math.min(COACH_TIPS.length, MEM.yenny.tips);
-    kidPlan(em, [kidGo(em, A[0], A[1]), fn(function(){ em.face = 'e'; }), until(function(){ return R.done || R.go; }, 40), until(function(){ return R.done; }, 40), fn(function(){ em.act = null; })].concat(towelSteps(em, 6)), 'practicing volleyball with Mom');
+    var emOut = em.inWater ? swimSteps(em, em.pool === 'dive' ? 'dive' : em.pool === 'zero' ? 'zero' : 'lapS', 0.5).slice(3) : [];
+    kidPlan(em, emOut.concat([kidGo(em, A[0], A[1]), fn(function(){ em.face = 'e'; }), until(function(){ return R.done || R.go; }, 40), until(function(){ return R.done; }, 40), fn(function(){ em.act = null; })]).concat(towelSteps(em, 6)), 'practicing volleyball with Mom');
     yenPlan([yenGo(Bp[0], Bp[1]), fn(function(){ yen.face = 'w'; convo([['yenny', pick(['Em! Want to work on your passing?', 'Coach is here. Grab the ball, Em.', 'Ten minutes of drills, then you can swim.'])], ['m', pick(['Yes!', "Let's go, Coach.", 'Okay, okay!'])]]); }),
-      until(function(){ return Math.hypot(em.x - A[0], em.y - A[1]) < 5 && !em.moving || !em.here || em.inWater; }, 25),
+      until(function(){ return Math.hypot(em.x - A[0], em.y - A[1]) < 5 && !em.moving || !em.here; }, 35),
       {k: 'custom', step: function(a, dt, st){
         if (!st.go){
-          if (!em.here || em.inWater || em.task !== 'practicing volleyball with Mom'){ R.done = true; return true; }
+          if (!em.here || em.inWater || em.task !== 'practicing volleyball with Mom' || Math.hypot(em.x - A[0], em.y - A[1]) > 8){ R.done = true; return true; }
           st.go = true; R.go = true; st.left = 14 + Math.random() * 6; st.count = 0; st.best = 0; st.pause = 0; st.tip = 3;
           VB = {a: em, b: yen, from: 1, t: 0, dur: 1, down: false}; em.face = 'e'; yen.face = 'w';
         }
@@ -2014,7 +2015,7 @@
     }
   }
   function drawYen(c){
-    if (yen.hidden || walled(yen.x, yen.y) || (!yen.here && !yen.lot)) return;
+    if (yen.hidden || (walled(yen.x, yen.y) && yen.x < 541) || (!yen.here && !yen.lot)) return;
     var X = yen.x * 2, Y = yen.y * 2 - (yen.lift || 0) * 2, f = Math.floor(yen.t * 4) % 2;
     if (yen.hopping){ spr(c, 'y_s' + f, X, Y); return; }
     if (yen.pose === 'float'){ spr(c, 'y_float', X, Y); ripple(c, X, Y + 1, 20); return; }
@@ -2046,20 +2047,21 @@
 
   // ---------------- Grandma Sweetheart ----------------
   // Em and Mel's great grandma, and the sweetest grandma on the planet. Every day she drives up in her gold Cutlass,
-  // parks in the south lot, and walks the park path to her bench under the trees. She'd rather sit in the park and
-  // let the kids come to her, and they always do, because she brings the snacks. She loves every one of her
-  // grandkids and great grandkids, the ones here and the ones in Fort Wayne, Raleigh, South Carolina, Florida and
-  // Michigan, and she talks about them all. She picks things up as the days go by: what each girl likes best,
-  // their news, and a little about the pool from leva.
-  var GMA_STALL = [446, 405], GMA_DOOR = [438, 404];
-  // the walk from her car, west along the park path and around to the bench
-  var GMA_WALK = [[430, 413], [418, 411], [330, 410], [255, 409], [215, 406], [185, 398], [165, 389], [140, 372], [123, 360], [108, 345], [97, 332], [86, 316], [77, 300], [68, 275], [63, 250], [60, 228], [59, 208]];
-  var BENCH = {x: 23, y: 194, w: 27}, BENCH2 = {x: 85, y: 387, w: 27};
-  var GMA_SEAT = [28, 204], SEATS = {m: [37, 204], mel: [45, 204], yenny: [37, 204], ari: [30, 213]};
-  // the little gate in the fence on the west deck, straight across from her bench
-  var PGATE = {deck: [82, 206], out: [68, 206], path: [59, 207]};
-  var cut = {state: 'gone', x: 606, y: -20, face: 's', path: null};
-  var gma = {id: 'gma', x: GMA_SEAT[0], y: GMA_SEAT[1], face: 's', t: 0, mask: BIG, speed: 9, task: 'at home', pose: 'walk', inWater: false, pool: null, hidden: true, here: false, lot: false};
+  // parks right next to the Navigator, and walks in the front door like everybody else. Her bench is on the south
+  // deck by the girls' towels, facing the pool, and she lets the kids come to her. They always do, because she brings
+  // the snacks. At the end of the day she walks out with the family and follows the Navigator home. She loves every
+  // one of her grandkids and great grandkids, the ones here and the ones in Fort Wayne, Raleigh, South Carolina,
+  // Florida and Michigan, and she talks about them all. She picks things up as the days go by: what each girl likes
+  // best, their news, and a little about the pool from leva.
+  var GMA_STALL = [470, 68], GMA_DOOR = [478, 66];
+  // the way in and out for everybody from the north lot: along the drive beside the building to the front door under the sign
+  var FRONT_DOOR = [543, 218], FROM_NORTH = [[548, 84], [548, 218], FRONT_DOOR];
+  // her bench: on the south deck by the girls' towels, facing the pool. She sits with her back to us, watching the water.
+  var BENCH = {x: 359, y: 351, w: 27}, GMA_SEAT = [366, 357];
+  // where folks stand when they come see her: right in front of her, between the bench and the pool
+  var SPOTS_G = {m: [361, 347], mel: [377, 347], ari: [384, 352], yenny: [392, 357]};
+  var cut = {state: 'gone', x: CAR_ROAD, y: -40, face: 's', path: null};
+  var gma = {id: 'gma', x: GMA_SEAT[0], y: GMA_SEAT[1], face: 'n', t: 0, mask: BIG, speed: 9, task: 'at home', pose: 'walk', inWater: false, pool: null, hidden: true, here: false, lot: false};
   ACT.gma = gma;
   var GMA = {lastCall: -40, lastAri: 0, lastYen: 30, lastNews: 20, lastWalk: 60, lastLeva: 50, lastHum: 0, due: 25 + Math.random() * 40};
   var GMA_SNACK = [
@@ -2074,7 +2076,7 @@
     ['Michigan', 'Got a card in the mail from my Michigan grandkids. Crayon hearts all over it.'],
     ['great grandkids', 'Another great grandbaby picture came today. I put it on the fridge with all the others. The fridge is full.']
   ];
-  // what she picks up from leva over the fence, a little at a time
+  // what she picks up from leva, a little at a time
   var GMA_QA = [
     ['leva, honey, why do you test that water so often?', 'Sun and swimmers use up the chlorine. I check so it stays safe all day.'],
     ['Is it too hot for the girls out here today?', 'Shade breaks and lots of water. I remind them every time they get out.'],
@@ -2084,55 +2086,63 @@
   var GMA_HUM = ['Amazing Grace', 'Jesus Loves Me', 'How Great Thou Art', 'This Little Light of Mine', 'In the Garden'];
   function gmaPlan(steps, task){ gma.task = task; setPlan(gma, steps); }
   function walkTo(pts, speed){ return pts.map(function(p){ return {k: 'straight', x: p[0], y: p[1], show: true, speed: speed || gma.speed}; }); }
-  function onBench(secs, task){ return [{k: 'straight', x: GMA_SEAT[0], y: GMA_SEAT[1], speed: gma.speed}, fn(function(){ gma.face = 's'; gma.task = task || 'on her bench in the park'; }), act('sit', secs)]; }
+  function deckGo(a, p, speed){ var q = snap(BIG, p[0], p[1]); return go(q[0], q[1], {speed: speed || a.speed}); }
+  function onBench(secs, task){ return [deckGo(gma, GMA_SEAT), {k: 'straight', x: GMA_SEAT[0], y: GMA_SEAT[1], speed: gma.speed}, fn(function(){ gma.face = 'n'; gma.task = task || 'on her bench by the girls'; }), act('sit', secs)]; }
+  function visiting(k){ return /^(visiting|going to see) Grandma/.test(k.task || ''); }
 
-  // the car: in off the street, down the aisle and into her stall
+  // the car: in off the street, down the north lot aisle, and into the stall right next to the Navigator
   function cutGo(pts, then){ cut.path = pts.slice(); cut.then = then || null; }
-  function cutCome(){ cut.state = 'in'; cut.x = 606; cut.y = -20; cut.face = 's'; cutGo([[606, 94], [586, 98], [560, 110], [558, 330], [556, 381], [GMA_STALL[0], 381], GMA_STALL], function(){ cut.state = 'parked'; cut.face = 's'; gmaOut(); }); }
-  function cutLeave(){ cut.state = 'out'; cutGo([[GMA_STALL[0], 381], [588, 381], [588, 330], [590, 110], [612, 96], [624, 80], [624, -24]], function(){ cut.state = 'gone'; }); }
+  function cutCome(){ cut.state = 'in'; cut.x = CAR_ROAD; cut.y = -40; cut.face = 's'; cutGo([[CAR_ROAD, CAR_AISLE], [GMA_STALL[0], CAR_AISLE], GMA_STALL], function(){ cut.state = 'parked'; cut.face = 's'; gmaOut(); }); }
+  function cutLeave(){ cut.state = 'out'; cutGo([[GMA_STALL[0], CAR_AISLE], [CAR_ROAD, CAR_AISLE], [CAR_ROAD, -46]], function(){ cut.state = 'gone'; }); }
   function cutStep(dt){
     if (!cut.path || !cut.path.length) return;
     var p = cut.path[0], dx = p[0] - cut.x, dy = p[1] - cut.y, d = Math.hypot(dx, dy);
-    // she takes it nice and slow in the lot
-    var s = (cut.y > 330 ? 12 : 28) * dt;
-    if (!(cut.state === 'out' && cut.path.length === 7)) cut.face = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'e' : 'w') : (dy > 0 ? 's' : 'n');
+    // nice and slow in the lot, backing out still facing south
+    var s = (cut.state === 'out' && cut.path.length === 3 ? 9 : cut.path.length === 1 && cut.state === 'in' ? 12 : 30) * dt;
+    if (!(cut.state === 'out' && cut.path.length === 3)) cut.face = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'e' : 'w') : (dy > 0 ? 's' : 'n');
     if (d <= s){ cut.x = p[0]; cut.y = p[1]; cut.path.shift(); if (!cut.path.length && cut.then){ var f = cut.then; cut.then = null; f(); } }
     else { cut.x += dx / d * s; cut.y += dy / d * s; }
   }
-  // out of the Cutlass and the long, slow walk on the park path to her bench
-  function gmaOut(){
-    gma.x = GMA_DOOR[0]; gma.y = GMA_DOOR[1]; gma.hidden = false; gma.here = true; gma.lot = true; gma.face = 'w';
-    gmaPlan([wait(1.5)].concat(walkTo(GMA_WALK), [fn(function(){ gma.lot = false; }), fn(function(){
+  // out of the Cutlass, up the drive and in the front door, then out the gate onto the deck and over to her bench
+  function inDoor(){ return [{k: 'straight', x: FRONT_DOOR[0], y: FRONT_DOOR[1], hide: true, speed: gma.speed}, fn(function(){ gma.lot = false; }), act(null, 2.5, {hide: true}),
+    fn(function(){ gma.x = PLACES.gate.inside[0]; gma.y = PLACES.gate.inside[1] + 4; }), {k: 'straight', x: PLACES.gate.door[0], y: PLACES.gate.door[1] + 4, show: true, speed: gma.speed}]; }
+  function gmaHello(){
+    return fn(function(){
       convo([['gma', pick(['Yoo-hoo! Grandma is here!', 'Good morning, my sweethearts!', 'Hello, hello! Grandma made it.'])]].concat(kids.m.here || kids.mel.here ? [[kids.mel.here ? 'mel' : 'm', pick(['Grandma!', 'Hi, Grandma Sweetheart!', "Grandma's here!"])]] : []));
       if (!lv.hidden && !B.rescue) setTimeout(function(){ convo([['leva', 'Morning, Grandma Sweetheart.']]); }, 3500);
-      log('Grandma Sweetheart drove up in her gold Cutlass and walked over to her bench in the park.', 'gma');
-    })], onBench(8)), 'walking over from her car');
+    });
   }
-  // home in the Cutlass. If it's just the weather, she waits it out in the car.
-  function gmaHome(storm){
-    var back = GMA_WALK.slice().reverse();
-    gma.lot = true;
-    if (!storm) convo([['gma', pick(['Bye bye, sweethearts. Grandma loves you.', 'I love you all to pieces. See you tomorrow.', 'God bless, my darlings. See you tomorrow.'])]]);
-    gmaPlan(walkTo([[PGATE.path[0], PGATE.path[1] + 2]]).concat(walkTo(back), [{k: 'straight', x: GMA_DOOR[0], y: GMA_DOOR[1], speed: gma.speed}, fn(function(){
-      gma.hidden = true; gma.here = false;
-      if (storm){ gma.task = 'waiting out the storm in her Cutlass'; return; }
-      gma.task = 'home for the night'; MEM.today.gma = 2; save();
-      setTimeout(function(){ if (!gma.here) cutLeave(); }, 1500);
-    })]), storm ? 'heading to her car until the storm passes' : 'walking back to her car');
+  function gmaOut(){
+    gma.x = GMA_DOOR[0]; gma.y = GMA_DOOR[1]; gma.hidden = false; gma.here = true; gma.lot = true; gma.leaving = false; gma.face = 's';
+    gmaPlan([wait(1.5)].concat(walkTo([[GMA_DOOR[0], 84]].concat(FROM_NORTH.slice(0, 2))), inDoor(), [gmaHello(), fn(function(){
+      log('Grandma Sweetheart drove up in her gold Cutlass, parked next to the Navigator, and came out to her bench by the girls.', 'gma');
+    })], onBench(8)), 'walking in from her car');
+  }
+  // inside with the family until the storm passes, then right back out to her bench
+  function gmaInside(){
+    gmaPlan([deckGo(gma, [PLACES.gate.door[0], PLACES.gate.door[1] + 4]), {k: 'straight', x: PLACES.gate.inside[0], y: PLACES.gate.inside[1] + 4, hide: true, speed: gma.speed},
+      fn(function(){ gma.here = false; gma.hidden = true; gma.leaving = false; gma.task = 'inside with the family until the storm passes'; })], 'heading inside with the family');
+  }
+  function gmaBackOut(){
+    gma.here = true; gma.hidden = true; gma.lot = false; gma.leaving = false; gma.x = PLACES.gate.inside[0]; gma.y = PLACES.gate.inside[1] + 4;
+    gmaPlan([{k: 'straight', x: PLACES.gate.door[0], y: PLACES.gate.door[1] + 4, show: true, speed: gma.speed}].concat(onBench(6)), 'coming back out to her bench');
+  }
+  // the end of the day: out the gate with the family, through the building, and she follows the Navigator home
+  function gmaHome(){
+    convo([['gma', pick(['Bye bye, sweethearts. Grandma loves you.', 'I love you all to pieces. See you tomorrow.', 'God bless, my darlings. See you tomorrow.'])]]);
+    gmaPlan([deckGo(gma, [PLACES.gate.door[0], PLACES.gate.door[1] + 4]), {k: 'straight', x: PLACES.gate.inside[0], y: PLACES.gate.inside[1] + 4, hide: true, speed: gma.speed},
+      act(null, 2.5, {hide: true}), fn(function(){ gma.x = FRONT_DOOR[0]; gma.y = FRONT_DOOR[1]; gma.lot = true; })]
+      .concat(walkTo(FROM_NORTH.slice(0, 2).reverse().concat([[GMA_DOOR[0], 84], GMA_DOOR])), [fn(function(){ gma.hidden = true; gma.task = 'in her Cutlass, waiting on the Navigator'; }),
+      // she lets the Navigator pull out first and follows it home
+      until(function(){ return car.state !== 'parked'; }, 40), wait(1.5),
+      fn(function(){ gma.here = false; gma.lot = false; gma.leaving = false; gma.task = 'home for the night'; MEM.today.gma = 2; save(); boardDirty = true; cutLeave(); })]), 'walking out with the family');
   }
 
-  // anybody headed out to her bench goes through the little park gate and comes back the same way
-  function toBench(a, seat, speed){
-    var d = snap(SMALL, PGATE.deck[0], PGATE.deck[1]);
-    return [go(d[0], d[1], {speed: speed}), fn(function(){ a.park = true; }),
-      {k: 'straight', x: PGATE.out[0], y: PGATE.out[1], speed: speed}, {k: 'straight', x: PGATE.path[0], y: PGATE.path[1], speed: speed},
-      {k: 'straight', x: seat[0], y: seat[1], speed: speed}];
-  }
+  // anybody coming to see her walks over on the deck and stands right in front of her bench
+  function toBench(a, spot, speed){ var q = snap(BIG, spot[0], spot[1]); return [go(q[0], q[1], {speed: speed || a.speed}), {k: 'straight', x: spot[0], y: spot[1], speed: speed || a.speed}]; }
   function parkBack(a){
     if (a.park === 'nutty'){ var gs = a.speed || 11; return [{k: 'straight', x: NUTTY.gate[0], y: NUTTY.gate[1] - 2, speed: gs}, {k: 'straight', x: NUTTY.gate[0], y: NUTTY.gate[1] + 12, speed: gs}, fn(function(){ a.park = false; })]; }
-    var d = snap(SMALL, PGATE.deck[0], PGATE.deck[1]), sp = a.speed || 11;
-    return [{k: 'straight', x: PGATE.path[0], y: PGATE.path[1], speed: sp}, {k: 'straight', x: PGATE.out[0], y: PGATE.out[1], speed: sp},
-      {k: 'straight', x: d[0], y: d[1], speed: sp}, fn(function(){ a.park = false; })];
+    return [fn(function(){ a.park = false; })];
   }
   function gmaAt(){ return gma.here && !gma.hidden && !gma.lot && gma.task.indexOf('bench') >= 0; }
   function favFor(id){
@@ -2149,21 +2159,21 @@
   // "Yoo-hoo!" The girls come out to the bench, she hands out snacks, and everybody visits a while
   function callKids(){
     GMA.lastCall = W.clock;
-    var girls = [kids.m, kids.mel].filter(function(k){ return k.here && !k.leaving && (girlFree(k) || k.inWater) && !k.park; });
+    var girls = [kids.m, kids.mel].filter(function(k){ return k.here && !k.leaving && (girlFree(k) || k.inWater) && !visiting(k); });
     if (!girls.length) return false;
     var R = {done: false, n: 0};
     convo([['gma', pick(['Yoo-hoo! Em! Mel! Grandma brought snacks!', 'Girls! Come see Grandma. I brought a little something.', 'Who wants a snack from Grandma?'])]]);
     girls.forEach(function(k){
       var back = k.inWater ? swimSteps(k, k.pool === 'dive' ? 'dive' : k.pool === 'zero' ? 'zero' : 'lapS', 0.5).slice(3) : [];
       var i = snackFor(k.id); k.gmaSnack = i;
-      kidPlan(k, back.concat(toBench(k, SEATS[k.id], k.speed), [fn(function(){ k.face = 's'; k.task = 'visiting Grandma Sweetheart on her bench'; R.n++; heart(k.x, k.y - 6); }),
-        act('sit', 16), fn(function(){ k.gmaSnack = null; })], parkBack(k), towelSteps(k, 5)), 'going to see Grandma Sweetheart');
+      kidPlan(k, back.concat(toBench(k, SPOTS_G[k.id], k.speed), [fn(function(){ k.face = 's'; k.task = 'visiting Grandma Sweetheart at her bench'; R.n++; heart(k.x, k.y - 6); }),
+        act(null, 16, {face: 's'}), fn(function(){ k.gmaSnack = null; })], towelSteps(k, 5)), 'going to see Grandma Sweetheart');
       convo([[k.id, k.id === 'mel' ? pick(['Grandma!', 'Coming, Grandma!', 'Yay! Grandma snacks!']) : pick(['Coming!', 'Hi, Grandma!', 'Be right there!'])]]);
     });
     gmaPlan([act('sit', 0.1), until(function(){ return R.n >= girls.length || girls.every(function(k){ return !k.here; }); }, 45),
       fn(function(){
-        gma.face = 's';
-        var here = girls.filter(function(k){ return k.here && k.park; }); if (!here.length) return;
+        gma.face = 'n';
+        var here = girls.filter(function(k){ return k.here && k.task === 'visiting Grandma Sweetheart at her bench'; }); if (!here.length) return;
         var lines = [];
         here.forEach(function(k){
           var i = k.gmaSnack != null ? k.gmaSnack : snackFor(k.id), what = GMA_SNACK[i];
@@ -2180,63 +2190,62 @@
         lines.push(['gma', pick(['Well, would you look at that. I am so proud of you.', 'That is wonderful, honey. Grandma is proud of you.', 'You are something special, you know that?'])]);
         convo(lines);
         MEM.gma.snacks += here.length; MEM.today.gmaSnacks = (MEM.today.gmaSnacks || 0) + 1;
-        if (Math.random() < 0.6) log('Grandma Sweetheart brought ' + here.map(function(k){ return NAME[k.id]; }).join(' and ') + ' ' + GMA_SNACK[here[0].gmaSnack != null ? here[0].gmaSnack : 0] + ' out on her bench.', 'gma');
+        if (Math.random() < 0.6) log('Grandma Sweetheart brought ' + here.map(function(k){ return NAME[k.id]; }).join(' and ') + ' ' + GMA_SNACK[here[0].gmaSnack != null ? here[0].gmaSnack : 0] + ' at her bench.', 'gma');
         save(); boardDirty = true;
         // there's always one for the beagle
-        if (!ari.inWater && !ari.hidden && !ari.hopping && !ari.park && Math.random() < 0.7) setTimeout(function(){ ariToGma(); }, 4000);
+        if (!ari.inWater && !ari.hidden && !ari.hopping && Math.random() < 0.7) setTimeout(function(){ ariToGma(); }, 4000);
       }),
       act('sit', 14)].concat(onBench(6, 'on her bench, waving to the girls')), 'handing out snacks to the girls');
     return true;
   }
   function ariToGma(){
-    if (ari.inWater || ari.hidden || ari.hopping || ari.park || !gmaAt()) return false;
+    if (ari.inWater || ari.hidden || ari.hopping || ari.task === 'visiting Grandma Sweetheart' || !gmaAt()) return false;
     ari.lastGma = W.clock; GMA.lastAri = W.clock;
-    ariPlan(toBench(ari, SEATS.ari, 24).concat([fn(function(){
-      ari.face = 'n'; heart(ari.x, ari.y - 4);
+    ariPlan(toBench(ari, SPOTS_G.ari, 24).concat([fn(function(){
+      ari.face = 'w'; heart(ari.x, ari.y - 4);
       if (MEM.today.treats < TREAT_LIMIT) convo([['gma', pick(['Well, hello, Ari. Grandma has a cookie for you. A dog cookie.', 'There is my good boy. Here you go.', 'Ari, sweetheart. I saved you one.']), 0, function(){ giveTreat(gma); MEM.gma.treats++; }],
-        ['ari', pick(['Grandma Sweetheart smells like cookies!', 'Best lap in the whole park.', '*rests his chin on her knee*'])]]);
+        ['ari', pick(['Grandma Sweetheart smells like cookies!', 'Best bench on the whole deck.', '*rests his chin on her knee*'])]]);
       else convo([['gma', "Oh, leva says you've had enough today, honey. How about some pets instead?"], ['ari', '*sighs happily* Pets are good too.']]);
-    }), act('happy', 6)], parkBack(ari)), 'visiting Grandma Sweetheart');
+    }), act('happy', 6)]), 'visiting Grandma Sweetheart');
     return true;
   }
   function yenToGma(){
-    if (!present('yenny') || yen.inWater || yen.lot || yen.park || (yen.plan && !/towel|sun/.test(yen.task)) || [kids.m, kids.mel].some(function(k){ return k.park; })) return false;
+    if (!present('yenny') || yen.inWater || yen.lot || yen.park || (yen.plan && !/towel|sun/.test(yen.task))) return false;
     GMA.lastYen = W.clock;
-    yenPlan(toBench(yen, SEATS.yenny, yen.speed).concat([fn(function(){
-      yen.face = 's';
+    yenPlan(toBench(yen, SPOTS_G.yenny, yen.speed).concat([fn(function(){
+      yen.face = 'w';
       convo(pick([
         [['yenny', 'Hi, Grandma. How are you feeling today?'], ['gma', "Blessed, honey. Every day I get to watch these girls swim is a good day."]],
         [['gma', 'Yenny, you are doing a wonderful job with those girls.'], ['yenny', 'Thank you, Grandma. That means the world coming from you.']],
-        [['yenny', 'Can I get you anything? Water?'], ['gma', "I'm just fine, sweetheart. Sit with me a minute."]],
+        [['yenny', 'Can I get you anything? Water?'], ['gma', "I'm just fine, sweetheart. Stay with me a minute."]],
         [['gma', 'Did you eat today? You take care of everybody but yourself.'], ['yenny', 'I did, I promise. Nutty Dip with the girls.']]
       ]));
-    }), act('sit', 14)], parkBack(yen), chairSteps(6)), 'sitting with Grandma Sweetheart');
+    }), act(null, 14, {face: 'w'})], chairSteps(6)), 'visiting with Grandma Sweetheart');
     gmaPlan(onBench(18, 'on her bench, visiting with Yenny'), 'on her bench, visiting with Yenny');
     return true;
   }
   function gmaNews(){
     GMA.lastNews = W.clock;
     var i = MEM.gma.told % GMA_FOLKS.length, f = GMA_FOLKS[i]; MEM.gma.told++;
-    var heard = [kids.m, kids.mel].some(function(k){ return k.park; });
-    convo([['gma', f[1]]].concat(heard ? [[kids.mel.park ? 'mel' : 'm', pick(['Can we go visit them?', 'Tell them we said hi!', 'I miss them!'])], ['gma', 'I sure will, honey. Grandma loves all of you the same. All the way to the moon.']] : []));
+    var heard = [kids.m, kids.mel].some(visiting);
+    convo([['gma', f[1]]].concat(heard ? [[visiting(kids.mel) ? 'mel' : 'm', pick(['Can we go visit them?', 'Tell them we said hi!', 'I miss them!'])], ['gma', 'I sure will, honey. Grandma loves all of you the same. All the way to the moon.']] : []));
     if (Math.random() < 0.5) log('Grandma Sweetheart shared news from her ' + f[0] + (f[0] === 'great grandkids' ? '' : ' grandkids') + '.', 'gma');
     gmaPlan(onBench(12, 'on her bench, reading a card from her ' + (f[0] === 'great grandkids' ? 'great grandkids' : f[0] + ' grandkids')), 'on her bench, reading a card from home');
     save(); boardDirty = true;
   }
-  // leva comes over to the fence, or she calls him over, and she asks him a question
+  // she calls leva over and asks him a question
   function gmaLeva(){
     GMA.lastLeva = W.clock;
     var learn = MEM.gma.facts < GMA_QA.length, q = GMA_QA[MEM.gma.facts % GMA_QA.length];
     if (!learn) q = pick([['leva, honey, you work so hard. I said a prayer for you this morning.', 'Thank you, Grandma Sweetheart. That means a lot.'], ['Are you staying out of the sun, leva?', 'I am waterproof, mostly. But thank you.'], ['You keep my girls safe. Thank you, leva.', 'Always. They are good swimmers, too.']]);
     convo([['gma', q[0]], ['leva', q[1], 0, function(){ if (learn){ MEM.gma.facts = Math.max(MEM.gma.facts, GMA_QA.indexOf(q) + 1); save(); boardDirty = true; } }], ['gma', learn ? pick(['Well, I learned something new today.', 'Isn\'t that something. Thank you, honey.']) : pick(['Bless you.', 'You are a sweetheart.'])]]);
-    if (learn) log('Grandma Sweetheart asked leva over the fence: ' + q[0].replace(/^leva, honey, /, '') + ' He told her.', 'gma');
-    gmaPlan([fn(function(){ gma.talkWave = 1.6; })].concat(onBench(12, 'on her bench, chatting with leva over the fence')), 'on her bench, chatting with leva over the fence');
+    if (learn) log('Grandma Sweetheart asked leva: ' + q[0].replace(/^leva, honey, /, '') + ' He told her.', 'gma');
+    gmaPlan([fn(function(){ gma.talkWave = 1.6; })].concat(onBench(12, 'on her bench, chatting with leva')), 'on her bench, chatting with leva');
   }
-  // a little stretch of the legs on the park path, and back to the bench
+  // a little stretch of the legs around the deck: over to watch the zero depth, past the lap pool, and back
   function gmaStroll(){
     GMA.lastWalk = W.clock;
-    var loop = [[59, 228], [63, 250], [68, 275], [77, 300], [86, 316]];
-    gmaPlan(walkTo([PGATE.path]).concat(walkTo(loop), walkTo(loop.slice().reverse()), walkTo([PGATE.path]), onBench(10)), 'taking a little walk on the park path');
+    gmaPlan([deckGo(gma, [404, 290]), fn(function(){ gma.face = 'n'; }), act(null, 4), deckGo(gma, [290, 318]), fn(function(){ gma.face = 'n'; }), act(null, 4)].concat(onBench(10)), 'taking a little walk around the deck');
   }
   function pickGma(){
     var r = Math.random(), girlsFree = [kids.m, kids.mel].some(function(k){ return k.here && !k.leaving && girlFree(k); });
@@ -2247,30 +2256,28 @@
     if (!lv.hidden && !B.rescue && W.clock - GMA.lastLeva > 140 && r < 0.88) return gmaLeva();
     if (!wxWhy() && W.clock - GMA.lastWalk > 160 && r < 0.94) return gmaStroll();
     if (W.clock - GMA.lastHum > 60 && Math.random() < 0.4){ GMA.lastHum = W.clock; var h = pick(GMA_HUM); say('gma', pick(['*humming ' + h + '*', '*hums ' + h + ' to herself*'])); return gmaPlan(onBench(14, 'on her bench, humming ' + h), 'on her bench, humming ' + h); }
-    gmaPlan(onBench(10 + Math.random() * 10), pick(['on her bench in the park', 'on her bench, watching the girls swim', 'on her bench, enjoying the shade', 'on her bench, waiting for the kids to come see her']));
+    gmaPlan(onBench(10 + Math.random() * 10), pick(['on her bench by the girls', 'on her bench, watching the girls swim', 'on her bench, watching the water', 'on her bench, waiting for the kids to come see her']));
   }
   function stepGma(dt, open, why){
     cutStep(dt);
-    var hr = new Date().getHours(), girls = kids.m.here || kids.mel.here;
-    var storm = why === 'storm' || why === 'tornado';
+    var girls = kids.m.here || kids.mel.here, storm = why === 'storm' || why === 'tornado';
     if (gma.talkWave > 0) gma.talkWave -= dt;
-    // she comes every day the girls are here
-    if (open && girls && !gma.here && !MEM.today.gma && cut.state === 'gone' && W.clock > GMA.due){ MEM.today.gma = 1; save(); cutCome(); }
-    // after a storm she walks back over from the car
-    if (open && girls && !gma.here && cut.state === 'parked' && MEM.today.gma === 1 && !gma.plan) gmaOut();
-    if (gma.here && !gma.leaving && (!open || !girls) && !(gma.plan && gma.task.indexOf('walking over') === 0)){ gma.leaving = true; gmaHome(open ? false : storm); }
-    if (!gma.here && gma.leaving && !gma.plan) gma.leaving = false;
+    // she comes every day the girls are here, once the family has parked
+    if (open && girls && !gma.here && !MEM.today.gma && cut.state === 'gone' && car.state === 'parked' && W.clock > GMA.due){ MEM.today.gma = 1; save(); cutCome(); }
+    // after a storm she comes back out with everybody
+    if (open && girls && !gma.here && cut.state === 'parked' && MEM.today.gma === 1 && /storm/.test(gma.task) && !gma.plan) gmaBackOut();
+    if (gma.here && !gma.leaving && !gma.lot && !gma.hidden && (!open || !girls || yen.leaving)){ gma.leaving = true; if (storm && api.isOpen()) gmaInside(); else gmaHome(); }
     if (gma.talking > 0 && gma.here && !gma.lot && !gma.leaving){ gma.talking -= dt; gma.moving = false; }
-    else if (gma.plan || gma.here){ if (runPlan(gma, dt) === 'done' && gma.here && !gma.leaving) pickGma(); }
+    else if (gma.plan){ if (runPlan(gma, dt) === 'done' && gma.here && !gma.leaving && !gma.lot) pickGma(); }
+    else if (gma.here && !gma.leaving && !gma.lot) pickGma();
     if (gma.act === 'sit') gma.pose = 'sit'; else gma.pose = 'walk';
   }
-  // a fresh page while she's visiting: the Cutlass is in its stall and she's on her bench
+  // a fresh page while she's visiting: the Cutlass is parked next to the Navigator and she's on her bench
   function gmaAlreadyHere(){
-    var hr = new Date().getHours();
     if (MEM.today.gma === 2) return;
     MEM.today.gma = 1; cut.state = 'parked'; cut.x = GMA_STALL[0]; cut.y = GMA_STALL[1]; cut.face = 's'; cut.path = null;
-    gma.here = true; gma.hidden = false; gma.lot = false; gma.x = GMA_SEAT[0]; gma.y = GMA_SEAT[1];
-    gmaPlan([fn(function(){ gma.face = 's'; }), act('sit', 6)], 'on her bench in the park');
+    gma.here = true; gma.hidden = false; gma.lot = false; gma.leaving = false; gma.x = GMA_SEAT[0]; gma.y = GMA_SEAT[1];
+    gmaPlan([fn(function(){ gma.face = 'n'; }), act('sit', 6)], 'on her bench by the girls');
   }
   function drawCutlass(c){
     if (cut.state === 'gone') return;
@@ -2300,13 +2307,14 @@
     }
   }
   function drawGma(c){
-    if (gma.hidden || !gma.here) return;
+    if (gma.hidden || !gma.here || (walled(gma.x, gma.y) && gma.x < 541)) return;
     var X = gma.x * 2, Y = gma.y * 2, f = Math.floor(gma.t * 4) % 2;
     shadow(c, X, Y, 8);
-    if (gma.pose === 'sit' && !(gma.talkWave > 0)){ spr(c, 'g_sit', X, Y); if (gma.task.indexOf('handing out snacks') >= 0) basket(c, X + 11, Y - 10); return; }
+    // on her bench she faces the pool, so we see her from behind
+    if (gma.pose === 'sit'){ spr(c, 'g_sitn', X, Y); if (gma.task.indexOf('handing out snacks') >= 0) basket(c, X + 12, Y - 8); return; }
     if (gma.act === 'wave' || gma.talkWave > 0){ spr(c, 'g_wave', X, Y); return; }
     spr(c, 'g_' + gma.face + (gma.moving || gma.plan && gma.plan[gma.si] && gma.plan[gma.si].k === 'straight' ? f : ''), X, Y);
-    if (gma.lot || gma.task.indexOf('walking over') === 0) basket(c, X + (gma.face === 'w' ? -11 : 9), Y - 16);
+    if (gma.lot || gma.task.indexOf('walking in') === 0) basket(c, X + (gma.face === 'w' ? -11 : 9), Y - 16);
   }
   // her picnic basket, gingham on top
   function basket(c, x, y){
@@ -2317,18 +2325,20 @@
     c.fillStyle = '#d7263b'; c.fillRect(x + 1, y - 1, 8, 2); c.fillStyle = '#ffffff'; c.fillRect(x + 2, y - 1, 2, 1); c.fillRect(x + 6, y - 1, 2, 1);
     c.fillStyle = '#3a2c12'; c.fillRect(x + 2, y - 5, 6, 1); c.fillRect(x + 2, y - 5, 1, 4); c.fillRect(x + 7, y - 5, 1, 4);
   }
-  // park benches under the trees and the little gate in the fence
+  // her bench on the south deck, facing the pool: the seat goes under everybody, the backrest in front of her
   function drawPark(ctx){
-    [BENCH, BENCH2].forEach(function(b){
-      var x = b.x, y = b.y;
-      ctx.fillStyle = 'rgba(20,24,40,.2)'; ctx.fillRect(x + 1, y + 1, b.w, 9);
-      ctx.fillStyle = '#3a2c12'; ctx.fillRect(x - 1, y - 1, b.w + 2, 10);
-      ctx.fillStyle = '#8a5a2b'; ctx.fillRect(x, y, b.w, 3);                       // backrest
-      ctx.fillStyle = '#b07a3c'; ctx.fillRect(x, y + 4, b.w, 2); ctx.fillRect(x, y + 7, b.w, 2);   // seat slats
-      ctx.fillStyle = '#26262c'; ctx.fillRect(x + 1, y, 1, 9); ctx.fillRect(x + b.w - 2, y, 1, 9);   // iron ends
-    });
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(69, 201, 2, 11);
-    ctx.fillStyle = '#9aa0ab'; ctx.fillRect(69, 201, 2, 1); ctx.fillRect(69, 211, 2, 1);
+    var b = BENCH, x = b.x, y = b.y;
+    ctx.fillStyle = 'rgba(20,24,40,.2)'; ctx.fillRect(x + 1, y + 1, b.w, 10);
+    ctx.fillStyle = '#3a2c12'; ctx.fillRect(x - 1, y - 1, b.w + 2, 7);
+    ctx.fillStyle = '#b07a3c'; ctx.fillRect(x, y, b.w, 2); ctx.fillRect(x, y + 3, b.w, 2);       // seat slats
+    ctx.fillStyle = '#26262c'; ctx.fillRect(x + 1, y + 5, 1, 4); ctx.fillRect(x + b.w - 2, y + 5, 1, 4);   // iron legs
+  }
+  function drawBenchBack(c){
+    var b = BENCH, x = b.x * 2, y = (b.y + 6) * 2, w = b.w * 2;
+    c.fillStyle = '#3a2c12'; c.fillRect(x - 2, y - 2, w + 4, 8);
+    c.fillStyle = '#8a5a2b'; c.fillRect(x, y, w, 4);
+    c.fillStyle = '#b07a3c'; c.fillRect(x, y, w, 1);
+    c.fillStyle = '#26262c'; c.fillRect(x + 2, y - 2, 2, 12); c.fillRect(x + w - 4, y - 2, 2, 12);
   }
 
   // ================= drawing the cast =================
@@ -2426,6 +2436,7 @@
     ['m', 'mel'].forEach(function(id){ var k = kids[id]; list.push({y: k.y + (k.inWater ? -2 : 0), d: function(){ drawKid(c, k); }}); });
     list.push({y: yen.y + (yen.inWater ? -2 : 0), d: function(){ drawYen(c); }});
     list.push({y: gma.y, d: function(){ drawGma(c); }});
+    list.push({y: BENCH.y + 6.5, d: function(){ drawBenchBack(c); }});
     drawCar(c);
     drawCutlass(c);
     list.sort(function(a, b){ return a.y - b.y; });
@@ -3149,7 +3160,7 @@
       if (reduce) staticFrame();
     };
     im.onerror = function(){ console.error('leva pool: could not load pool/cast.png'); };
-    im.src = 'pool/cast.png?v=4';
+    im.src = 'pool/cast.png?v=5';
     document.addEventListener('visibilitychange', function(){ if (document.hidden){ MEM.chem = {ph: W.ph, cl: W.cl, measured: W.measured}; save(); } });
   }
   var spots = {};
