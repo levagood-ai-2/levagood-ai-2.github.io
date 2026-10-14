@@ -159,6 +159,9 @@ footer a{color:var(--grey);margin:0 8px}
     if (r.status !== 200) { $("vmsg").textContent = r.error || "That link didn't work."; $("vmsg").className = "bad"; setTimeout(() => show("out"), 2500); return; }
     session.set(r.session);
     if (r.app_signed_in) { $("vmsg").innerHTML = `Done. <b>${esc(r.device || "Your Mac")}</b> is signed in to leva, and so are you here. You can close this tab or carry on below.`; await new Promise((res) => setTimeout(res, 1800)); }
+    // signed in from the pool's gate: go back to the pool
+    let next = ""; try { next = localStorage.getItem("leva_next") || ""; localStorage.removeItem("leva_next"); } catch (_) {}
+    if (!r.app_signed_in && /^[a-z0-9-]+\.html$/.test(next)) { $("vmsg").textContent = "You're in. Taking you back to the pool…"; setTimeout(() => location.replace(next), 900); return; }
   }
 
   const ok = await paint();
