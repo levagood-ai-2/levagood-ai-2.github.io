@@ -47,7 +47,7 @@
     '.gate-band button{font:800 14px/1 "Inter Tight",system-ui,sans-serif;padding:12px 16px;min-height:44px;background:var(--pink,#FF2E88);color:#fff;border:2px solid var(--pink,#FF2E88);cursor:pointer;white-space:nowrap}' +
     '.gate-band button:hover{background:#fff;color:#0A0A0A;border-color:#fff}' +
     '.gate-band button:focus-visible,.gate-form button:focus-visible{outline:3px solid var(--cyan,#00F0FF);outline-offset:2px}' +
-    '.gate .arcade-cab{width:min(460px,96vw)}' +
+    '.gate .arcade-cab{width:min(460px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto}' +
     '.gate-body{background:#fff;color:#0A0A0A;padding:18px 18px 16px}' +
     '.gate-body h2{font-size:22px;line-height:1.2;font-weight:900;letter-spacing:-.02em;margin:0 0 8px}' +
     '.gate-body p{font-size:15px;line-height:1.5;margin:0 0 12px;color:#0A0A0A}' +
@@ -161,6 +161,12 @@
 
   function start(){
     makeBand(); paint();
+    // belt and braces: anything that opens the chat in code goes through the gate too
+    if (window.levaChat && window.levaChat.open && !window.levaChat.gated){
+      var raw = window.levaChat.open;
+      window.levaChat.open = function(id){ if (!signedIn()){ open(id === 'ari' ? 'ari' : 'talk'); return; } return raw.apply(this, arguments); };
+      window.levaChat.gated = true;
+    }
     // a stale session (signed out everywhere, or expired) goes back to watching
     var t = session();
     if (t) fetch(API + '/me', {headers: {Authorization: 'Bearer ' + t}}).then(function(r){
