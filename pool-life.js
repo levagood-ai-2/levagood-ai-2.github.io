@@ -8,7 +8,7 @@
 
   var DECK_RLE = "1427,a,2,a,1,a,2,9,2,4,1,8,2,7,1,a,2,a,104,35,2,4,1,8,2,1f,fe,3b,1,13,18,3,fb,a,1c,e,5,5,1,13,18,3,f8,d,1c,e,5,5,1,1,f,3,1a,1,f4,11,1c,18,1,1,f,3,1a,1,f2,13,1c,18,1,1,f,3,1a,1,f0,15,6,1,d,1,8,17,1,1,f,3,1a,1,ed,18,7,1,d,1,7,17,1,1,f,3,1a,1,eb,1a,4,1,2,1,a,1,2,1,6,1,1,16,1,1,f,3,1a,1,e9,7,5,10,5,2,c,2,9,16,1,1,11,1,102,9,6,f,1d,17,1,1,f,3,1a,1,e5,3,5,3,6,f,1c,1,1,15,2,1,f,3,1a,1,e4,4,5,3,6,f,1c,17,2,1,f,3,1a,1,e5,3,5,3,6,f,1d,17,1,1,f,3,1a,1,e5,3,5,3,6,f,1d,17,1,1,f,3,1a,1,df,1,5,3,5,3,6,4,4,7,1c,1,1,16,1,1,11,1,1a,1,de,2,5,3,5,3,6,2,8,5,1d,17,1,1,12,1b,de,2,5,3,5,3,6,1,a,4,1d,17,1,1,12,14,4,3,de,2,5,3,5,3,6,1,b,3,1c,1,1,16,1,3,1,b,3,15,4,3,de,2,5,3,5,3,12,3,1c,18,1,3,1,b,1,17,4,3,de,2,5,3,5,8,d,3,1d,17,1,2,9,1c,4,3,de,2,6,2,6,8,e,1,1e,16,1,2,a,1c,3,3,d6,2,6,2,5,11,c,6,2,1,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,16,1,2,9,23,d5,3,6,2,5,12,b,6,1,1,1,1,2,1,1,1,1,1,2,1,1,1,4,1,1,1,1,1,1,16,2,2,9,22,d5,4,6,19,b,36,2,2,9,22,d4,5,6,1a,8,1,1,37,1,2,9,23,d2,b,1,1c,4,3,1,37,1,2,9,23,d1,30,1,37,1,2,9,23,d0,31,1,37,1,2,9,23,d0,69,1,2,9,23,cf,69,2,2,a,a,2,a,2,a,ce,6a,2f,8,c6,88,7,9,1,9,c5,5f,4,26,7,9,1,9,c4,60,5,25,7,9,1,9,c4,60,5,25,7,9,1,9,c3,17,7,43,5,25,7,9,1,9,c2,18,7,6d,7,9,1,9,c2,18,2,3,2,7d,1,9,c1,19,2,3,2,1,1,7b,1,9,c1,19,2,3,2,1,1,1,2,2,4,b,2,2,4,18,2,2,4,3f,1,9,c0,1a,7,1,1,1,2,2,1,1,1,c,2,2,2,1,1,18,2,2,1,1,1,19,6,21,1,9,bf,1b,7,1,4,2,1,1,1,d,1,2,1,2,1,19,1,2,1,1,1,19,6,21,1,9,be,24,1,54,2,2,2,21,1,9,be,12,1b,b,2e,13,2,2,2,21,1,9,bd,b,1,7,2,2,2,2,2,2,2,2,2,2,2,2,3,b,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,13,9,1e,1,9,bd,d,1,5,1b,b,1,1,2a,1,1,13,6,21,1,9,bc,14,1,1,17,1,1,b,2e,3a,1,9,bc,14,1,1,17,1,1,b,2e,3a,1,9,bb,15,1b,b,1,1,2a,1,1,3a,1,9,bb,15,1b,8,35,36,1,9,ba,16,1,1,17,1,1,8,35,36,1,9,ba,f,20,1,1,8,1,3,1,1,2b,3,1,36,1,9,b9,10,22,8,1,4,2a,1,1,3,1,b,4,27,1,9,b9,10,22,8,35,b,3,1,5,22,1,9,b8,11,20,1,1,b,2e,f,1,1,3,2,5,1f,1,9,b8,18,1,1,17,1,1,b,2e,f,1,1,7,2,3,1d,1,9,b8,18,1b,b,1,1,2a,1,1,f,b,2,3,1b,1,5,bb,19,1b,b,1,1,2a,1,1,f,11,1a,1,5,bb,19,1,1,17,1,1,b,2e,f,1,1,11,18,1,5,ba,1a,1,1,17,1,1,b,2e,f,1,1,f,1,2,17,1,5,ba,1a,1b,b,1,1,2a,1,1,f,15,16,1,5,ba,1a,1b,b,1,1,2a,1,1,f,13,1,2,15,1,5,ba,1a,1,1,17,1,1,b,2e,f,1,1,15,14,1,5,ba,10,7,3,1,1,17,1,1,b,2e,f,1,1,13,1,2,13,1,5,b9,d,29,b,1,1,2a,1,1,f,19,12,1,5,b9,11,25,b,1,1,2a,1,1,f,17,1,1,12,1,5,b8,12,23,1,1,b,2e,f,1,1,18,11,1,5,b8,e,27,1,1,b,2e,f,1,1,19,10,1,5,b8,12,7,2,2,1,19,b,1,1,2a,1,1,f,1b,10,1,5,b8,1c,1,1,19,b,1,1,2a,1,1,f,1c,f,1,2,ba,1d,1,1,17,1,1,b,2e,f,1,1,18,1,2,e,1,2,1,6,b3,1d,1,1,17,1,1,b,2e,f,1,1,1b,e,1,2,1,6,b3,1d,1b,b,1,1,2a,1,1,f,1b,1,1,e,1,2,1,6,b3,1d,1b,b,1,1,2a,1,1,f,1c,1,1,d,1,2,ba,1d,1,1,17,1,1,b,2e,f,1,1,1c,d,1,2,b9,1e,1,1,17,1,1,b,2e,f,1,1,1d,c,1,2,1,6,b2,14,7,3,1b,b,1,1,2a,1,1,f,1f,c,1,2,1,6,b2,10,29,b,1,1,2a,1,1,f,1f,c,1,2,1,6,b2,14,23,1,1,6,33,f,1,1,1b,1,2,b,1,2,1,6,b2,14,23,1,1,6,33,f,1,1,1c,1,1,b,1,2,1,6,b2,10,29,6,6,1,2a,1,1,f,20,b,1,2,1,6,b2,14,7,3,1,1,19,6,6,1,2a,1,1,f,20,b,1,2,1,6,b2,6,b,d,1,1,17,1,1,6,33,f,1,1,1c,1,1,b,1,2,1,6,b1,7,b,d,1,1,17,1,1,6,33,f,1,1,1c,1,1,b,1,2,1,6,b1,7,b,d,1b,6,6,1,2a,1,1,f,1f,1,1,a,1,2,1,6,b2,6,b,d,1b,6,6,1,2a,1,1,f,1f,1,1,a,1,2,1,6,b2,6,b,d,1,1,17,1,1,6,33,f,1,1,1f,a,1,2,1,6,b1,d,1,11,1,1,17,1,1,6,33,f,1,1,1f,a,1,2,1,6,b1,1f,1b,6,6,1,2a,1,1,f,1f,1,1,a,1,2,1,6,b1,1f,1b,6,6,1,2a,1,1,f,1f,1,1,a,1,2,b8,18,20,1,1,6,33,f,1,1,1f,a,1,8,b2,18,20,1,1,6,33,f,1,1,1f,a,1,8,b2,18,22,6,6,1,2c,f,1f,1,1,a,1,8,b2,18,22,6,6,1,2a,1,1,f,20,b,1,8,b2,1f,1,1,1d,2,33,f,1,1,1c,1,1,b,1,8,b2,8,c,b,1,1,1d,2,33,f,1,1,1c,1,1,b,1,8,b2,8,c,b,1b,3,1,7,1,1,2c,f,20,b,1,8,b3,7,c,b,1b,3,1,2,6,1,2c,f,20,b,1,8,b3,7,c,b,1,1,1d,2,33,f,1,1,1b,1,2,b,1,8,b3,7,c,b,1,1,17,1,1,6,33,f,1,1,1b,1,1,c,1,8,b3,c,1,11,2,2,2,2,2,2,2,2,2,2,2,2,3,6,6,1,2a,1,1,f,1f,c,1,8,b3,1e,1b,b,1,1,2c,f,1f,c,1,8,b3,10,7,2d,2e,f,1,1,1c,d,1,9,b2,10,7,2d,2e,f,1,1,1c,d,1,9,b2,10,7,11,7,15,1,1,2a,1,1,f,1b,1,1,e,1,9,b3,f,7,11,7,15,1,1,2a,1,1,f,1b,1,1,e,1,9,b3,f,7,11,2,3,2,15,2e,f,1,1,18,1,2,e,1,9,b3,f,7,11,2,3,2,1,1,13,2e,f,1,1,18,1,1,f,1,9,b4,7,b,14,7,1,1,13,1,1,2a,1,1,f,1b,10,1,9,b4,7,b,14,7,1,1,13,1,1,2a,1,1,f,18,1,2,10,1,9,b4,7,b,1c,1,a,7,2,2e,f,1,1,18,11,1,9,b4,7,b,1c,1,a,7,2,2e,f,1,1,17,12,1,9,b4,7,b,1c,1,a,2,3,2,2,1,1,2a,1,1,f,19,12,1,9,b4,a,1,2e,2,3,2,2,1,1,2a,1,1,f,18,13,1,9,b5,38,7,2,2e,f,1,1,15,14,1,9,b5,38,7,2,2e,f,1,1,14,15,1,9,b5,3b,7,1,2a,1,1,f,15,16,1,9,b5,41,1,1,2a,1,1,f,14,17,1,9,b6,11,4,2b,2e,f,1,1,11,18,1,9,b6,f,8,29,2e,f,1,1,b,2,2,1a,1,9,b7,d,a,28,1,1,2a,1,1,f,b,2,3,1b,1,9,b7,5,12,28,1,1,2a,1,1,f,8,1,5,1d,1,9,b7,5,13,27,2e,f,1,1,3,2,5,1f,1,9,b8,4,13,24,35,b,1,2,6,22,1,9,b8,4,13,24,35,b,4,27,1,9,b8,4,13,24,1,4,2a,1,1,3,1,36,1,9,b9,5,1,5,a,25,1,3,1,1,2b,3,1,36,1,9,b9,b,a,25,35,c,2,1,1,2,a,1,1,18,1,9,ba,b,c,25,1,1,2a,1,1,10,4,2,2,1,3,1,5,18,1,9,ba,d,4,2b,1,1,2a,1,1,10,4,2,c,22,bb,e,3,2a,2e,44,bb,d,5,29,2e,44,bc,3a,1,1,2a,1,1,26,4,2,c,c,bc,3a,1,1,2a,1,1,26,4,2,1,1,8,1,1,c,bd,1,b,2d,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,26,2,1,1,3,b,c,bd,1,b,2d,2e,2f,4,9,1,7,c9,97,1,7,c9,9f,c9,2e,2,2,4,18,2,2,4,49,c0,37,2,2,2,1,1,18,2,2,1,1,1,4a,c0,37,2,2,1,2,1,18,2,2,1,1,1,4a,c2,a6,c2,3,b,20,2,76,c2,3,b,1f,4,75,c3,2,b,1e,6,74,c4,1,b,1e,6,74,c4,1,b,1f,4,75,c6,4,5,21,2,6e,1,7,c6,5,4,99,c7,4,4,92,cf,3,c,8a,d0,3,1,2,8,8a,d0,3,c,89,d2,1,b,8a,d2,1,b,7,5,3,5,3,5,3,5,3,5,5e,d3,a,1,7,5,3,5,3,5,3,5,3,5,5e,d4,11,5,3,5,3,5,3,5,3,5,5e,d5,10,5,3,5,3,5,3,5,3,5,5e,d8,d,5,3,5,3,5,3,5,3,5,5e,d8,d,5,3,5,3,5,3,5,3,5,5e,d9,c,5,3,5,3,5,3,5,3,5,5e,da,b,5,3,5,3,5,3,5,3,5,5e,db,a,5,3,5,3,5,3,5,3,5,5e,dc,9,5,3,5,3,5,3,5,3,5,5d,df,7,6,2,e,2,6,2,6,5c,e0,a,1,6,8,9,1,66,e1,e,a,6f,e2,d,a,6f,e4,a,c,6d,e6,9,c,6e,e7,7,c,6e,e9,5,c,6e,ec,3,a,6f,ed,2,a,6f,ef,1,8,70,f6,71,fc,65,5,2,f9,68,5,3,fb,1,1,6b,fe,69,104,64,10d,4,2,a,1,a,2,a,1,a,2,a,1,a,2,a,1,6,1175";
   var WATER_RLE = "5775,15,11,28,11a,15,11,28,11a,15,11,28,11a,15,12,26,11b,15,12,26,122,e,12,26,122,e,12,26,122,e,12,26,122,e,11,28,11a,15,11,28,11a,15,11,28,15,5,100,15,11,28,15,8,fd,15,11,28,15,a,fb,15,11,28,15,b,fa,15,11,28,15,d,f8,15,11,28,15,e,f7,15,11,28,15,f,f6,15,11,28,15,10,ff,b,11,28,15,11,fe,b,11,28,15,12,fd,b,11,28,15,13,fc,b,11,28,15,14,f1,15,11,28,15,15,f0,15,11,28,15,15,f0,15,11,28,15,5,2,f,ef,15,11,28,15,5,2,f,ef,15,11,28,15,5,2,10,ee,15,11,28,15,5,2,10,ee,15,11,28,15,5,2,11,ed,15,11,28,15,5,2,11,ed,15,11,28,15,5,2,12,f6,b,11,28,15,5,2,12,f6,b,4e,5,2,12,f6,b,11,1,1,25,16,5,2,13,f5,b,11,1,3c,5,2,13,eb,15,11,1,1,25,16,5,2,13,eb,15,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,5,2,13,eb,15,15,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,5,2,13,eb,15,11,1,3c,d,6,8,ea,15,11,1,1,25,16,c,8,7,ea,15,11,28,15,b,a,6,ea,15,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,14,b,a,6,ea,15,11,1,1,25,16,b,a,6,ea,15,11,1,3c,b,a,1,1,4,f1,e,11,1,1,25,16,b,b,5,f1,e,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,b,a,1,1,4,f1,e,12,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,c,8,1,2,4,f1,e,11,1,1,25,16,d,6,1,1,5,eb,14,12,1,3c,15,1,4,eb,14,12,1,1,25,16,1a,eb,14,13,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,1a,eb,14,16,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,17,1a,eb,14,12,1,3c,19,112,1,1,25,16,19,112,28,15,19,14f,18,113,28,15,18,113,28,15,17,114,28,15,17,114,28,15,16,115,28,15,16,115,28,15,15,116,28,15,6,4,b,116,28,15,5,6,9,117,28,15,5,7,7,118,28,15,5,7,6,119,28,15,5,7,5,11a,28,15,6,6,4,11b,28,15,8,2,5,11c,28,15,e,11d,28,15,d,11e,28,15,b,120,28,15,a,121,28,15,8,123,28,15,5,126,28,140,28,141,26,142,26,142,26,142,26,142,26,141,28,140,28,140,28,140,28,140,28,569d";
-  var CAST = {"m_s0":[0,0,21,33,10,32],"m_n0":[22,0,21,33,10,32],"m_e0":[44,0,21,33,10,32],"m_w0":[66,0,21,33,10,32],"m_s1":[88,0,21,33,10,32],"m_n1":[110,0,21,33,10,32],"m_e1":[132,0,21,33,10,32],"m_w1":[154,0,21,33,10,32],"m_s":[176,0,21,33,10,32],"m_n":[198,0,21,33,10,32],"m_e":[220,0,21,33,10,32],"m_w":[0,34,21,33,10,32],"m_swim0":[22,34,23,19,11,15],"m_swim1":[46,34,23,19,11,15],"m_float":[70,34,33,21,16,10],"m_tuck":[104,34,21,27,10,25],"m_sit":[126,34,21,33,10,29],"m_wave":[148,34,21,33,10,32],"m_sg0":[170,34,21,33,10,32],"m_swimg0":[192,34,23,19,11,15],"m_sg1":[216,34,21,33,10,32],"m_swimg1":[0,68,23,19,11,15],"m_tuckg":[24,68,21,27,10,25],"mel_s0":[46,68,21,29,10,28],"mel_n0":[68,68,21,29,10,28],"mel_e0":[90,68,21,29,10,28],"mel_w0":[112,68,21,29,10,28],"mel_s1":[134,68,21,29,10,28],"mel_n1":[156,68,21,29,10,28],"mel_e1":[178,68,21,29,10,28],"mel_w1":[200,68,21,29,10,28],"mel_s":[222,68,21,29,10,28],"mel_n":[0,98,21,29,10,28],"mel_e":[22,98,21,29,10,28],"mel_w":[44,98,21,29,10,28],"mel_swim0":[66,98,23,19,11,15],"mel_swim1":[90,98,23,19,11,15],"mel_float":[114,98,33,21,16,10],"mel_tuck":[148,98,21,27,10,25],"mel_sit":[170,98,21,32,10,28],"mel_wave":[192,98,21,29,10,28],"ari_e0":[214,98,31,21,15,18],"ari_w0":[0,131,31,21,15,18],"ari_e1":[32,131,31,21,15,18],"ari_w1":[64,131,31,21,15,18],"ari_sniff_e":[96,131,31,21,15,18],"ari_sniff_w":[128,131,31,21,15,18],"ari_happy_e":[160,131,31,21,15,18],"ari_happy_w":[192,131,31,21,15,18],"ari_sit_e":[224,131,31,21,13,19],"ari_sit_w":[0,153,31,21,17,19],"ari_sleep_e":[32,153,30,17,13,15],"ari_sleep_w":[63,153,30,17,16,15],"ari_swim_e0":[94,153,31,15,18,11],"ari_swim_w0":[126,153,31,15,12,11],"ari_s0":[158,153,21,21,10,19],"ari_n0":[180,153,21,21,10,19],"ari_swim_e1":[202,153,31,15,18,11],"ari_swim_w1":[0,175,31,15,12,11],"ari_s1":[32,175,21,21,10,19],"ari_n1":[54,175,21,21,10,19]};
+  var CAST = {"m_s0":[0,0,21,33,10,32],"m_n0":[22,0,21,33,10,32],"m_e0":[44,0,21,33,10,32],"m_w0":[66,0,21,33,10,32],"m_s1":[88,0,21,33,10,32],"m_n1":[110,0,21,33,10,32],"m_e1":[132,0,21,33,10,32],"m_w1":[154,0,21,33,10,32],"m_s":[176,0,21,33,10,32],"m_n":[198,0,21,33,10,32],"m_e":[220,0,21,33,10,32],"m_w":[0,34,21,33,10,32],"m_swim0":[22,34,23,19,11,15],"m_swim1":[46,34,23,19,11,15],"m_float":[70,34,33,21,16,10],"m_tuck":[104,34,21,27,10,25],"m_sit":[126,34,21,33,10,29],"m_wave":[148,34,21,33,10,32],"m_sg0":[170,34,21,33,10,32],"m_swimg0":[192,34,23,19,11,15],"m_sg1":[216,34,21,33,10,32],"m_swimg1":[0,68,23,19,11,15],"m_tuckg":[24,68,21,27,10,25],"mel_s0":[46,68,21,29,10,28],"mel_n0":[68,68,21,29,10,28],"mel_e0":[90,68,21,29,10,28],"mel_w0":[112,68,21,29,10,28],"mel_s1":[134,68,21,29,10,28],"mel_n1":[156,68,21,29,10,28],"mel_e1":[178,68,21,29,10,28],"mel_w1":[200,68,21,29,10,28],"mel_s":[222,68,21,29,10,28],"mel_n":[0,98,21,29,10,28],"mel_e":[22,98,21,29,10,28],"mel_w":[44,98,21,29,10,28],"mel_swim0":[66,98,23,19,11,15],"mel_swim1":[90,98,23,19,11,15],"mel_float":[114,98,33,21,16,10],"mel_tuck":[148,98,21,27,10,25],"mel_sit":[170,98,21,32,10,28],"mel_wave":[192,98,21,29,10,28],"ari_e0":[214,98,31,21,15,18],"ari_w0":[0,131,31,21,15,18],"ari_e1":[32,131,31,21,15,18],"ari_w1":[64,131,31,21,15,18],"ari_sniff_e":[96,131,31,21,15,18],"ari_sniff_w":[128,131,31,21,15,18],"ari_happy_e":[160,131,31,21,15,18],"ari_happy_w":[192,131,31,21,15,18],"ari_sit_e":[224,131,31,21,13,19],"ari_sit_w":[0,153,31,21,17,19],"ari_sleep_e":[32,153,30,17,13,15],"ari_sleep_w":[63,153,30,17,16,15],"ari_swim_e0":[94,153,31,15,18,11],"ari_swim_w0":[126,153,31,15,12,11],"ari_s0":[158,153,21,21,10,19],"ari_n0":[180,153,21,21,10,19],"ari_swim_e1":[202,153,31,15,18,11],"ari_swim_w1":[0,175,31,15,12,11],"ari_s1":[32,175,21,21,10,19],"ari_n1":[54,175,21,21,10,19],"y_s0":[0,197,21,37,10,36],"y_s1":[22,197,21,37,10,36],"y_s":[44,197,21,37,10,36],"y_n0":[66,197,21,37,10,36],"y_n1":[88,197,21,37,10,36],"y_n":[110,197,21,37,10,36],"y_e0":[132,197,21,37,10,36],"y_e1":[154,197,21,37,10,36],"y_e":[176,197,21,37,10,36],"y_w0":[198,197,21,37,10,36],"y_w1":[220,197,21,37,10,36],"y_w":[0,235,21,37,10,36],"y_wave":[22,235,21,37,10,36],"y_swim0":[44,235,23,19,11,15],"y_swim1":[68,235,23,19,11,15],"y_sit":[92,235,21,34,10,30],"y_float":[114,235,33,21,16,10]};
   var GW = 360, GH = 210, N = GW * GH;
   // test the deck faster with ?fast=4 (up to 10), the same way ?time= and ?open= test the clock
   var FAST = Math.max(1, Math.min(10, +new URLSearchParams(location.search).get('fast') || 1));
@@ -218,7 +218,7 @@
   // kept in this browser, so the deck picks up where it left off next time you visit
   var KEY = 'levagood-deck-v1';
   function today(){ var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
-  function freshDay(){ return {ariSwims: 0, ariTime: 0, leaves: 0, youLeaves: 0, tests: 0, fixes: 0, reminders: 0, treats: 0, volleyBest: 0, newFacts: 0}; }
+  function freshDay(){ return {ariSwims: 0, ariTime: 0, leaves: 0, youLeaves: 0, tests: 0, fixes: 0, reminders: 0, treats: 0, volleyBest: 0, newFacts: 0, lunch: 0, snacks: 0}; }
   var MEM = {
     v: 1, day: today(), today: freshDay(), visits: 0,
     ari: {spots: {zero: 0.5, lapN: 0.5, lapS: 0.5, dive: 0.5}, best: null, sit: 0, paw: 0, roll: 0, treats: 0},
@@ -227,6 +227,8 @@
     // Mel: curious, asks leva everything, loves fishing and catfish, sings all day.
     m: {cannonball: 1, float: 0.2, handstand: 0.75, run: 0.55, facts: 0, volley: 0.35, volleyBest: 4, volleys: 0, rallyBest: 0},
     mel: {cannonball: 0.1, float: 1, handstand: 0.2, run: 0.2, facts: 0, fish: 2, bump: 0.35, sings: 0},
+    // Yenny: the girls' mom and Em's coach. She learns new drills, the girls' favorite lunches, and pool sense from leva.
+    yenny: {run: 0, coached: 0, tips: 3, lunches: 0, snacks: 0, treats: 0, swims: 0, facts: 0, likes: {}, trioBest: 0},
     chem: null, log: [], visitor: {name: '', chats: 0, topics: {}, met: {}, likes: {}},
     // the visitor's game: points, badges, leva's daily work order, your swim level, your towel and the Swim Team
     game: {pts: 0, badges: {}, n: {spots: 0, leaves: 0, cards: {}, rooms: {}}, order: null, streak: {last: '', n: 0, best: 0}, daily: {day: '', watch: 0, ask: 0}, hello: false, fresh: null,
@@ -315,7 +317,7 @@
 
   // ================= speech bubbles and little effects =================
   var bubbleLayer = null, bubbles = [], fx = [], splashes = [];
-  var NAME = {leva: 'leva', ari: 'Ari', m: 'Em', mel: 'Mel'};
+  var NAME = {leva: 'leva', ari: 'Ari', m: 'Em', mel: 'Mel', yenny: 'Yenny'};
   function say(who, text, dur){
     if (!bubbleLayer || reduce) return;
     bubbles = bubbles.filter(function(b){ if (b.who === who){ b.el.remove(); return false; } return true; });
@@ -345,7 +347,7 @@
       if (th.wait > 0){ th.wait -= dt; return true; }
       if (!th.items.length || W.clock - th.born > (th.keep ? 90 : 30)) return false;
       var it = th.items[0];
-      if (it.who && kids[it.who] && !kids[it.who].here){ th.items.shift(); return true; }
+      if (it.who && (kids[it.who] && !kids[it.who].here || it.who === 'yenny' && !yen.here)){ th.items.shift(); return true; }
       if (it.who && speaking(it.who) && !th.mine) return true;
       th.items.shift(); th.mine = true;
       if (it.fn) it.fn();
@@ -373,7 +375,7 @@
       return [lv.x * 2, lv.y * 2 - 60];
     }
     if (a.hidden || walled(a.x, a.y)) return null;
-    var h = a.id === 'ari' ? (a.inWater ? 16 : 26) : (a.inWater ? 24 : (a.pose === 'sit' ? 30 : 36));
+    var h = a.id === 'ari' ? (a.inWater ? 16 : 26) : a.id === 'yenny' ? (a.inWater ? 24 : (a.pose === 'sit' ? 32 : 42)) : (a.inWater ? 24 : (a.pose === 'sit' ? 30 : 36));
     return [a.x * 2, a.y * 2 - h];
   }
   function heart(x, y){ fx.push({k: 'heart', x: x, y: y, t: 0, life: 1.4}); }
@@ -1103,6 +1105,8 @@
     }
     var levaFar = lv.hidden || Math.hypot(lv.x - ari.x, lv.y - ari.y) > 70, noSwim = why === 'storm' || why === 'snow' || why === 'cold';
     if (ari.swimCool <= 0 && levaFar && !B.rescue && !noSwim && Math.random() < 0.6) return ariPlan(planSneak(), 'up to something');
+    // Yenny is Ari's favorite person. If she's on the deck, he goes to see her a lot.
+    if (!noSwim && present('yenny') && !yen.inWater && Math.random() < 0.3 && W.clock - (ari.lastYen || -99) > 40 && ariToYen('pets')) return;
     var bag = [kids.m, kids.mel].filter(function(k){ return k.here && !k.inWater && k.task === 'on her towel'; });
     if (bag.length && !noSwim && Math.random() < 0.22 && W.clock - (ari.lastBeg || -999) > 70){
       var kk = pick(bag), bp = snap(SMALL, kk.x + 12, kk.y + 2); ari.lastBeg = W.clock;
@@ -1142,11 +1146,12 @@
     var t = band ? TOWELS_BAND : TOWELS_DAY; TOWELS.m = t.m; TOWELS.mel = t.mel;
     BIG = band ? BIG_BAND : BIG_DAY; SMALL = band ? SMALL_BAND : SMALL_DAY;
     // everybody keeps leva's room around chairs, coolers and the diving boards, so nobody brushes over them
-    B.mask = BIG; ari.mask = BIG; kids.m.mask = BIG; kids.mel.mask = BIG;
+    B.mask = BIG; ari.mask = BIG; kids.m.mask = BIG; kids.mel.mask = BIG; yen.mask = BIG;
     if (first) return;
     // the band just started (or just packed up): the girls pick up their towels and move them
     if (VB){ VB = null; }
     ['m', 'mel'].forEach(function(id){ var k = kids[id]; if (k.here && !k.inWater && !k.hopping && !k.leaving && !lesson) kidPlan(k, towelSteps(k, 4 + Math.random() * 4), 'on her towel'); });
+    if (yen.here && !yen.inWater && !yen.hopping && !yen.leaving) yenPlan(chairSteps(4 + Math.random() * 4), 'moving her towel');
   }
   function stepAri(dt){
     ari.swimCool -= dt;
@@ -1595,7 +1600,7 @@
     var open = api.isOpen() && !stay;
     ['m', 'mel'].forEach(function(id){
       var k = kids[id];
-      if (open && !k.here) arriveKid(k, W.clock > 3);
+      if (open && !k.here && familyIn(W.clock > 3)) arriveKid(k, W.clock > 3);
       // (not in the middle of a jump: she lands first, then heads out)
       if (!open && k.here && !k.leaving && !k.hopping) leaveKid(k, api.isOpen() ? why : null);
       if (!k.here) return;
@@ -1616,6 +1621,368 @@
       if (k.act === 'sit') k.pose = 'sit'; else if (k.act === 'float') k.pose = 'float'; else if (k.act === 'handstand') k.pose = 'handstand';
       else if (k.inWater) k.pose = 'swim'; else k.pose = 'walk';
     });
+    stepYen(dt, open, why);
+  }
+
+
+  // ---------------- Yenny ----------------
+  // Em and Mel's mom. She drives them over in the white Navigator, parks in the north lot, and stays all day:
+  // coaches Em's volleyball, swims with Mel, brings out lunch and snacks, and always has a treat for Ari.
+  // Ari loves leva. Ari loves Yenny more. She picks things up as the days go by, same as the girls:
+  // new drills from coaching Em, the girls' favorite lunches, and pool sense from leva.
+  var CAR_PARK = [457, 68], CAR_AISLE = 40, CAR_ROAD = 612, CAR_DOOR = [466, 66], BLDG_NORTH = [440, 90];
+  var car = {state: 'gone', x: CAR_ROAD, y: -40, face: 's', path: null, unloaded: false};
+  function carGo(pts, then){ car.path = pts.slice(); car.then = then || null; }
+  function carCome(){ car.state = 'in'; car.x = CAR_ROAD; car.y = -40; car.face = 's'; car.unloaded = false; carGo([[CAR_ROAD, CAR_AISLE], [CAR_PARK[0], CAR_AISLE], [CAR_PARK[0], CAR_PARK[1]]], function(){ car.state = 'parked'; car.face = 's'; unload(); }); }
+  function carLeave(){ car.state = 'out'; carGo([[CAR_PARK[0], CAR_AISLE], [CAR_ROAD, CAR_AISLE], [CAR_ROAD, -46]], function(){ car.state = 'gone'; }); }
+  function carStep(dt){
+    if (!car.path || !car.path.length) return;
+    var p = car.path[0], dx = p[0] - car.x, dy = p[1] - car.y, d = Math.hypot(dx, dy);
+    // easy into the stall, quicker on the road
+    var sp = car.state === 'out' && car.path.length === 3 ? 10 : (car.path.length === 1 && car.state === 'in') ? 14 : 34, s = sp * dt;
+    // backing out of the stall is still facing south
+    if (!(car.state === 'out' && car.path.length === 3)) car.face = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'e' : 'w') : (dy > 0 ? 's' : 'n');
+    if (d <= s){ car.x = p[0]; car.y = p[1]; car.path.shift(); if (!car.path.length && car.then){ var f = car.then; car.then = null; f(); } }
+    else { car.x += dx / d * s; car.y += dy / d * s; }
+  }
+  // out of the car and across the lot to the front of the building, then in through the gate with the girls
+  function unload(){
+    yen.x = CAR_DOOR[0]; yen.y = CAR_DOOR[1]; yen.here = false; yen.lot = true; yen.hidden = false; yen.face = 'w';
+    yen.task = 'parking the Navigator';
+    setPlan(yen, [wait(1.2), {k: 'straight', x: BLDG_NORTH[0], y: BLDG_NORTH[1], show: true, speed: 12}, fn(function(){ yen.hidden = true; yen.lot = false; }), wait(2.5), fn(function(){ car.unloaded = true; })]);
+  }
+  // after close: she walks back out to the car and they drive home
+  function loadUp(){
+    yen.lot = true; yen.x = BLDG_NORTH[0]; yen.y = BLDG_NORTH[1]; yen.hidden = false; yen.task = 'heading home';
+    setPlan(yen, [{k: 'straight', x: CAR_DOOR[0], y: CAR_DOOR[1], show: true, speed: 12}, fn(function(){ yen.hidden = true; yen.lot = false; }), wait(1.5), fn(function(){ carLeave(); })]);
+  }
+  // the girls come in once Mom has parked. On a fresh page during pool hours, everyone's already here.
+  function familyIn(walk){
+    if (!walk){ if (car.state !== 'parked'){ car.state = 'parked'; car.x = CAR_PARK[0]; car.y = CAR_PARK[1]; car.face = 's'; car.path = null; } car.unloaded = true; return true; }
+    if (car.state === 'gone') carCome();
+    return car.state === 'parked' && car.unloaded;
+  }
+
+  var yen = {id: 'yenny', x: 395, y: 336, face: 's', t: 0, mask: BIG, speed: 11, task: 'not at the pool yet', pose: 'walk', inWater: false, pool: null, hidden: true, here: false, cool: 3};
+  ACT.yenny = yen;
+  var YEN_START = {lastCoach: -10, lastFood: 40, lastSwim: 10, lastLeva: 30, lastAri: 0, lastTrio: -60};
+  var YEN = Object.assign({}, YEN_START);
+  // her beach towel, black and leopard like her suit, a little east of the girls
+  var YEN_TOWEL = {day: [395, 336], band: [408, 126]};
+
+  // lunch and snacks. She learns what the girls like best and packs it more often.
+  var LUNCH = [
+    ['turkey sandwiches', 'and grapes'], ['peanut butter and honey', 'and apple slices'], ['chicken wraps', 'and strawberries'],
+    ['ham and cheese', 'and watermelon'], ['pasta salad', 'and blueberries']
+  ];
+  var SNACK = ['orange slices', 'pretzels', 'cheese sticks', 'frozen grapes', 'popsicles', 'granola bars', 'watermelon', 'cold water bottles'];
+  var COACH_TIPS = [
+    'Get under the ball, Em. Platform out, arms straight.',
+    'Call it! Say "mine" every time.',
+    'Push it up with your legs, not your arms.',
+    'Set with your fingertips, like a window over your forehead.',
+    'Eyes on the ball until it touches your hands.',
+    'Feet first. Get there early, then play it.',
+    "Quick feet! Little steps.",
+    'Follow through to where you want it to go.'
+  ];
+  var YEN_QA = [
+    ['How often should the girls put on sunscreen?', 'Every two hours, and right after they swim. Water washes it off faster than you think.', 'sun'],
+    ['Is it okay for them to swim right after lunch?', "It is. That one's an old wives' tale. Rest if they feel full, but there's no rule."],
+    ['How long do we wait after thunder?', 'Thirty minutes after the last thunder. Every time.'],
+    ["Why do the girls' eyes get red?", 'Usually the pH. I test it all day. Goggles help, too.'],
+    ['How much water should they drink out here?', 'More than they want to. A few big sips every time they get out.'],
+    ['What do I watch for when Mel swims?', "Anybody upright and quiet who isn't getting anywhere. Drowning is usually silent. Stay close in the deep water."],
+    ['Does chlorine hurt their suits?', 'Over time. A quick rinse in fresh water after swimming helps a lot.']
+  ];
+  function present(id){ var a = ACT[id]; return !!(a && a.here && !a.hidden && !a.leaving); }
+  function girlFree(k){ return k.here && !k.hidden && !k.inWater && !k.leaving && !k.hopping && !(lesson && (lesson.teacher === k || lesson.learner === k)) && !(VB && (VB.a === k || VB.b === k || (VB.ring && VB.ring.indexOf(k) >= 0))) && (!k.plan || k.task === 'on her towel'); }
+  function yenGo(x, y){ return go(x, y, {speed: yen.speed}); }
+  function chairSteps(secs, task){
+    var t = towelBand ? YEN_TOWEL.band : YEN_TOWEL.day;
+    var g = go(t[0], t[1], {speed: yen.speed}); g.at = function(){ return towelBand ? YEN_TOWEL.band : YEN_TOWEL.day; };
+    return [g, fn(function(){ yen.face = 's'; yen.task = task || 'on her towel, watching the girls'; }), act('sit', secs)];
+  }
+  function yenPlan(steps, task){ yen.task = task; setPlan(yen, steps); }
+  function favLunch(){
+    var f = MEM.yenny.likes, best = null, bv = -1;
+    for (var k in f) if (f[k] > bv){ bv = f[k]; best = +k; }
+    // the more she knows what they like, the more often it's that
+    if (best !== null && Math.random() < Math.min(0.7, 0.2 + bv * 0.1)) return best;
+    return Math.floor(Math.random() * LUNCH.length);
+  }
+  function foodRun(kind){
+    YEN.lastFood = W.clock;
+    var i = kind === 'lunch' ? favLunch() : Math.floor(Math.random() * SNACK.length);
+    var what = kind === 'lunch' ? LUNCH[i][0] + ' ' + LUNCH[i][1] : SNACK[i];
+    var t = towelBand ? YEN_TOWEL.band : YEN_TOWEL.day;
+    yenPlan([
+      fn(function(){ say('yenny', kind === 'lunch' ? 'I am grabbing lunch from the car, girls.' : 'Be right back with a snack.'); }),
+      go(PLACES.gate.door[0], PLACES.gate.door[1] + 6, {speed: yen.speed}), {k: 'straight', x: PLACES.gate.inside[0], y: PLACES.gate.inside[1], hide: true, speed: 12},
+      act(null, 7, {hide: true}),
+      fn(function(){ yen.carry = kind; }),
+      {k: 'straight', x: PLACES.gate.door[0], y: PLACES.gate.door[1] + 6, show: true, speed: 12},
+      go(t[0] - 8, t[1], {speed: yen.speed}),
+      fn(function(){
+        yen.face = 's';
+        var girls = [kids.m, kids.mel].filter(function(k){ return k.here && !k.leaving; });
+        convo([['yenny', kind === 'lunch' ? 'Girls! Lunch is here. ' + cap(what) + '.' : 'Snack time! I brought ' + what + '.']]);
+        girls.forEach(function(k){
+          if (girlFree(k) || k.inWater){
+            var back = k.inWater ? swimSteps(k, k.pool === 'dive' ? 'dive' : k.pool === 'zero' ? 'zero' : 'lapS', 0.5).slice(3) : [];
+            kidPlan(k, back.concat([toTowel(k), fn(function(){ k.face = 's'; }), act('sit', kind === 'lunch' ? 16 : 10)]), kind === 'lunch' ? 'having lunch with Mom' : 'having a snack');
+          }
+        });
+        var em = kids.m.here, mel = kids.mel.here;
+        var thanks = kind === 'lunch'
+          ? [em ? ['m', pick(['Thanks, Mom!', 'Yes! I was starving.', 'Best mom ever.'])] : null, mel ? ['mel', pick(['Thank you, Mommy!', 'Ooh, my favorite!', 'Can Ari have a bite?'])] : null]
+          : [mel ? ['mel', pick(['Thank you!', 'Yay!', 'Snacks!'])] : null, em ? ['m', pick(['Thanks, Mom.', 'Perfect timing.', 'You read my mind.'])] : null];
+        convo(thanks.filter(Boolean));
+        // they tell her how it was, and she remembers
+        if (kind === 'lunch'){
+          var liked = Math.random() < 0.6 + (MEM.yenny.likes[i] || 0) * 0.05;
+          MEM.yenny.likes[i] = (MEM.yenny.likes[i] || 0) + (liked ? 1 : 0);
+          if (liked && em) setTimeout(function(){ convo([['m', pick(['Can we have ' + LUNCH[i][0] + ' again tomorrow?', 'These are so good.'])], ['yenny', "Noted. I'll make them again."]]); }, 7000);
+          MEM.yenny.lunches++; MEM.today.lunch = 1;
+          log('Yenny brought the girls lunch: ' + what + '.', 'yenny');
+        } else { MEM.yenny.snacks++; MEM.today.snacks = (MEM.today.snacks || 0) + 1; if (Math.random() < 0.5) log('Yenny brought out ' + what + '.', 'yenny'); }
+        // somebody's nose found the cooler
+        if (!ari.inWater && !ari.hidden && !ari.hopping && Math.random() < 0.8){
+          var p = snap(SMALL, yen.x + 12, yen.y + 2); ari.lastBeg = W.clock;
+          ariPlan([go(p[0], p[1], {speed: 24}), fn(function(){ ari.face = 'w'; }), act('sit', 2), fn(function(){ yenTreat(); }), act('happy', 3)], 'begging Yenny for a treat');
+        }
+        save(); boardDirty = true;
+      }),
+      act('sit', 2.5),
+      fn(function(){ yen.carry = null; })
+    ].concat(chairSteps(kind === 'lunch' ? 14 : 8, kind === 'lunch' ? 'having lunch with the girls' : 'sharing a snack with the girls')), kind === 'lunch' ? 'bringing the girls lunch' : 'bringing out a snack');
+  }
+  function yenTreat(){
+    if (MEM.today.treats < TREAT_LIMIT){
+      convo([['yenny', pick(['Here you go, Ari. Who is my good boy?', 'One for you, sweet boy.', 'I saved you one, Ari.']), 0, function(){ giveTreat(yen); heart(ari.x, ari.y); MEM.yenny.treats++; }],
+        ['ari', pick(['Yenny is my favorite person!', 'Best. Person. Ever.', 'I knew you had one!'])]]);
+    } else convo([['yenny', "Sorry, buddy. leva says that's enough for today."], ['ari', 'For you I would wait until tomorrow.']]);
+  }
+  // Ari spots her and runs over. Every time.
+  function ariToYen(why){
+    if (ari.inWater || ari.hidden || ari.hopping || !present('yenny') || yen.inWater) return false;
+    ari.lastYen = W.clock;
+    ariPlan([{k: 'custom', step: function(a, dt, st){
+      st.el = (st.el || 0) + dt; if (st.el > 20 || !present('yenny')) return true;
+      st.re = (st.re || 0) - dt;
+      if (st.re <= 0 || !a.path || !a.path.length){ st.re = 1; var p = snap(SMALL, yen.x + 10, yen.y + 3); a.path = path(a.mask, a.x, a.y, p[0], p[1]); }
+      a.moving = true; follow(a, dt, 28);
+      return Math.hypot(yen.x - a.x, yen.y - a.y) < 14;
+    }}, fn(function(){
+      ari.face = yen.x < ari.x ? 'w' : 'e'; heart(ari.x, ari.y);
+      if (why === 'hello') convo([['ari', pick(['Yenny! Yenny! Yenny!', 'She is HERE!', 'My favorite person!'])], ['yenny', pick(['Hi, Ari! I missed you too.', 'There is my handsome boy.', 'Hello, sweetheart. Did you behave for leva?'])]], true);
+      else convo([['yenny', pick(['Hi, buddy. Want some pets?', 'Ari! Come here, you.', 'Who is the best beagle? You are.'])], ['ari', pick(['Ear scratches, please.', 'This is the best part of my day.', '*happy wiggle*'])]]);
+    }), act('happy', 4)], why === 'hello' ? 'running to Yenny' : 'getting pets from Yenny');
+    return true;
+  }
+  function coachEm(){
+    var em = kids.m; YEN.lastCoach = W.clock;
+    var A = snap(SMALL, RALLY_SPOTS[0][0], RALLY_SPOTS[0][1]), Bp = snap(SMALL, RALLY_SPOTS[1][0], RALLY_SPOTS[1][1]), R = {done: false};
+    var tipsKnown = Math.min(COACH_TIPS.length, MEM.yenny.tips);
+    kidPlan(em, [kidGo(em, A[0], A[1]), fn(function(){ em.face = 'e'; }), until(function(){ return R.done || R.go; }, 40), until(function(){ return R.done; }, 40), fn(function(){ em.act = null; })].concat(towelSteps(em, 6)), 'practicing volleyball with Mom');
+    yenPlan([yenGo(Bp[0], Bp[1]), fn(function(){ yen.face = 'w'; convo([['yenny', pick(['Em! Want to work on your passing?', 'Coach is here. Grab the ball, Em.', 'Ten minutes of drills, then you can swim.'])], ['m', pick(['Yes!', "Let's go, Coach.", 'Okay, okay!'])]]); }),
+      until(function(){ return Math.hypot(em.x - A[0], em.y - A[1]) < 5 && !em.moving || !em.here || em.inWater; }, 25),
+      {k: 'custom', step: function(a, dt, st){
+        if (!st.go){
+          if (!em.here || em.inWater || em.task !== 'practicing volleyball with Mom'){ R.done = true; return true; }
+          st.go = true; R.go = true; st.left = 14 + Math.random() * 6; st.count = 0; st.best = 0; st.pause = 0; st.tip = 3;
+          VB = {a: em, b: yen, from: 1, t: 0, dur: 1, down: false}; em.face = 'e'; yen.face = 'w';
+        }
+        if (!VB){ R.done = true; return true; }
+        st.left -= dt; st.tip -= dt;
+        if (st.tip <= 0){ st.tip = 5 + Math.random() * 3; say('yenny', COACH_TIPS[Math.floor(Math.random() * tipsKnown)]); }
+        if (st.pause > 0){ st.pause -= dt; VB.t = 0; VB.from = 1; if (st.pause <= 0) VB.down = false; em.act = yen.act = null; }
+        else {
+          VB.t += dt;
+          if (VB.t >= VB.dur){
+            VB.t = 0;
+            // Mom puts it right where Em needs it; Em has to pass it back
+            var p = VB.from === 1 ? 0.8 + MEM.m.volley * 0.17 : 0.97;
+            if (Math.random() < p){ st.count++; VB.from = 1 - VB.from; }
+            else { st.best = Math.max(st.best, st.count); st.count = 0; st.pause = 1.2; VB.down = true; if (Math.random() < 0.5) say('yenny', pick(['Shake it off. Again.', "That's okay, reset.", 'Good effort! Feet first.'])); }
+          }
+          em.act = VB.from === 0 && VB.t < 0.16 ? 'wave' : null; yen.act = VB.from === 1 && VB.t < 0.16 ? 'wave' : null;
+        }
+        if (st.left <= 0 && st.pause <= 0){
+          st.best = Math.max(st.best, st.count); VB = null; em.act = yen.act = null; R.done = true;
+          // a coach makes you better faster than practicing alone, and the coach learns a new drill now and then
+          MEM.m.volley = Math.min(1, MEM.m.volley + 0.04); MEM.yenny.coached++;
+          if (MEM.yenny.coached % 3 === 0 && MEM.yenny.tips < COACH_TIPS.length){ MEM.yenny.tips++; log('Yenny worked a new drill into practice with Em.', 'yenny'); }
+          convo([['yenny', st.best >= 8 ? 'That was ' + st.best + ' in a row. You are getting so good, Em.' : pick(['Good work today. Proud of you.', 'Better every day, Em.', 'Nice hustle. Water break!'])], ['m', pick(['Thanks, Coach.', 'Thanks, Mom!', 'Again tomorrow?'])]]);
+          if (st.best >= 8) log('Yenny coached Em through ' + st.best + ' passes in a row.', 'yenny');
+          save(); boardDirty = true; witness('pepper');
+          return true;
+        }
+        return false;
+      }}].concat(chairSteps(8)), 'coaching Em at volleyball');
+  }
+  // all three in a triangle, bump, set, over
+  function trio(){
+    var em = kids.m, mel = kids.mel; YEN.lastTrio = W.clock; pickKid.lastRally = W.clock;
+    var A = snap(SMALL, 330, 322), Bp = snap(SMALL, 358, 322), C = snap(SMALL, 344, 336), R = {done: false};
+    var role = function(k, p, task){ kidPlan(k, [kidGo(k, p[0], p[1]), until(function(){ return R.done; }, 50), fn(function(){ k.act = null; })].concat(towelSteps(k, 6)), task); };
+    role(em, A, 'playing volleyball with Mom and Mel'); role(mel, Bp, 'playing volleyball with Mom and Em');
+    yenPlan([yenGo(C[0], C[1]), fn(function(){ yen.face = 'n'; convo([['yenny', pick(['Girls! Three-person pepper. Who is in?', 'Circle up, you two. Keep it off the deck.'])], ['mel', pick(['Me!', 'I am in!'])], ['m', 'Bump, set, hit.']]); }),
+      until(function(){ return [em, mel].every(function(k){ return !k.moving && k.here && !k.inWater; }) || !em.here || !mel.here; }, 25),
+      {k: 'custom', step: function(a, dt, st){
+        var ring = [em, mel, yen];
+        if (!st.go){
+          if (!em.here || !mel.here || em.inWater || mel.inWater){ R.done = true; return true; }
+          st.go = true; st.left = 15 + Math.random() * 5; st.count = 0; st.best = 0; st.pause = 0;
+          VB = {a: em, b: yen, ring: ring, i: 2, t: 0, dur: 1.05, down: false}; em.face = 'e'; mel.face = 'w'; yen.face = 'n';
+        }
+        if (!VB || !VB.ring){ R.done = true; return true; }
+        st.left -= dt;
+        if (st.pause > 0){ st.pause -= dt; VB.t = 0; if (st.pause <= 0) VB.down = false; ring.forEach(function(k){ k.act = null; }); }
+        else {
+          VB.t += dt;
+          if (VB.t >= VB.dur){
+            VB.t = 0;
+            var to = ring[(VB.i + 1) % 3], p = to === mel ? 0.74 + MEM.mel.bump * 0.22 : to === em ? 0.85 + MEM.m.volley * 0.12 : 0.96;
+            if (Math.random() < p){ st.count++; VB.i = (VB.i + 1) % 3; }
+            else { st.best = Math.max(st.best, st.count); st.count = 0; st.pause = 1.2; VB.down = true; }
+          }
+          ring.forEach(function(k, j){ k.act = j === VB.i && VB.t < 0.16 ? 'wave' : null; });
+        }
+        if (st.left <= 0 && st.pause <= 0){
+          st.best = Math.max(st.best, st.count); VB = null; ring.forEach(function(k){ k.act = null; }); R.done = true;
+          MEM.mel.bump = Math.min(1, MEM.mel.bump + 0.04); MEM.m.volley = Math.min(1, MEM.m.volley + 0.02);
+          if (st.best > (MEM.yenny.trioBest || 0)){ MEM.yenny.trioBest = st.best; convo([['mel', st.best + '! That is our record!'], ['yenny', 'Family record. I love it.']]); log('Yenny, Em and Mel kept the ball up ' + st.best + ' times. A family record.', 'yenny'); witness('record'); }
+          else convo([['yenny', pick(['Great teamwork, girls.', 'That was so fun. Water break.', 'Mel, your bump is getting so good.'])], ['m', pick(['Again later?', 'Good game.'])]]);
+          save(); boardDirty = true;
+          return true;
+        }
+        return false;
+      }}].concat(chairSteps(8)), 'playing volleyball with the girls');
+  }
+  function swimWithMel(){
+    var mel = kids.mel; YEN.lastSwim = W.clock; MEM.yenny.swims++;
+    kidPlan(mel, swimSteps(mel, 'zero', 22).concat(towelSteps(mel, 6)), 'swimming with Mom');
+    var steps = swimSteps(yen, 'zero', 22);
+    steps.splice(2, 0, fn(function(){ convo([['yenny', pick(['Mel, show me your back float!', 'Race you to the mushroom, Mel.', 'Okay, sweetie. Hold my hands and kick.'])], ['mel', pick(['Watch me, Mommy!', 'Okay!', 'I am a fish!'])]]); }));
+    yenPlan(steps.concat(chairSteps(8)), 'swimming with Mel in the zero depth');
+  }
+  function visitLeva(){
+    YEN.lastLeva = W.clock;
+    var learn = MEM.yenny.facts < YEN_QA.length && Math.random() < 0.6, q = YEN_QA[MEM.yenny.facts % YEN_QA.length];
+    yenPlan([approach(yen, function(){ return lv; }, 24, 16, function(){ return lv.hidden || !!B.rescue; }),
+      fn(function(){
+        if (yen.missed) return;
+        yen.face = lv.x > yen.x ? 'e' : 'w'; if (!lv.hidden && !B.rescue){ B.talking = Math.max(B.talking, 8); B.talkTo = yen; B.talkWith = 'Yenny'; }
+        if (learn) convo([['yenny', 'leva, can I ask you something? ' + q[0]], ['leva', q[1], 0, function(){ MEM.yenny.facts = Math.max(MEM.yenny.facts, YEN_QA.indexOf(q) + 1); save(); boardDirty = true; }], ['yenny', pick(['Thank you. That helps.', 'Good to know. Thank you, leva.', 'You always know.'])]]);
+        else convo(pick([
+          [['yenny', 'Thank you for keeping an eye on the girls, leva.'], ['leva', 'Always. They make the deck more fun.']],
+          [['yenny', 'I brought you a lemonade. Oh. Right.'], ['leva', 'It is the thought that counts. Thank you.']],
+          [['yenny', 'The water looks beautiful today.'], ['leva', "Thank you. pH is right where I want it."]],
+          [['yenny', 'How is your day going, leva?'], ['leva', 'Good. Leaves, tests, and one beagle. The usual.']]
+        ]));
+        if (learn) log('Yenny asked leva: ' + q[0] + ' He told her.', 'yenny');
+      }), act('listen', 8)].concat(chairSteps(8)), 'talking with leva');
+  }
+  function pickYen(){
+    if (!api.isOpen()) return;
+    var open = !bandNight(), em = kids.m, mel = kids.mel, r = Math.random(), hr = new Date().getHours();
+    var gone = !em.here && !mel.here;
+    if (gone) return yenPlan(chairSteps(10), 'on her towel');
+    // lunch around noon, snacks in the afternoon
+    var lunchTime = hr >= 11 && hr < 14 && !MEM.today.lunch, snackTime = hr >= 14 && (MEM.today.snacks || 0) < 3 && W.clock - YEN.lastFood > 180;
+    if ((lunchTime || snackTime || (DO && W.clock - YEN.lastFood > 120 && r < 0.3)) && !wxWhy()) return foodRun(lunchTime ? 'lunch' : 'snack');
+    if (open && girlFree(em) && girlFree(mel) && r < 0.2 && W.clock - YEN.lastTrio > 140) return trio();
+    if (open && girlFree(em) && r < 0.45 && W.clock - YEN.lastCoach > 75) return coachEm();
+    if (girlFree(mel) && r < 0.6 && W.clock - YEN.lastSwim > 90 && wxWhy() !== 'cold') return swimWithMel();
+    if (!lv.hidden && !B.rescue && B.talking <= 0 && r < 0.72 && W.clock - YEN.lastLeva > 120) return visitLeva();
+    if (r < 0.85 && W.clock - (ari.lastYen || -99) > 45 && ariToYen('pets')) return yenPlan([until(function(){ return ari.task !== 'getting pets from Yenny'; }, 16)].concat(chairSteps(6)), 'petting Ari');
+    yenPlan(chairSteps(10 + Math.random() * 10), pick(['on her towel, watching the girls', 'reading on her towel', 'soaking up some sun']));
+  }
+  function arriveYen(walkIn){
+    yen.here = true; yen.hidden = false; yen.leaving = false; yen.lot = false;
+    if (!walkIn){ var t = towelBand ? YEN_TOWEL.band : YEN_TOWEL.day; yen.x = t[0]; yen.y = t[1]; yenPlan([fn(function(){ yen.face = 's'; }), act('sit', yen.cool)], 'on her towel, watching the girls'); return; }
+    yen.x = PLACES.gate.inside[0]; yen.y = PLACES.gate.inside[1] + 6;
+    yenPlan([{k: 'straight', x: PLACES.gate.door[0], y: PLACES.gate.door[1] + 6, show: true, speed: 12}, fn(function(){ convo([['yenny', pick(['Good morning, leva!', 'Hi, leva. We made it.', 'Hello, everybody!'])]].concat(lv.hidden ? [] : [['leva', 'Morning, Yenny.']])); setTimeout(function(){ ariToYen('hello'); }, 800); })].concat(chairSteps(6)), 'coming in with the girls');
+  }
+  function stepYen(dt, open, why){
+    carStep(dt);
+    if (yen.lot){ runPlan(yen, dt); return; }
+    var stay = why === 'tornado' || why === 'storm';
+    if (open && !yen.here && kids.m.here) arriveYen(W.clock > 3 && car.unloaded && kids.m.task === 'coming in');
+    if (!open && yen.here && !yen.leaving && !yen.hopping){
+      if (why === 'storm' && yen.task !== 'heading inside') convo([['yenny', 'Everybody out of the water. Inside, girls.']], true);
+      leaveKid(yen, api.isOpen() ? why : null);
+    }
+    if (!yen.here){
+      // everyone's home safe and the girls are out: back to the car
+      if (!stay && !kids.m.here && !kids.mel.here && car.state === 'parked' && car.unloaded && !car.loading){ car.loading = true; loadUp(); }
+      if (car.state === 'gone') car.loading = false;
+      if (yen.plan) runPlan(yen, dt);
+      return;
+    }
+    if (yen.talking > 0 && !yen.hopping){ yen.talking -= dt; yen.moving = false; if (!yen.inWater) yen.face = 's'; }
+    else if (runPlan(yen, dt) === 'done') pickYen();
+    if (yen.act === 'sit') yen.pose = 'sit'; else if (yen.act === 'float') yen.pose = 'float'; else if (yen.inWater) yen.pose = 'swim'; else yen.pose = 'walk';
+  }
+  function drawCar(c){
+    if (car.state === 'gone') return;
+    var X = Math.round(car.x * 2), Y = Math.round(car.y * 2), side = car.face === 'e' || car.face === 'w';
+    var L = 50, Wd = 24, w = side ? L : Wd, h = side ? Wd : L, x = X - w / 2, y = Y - h / 2;
+    c.fillStyle = 'rgba(12,14,28,.25)'; c.fillRect(x + 3, y + 3, w, h);
+    c.fillStyle = '#26262c'; c.fillRect(x - 1, y - 1, w + 2, h + 2);
+    c.fillStyle = '#f2f3f6'; c.fillRect(x, y, w, h);
+    c.fillStyle = '#d9dce3'; if (side) c.fillRect(x, y + h - 3, w, 3); else c.fillRect(x + w - 3, y, 3, h);
+    // front is where it's headed: windshield and hood at the front, rear glass at the back
+    var f = car.face, glass = '#2d3a4a';
+    function r(ax, ay, aw, ah, col){ c.fillStyle = col; c.fillRect(x + ax, y + ay, aw, ah); }
+    if (!side){
+      var front = f === 's' ? h - 1 : 0, dir = f === 's' ? -1 : 1;
+      r(3, f === 's' ? h - 18 : 9, w - 6, 9, glass);                     // windshield
+      r(3, f === 's' ? 4 : h - 10, w - 6, 6, glass);                       // rear glass
+      r(4, f === 's' ? 11 : 19, w - 8, h - 31, '#ffffff');               // roof
+      r(4, f === 's' ? 12 : 20, 1, h - 33, '#9aa0ab'); r(w - 5, f === 's' ? 12 : 20, 1, h - 33, '#9aa0ab');  // roof rails
+      r(1, f === 's' ? h - 3 : 1, 4, 2, '#fff6c8'); r(w - 5, f === 's' ? h - 3 : 1, 4, 2, '#fff6c8');   // headlights
+      r(1, f === 's' ? 1 : h - 3, 4, 2, '#d7263b'); r(w - 5, f === 's' ? 1 : h - 3, 4, 2, '#d7263b');   // taillights
+      r(-2, f === 's' ? h - 20 : 17, 2, 3, '#26262c'); r(w, f === 's' ? h - 20 : 17, 2, 3, '#26262c');   // mirrors
+    } else {
+      r(f === 'e' ? w - 18 : 9, 3, 9, h - 6, glass);
+      r(f === 'e' ? 4 : w - 10, 3, 6, h - 6, glass);
+      r(f === 'e' ? 11 : 19, 4, w - 31, h - 8, '#ffffff');
+      r(f === 'e' ? 12 : 20, 4, w - 33, 1, '#9aa0ab'); r(f === 'e' ? 12 : 20, h - 5, w - 33, 1, '#9aa0ab');
+      r(f === 'e' ? w - 3 : 1, 1, 2, 4, '#fff6c8'); r(f === 'e' ? w - 3 : 1, h - 5, 2, 4, '#fff6c8');
+      r(f === 'e' ? 1 : w - 3, 1, 2, 4, '#d7263b'); r(f === 'e' ? 1 : w - 3, h - 5, 2, 4, '#d7263b');
+      r(f === 'e' ? w - 20 : 17, -2, 3, 2, '#26262c'); r(f === 'e' ? w - 20 : 17, h, 3, 2, '#26262c');
+    }
+  }
+  function drawYen(c){
+    if (yen.hidden || walled(yen.x, yen.y) || (!yen.here && !yen.lot)) return;
+    var X = yen.x * 2, Y = yen.y * 2 - (yen.lift || 0) * 2, f = Math.floor(yen.t * 4) % 2;
+    if (yen.hopping){ spr(c, 'y_s' + f, X, Y); return; }
+    if (yen.pose === 'float'){ spr(c, 'y_float', X, Y); ripple(c, X, Y + 1, 20); return; }
+    if (yen.inWater){ spr(c, 'y_swim' + (Math.floor(T * 2.4 + 0.25) % 2), X, Y); ripple(c, X, Y + 1, 14); return; }
+    shadow(c, X, Y, 9);
+    if (yen.pose === 'sit' && !(yen.talkWave > 0)){ spr(c, 'y_sit', X, Y); if (yen.carry) cooler(c, X + 10, Y - 4); return; }
+    if (yen.act === 'wave' || yen.talkWave > 0){ spr(c, 'y_wave', X, Y); return; }
+    spr(c, 'y_' + yen.face + (yen.moving ? f : ''), X, Y);
+    if (yen.carry) cooler(c, X + (yen.face === 'w' ? -10 : 9), Y - 16);
+  }
+  // the little red cooler bag she carries lunch in
+  function cooler(c, x, y){
+    x = Math.round(x); y = Math.round(y);
+    c.fillStyle = '#26262c'; c.fillRect(x - 1, y - 1, 10, 9);
+    c.fillStyle = '#d7263b'; c.fillRect(x, y, 8, 7);
+    c.fillStyle = '#ffffff'; c.fillRect(x, y + 2, 8, 2);
+    c.fillStyle = '#26262c'; c.fillRect(x + 2, y - 3, 4, 1); c.fillRect(x + 2, y - 3, 1, 2); c.fillRect(x + 5, y - 3, 1, 2);
+  }
+  function drawYenTowel(ctx){
+    if (!yen.here) return;
+    var p = towelBand ? YEN_TOWEL.band : YEN_TOWEL.day, x = Math.round(p[0] - 6), y = Math.round(p[1] - 13);
+    ctx.fillStyle = 'rgba(20,24,40,.18)'; ctx.fillRect(x + 1, y + 1, 12, 17);
+    ctx.fillStyle = '#1c1716'; ctx.fillRect(x, y, 12, 17);
+    ctx.fillStyle = '#c99250';
+    for (var yy = 0; yy < 17; yy++) for (var xx = 0; xx < 12; xx++) if ((xx * 3 + yy * 5) % 7 === 0) ctx.fillRect(x + xx, y + yy, 1, 1);
+    ctx.fillStyle = '#ffffff'; for (var i = 0; i < 12; i += 2){ ctx.fillRect(x + i, y, 1, 1); ctx.fillRect(x + i, y + 16, 1, 1); }
   }
 
   // ================= drawing the cast =================
@@ -1711,6 +2078,8 @@
     if (!ready) return false;
     var list = [{y: lv.y, d: function(){ lv.drawSelf(); drawLevaExtras(c); }}, {y: ari.y, d: function(){ drawAri(c); }}];
     ['m', 'mel'].forEach(function(id){ var k = kids[id]; list.push({y: k.y + (k.inWater ? -2 : 0), d: function(){ drawKid(c, k); }}); });
+    list.push({y: yen.y + (yen.inWater ? -2 : 0), d: function(){ drawYen(c); }});
+    drawCar(c);
     list.sort(function(a, b){ return a.y - b.y; });
     list.forEach(function(o){ o.d(); });
     drawBall(c);
@@ -1720,7 +2089,12 @@
   function drawBall(c){
     if (!VB) return;
     var a = VB.a, b = VB.b, X, Y, gY;
-    if (a === b){
+    if (VB.ring){ a = VB.ring[VB.i]; b = VB.ring[(VB.i + 1) % 3]; }
+    if (VB.ring){
+      var u3 = Math.min(1, VB.t / VB.dur);
+      X = (a.x + (b.x - a.x) * u3) * 2; Y = (a.y + (b.y - a.y) * u3) * 2 - 40 - Math.sin(u3 * Math.PI) * 28; gY = (a.y + (b.y - a.y) * u3) * 2 + 2;
+      if (VB.down){ X = (VB.ring[0].x + VB.ring[1].x + VB.ring[2].x) / 1.5; Y = (VB.ring[0].y + VB.ring[1].y + VB.ring[2].y) / 1.5 - 2; }
+    } else if (a === b){
       var u = Math.min(1, VB.t / VB.dur);
       X = a.x * 2 + 1; Y = a.y * 2 - 40 - Math.sin(u * Math.PI) * 30; gY = a.y * 2 + 2;
       if (VB.down){ X = a.x * 2 + 12; Y = a.y * 2 - 2; }
@@ -1790,6 +2164,7 @@
     weatherStep(dt);
     chemStep(dt, open);
     drawTowels(api.ctx);
+    drawYenTowel(api.ctx);
     drawYourTowel(api.ctx);
     drawVacTrail(api.ctx);
     drawLeaves(api.ctx);
@@ -1831,6 +2206,8 @@
     board.s.ari.textContent = cap(ari.task);
     board.s.m.textContent = cap(kids.m.task);
     board.s.mel.textContent = cap(kids.mel.task);
+    if (board.s.yenny) board.s.yenny.textContent = cap(yen.here ? yen.task : car.state === 'in' ? 'pulling in with the girls' : car.state === 'parked' && !yen.here && !kids.m.here ? 'inside with the girls' : 'home with the girls');
+    if (board.k.yenny) board.k.yenny.textContent = 'Coached Em ' + MEM.yenny.coached + (MEM.yenny.coached === 1 ? ' time. ' : ' times. ') + 'Knows ' + Math.min(COACH_TIPS.length, MEM.yenny.tips) + ' drills. Has brought ' + MEM.yenny.lunches + (MEM.yenny.lunches === 1 ? ' lunch' : ' lunches') + ' and ' + MEM.yenny.snacks + (MEM.yenny.snacks === 1 ? ' snack.' : ' snacks.') + (MEM.yenny.trioBest ? ' Family volleyball record: ' + MEM.yenny.trioBest + '.' : '');
     board.k.leva.textContent = MEM.leva.watch ? 'Watches ' + SPOT_NAME[MEM.leva.watch] + ' closest. Knows ' + MEM.leva.jokes.length + (MEM.leva.jokes.length === 1 ? ' joke from Em.' : ' jokes from Em.') : (MEM.leva.jokes.length ? 'Knows ' + MEM.leva.jokes.length + (MEM.leva.jokes.length === 1 ? ' joke from Em.' : ' jokes from Em.') : 'Still learning where Ari likes to sneak in.');
     var tricks = ariTricks();
     board.k.ari.textContent = (tricks.length ? 'Knows ' + listWords(tricks) + '. ' : 'Learning tricks from Em and Mel. ') + (MEM.ari.best ? 'Favorite spot: ' + SPOT_NAME[MEM.ari.best] + '.' : 'Still picking a favorite spot.');
@@ -2394,8 +2771,8 @@
     board = {
       ph: document.getElementById('b-ph'), cl: document.getElementById('b-cl'), phg: document.getElementById('g-ph'), clg: document.getElementById('g-cl'),
       tested: document.getElementById('b-tested'), leaves: document.getElementById('b-leaves'), today: document.getElementById('b-today'), log: document.getElementById('b-log'),
-      s: {leva: document.getElementById('s-leva'), ari: document.getElementById('s-ari'), m: document.getElementById('s-m'), mel: document.getElementById('s-mel')},
-      k: {leva: document.getElementById('k-leva'), ari: document.getElementById('k-ari'), m: document.getElementById('k-m'), mel: document.getElementById('k-mel')}
+      s: {leva: document.getElementById('s-leva'), ari: document.getElementById('s-ari'), m: document.getElementById('s-m'), mel: document.getElementById('s-mel'), yenny: document.getElementById('s-yenny')},
+      k: {leva: document.getElementById('k-leva'), ari: document.getElementById('k-ari'), m: document.getElementById('k-m'), mel: document.getElementById('k-mel'), yenny: document.getElementById('k-yenny')}
     };
     if (!board.ph) board = null;
     for (var i = 0; i < 4; i++){ var p = randomWater(['lap', 'lap', 'dive', 'zero'][i]); W.leaves.push({x: p[0], y: p[1], vx: 0, vy: 0, pool: ['lap', 'lap', 'dive', 'zero'][i], c: ['#6b8e23', '#8a6a3a', '#a7c957', '#b5651d'][i], k: i * 1.7}); }
@@ -2408,7 +2785,8 @@
       var den = snap(SMALL, 270, 94); ari.x = den[0]; ari.y = den[1];
       ariPlan([act('happy', 3)], 'wagging');
       var wr = wxWhy(), stayHome = wr === 'tornado' || wr === 'storm' || wr === 'snow' || wr === 'cold';
-      if (api.isOpen() && !stayHome){ arriveKid(kids.m, false); arriveKid(kids.mel, false); }
+      if (api.isOpen() && !stayHome){ familyIn(false); arriveKid(kids.m, false); arriveKid(kids.mel, false); arriveYen(false); }
+      else if (api.isOpen() && (wr === 'storm' || wr === 'tornado')){ familyIn(false); yen.task = wr === 'tornado' ? 'inside with the girls for the tornado warning' : 'waiting out the storm inside with the girls'; }
       else {
         kids.m.task = kids.mel.task = api.isOpen() ? ({tornado: 'inside for the tornado warning', storm: 'waiting out the storm inside', snow: 'home. No swimming in the snow.', cold: 'home. Too cold to swim today.'}[wr]) : 'home for the night';
         kids.m.hidden = kids.mel.hidden = true; kids.m.awayWhy = kids.mel.awayWhy = api.isOpen() ? wr : null;
@@ -2420,13 +2798,13 @@
       if (reduce) staticFrame();
     };
     im.onerror = function(){ console.error('leva pool: could not load pool/cast.png'); };
-    im.src = 'pool/cast.png?v=2';
+    im.src = 'pool/cast.png?v=3';
     document.addEventListener('visibilitychange', function(){ if (document.hidden){ MEM.chem = {ph: W.ph, cl: W.cl, measured: W.measured}; save(); } });
   }
   var spots = {};
   function makeSpots(){
     var stage = document.getElementById('stage'); if (!stage) return;
-    [['leva', 'LEVA', 'talk to leva', 40, 58], ['ari', 'ARI', 'say hi to Ari', 34, 26], ['m', 'EM', 'talk to Em', 26, 44], ['mel', 'MEL', 'talk to Mel', 26, 44]].forEach(function(d){
+    [['leva', 'LEVA', 'talk to leva', 40, 58], ['ari', 'ARI', 'say hi to Ari', 34, 26], ['m', 'EM', 'talk to Em', 26, 44], ['mel', 'MEL', 'talk to Mel', 26, 44], ['yenny', 'YENNY', 'talk to Yenny', 26, 50]].forEach(function(d){
       var b = document.createElement('button'); b.type = 'button'; b.className = 'spot link cast-spot'; b.tabIndex = -1; b.hidden = true;
       b.style.width = d[3] + 'px'; b.style.height = d[4] + 'px'; b.setAttribute('aria-label', d[1] + ', ' + d[2]);
       var tip = document.createElement('span'); tip.className = 'tip'; var tb = document.createElement('b'); tb.textContent = d[1]; var ts = document.createElement('span'); ts.textContent = d[2];
@@ -2446,7 +2824,7 @@
   var srNote = null;
   function placeSpots(){
     for (var id in spots){
-      var sp = spots[id], a = id === 'leva' ? lv : id === 'ari' ? ari : kids[id];
+      var sp = spots[id], a = id === 'leva' ? lv : id === 'ari' ? ari : ACT[id];
       var show = (id === 'leva' ? !lv.hidden : id === 'ari' ? !ari.hidden : (a.here && !a.hidden)) && !walled(a.x, a.y);
       if (sp.el.hidden === show) sp.el.hidden = !show;
       if (!show) continue;
@@ -2482,6 +2860,8 @@
           roll: MEM.ari.roll, rolls: MEM.ari.roll >= 1, treatsToday: MEM.today.treats, treatLimit: TREAT_LIMIT, treats: MEM.ari.treats, tricks: ariTricks(), hidden: !!ari.hidden, inside: ari.inside || null},
         watch: fav ? SPOT_NAME[fav] : null,
         m: {here: kids.m.here, task: kids.m.task, skills: skillLine('m'), inWater: kids.m.inWater, volleyBest: MEM.m.volleyBest, bestToday: MEM.today.volleyBest, volleys: MEM.m.volleys, rallyBest: MEM.m.rallyBest, cannonball: MEM.m.cannonball >= 1},
+        yenny: {here: yen.here && !yen.hidden, task: yen.task, inWater: yen.inWater, coached: MEM.yenny.coached, drills: Math.min(COACH_TIPS.length, MEM.yenny.tips), lunches: MEM.yenny.lunches, snacks: MEM.yenny.snacks, lunchToday: !!MEM.today.lunch, snacksToday: MEM.today.snacks || 0,
+          favLunch: (function(){ var f = MEM.yenny.likes, b = null, v = 0; for (var k in f) if (f[k] > v){ v = f[k]; b = LUNCH[+k][0]; } return b; })(), facts: YEN_QA.slice(0, MEM.yenny.facts).map(function(q){ return q[1]; }), trioBest: MEM.yenny.trioBest, car: car.state},
         mel: {here: kids.mel.here, task: kids.mel.task, skills: skillLine('mel'), inWater: kids.mel.inWater, facts: MEM.mel.facts, fish: MEM.mel.fish, fishFacts: FISH.slice(0, MEM.mel.fish), newFacts: MEM.today.newFacts, sings: MEM.mel.sings, bump: MEM.mel.bump, float: MEM.mel.float >= 1},
         jokes: MEM.leva.jokes.map(function(q){ for (var i = 0; i < JOKES.length; i++) if (JOKES[i][0] === q) return JOKES[i]; return [q, '']; }), today: Object.assign({}, MEM.today),
         log: MEM.log.slice(-8).map(function(l){ return clock(l.t) + ' ' + l.text; }),
@@ -2515,16 +2895,16 @@
       if (!ready) return {here: false, task: ''};
       if (id === 'leva') return {here: true, task: B.task};
       if (id === 'ari') return {here: true, task: ari.task, inWater: ari.inWater, hidden: !!ari.hidden};
-      var k = kids[id]; if (!k) return {here: false, task: ''};
+      var k = id === 'yenny' ? yen : kids[id]; if (!k) return {here: false, task: ''};
       return {here: !!(k.here && !k.hidden && !k.leaving), task: k.task, inWater: k.inWater, leaving: !!k.leaving};
     },
     // whoever you're talking to stops what they're doing and faces you for a few seconds
     attendChar: function(id, secs){
       if (!ready) return 'no';
       if (id === 'leva') return chat.attend(secs);
-      var a = id === 'ari' ? ari : kids[id]; if (!a) return 'no';
+      var a = id === 'ari' ? ari : id === 'yenny' ? yen : kids[id]; if (!a) return 'no';
       if (id !== 'ari' && (!a.here || a.hidden || a.leaving)) return 'away';
-      if (a.hopping || a.inWater && id === 'ari' || a.hidden || (lesson && (lesson.teacher === a || lesson.learner === a)) || (VB && VB.a !== VB.b && (VB.a === a || VB.b === a))) return 'busy';
+      if (a.hopping || a.inWater && id === 'ari' || a.hidden || (lesson && (lesson.teacher === a || lesson.learner === a)) || (VB && VB.a !== VB.b && (VB.a === a || VB.b === a || (VB.ring && VB.ring.indexOf(a) >= 0)))) return 'busy';
       if (!(a.talking > 0) && id !== 'ari') a.talkWave = 1.4;
       a.talking = Math.max(a.talking || 0, secs || 10);
       return 'ok';
@@ -2543,6 +2923,19 @@
           return MEM.ari.roll >= 1 ? 'ok' : 'learning';
         }
         if (what === 'speak'){ ari.talkAct = 'happy'; return 'ok'; }
+        return 'no';
+      }
+      if (id === 'yenny'){
+        if (!yen.here || yen.hidden || yen.leaving || yen.lot) return 'away';
+        if (yen.hopping || (VB && (VB.a === yen || VB.b === yen || (VB.ring && VB.ring.indexOf(yen) >= 0)))) return 'busy';
+        if (what === 'wave'){ yen.talkWave = 1.6; yen.talking = Math.max(yen.talking || 0, 2); return 'ok'; }
+        if (yen.inWater) return 'wet';
+        yen.talking = 0;
+        if (what === 'coach'){ if (bandNight()) return 'band'; if (!girlFree(kids.m)) return 'noother'; coachEm(); return 'ok'; }
+        if (what === 'trio'){ if (bandNight()) return 'band'; if (!girlFree(kids.m) || !girlFree(kids.mel)) return 'noother'; trio(); return 'ok'; }
+        if (what === 'swim'){ if (!girlFree(kids.mel)) return 'noother'; swimWithMel(); return 'ok'; }
+        if (what === 'lunch' || what === 'snack'){ if (W.clock - YEN.lastFood < 60) return 'soon'; if (wxWhy()) return 'weather'; foodRun(what === 'lunch' && !MEM.today.lunch ? 'lunch' : 'snack'); return 'ok'; }
+        if (what === 'treat'){ if (MEM.today.treats >= TREAT_LIMIT) return 'limit'; if (!ariToYen('pets')) return 'noari'; setTimeout(function(){ yenTreat(); }, 2500); return 'ok'; }
         return 'no';
       }
       var k = kids[id]; if (!k || !k.here || k.hidden || k.leaving) return 'away';
@@ -2594,7 +2987,7 @@
     // one figure off the cast sheet, for the games that borrow Em
     sprite: function(name){ return ready && castImg && CAST[name] ? {img: castImg, r: CAST[name]} : null; }};
   // with a ?do= test switch on, the deck's state is open to the console for checking
-  if (DO) window.__deck = {W: W, B: B, ari: ari, kids: kids, game: GAME, GM: function(){ return GM; }, award: award, badge: badge, witness: witness, job: workJob,
+  if (DO) window.__deck = {W: W, B: B, ari: ari, kids: kids, yen: yen, car: car, MEM: MEM, foodRun: function(k){ foodRun(k); }, coachEm: function(){ coachEm(); }, trio: function(){ trio(); }, swimWithMel: function(){ swimWithMel(); }, ariToYen: function(w){ return ariToYen(w); }, game: GAME, GM: function(){ return GM; }, award: award, badge: badge, witness: witness, job: workJob,
     sneak: function(){ ari.swimCool = 0; if (ari.hidden) ari.hidden = false; ariPlan(planSneak(), 'up to something'); },
     leaf: function(x, y, pool){ W.leaves.push({x: x, y: y, vx: 0, vy: 0, pool: pool || poolAt(x, y), c: '#6b8e23', k: 0, grab: 0}); },
     render: function(){ gameDirty = true; renderGame(); }, say: say, convo: convo, FISH: FISH, LEVELS: LEVELS, tryJob: tryJob, towelTag: towelTag, MY_TOWEL: MY_TOWEL};

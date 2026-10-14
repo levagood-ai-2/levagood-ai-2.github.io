@@ -193,7 +193,7 @@
   .bub.bye{opacity:0}
   .bub b{display:block;margin-bottom:3px;font-family:Silkscreen,"Press Start 2P",monospace;font-weight:400;font-size:9px;letter-spacing:.08em;line-height:1;color:var(--who)}
   .bub::after{content:"";position:absolute;left:50%;bottom:-7px;width:10px;height:10px;background:#fff;border-right:2px solid #0A0A0A;border-bottom:2px solid #0A0A0A;transform:translateX(-50%) rotate(45deg)}
-  .bub-leva{--who:#FF2E88} .bub-ari{--who:#b4501f} .bub-m{--who:#26358c} .bub-mel{--who:#16876a}
+  .bub-leva{--who:#FF2E88} .bub-ari{--who:#b4501f} .bub-m{--who:#26358c} .bub-mel{--who:#16876a} .bub-yenny{--who:#8a5a2b}
 
   /* the board under the map */
   .deck{padding:72px 0 88px;background:#fff}
@@ -222,6 +222,8 @@
   .who{display:grid;grid-template-columns:80px minmax(0,1fr);grid-template-areas:"face head" "body body";gap:14px;align-content:start;background:#fff;border:2px solid #0A0A0A;box-shadow:5px 5px 0 #0A0A0A;padding:16px;min-width:0}
   .who .face{grid-area:face;width:80px;height:80px;border:2px solid #0A0A0A;background:url(pool/faces.png) calc(var(--i) * -81.6667px) 0/325px 80px no-repeat;image-rendering:pixelated;image-rendering:crisp-edges}
   .who-leva .face{background-color:var(--sky)} .who-ari .face{background-color:var(--peach)} .who-m .face{background-color:var(--wpink)} .who-mel .face{background-color:var(--lilac)}
+  .who-yenny .face{background:var(--mint) url(pool/yenny_face.png) 0 0/100% 100% no-repeat}
+  .lchat-tface.yface,.lchat-mface.yface{background-image:url(pool/yenny_face.png);background-size:100% 100%;background-position:0 0}
   .who-head{grid-area:head;min-width:0;align-self:center}
   .who-body{grid-area:body;min-width:0;border-top:2px solid #0A0A0A;padding-top:12px}
   .who h3{font-family:"Inter Tight",system-ui,sans-serif;font-weight:900;font-size:24px;letter-spacing:-.03em;text-transform:none;margin:0 0 4px;line-height:1}
@@ -236,7 +238,7 @@
   .cast-spot.quiet .tip{opacity:0 !important;visibility:hidden !important}
   .log-list{list-style:none;display:flex;flex-direction:column;gap:12px;max-height:520px;overflow-y:auto}
   .log-list li{font-size:14px;line-height:1.45;padding:2px 0 2px 12px;border-left:4px solid var(--line)}
-  .log-list li.w-leva{border-left-color:var(--pink)} .log-list li.w-ari{border-left-color:#c65a28} .log-list li.w-m{border-left-color:#26358c} .log-list li.w-mel{border-left-color:#3fbf93}
+  .log-list li.w-leva{border-left-color:var(--pink)} .log-list li.w-ari{border-left-color:#c65a28} .log-list li.w-m{border-left-color:#26358c} .log-list li.w-mel{border-left-color:#3fbf93} .log-list li.w-yenny{border-left-color:#8a5a2b}
   .log-list time{display:block;font-family:Silkscreen,monospace;font-size:10px;letter-spacing:.06em;color:var(--grey);margin-bottom:2px;font-variant-numeric:tabular-nums}
   .log-list .empty{color:var(--grey)}
   @media(max-width:1100px){.cast{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -417,7 +419,7 @@
   <div class="wrap">
     <div class="eyebrow">Where it started</div>
     <h1>Levagood Pool,<br>from above.</h1>
-    <p class="lead">Dearborn, Michigan. The 50 meter pool, the diving well, the zero depth pool, the pump room, and the building with every room where it really is. leva is Maintenance, and he runs the place on his own. He tests the water, keeps the chemistry right, skims the leaves, and gets Ari out of the pool. Again. Em and Mel are sisters with big plans for the deep end. The map follows your clock, day and night, and the real weather in Dearborn. Say hi in the chat. leva, Em, Mel and Ari are all in there.</p>
+    <p class="lead">Dearborn, Michigan. The 50 meter pool, the diving well, the zero depth pool, the pump room, and the building with every room where it really is. leva is Maintenance, and he runs the place on his own. He tests the water, keeps the chemistry right, skims the leaves, and gets Ari out of the pool. Again. Em and Mel are sisters with big plans for the deep end, and their mom Yenny brings them every day. The map follows your clock, day and night, and the real weather in Dearborn. Say hi in the chat. leva, Em, Mel, Ari and Yenny are all in there.</p>
   </div>
 </section>
 
@@ -544,7 +546,7 @@
     <div class="deck-head">
       <div class="eyebrow">Live from the deck</div>
       <h2 id="deck-title">Nobody tells leva what to do next.</h2>
-      <p class="deck-lead">He reads the water and decides. Ari, Em and Mel learn from each other, and from him. Tap Talk on any of them and you're in one chat with the whole deck. Everything below updates as it happens, and the deck remembers where it left off the next time you come by.</p>
+      <p class="deck-lead">He reads the water and decides. Ari, Em, Mel and Yenny learn from each other, and from him. Tap Talk on any of them and you're in one chat with the whole deck. Everything below updates as it happens, and the deck remembers where it left off the next time you come by.</p>
     </div>
     <div class="deck-grid">
       <ul class="cast" aria-label="Who is on the deck">
@@ -552,6 +554,7 @@
         <li class="who who-ari" style="--i:1"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Ari</h3><p class="role">Corn red beagle. Not allowed in the pool. Lives for treats.</p></div><div class="who-body"><p class="now" id="s-ari">Waking up</p><p class="knows" id="k-ari"></p><button type="button" class="talk" data-talk="ari">Talk to Ari</button></div></li>
         <li class="who who-m" style="--i:2"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Em</h3><p class="role">Goggles on, cannonballs first. All about volleyball, and plays soccer too.</p></div><div class="who-body"><p class="now" id="s-m"></p><p class="knows" id="k-m"></p><button type="button" class="talk" data-talk="m">Talk to Em</button></div></li>
         <li class="who who-mel" style="--i:3"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Mel</h3><p class="role">Fishing, catfish and singing. Plays volleyball and soccer with Em.</p></div><div class="who-body"><p class="now" id="s-mel"></p><p class="knows" id="k-mel"></p><button type="button" class="talk" data-talk="mel">Talk to Mel</button></div></li>
+        <li class="who who-yenny" style="--i:4"><span class="face" aria-hidden="true"></span><div class="who-head"><h3>Yenny</h3><p class="role">Em and Mel's mom. Em's volleyball coach, the lunch and snack runs, and Ari's favorite person.</p></div><div class="who-body"><p class="now" id="s-yenny"></p><p class="knows" id="k-yenny"></p><button type="button" class="talk" data-talk="yenny">Talk to Yenny</button></div></li>
       </ul>
       <div class="panel water">
         <div class="wx">
@@ -677,7 +680,7 @@
 <script src="pool-gate.js?v=2"></script>
 <script src="pool-weather.js?v=1"></script>
 <script src="pool-radio.js?v=2"></script>
-<script src="pool-life.js?v=8"></script>
+<script src="pool-life.js?v=9"></script>
 <script>
 (function(){
   // scale the 1440 x 840 stage to the page width
@@ -1610,6 +1613,6 @@
 })();
 </script>
 <script src="pool-roofball.js?v=1"></script>
-<script src="leva-chat.js?v=8"></script>
+<script src="leva-chat.js?v=9"></script>
 </body>
 </html>

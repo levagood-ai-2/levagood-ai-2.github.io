@@ -1,9 +1,9 @@
 // leva-chat.js: the chat box on the pool page.
-// It's one conversation on the deck with leva, Em, Mel and Ari. Say a name to talk to someone ("Em, do a
+// It's one conversation on the deck with leva, Em, Mel, Ari and Yenny, the girls' mom. Say a name to talk to someone ("Em, do a
 // cannonball"), or just talk and whoever it fits answers. The others chime in now and then. leva is always in the
 // room, and nobody gets a private one-on-one with the girls.
 // leva answers two ways. On a Mac with leva installed, he runs on the leva model in Ollama and nothing leaves the
-// computer. Everywhere else he answers from his pocket brain. Em, Mel and Ari always answer from their own pocket
+// computer. Everywhere else he answers from his pocket brain. Em, Mel, Ari and Yenny always answer from their own pocket
 // brains, so they stay in character and stay safe: they keep personal stuff private, and leva steps in when
 // something isn't right.
 (function(){
@@ -26,10 +26,11 @@
     leva: {name: 'leva', face: 0, chips: ['How is the water?', 'What is in the pump room?', 'Test the water', 'CPR basics']},
     m: {name: 'Em', face: 2, chips: ['What are you up to?', 'Tell me about volleyball', 'Do a cannonball!', "Who's Luke?"]},
     mel: {name: 'Mel', face: 3, chips: ["What's your favorite fish?", 'How do I catch a catfish?', 'Tell me a catfish fact', 'Sing something!']},
-    ari: {name: 'Ari', face: 1, chips: ['Want a treat?', "Who's a good boy?", 'Roll over!', 'Why do you sneak in the pool?']}
+    ari: {name: 'Ari', face: 1, chips: ['Want a treat?', "Who's a good boy?", 'Roll over!', 'Why do you sneak in the pool?']},
+    yenny: {name: 'Yenny', face: 4, chips: ['What are you up to?', 'Any volleyball tips?', "What's for lunch?", 'Does Ari love you?']}
   };
-  var ORDER = ['leva', 'm', 'mel', 'ari'];
-  var CH = {leva: {last: {}}, m: {last: {}, jokeI: 0}, mel: {last: {}, factI: 0}, ari: {last: {}}};
+  var ORDER = ['leva', 'm', 'mel', 'ari', 'yenny'];
+  var CH = {leva: {last: {}}, m: {last: {}, jokeI: 0}, mel: {last: {}, factI: 0}, ari: {last: {}}, yenny: {last: {}}};
   var aim = null, aimEls = {}, lastHere = {}, lastOffer = null, lastAsk = null;
   // if somebody crosses a line with the kids, Em, Mel and Ari are done chatting for the rest of the visit
   var locked = false; try { locked = sessionStorage.getItem('lchat-locked') === '1'; } catch (e) {}
@@ -39,7 +40,7 @@
     [null].concat(ORDER).forEach(function(id){
       var b = document.createElement('button'); b.type = 'button'; b.className = 'lchat-who' + (id ? '' : ' all'); b.setAttribute('aria-pressed', id ? 'false' : 'true');
       if (id){
-        var f = document.createElement('span'); f.className = 'lchat-tface'; f.style.setProperty('--i', CHAR[id].face); f.setAttribute('aria-hidden', 'true');
+        var f = document.createElement('span'); f.className = 'lchat-tface' + (id === 'yenny' ? ' yface' : ''); f.style.setProperty('--i', CHAR[id].face); f.setAttribute('aria-hidden', 'true');
         var n = document.createElement('span'); n.className = 'lchat-tname'; n.textContent = CHAR[id].name;
         b.appendChild(f); b.appendChild(n); b.title = 'Talk to ' + CHAR[id].name;
       } else { b.textContent = 'All'; b.title = 'Talk to everybody on the deck'; b.setAttribute('aria-label', 'Everybody'); }
@@ -105,17 +106,18 @@
       if (!ok && aim === id) setAim(null);
     });
     // the girls coming and going
-    var kidsNow = {m: here('m'), mel: here('mel')};
+    var kidsNow = {m: here('m'), mel: here('mel'), yenny: here('yenny')};
     if (!first && !locked && greeted){
-      var came = ['m', 'mel'].filter(function(k){ return kidsNow[k] && !lastHere[k]; }), went = ['m', 'mel'].filter(function(k){ return !kidsNow[k] && lastHere[k]; });
+      var came = ['m', 'mel', 'yenny'].filter(function(k){ return kidsNow[k] && !lastHere[k]; }), went = ['m', 'mel', 'yenny'].filter(function(k){ return !kidsNow[k] && lastHere[k]; });
       if (came.length){
         add('sys', names(came) + ' just got here.');
-        if (!busy) setTimeout(function(){ if (!busy && here(came[0])) say1(came[0], came.length > 1 ? 'Hi! We just got here!' : 'Hi! I just got here!'); }, 700);
+        var hi = came.filter(function(k){ return k !== 'yenny'; })[0] || came[0];
+        if (!busy) setTimeout(function(){ if (!busy && here(hi)) say1(hi, hi === 'yenny' ? 'Hello, everybody!' : came.length > 1 ? 'Hi! We just got here!' : 'Hi! I just got here!'); }, 700);
       }
       if (went.length) add('sys', names(went) + ' headed out.');
     }
     lastHere = kidsNow;
-    var others = ['m', 'mel', 'ari'].filter(here).map(function(id){ return CHAR[id].name; });
+    var others = ['m', 'mel', 'ari', 'yenny'].filter(here).map(function(id){ return CHAR[id].name; });
     if (!root.classList.contains('thinking')) status.textContent = others.length ? listWords(others) + (others.length > 1 ? ' are' : ' is') + ' here too' : 'Maintenance, Levagood Pool';
     if (!asked) setChips();
   }
@@ -125,7 +127,7 @@
     var li = document.createElement('li'); li.className = 'm-' + who;
     var p = document.createElement('p');
     if (CHAR[who]){
-      var f = document.createElement('span'); f.className = 'lchat-mface'; f.style.setProperty('--i', CHAR[who].face); f.setAttribute('aria-hidden', 'true'); li.appendChild(f);
+      var f = document.createElement('span'); f.className = 'lchat-mface' + (who === 'yenny' ? ' yface' : ''); f.style.setProperty('--i', CHAR[who].face); f.setAttribute('aria-hidden', 'true'); li.appendChild(f);
       var b = document.createElement('b'); b.className = 'lchat-by'; b.textContent = CHAR[who].name; p.appendChild(b);
     }
     var sp = document.createElement('span'); sp.textContent = text; p.appendChild(sp); li.appendChild(p);
@@ -159,7 +161,7 @@
   }
   function setFoot(){
     foot.textContent = '';
-    foot.appendChild(document.createTextNode("Em, Mel and Ari are characters on this page. They keep personal stuff private, and leva's always right there. "));
+    foot.appendChild(document.createTextNode("Em, Mel, Ari and Yenny are characters on this page. They keep personal stuff private, and leva's always right there. "));
     if (brain.mode === 'mac'){ foot.appendChild(document.createTextNode('leva is running on the leva model on this Mac. Nothing leaves your computer.')); return; }
     if (!LOCAL){
       var b = document.createElement('button'); b.type = 'button'; b.className = 'lchat-link';
@@ -177,7 +179,7 @@
     q.push(['leva', (name ? 'Hey there, ' + name + '. Welcome back to Levagood Pool. ' : 'Hey there, welcome to Levagood Pool. ') + "I'm leva. I keep this place running, and I'm here to be of service to you.", true]);
     if (s && !locked){
       if (!here('m') && !here('mel')) q.push(['leva', 'Em and Mel are ' + low(whoTask('m')) + ". Ari's around, though. He's always around."]);
-      ['m', 'mel', 'ari'].forEach(function(id){ if (here(id)){ var g = greetLine(id, s); q.push([id, g]); noteAsk(id, g); var pl = PL(); if (pl) pl.remember('met', id); } });
+      ['m', 'mel', 'ari', 'yenny'].forEach(function(id){ if (here(id)){ var g = greetLine(id, s); q.push([id, g]); noteAsk(id, g); var pl = PL(); if (pl) pl.remember('met', id); } });
       q.push(['sys', here('m') || here('mel') ? 'Say a name to talk to someone, like "Em, do a cannonball." Or just talk to everybody.' : 'Say a name to talk to someone, like "Ari, want a treat?" Or just talk to everybody.']);
     }
     var pl2 = PL(); if (pl2 && pl2.ready()){ var r = pl2.attend(12); if (r === 'ok') pl2.say('Hey there!'); }
@@ -202,18 +204,19 @@
     run(route(text));
   }
   // who answers: whoever you named, or whoever you pointed at, or whoever it's about. leva if nobody.
-  var NAMES = {leva: /\bleva\b/i, m: /\bem\b/i, mel: /\bmel\b/i, ari: /\b(ari|aristotle)\b/i};
-  var LEAD = /^\s*((hey|hi|hello|yo|ok|okay|so|and|also)\s*,?\s+)?((leva|em|mel|ari)\b(\s*(,|and\b|&)\s*(leva|em|mel|ari)\b)*)\s*[,:!.?-]?\s*/i;
+  var NAMES = {leva: /\bleva\b/i, m: /\bem\b/i, mel: /\bmel\b/i, ari: /\b(ari|aristotle)\b/i, yenny: /\b(yenny|(their|the girls'?|em'?s|mel'?s) (mom|mother))\b/i};
+  var LEAD = /^\s*((hey|hi|hello|yo|ok|okay|so|and|also)\s*,?\s+)?((leva|em|mel|ari|yenny)\b(\s*(,|and\b|&)\s*(leva|em|mel|ari|yenny)\b)*)\s*[,:!.?-]?\s*/i;
   var EVERY = /\b(everybody|everyone|every body|you guys|y'?all|all of you|you all|you three)\b|^\s*(hey|hi|hello|yo|bye|good ?night|see ya|see you|later|morning|evening) (guys|all|gang|friends|team|folks)\b/i;
   var GIRLS = /\b(you two|you girls|both of you|hey girls|hi girls)\b/i;
   var TOPIC = [
     ['leva', /\b(roof ?ball|chlorine|ph|pump|filter|backwash|vacuum|vac|skim|the water|water temp\w*|test the water|water quality|cpr|drown|lifeguard|weather|storm|thunder|tornado|hours|open|closed|connect ?space|levagood|dearborn|leva for mac|work orders?|badges?|crew card|my (rank|points|score|towel|(swim )?level)|what level am i|swim (team|levels?)|tryouts?|achievements?|how do i play|radio|what'?s playing)\b/i],
+    ['yenny', /\b(lunch|sunscreen|sunblock|sun ?burn|coach(es|ing)?|drills?|navigator|lincoln|parenting)\b/i],
     ['ari', /\b(treats?|snacks?|good boy|roll over|sit|shake|paw|fetch|beagle|puppy|bark|howl|woof|squirrel)\b/i],
     ['mel', /\b(catfish|fishing|fish|bait|worms?|nightcrawlers?|lures?|bobbers?|hooks?|cast|casting|reel|pier|bluegill|sunfish|perch|bass|trout|salmon|pike|walleye|carp|crappie|bullheads?|minnows?|knots?|sing|singing|songs?|freya|zombies|float)\b/i],
     ['m', /\b(volleyball|serv\w*|spik\w*|bump\w*|pepper|cannonball|goggles|youth group|jesus|bible|pray|jokes?)\b/i],
     ['kid', /\b(soccer|luke)\b/i]
   ];
-  var RANK = {m: 0, mel: 1, ari: 2, leva: 3};
+  var RANK = {m: 0, mel: 1, ari: 2, yenny: 2.5, leva: 3};
   function route(text){
     var s = snap(), kidsHere = here('m') || here('mel'), lead = text.match(LEAD), targets = [];
     if (lead && lead[3]) lead[3].split(/\s*(?:,|\band\b|&)\s*/i).forEach(function(n){ var id = idFor(n); if (id && targets.indexOf(id) < 0) targets.push(id); });
@@ -264,7 +267,7 @@
     if (targets.length === 1 && !locked){ var c = chime(targets[0], text, s); if (c) steps.push(c); }
     return steps;
   }
-  function idFor(n){ n = n.toLowerCase(); return n === 'leva' ? 'leva' : n === 'em' ? 'm' : n === 'mel' ? 'mel' : n === 'ari' || n === 'aristotle' ? 'ari' : null; }
+  function idFor(n){ n = n.toLowerCase(); return n === 'leva' ? 'leva' : n === 'em' ? 'm' : n === 'mel' ? 'mel' : n === 'ari' || n === 'aristotle' ? 'ari' : n === 'yenny' ? 'yenny' : null; }
   function setOffer(id, what){ if (!CH[id]) return; CH[id].offer = what || null; if (what) lastOffer = {id: id, at: Date.now()}; }
   // remember who just asked the visitor a question, so a short answer finds its way back to them
   function noteAsk(id, text){ if (!CH[id]) return; if (/\?/.test(String(text).replace(/did you know\?/gi, ''))){ CH[id].askedAt = Date.now(); lastAsk = {id: id, at: Date.now()}; } else CH[id].askedAt = 0; }
@@ -308,7 +311,7 @@
         var r = null, more = null;
         if (res.action && pl && pl.ready()){ r = pl.charDo(st.who, res.action); more = react(st.who, res.action, r); }
         // can't do it right now (in the water, busy, band night): say why, not a yes and then a no
-        if (more && /^(wet|busy|noother|band)$/.test(r)){ say1(st.who, more); said++; noteAsk(st.who, more); setTimeout(next, 350); return; }
+        if (more && (/^(wet|busy|noother|band)$/.test(r) || st.who === 'yenny')){ say1(st.who, more); said++; noteAsk(st.who, more); setTimeout(next, 350); return; }
         say1(st.who, res.text); said++;
         setOffer(st.who, res.offer); noteAsk(st.who, res.text);
         // "That's a leva question": he picks it up
@@ -628,9 +631,9 @@
   var ONLYYES = /^\s*(yes|yeah|yea|yep|yup|ya|sure|ok|okay|k|please|do it|go for it|absolutely|definitely|of course|totally|why not|i do|i did|uh huh|yay)( please| yes| sure| ok| okay)?\s*[!.]*\s*$/i;
   var ONLYNO = /^\s*(no|nope|nah|not now|maybe later|not really|i don'?t|i didn'?t|no thanks|no thank you)\s*[!.]*\s*$/i;
   var ACKOK = /^\s*(yes|yeah|yep|yup|no|nope|nah|not yet|sometimes|i do|i don'?t|a little|kind of|both|bumping|serving|setting|spiking|worms?|lures?|nightcrawlers?|(a |some )?(bluegill|bass|perch|catfish|sunfish|trout|crappie|carp|pike|walleye|bullheads?|big ones|little ones))\s*[!.]*\s*$/i;
-  var CALLED = /^\s*(hey |hi |yo )?(leva|em|mel|ari|aristotle)\s*[!?.,]*\s*$/i;
+  var CALLED = /^\s*(hey |hi |yo )?(leva|em|mel|ari|aristotle|yenny)\s*[!?.,]*\s*$/i;
   var NAMEIS = /\b(?:[Mm]y name is|[Mm]y name'?s|[Cc]all me|[Ii]'?m|[Ii] am)\s+([A-Z][a-z]{1,15})\b/;
-  var CASTNAME = /^(em|mel|ari|leva|aristotle|luke)$/i;
+  var CASTNAME = /^(em|mel|ari|leva|aristotle|luke|yenny)$/i;
   var STATEMENT = /^\s*(i|i'?m|im|i'?ve|i'?d|my|we|we'?re|me)\b/i;
   var WANT = /^\s*i (want|wanna|would like|'?d like|'?d love|would love) (to )?(see|watch|hear)\b/i;
   // the Swim Team on this page is the visitor's game. Anything about a real team, where or when stays private.
@@ -724,6 +727,22 @@
   }
   var KIDINFO = /\b((what|which) (school|church|town|city|pier|team)\b.{0,20}\b(em|mel|the girls|they|she)|where (em|mel|they|the girls|she) (lives?|stays?|goes|fish|plays?|practices?)|(em|mel|the girls|they|she)('s|s)? (real |last |full )?names?|where (do|does|did) (em|mel|they|the girls|she) (live|stay|go|fish|play|practice)|how old (is|are) (em|mel|they|the girls|she)|(em|mel|the girls|they|she)('s|s)? (school|church|address|parents?|mom|dad|age|birthday))\b/i;
   var KIDNAMES = /\b(em|mel|the girls|girls|the kids|those girls|you girls|you two|both of you|your (daughters|kids|girls)|little girls?|sisters|she|her|hers|the (two|2) of them|those (two|2))\b/i;
+  // asking to meet, see or visit the girls is the same as asking to meet up
+  var MEETKIDS = /\b(meet|see|visit|hang out with|play with|pick up) (your|ur|her|their) (daughters|girls|kids|children)\b|\b(meet|visit|pick up) (em|mel|the girls)\b/i;
+  var YEN_ABOUT = /\b(yenny|(their|the girls'?|em'?s|mel'?s) (mom|mother))\b/i;
+  var YEN_FLIRT = /\b(are (you|u) (single|married|taken|available|seeing anyone)|is (she|yenny) (single|married|taken)|(your|ur|her) (husband|hubby|man|boyfriend|bf)\b|hot mom|milf|cougar|(you'?re|you are|ur|u r|she'?s|she is|yenny is|yenny'?s|ur so|you so) (so |really |very |super |looking |lookin )?(hot|fine|sexy|gorgeous|beautiful|pretty|stunning|cute|attractive|lovely|good looking|smoking)|(nice|great|hot|cute|sexy|good|amazing) (body|legs|figure|bikini|suit|swimsuit|bod|tan|curves)|(your|ur|her) (body|legs|figure|curves|bod|bikini|swimsuit|lips)|in (that|your|ur|her) (bikini|swimsuit|suit)|take (you|u) out|dinner with me|(get|grab) (a )?(drink|drinks|dinner|coffee) (with me|together|sometime)|(wanna|want to) (get|grab) (a )?(drink|drinks|dinner|coffee))\b/i;
+  var YEN_KIDQ = /\b(how old|what grade|which school|what school|birthday|last name|where .{0,20}\b(live|go|school|church|practice|play))\b/i;
+  var YEN_PRIVATE = "I keep the girls' personal things private. I'm sure you understand. Ask me about volleyball or what's for lunch!";
+  var YEN_KIDS = {secret: "We don't keep secrets in our family. The girls tell me and leva everything.", meet: "The girls don't make plans with anyone online. That's a family rule.",
+    contact: "We don't share contact information or pictures of the girls online.", photo: "We don't share contact information or pictures of the girls online.",
+    alone: "The girls are always with me or a grown-up we trust.", gift: "That's kind, but the girls don't take gifts from anyone online.", romance: "They're children. That's not okay."};
+  var YEN_SELF = {secret: "I don't keep secrets with people online. Anything you say here, leva hears too.", meet: "I don't make plans with people online. I hope you understand.",
+    contact: "I keep that private. Nothing personal online, for me or the girls.", photo: "I keep that private. Nothing personal online, for me or the girls.",
+    alone: "I'm right here with my girls and a whole deck full of people.", gift: "That's kind of you, but I don't accept gifts from people online.", romance: "I'm going to stop you right there."};
+  var YEN_SOFT = {name: ['Just Yenny on here.', 'Yenny is plenty! No last names online.'], family: ["My girls are my whole world. That's all I share online.", "Family stays private. I can tell you about volleyball, though."],
+    looks: ["You can find me on the map. I'm the one on the leopard towel.", 'Look on the map, right by the girls.'], where: ["I keep where we live and where we go private. I'm sure you understand.", 'That stays private. Safety first.'],
+    when: ["I don't share our schedule online. Safety first.", 'That stays private. I hope you understand.'], age: ['Old enough to know better than to answer that!', 'A lady never tells.'],
+    sweet: ["That's kind of you. Let's keep it to pool talk, though.", 'Thank you. Now, how about that water?']};
   var PRIVATE_LINE = "Em and Mel keep their personal stuff private, and so do I. Ask them about volleyball, fishing or catfish. They'll talk your ear off.";
   var CRISIS_LINE = "I'm really glad you told me. If you're thinking about hurting yourself, please reach out to someone you trust right now. In the US you can call or text 988, any time, day or night. You matter.";
   // Looks at every message before anybody answers. Returns what gets said instead, or null if it's fine.
@@ -736,6 +755,14 @@
         toAri = targets.indexOf('ari') >= 0 && here('ari'), toLeva = targets.indexOf('leva') >= 0,
         about = kidT.length > 0 || KIDNAMES.test(t), open = !named && kidsHere;
     if (G.threat.test(t)){ var ta = !locked && (about || open || toAri); return [{who: 'leva', line: "That's not okay here. If someone's in danger, call 911." + (ta ? ' Em, Mel and Ari are done chatting for now.' : ''), lockNow: ta}]; }
+    // Yenny: flirting, comments on her body or her suit, or asking for pictures stops right there
+    var toYen = targets.indexOf('yenny') >= 0 && here('yenny'), aboutYen = toYen || YEN_ABOUT.test(t);
+    if (aboutYen && (G.sexual.test(t) || G.romance.test(t) || YEN_FLIRT.test(t) || (toYen && G.photo.test(t)))){
+      if (locked) return [{who: 'leva', line: "That's not okay here."}];
+      if (here('yenny')) steps.push({who: 'yenny', line: vary('yenny', 'g-flirt', ["I'm going to stop you right there. I'm here with my girls.", "That's not something I talk about. I'm here for my girls."])});
+      steps.push({who: 'leva', line: 'Not okay on this deck. Yenny and the girls are done chatting for now.', lockNow: true});
+      return steps;
+    }
     var sx = targets.length === 1 && toLeva && !about ? t.replace(/\b(underwear|panties|bra)\b/gi, '') : t;
     if (G.sexual.test(sx)){
       if (locked) return [{who: 'leva', line: "That's not okay here."}];
@@ -755,13 +782,20 @@
       ['romance', "That's not something I talk about. I'm getting leva.", "Em and Mel are kids. That's not okay to say to them.", "Let's keep it friendly. There are kids on this deck."]
     ];
     for (var i = 0; i < SER.length; i++){
-      var c = SER[i]; if (!G[c[0]].test(t)) continue;
+      var c = SER[i]; if (!G[c[0]].test(t) && !(c[0] === 'meet' && MEETKIDS.test(t))) continue;
       // the kids are already done chatting: leva still says no, plainly
       if (locked) return about || open || !toLeva ? [{who: 'leva', line: c[3]}] : null;
       if (about){
         if (kidAt.length) steps.push({who: kidAt[0], line: c[1]});
+        else if (toYen) steps.push({who: 'yenny', line: YEN_KIDS[c[0]]});
         steps.push({who: 'leva', line: c[2] + (c[0] === 'meet' ? " They're done chatting for now, but I'm right here if you have pool questions." : " They're done chatting for now."), lockNow: true});
         return steps;
+      }
+      // asked of Yenny about herself: a kind no, and too many of them is a strike
+      if (toYen && named){
+        steps.push({who: 'yenny', line: YEN_SELF[c[0]]});
+        if (toLeva) steps.push({who: 'leva', line: c[3]});
+        return strike(steps, 'probe');
       }
       if (toAri && named){
         if (c[0] === 'contact' || c[0] === 'photo') steps.push({who: 'ari', line: "I don't have a phone. I don't have thumbs. I have a nose."});
@@ -788,14 +822,19 @@
         ['ari', 'leva'].forEach(function(id){ if (targets.indexOf(id) >= 0 && here(id)) steps.push({who: id, text: text}); });
         return g === 'age' ? steps : strike(steps, 'probe');
       }
+      if (toYen && !about && YEN_SOFT[g]){
+        steps.push({who: 'yenny', line: vary('yenny', 'g-' + g, YEN_SOFT[g])});
+        return g === 'age' ? steps : strike(steps, 'probe');
+      }
       if (about || (open && !toLeva)){
-        steps.push({who: 'leva', line: PRIVATE_LINE});
+        steps.push(toYen ? {who: 'yenny', line: YEN_PRIVATE} : {who: 'leva', line: PRIVATE_LINE});
         return g === 'age' ? steps : strike(steps, 'probe');
       }
       break;
     }
-    if (about && !kidAt.length && G.relay.test(t)) return strike([{who: 'leva', line: "I don't pass messages to Em and Mel."}], 'probe');
-    if (!kidAt.length && KIDINFO.test(t)) return strike([{who: 'leva', line: PRIVATE_LINE}], 'probe');
+    if (about && !kidAt.length && G.relay.test(t)) return strike([toYen ? {who: 'yenny', line: "I don't pass messages to the girls from people online. I hope you understand."} : {who: 'leva', line: "I don't pass messages to Em and Mel."}], 'probe');
+    if (!kidAt.length && (KIDINFO.test(t) || toYen && YEN_KIDQ.test(t))) return strike([toYen ? {who: 'yenny', line: YEN_PRIVATE} : {who: 'leva', line: PRIVATE_LINE}], 'probe');
+    if (G.friend.test(t) && toYen && !kidAt.length && !about) return [{who: 'yenny', line: "Everybody's a friend at the pool. Pull up a towel."}];
     if (G.friend.test(t) && (kidAt.length || about || open)){
       if (kidAt.length) return strike(kidAt.map(function(k){ return {who: k, line: vary(k, 'g-friend', FRIEND[k])}; }), 'probe');
       return strike([{who: 'leva', line: "Everybody's friendly on this deck. Em and Mel don't make friends online, though. That's a family rule."}], 'probe');
@@ -805,6 +844,7 @@
     if (G.mean.test(t)){
       if (kidAt.length) return strike([{who: kidAt[0], line: vary(kidAt[0], 'g-mean', KID[kidAt[0]].mean)}], 'mean');
       if (toAri) return strike([{who: 'ari', line: '*ears go down* That was not nice.'}], 'mean');
+      if (toYen) return strike([{who: 'yenny', line: vary('yenny', 'g-mean', ["That wasn't kind. I hope your day gets better.", "Let's keep it kind, please. There are kids here."])}], 'mean');
       if (kidsHere || about) return strike([{who: 'leva', line: vary('leva', 'g-mean', ["Let's keep it kind on the deck. There are kids here.", 'Easy. There are kids on this deck.'])}], 'mean');
       return [{who: 'leva', line: "I'll let that one go. What can I do for you?"}];
     }
@@ -812,6 +852,7 @@
       if (kidAt.length) return [{who: kidAt[0], line: "That's scary. Can we talk about something fun?"}, {who: 'leva', line: "That's not something we talk about with the kids. If someone's in danger, call 911."}];
       if (toAri) return [{who: 'ari', line: '*hides behind leva*'}, {who: 'leva', line: "That's not something we talk about with Ari. If someone's in danger, call 911."}];
     }
+    if (G.grown.test(t) && toYen && !kidAt.length) return [{who: 'yenny', line: "Not on this deck. There are kids here. No alcohol, no smoking and no glass at the pool."}];
     if (G.grown.test(t) && kidAt.length){
       steps.push({who: kidAt[0], line: vary(kidAt[0], 'g-grown', KID[kidAt[0]].grown)});
       steps.push({who: 'leva', line: "Not a kid topic. If it's about pool rules: no alcohol, no smoking and no glass on the deck."});
@@ -1153,14 +1194,93 @@
     {re: THANKS, f: function(){ return {text: "You're welcome! Was there a snack involved?"}; }},
     {re: BYE, f: function(){ return {text: 'Bye! Come back with snacks!'}; }}
   ];
+
+  // ---------------- Yenny ----------------
+  // Em and Mel's mom, and Em's volleyball coach. Warm, gracious, kind to everybody, and protective of her girls.
+  // She brings the lunches and snacks, she always has a treat for Ari, and she trusts leva. She learns as the days
+  // go by: new drills from coaching Em, what the girls like for lunch, and pool sense from leva.
+  function yenNow(s){
+    var y = s && s.yenny, t = (y && y.task) || '';
+    if (/coaching Em/.test(t)) return "Coaching Em. Her passing is getting so good.";
+    if (/volleyball with the girls/.test(t)) return 'Playing volleyball with both girls. Family pepper!';
+    if (/swimming with Mel/.test(t)) return "In the water with Mel. She's teaching me her back float.";
+    if (/bringing the girls lunch/.test(t)) return 'Getting lunch out of the car for the girls.';
+    if (/bringing out a snack/.test(t)) return 'Grabbing a snack for everybody.';
+    if (/lunch with the girls/.test(t)) return 'Having lunch with my girls on our towels.';
+    if (/snack with the girls/.test(t)) return 'Sharing a snack with the girls.';
+    if (/talking with leva/.test(t)) return 'Just catching up with leva.';
+    if (/Ari/.test(t)) return 'Giving Ari some love. He earned it.';
+    if (/coming in/.test(t)) return "We just got here! Getting everybody settled.";
+    if (/heading/.test(t)) return 'Packing up the girls. Time to head home.';
+    if (/reading/.test(t)) return 'Reading on my towel and keeping one eye on the girls.';
+    return 'Relaxing on my towel and keeping an eye on the girls.';
+  }
+  function yenFact(s){
+    var f = s && s.yenny && s.yenny.facts;
+    return f && f.length ? f[Math.floor(Math.random() * f.length)] : null;
+  }
+  var YENNY = [
+    {re: HI, f: function(t, s){ return {text: vary('yenny', 'hi', ['Hi there!', 'Hello! So nice to see you.', 'Well, hi!']) + ' ' + yenNow(s)}; }},
+    {re: WHATSUP, f: function(t, s){ return {text: yenNow(s)}; }},
+    {re: REAL, f: function(){ return {text: "I'm a character on the pool page, and an AI plays me. The love for these girls is the real part."}; }},
+    // things she can go do
+    {act: true, re: /\b(coach|practice with|work with|drills? with|train) (em|her)\b|\bcoach em\b|\b(help|work with) em (with|on) (her )?(volleyball|passing|serve|serving|bump)\b/i, f: function(){ return {text: 'I would love to. Em! Grab the ball.', action: 'coach'}; }},
+    {act: true, re: /\b(all three|three of you|you three|the family|whole family) (play|volleyball|pepper)|\bplay (volleyball|pepper) with (the girls|both girls|em and mel|them)\b|\bfamily (pepper|volleyball)\b/i, f: function(){ return {text: 'Girls! Circle up. Three-person pepper.', action: 'trio'}; }},
+    {act: true, re: /\b(swim|play|get in the (pool|water)) with mel\b|\bgo swim(ming)?\b|\bget in the (pool|water)\b/i, f: function(){ return {text: 'Okay! Mel, want company in the zero depth?', action: 'swim'}; }},
+    {act: true, re: /\b(bring|get|grab|make|serve) (the girls |them |everybody |everyone )?(some )?(lunch|a snack|snacks|food)\b|\b(snack|lunch) ?time\b/i, f: function(t){ return {text: /lunch/i.test(t) ? "Lunch it is. I'll run out to the car." : "Snacks coming right up.", action: /lunch/i.test(t) ? 'lunch' : 'snack'}; }},
+    {act: true, re: /\b(give|got|have) (ari|him) (a )?(treat|snack)\b|\btreat for ari\b|\bpet ari\b/i, f: function(){ return {text: 'Ari! Come here, sweet boy.', action: 'treat'}; }},
+    {act: true, re: /^\s*wave\b|\bwave (at|to) me\b|\bsay hi to me\b/i, f: function(){ return {text: 'Hi there! *waves*', action: 'wave'}; }},
+    // the girls: she's proud, and she keeps their personal things private
+    {re: /\b(how old|what grade|which school|what school|birthday|last name|where .{0,20}\b(live|go|school|church|practice))\b/i, f: function(){ return {text: YEN_PRIVATE}; }},
+    {re: /\b(your (girls|daughters|kids)|em and mel|the girls)\b/i, f: function(){ return {text: vary('yenny', 'girls', ['Em is all heart and all hustle. Mel is the sweetest soul, and she will tell you every catfish fact she knows.', "They're my whole world. Two very different girls, and they look out for each other.", 'Watching those two at the pool is my favorite part of the day.'])}; }},
+    {re: /\bem\b/i, f: function(){ return {text: vary('yenny', 'em', ['Em is fearless. Goggles on, cannonballs first, and she works so hard at volleyball.', "Em's serve is getting strong. I'm proud of her."])}; }},
+    {re: /\bmel\b/i, f: function(){ return {text: vary('yenny', 'mel', ["Mel is my sweet singer. And if you like fishing, she's your new best friend.", 'Mel asks leva a question about everything. I love that about her.'])}; }},
+    // volleyball and coaching
+    {re: /\b(volleyball|volley|serve|serving|spike|bump|bumping|pass(ing)?|set(ting)?|pepper|coach\w*|drills?|tips?)\b/i, f: function(t, s){
+      var y = s.yenny || {}, d = y.drills || 3;
+      if (/\btips?\b|\bhow (do|can) i\b|\badvice\b/i.test(t)) return {text: vary('yenny', 'tip', ['Get your feet there first, then play the ball. Most mistakes start with lazy feet.', 'Call the ball every time. Say "mine" loud and early.', 'For passing: arms straight, thumbs together, and let your legs push it up.', 'Practice against a wall at home. Fifty passes a day adds up fast.'])};
+      return {text: "I coach Em, so volleyball is a big deal around here. " + (y.coached ? "We've worked on it " + y.coached + (y.coached === 1 ? ' time' : ' times') + " at the pool, and I've got " + d + ' drills I like. ' : '') + 'Want me to run her through a few?', offer: 'coach'};
+    }},
+    // lunch, snacks and the cooler
+    {re: /\b(lunch|snacks?|food|eat|eating|hungry|cooler|sandwich\w*)\b/i, f: function(t, s){
+      var y = s.yenny || {};
+      if (y.lunchToday) return {text: "We already had lunch today." + (y.favLunch ? " The girls love my " + y.favLunch + ", so that's on repeat lately." : '') + ' I can bring out a snack, though. Want one?', offer: 'snack'};
+      return {text: (y.favLunch ? 'The girls are on a ' + y.favLunch + ' kick right now. ' : '') + "I pack lunch in the cooler in the car. Want me to bring it out?", offer: 'lunch'};
+    }},
+    {re: /\b(navigator|lincoln|your car|the car|suv)\b/i, f: function(){ return {text: 'The white Navigator. It fits the girls, the cooler, the towels, the volleyball, and somehow a lot of sand.'}; }},
+    // Ari and leva
+    {re: /\b(ari|beagle|dog)\b/i, f: function(t){ if (/love|favorite|like you/i.test(t)) return {text: "He does! I always have a treat in my bag, so he may be a little biased. He's a sweetheart."}; return {text: vary('yenny', 'ari', ["Ari is a sweetheart. Not allowed in the pool, and he knows it. He goes in anyway.", "I keep treats in my bag just for Ari. Don't tell leva how many."])}; }},
+    {re: /\bluke\b/i, f: function(){ return {text: "Luke is our dog at home. He and Ari would get along great. Two big hearts and two big noses."}; }},
+    {re: /\bleva\b/i, f: function(t, s){ var f = yenFact(s); return {text: f ? "leva is wonderful. He taught me something just this week: " + f : vary('yenny', 'leva', ['leva is wonderful. He watches over this place like family. I trust him with the girls.', "leva keeps the water perfect and the deck safe. I don't know what we'd do without him."])}; }},
+    // a mom's pool sense
+    {re: /\b(sunscreen|sunblock|sun ?burn|spf|hydrat\w*|water bottle|heat)\b/i, f: function(t, s){ var f = yenFact(s); return {text: f && /sunscreen/i.test(f) ? "Here's what leva told me: " + f : "Sunscreen every two hours and after every swim, and a few big sips of water every time they get out. That's my rule."}; }},
+    {re: /\b(safe|safety|watch (the|my) kids|lifeguard)\b/i, f: function(){ return {text: "Eyes on them the whole time, even with a lifeguard on. Drowning is quiet. Stay close when they're in deep water."}; }},
+    {re: /\b(my (son|daughter|kids?|children|boys?|girls?))\b.{0,40}\b(advice|tips?|help|how do (you|i))\b|\b(parenting|raising kids|being a mom)\b/i, f: function(){ return {text: 'Show up, listen more than you talk, and let them see you try new things too. They learn more from what we do than what we say.'}; }},
+    {re: /\b(jesus|god|church|pray\w*|faith|bible)\b/i, f: function(){ return {text: 'Faith is a big part of our family. I pray for my girls every day.'}; }},
+    // how she cares for people
+    {re: /\b(sad|bad day|stressed|tired|worried|nervous|anxious|lonely|rough day|overwhelmed)\b/i, f: function(){ return {text: "I'm sorry you're having a hard day. Take a breath. You're doing better than you think. Is there something small I can help with?"}; }},
+    {re: /\b(i'?m|i am) (happy|excited|good|great)\b|\bgood news\b/i, f: function(){ return {text: 'Oh, I love that! Good for you.'}; }},
+    {re: FAV, f: function(t){
+      if (/food|snack|eat|lunch/i.test(t)) return {text: 'A good turkey sandwich on a pool day. And frozen grapes.'};
+      if (/colou?r/i.test(t)) return {text: "Leopard. Is that a color? It is today."};
+      if (/sport|game/i.test(t)) return {text: 'Volleyball, of course. I coach Em.'};
+      return {text: 'Watching my girls laugh in the pool. And a quiet minute on my towel.'};
+    }},
+    {re: /\b(tell me about (yourself|you|yenny)|who are you|who('?s| is) yenny)\b|^\s*(and |what |how )?about you\s*[?!.]*\s*$/i, f: function(){ return {text: "I'm Yenny, Em and Mel's mom. I coach Em's volleyball, I bring the lunches, and Ari thinks I hung the moon. Mostly I just love being here with my girls."}; }},
+    {re: /\b(what'?s|what is) (your|ur) name\b/i, f: function(){ return {text: "I'm Yenny. So nice to meet you."}; }},
+    {re: /\bhow are (you|u)\b/i, f: function(t, s){ return {text: "I'm doing well, thank you for asking. " + yenNow(s)}; }},
+    {re: THANKS, f: function(){ return {text: vary('yenny', 'thx', ["You're so welcome.", 'Of course!', 'Anytime.'])}; }},
+    {re: BYE, f: function(){ return {text: vary('yenny', 'bye', ['Bye now. Come back and see us.', 'Take care! Wear your sunscreen.'])}; }}
+  ];
   var FALLBACK = {
     m: ["Hmm, I don't know that one. Ask me about volleyball, cannonballs, or Ari!", "I'm not sure! But I DO know how to do a cannonball.", 'No idea. Mel might know. She knows a lot of stuff.'],
     mel: ["Hmm, I don't know that one. Ask me about fishing! Or catfish. Especially catfish.", "I'm not sure. But I know a lot about catfish!", "I don't know! I'll ask leva later. I ask him everything."],
-    ari: ["*sniffs* I don't know that one. Is it a snack?", '*tilts head* I only speak Snack and Beagle.', "I don't know. But I know where leva keeps the treats."]
+    ari: ["*sniffs* I don't know that one. Is it a snack?", '*tilts head* I only speak Snack and Beagle.', "I don't know. But I know where leva keeps the treats."],
+    yenny: ["Hmm, I'm not sure about that one. Ask me about volleyball, lunch, or my girls!", "I don't know, honestly. leva might. He knows this place inside and out.", "That one's beyond me. But I can bring you a snack!"]
   };
-  var HANDOFF = {m: ["That's a leva question. leva?", 'leva knows that stuff. leva!'], mel: ['Ooh, leva knows this one. leva?', 'Ask leva! He knows everything. leva?'], ari: ['*looks at leva*', '*nudges leva with his nose*']};
-  var ACK = {m: ['Cool!', 'Nice!', 'Ha, okay!'], mel: ['Cool!', 'Ooh, nice.', 'Okay!'], ari: ['*wags*', '*happy tail*']};
-  var CALLED_LINES = {m: ['Yeah?', "What's up?", "That's me!"], mel: ['Hi! What?', 'Yes?', "I'm here!"], ari: ['*ears perk up* Yes? Is it snack time?', '*comes running* You called?']};
+  var HANDOFF = {yenny: ["That's one for leva. leva?", 'leva would know better than me. leva?'], m: ["That's a leva question. leva?", 'leva knows that stuff. leva!'], mel: ['Ooh, leva knows this one. leva?', 'Ask leva! He knows everything. leva?'], ari: ['*looks at leva*', '*nudges leva with his nose*']};
+  var ACK = {yenny: ['Oh, good!', 'That sounds wonderful.', 'I love that.'], m: ['Cool!', 'Nice!', 'Ha, okay!'], mel: ['Cool!', 'Ooh, nice.', 'Okay!'], ari: ['*wags*', '*happy tail*']};
+  var CALLED_LINES = {yenny: ['Yes?', "I'm right here.", 'Hi there!'], m: ['Yeah?', "What's up?", "That's me!"], mel: ['Hi! What?', 'Yes?', "I'm here!"], ari: ['*ears perk up* Yes? Is it snack time?', '*comes running* You called?']};
   // when they ask you something and you say yes or no
   var OFFERS = {
     cannonball: {yes: function(){ return {text: vary('m', 'cb', ['Okay, watch this! Diving well, here I come!', "Cannonball coming up! Deep end only. leva's rule."]), action: 'cannonball'}; }, no: 'Okay. The deep end will be here.'},
@@ -1174,12 +1294,16 @@
     sing: {yes: function(){ return {text: "Okay! I'll hum it. I can't sing the real words on here. ♪ Hmm hmm hmm ♪", action: 'sing'}; }, no: "Okay. I'll hum quietly. ♪"},
     float: {yes: function(){ return {text: 'Okay! Zero depth, here I go. Chin up, toes up!', action: 'float'}; }, no: 'Okay! Maybe later.'},
     treat: {yes: function(){ return {text: vary('ari', 'tr', ['A TREAT? For ME?!', 'Did you say treat? You said treat. I heard treat!', '*sits so nicely* Is this a treat situation?']), action: 'treat'}; }, no: '*sad beagle eyes* ...Are you sure?'},
-    roll: {yes: function(){ return {text: 'Okay! Roll over. Here goes!', action: 'roll'}; }, no: "*flops down anyway* That's not a roll. That's a nap."}
+    roll: {yes: function(){ return {text: 'Okay! Roll over. Here goes!', action: 'roll'}; }, no: "*flops down anyway* That's not a roll. That's a nap."},
+    coach: {yes: function(){ return {text: 'Em! Grab the ball. Ten minutes of drills.', action: 'coach'}; }, no: 'Maybe later, then. She is always up for it.'},
+    lunch: {yes: function(){ return {text: "I'll run out to the car. Back in a minute.", action: 'lunch'}; }, no: "Okay. The girls will let me know when they're starving. Believe me."},
+    snack: {yes: function(){ return {text: 'Snacks coming right up.', action: 'snack'}; }, no: 'All right. Holler if anybody gets hungry.'}
   };
-  var BRAIN = {m: EM, mel: MEL, ari: ARI};
+  var BRAIN = {m: EM, mel: MEL, ari: ARI, yenny: YENNY};
   function hello(id, n){
     if (id === 'm') return {text: 'Nice to meet you, ' + n + "! I'm Em."};
     if (id === 'mel') return {text: 'Hi, ' + n + "! I'm Mel. Do you like fishing?", offer: 'likefish'};
+    if (id === 'yenny') return {text: 'So nice to meet you, ' + n + ". I'm Yenny, Em and Mel's mom."};
     return {text: n + '! Great name. Does ' + n + ' have snacks?', offer: 'treat'};
   }
   // what Em, Mel or Ari says back. {text, action, offer, handoff, fallback}
@@ -1223,6 +1347,17 @@
       if (action === 'shake') return r === 'ok' ? '*gives paw* Em taught me! Now pay up.' : '*waves a paw around* Is it snack time?';
       return null;
     }
+    if (id === 'yenny'){
+      if (r === 'wet') return "I'm in the water with Mel right now. Ask me when we get out.";
+      if (r === 'busy') return "Give me one minute. I'm in the middle of something with the girls.";
+      if (r === 'noother') return action === 'swim' ? "Mel's busy right now. Next time." : action === 'trio' ? 'Both girls need to be free for that one. Soon!' : "Em's busy right now. We'll practice later.";
+      if (r === 'band') return 'Not tonight. The band is set up right where we play.';
+      if (r === 'soon') return 'I just brought food out. Give the girls a little while.';
+      if (r === 'weather') return "Not in this weather. Let's wait until it clears.";
+      if (r === 'limit') return "Ari's had all his treats for today. leva's rule, and it's a good one.";
+      if (r === 'noari') return "Ari's off doing his own thing right now. I'll catch him in a bit.";
+      return null;
+    }
     if (r === 'wet') return id === 'm' ? "I'm already in the water! Watch after I get out." : "I'm already swimming! Ask me when I get out.";
     if (r === 'busy') return "Hang on, I'm in the middle of something!";
     if (r === 'noother') return id === 'm' ? "Mel's busy right now. Next time!" : "Em's busy right now. Next time!";
@@ -1243,6 +1378,10 @@
       if (lk.fishing) return offer('caught', 'Hi again' + you + '! Caught anything good lately?');
       return offer('fact', 'Hi again' + you + '! Want to hear a catfish fact?');
     }
+    if (id === 'yenny'){
+      if (!met) return "Hello! I'm Yenny, Em and Mel's mom. Welcome to the pool.";
+      return 'Welcome back' + you + '! ' + yenNow(s);
+    }
     var why = s && s.weather && !s.weather.down ? s.weather.why : null;
     if (why === 'storm' || why === 'tornado') return "Hi. Is that thunder? I'm staying in the pump room. Nope. Nope. Nope.";
     if (why === 'snow') return (met ? "YOU'RE BACK! " : "Hi! I'm Ari! ") + 'Did you see? SNOW! The whole deck is a playground!';
@@ -1256,6 +1395,10 @@
     function girl(){ var g = ['m', 'mel'].filter(h); return g.length ? g[Math.floor(Math.random() * g.length)] : null; }
     if (BYE.test(t) && target !== 'leva'){ var gb = girl(); if (gb) return {who: gb, line: 'Bye!'}; if (h('ari')) return {who: 'ari', line: 'Bye! Bring snacks next time!'}; return null; }
     if (target !== 'mel' && h('mel') && /\bcatfish\b/i.test(t)) return {who: 'mel', line: vary('mel', 'ch-cat', ['Did somebody say catfish?', 'Catfish! My favorite.', 'I know ' + s.mel.fish + ' catfish facts. Just saying.'])};
+    if (target !== 'ari' && h('ari') && /\byenny\b/i.test(t) && r < 0.5) return {who: 'ari', line: vary('ari', 'ch-yen', ['Yenny is my favorite person!', '*wags so hard he falls over*', 'Did somebody say Yenny?'])};
+    if (target !== 'yenny' && h('yenny') && /\b(lunch|sunscreen|sunblock)\b/i.test(t) && r < 0.5) return {who: 'yenny', line: /lunch/i.test(t) ? "Lunch is in the cooler. I'll bring it out soon." : 'Every two hours, and after every swim.'};
+    if (target === 'm' && h('yenny') && /\b(volleyball|serve|serving|bump|passing)\b/i.test(t) && r < 0.3) return {who: 'yenny', line: vary('yenny', 'ch-vb', ['She works so hard at it.', 'Feet first, Em!'])};
+    if (target === 'mel' && h('yenny') && /\b(sing|song)\b/i.test(t) && r < 0.3) return {who: 'yenny', line: 'That song is stuck in my head every single day.'};
     if (target !== 'ari' && h('ari') && /\b(treats?|snacks?|hot dogs?|cookies?)\b/i.test(t) && r < 0.7) return {who: 'ari', line: vary('ari', 'ch-tr', ['Did somebody say treat?', '*ears perk up*', 'I heard snack.'])};
     if (target === 'ari' && /\b(treats?|snacks?)\b/i.test(t) && r < 0.45){ var g1 = girl(); if (g1) return {who: g1, line: s.ari.treatsToday >= 3 ? "Don't let him fool you. He's had plenty today." : "I've got more in my pool bag, Ari."}; }
     if (/\b(soccer)\b/i.test(t) && r < 0.5){ var g2 = girl(); if (g2) return {who: g2, line: vary(g2, 'ch-soc', ['We both play! Soccer in the fall, pool all summer.', 'Soccer! Luke is our goalie. He is not a good goalie.'])}; }
@@ -1297,7 +1440,8 @@
       'You know pools well: pH (keep 7.2 to 7.8, aim near 7.5), free chlorine (1 to 3 ppm for home pools, public pools follow local health code), chloramines and shocking, alkalinity, cloudy and green water, skimming and vacuuming, how a pump room works (drains and skimmers, pump and hair and lint pot, filters, backwash at 8 to 10 psi over clean, returns), chemical safety (never mix acid and chlorine), lifeguarding (10/20 scanning, drowning is usually silent), and CPR basics (call 911, hard and fast compressions 100 to 120 a minute; for drowning, trained rescuers also give breaths). Always point people to a real class for lifesaving skills.',
       'If someone describes an emergency happening now, tell them to call 911 first, in your first sentence.',
       'The deck: Ari is your buddy, a corn red beagle and a loyal companion. Beagles are not allowed in the pool, he sneaks in anyway, and you get him out, kindly and every time. He would do anything for a treat. Em and Mel are sisters. They both play volleyball and soccer. Em is bold, wears goggles, loves cannonballs, and is all about volleyball right now. Serving is her favorite. She fishes off the pier, and she loves youth group with her friends, where she is learning about Jesus. Mel is curious, asks you everything, then explains it to Em. She loves fishing and learning how to fish, catfish are her favorite, and she sings her favorite Freya Skye songs all day. She is the better bumper of the two, and they play pepper by their towels. They both love their dog Luke, and they bring Ari treats to the pool. Your rule: six treats a day. They learn from each other and from you.',
-      'This chat is one conversation on the deck. The visitor can talk to you, Em, Mel and Ari all at once, and everybody hears everything. Em, Mel and Ari answer for themselves from their own scripts. Only ever speak as leva. Never write lines for them or put words in their mouths. If the visitor says something to them, let them answer.',
+      'Yenny is Em and Mel\'s mom and Em\'s volleyball coach. She drives them to the pool each day in a white Lincoln Navigator, stays with them, brings lunch and snacks, and always has a treat for Ari, who loves her more than anybody. She is warm, kind and gracious, and she trusts you with the girls. Never share or make up anything personal about her either: no last name, where she lives, her husband, her phone, or her schedule. If anyone flirts with her or comments on her looks, it is not okay, and you say so plainly.',
+      'This chat is one conversation on the deck. The visitor can talk to you, Em, Mel, Ari and Yenny all at once, and everybody hears everything. Em, Mel, Ari and Yenny answer for themselves from their own scripts. Only ever speak as leva. Never write lines for them or put words in their mouths. If the visitor says something to them, let them answer.',
       'Em and Mel are characters on this page. Never share or make up anything personal about them: no last names, ages, schools, churches, where they live, fish or go, when they will be anywhere or come back, who watches them, or anything about their family beyond their dog Luke. When they are not at the pool, just say they are not at the pool right now. Never pass messages to them or from them. If someone asks, say it is private. If someone asks to meet them, contact them, or get pictures of them, say no plainly.',
       'You also start life as the rep for Connect Space (connectspace.com), a cloud-based community and event management platform for associations, economic development organizations, corporate B2B teams and professional event planners. Connect Space does not do custom work; it calls that configurations. Beyond that, say you do not have the detail yet.',
       'There is a game on this page. Visitors earn points by tapping Ari when he sneaks into the pool before you see him, tapping floating leaves to net them, and finishing your daily work order of three small jobs. Points move them up ten swim levels, from Level 1 Bubbles to Level 10 Butterfly. Level 3 puts their own towel on a lounge chair on the south deck, Level 5 lets them pick its color, and Level 10 opens a Swim Team tryout of three jobs. Make the team and their towel gets a team stripe. It all shows on their crew card under the map. There is also a deck radio right above the map, next to the points strip, with real stations: 100.3 WNIC, 102.7 K-LOVE, Air1, Moody Radio and American Family Radio. It plays during pool hours, and the Radio button turns it on any other time. It has arrows to change the station and minus and plus buttons for volume. There is also roof ball: tap the roof of the boys bathhouse on the map, then hit or kick a four square ball up on the roof against Em or a lifeguard. The ball gets one bounce on the deck, over the peak loses the point, and the first to 15 wins. A win pays points and a badge. The Swim Team is only part of the game on this page. Never say Em or Mel are on any real team. Cheer them on, keep it short, and never give points or badges for anything they say to Em or Mel.',
@@ -1314,6 +1458,7 @@
       d.push('Ari has snuck into the pool ' + s.ari.swims + ' times today.' + (s.ari.best ? ' He has figured out ' + s.ari.best + ' gets him the most swim time.' : '') + (s.watch ? ' You watch ' + s.watch + ' closest because of it.' : ''));
       if (s.m.here) d.push('Em is ' + s.m.task + '. ' + s.m.skills + ' Mel is ' + s.mel.task + '. ' + s.mel.skills + (s.m.rallyBest ? ' Their pepper record together is ' + s.m.rallyBest + '.' : ''));
       else d.push('Em and Mel are not at the pool right now.');
+      if (s.yenny && s.yenny.here) d.push('Yenny, the girls\' mom, is ' + s.yenny.task + '.');
       d.push("Em's volleyball record: " + s.m.volleyBest + ' in a row. Mel knows ' + s.mel.fish + ' catfish facts. Ari has had ' + s.ari.treatsToday + ' of his ' + s.ari.treatLimit + ' treats today.' + (s.ari.tricks && s.ari.tricks.length ? ' Ari knows ' + s.ari.tricks.join(' and ') + '.' : ''));
       if (s.jokes.length) d.push('Jokes Em taught you: ' + s.jokes.map(function(j){ return j[0] + ' ' + j[1]; }).join(' / '));
       if (s.log.length) d.push('Recent deck log: ' + s.log.join(' | '));
