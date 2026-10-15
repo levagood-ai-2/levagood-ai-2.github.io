@@ -1730,7 +1730,7 @@
     // a game with Mom ends for lunch; a game with somebody else doesn't
     var withMom = function(k){ return !!(VB && (VB.a === yen || VB.b === yen) && (VB.a === k || VB.b === k || (VB.ring && VB.ring.indexOf(k) >= 0))); };
     // when Mom calls lunch, the girls come, unless they're mid-jump or in a game with somebody else
-    var girls = [kids.m, kids.mel].filter(function(k){ return k.here && !k.leaving && (lunch ? !k.hopping : true) && (lunch || girlFree(k) || k.inWater || k.park === true || /Grandma Sweetheart/.test(k.task || '') || withMom(k) || (lesson && (lesson.teacher === k || lesson.learner === k))) && !(VB && !withMom(k) && (VB.a === k || VB.b === k)); });
+    var girls = [kids.m, kids.mel].filter(function(k){ return k.here && !k.leaving && (lunch ? !k.hopping : true) && (lunch || girlFree(k) || k.inWater || k.park === true || /Grandma Sweetheart/.test(k.task || '') || withMom(k) || (lesson && (lesson.teacher === k || lesson.learner === k))) && !(VB && VB.a !== VB.b && !withMom(k) && (VB.a === k || VB.b === k)); });
     if (lesson && girls.some(function(k){ return lesson.teacher === k || lesson.learner === k; })) lesson = null;
     var task = lunch ? 'having lunch at Nutty Dip' : 'getting ice cream at Nutty Dip';
     function trip(a, isYen){
@@ -2047,19 +2047,23 @@
 
   // ---------------- Grandma Sweetheart ----------------
   // Em and Mel's great grandma, and the sweetest grandma on the planet. Every day she drives up in her gold Cutlass,
-  // parks right next to the Navigator, and walks in the front door like everybody else. Her bench is on the south
-  // deck by the girls' towels, facing the pool, and she lets the kids come to her. They always do, because she brings
-  // the snacks. At the end of the day she walks out with the family and follows the Navigator home. She loves every
+  // parks right next to the Navigator, and walks down past the front door to her bench. It sits on the grass by the
+  // bike path, under the tree, just outside the fence from the girls' towels, facing the pool. She lets the kids come
+  // to the fence to see her, and they always do, because she brings the snacks. At the end of the day she walks
+  // back out with the family and follows the Navigator home. She loves every
   // one of her grandkids and great grandkids, the ones here and the ones in Fort Wayne, Raleigh, South Carolina,
   // Florida and Michigan, and she talks about them all. She picks things up as the days go by: what each girl likes
   // best, their news, and a little about the pool from leva.
   var GMA_STALL = [470, 68], GMA_DOOR = [478, 66];
   // the way in and out for everybody from the north lot: along the drive beside the building to the front door under the sign
   var FRONT_DOOR = [543, 218], FROM_NORTH = [[548, 84], [548, 218], FRONT_DOOR];
-  // her bench: on the south deck by the girls' towels, facing the pool. She sits with her back to us, watching the water.
-  var BENCH = {x: 359, y: 351, w: 27}, GMA_SEAT = [366, 357];
-  // where folks stand when they come see her: right in front of her, between the bench and the pool
-  var SPOTS_G = {m: [361, 347], mel: [377, 347], ari: [384, 352], yenny: [392, 357]};
+  // her bench: on the grass by the bike path, next to the tree, just outside the fence from the girls' towels. It faces
+  // the pool, so she sits with her back to us, watching the water.
+  var BENCH = {x: 375, y: 397, w: 26}, GMA_SEAT = [382, 402];
+  // her walk from the front door: down the walk to the south lot, across, and onto the grass to her bench
+  var TO_BENCH = [[548, 381], [426, 381], [426, 400], [404, 401]];
+  // where folks stand when they come see her: at the fence, right in front of her
+  var SPOTS_G = {m: [378, 389], mel: [390, 389], ari: [399, 390], yenny: [366, 389]};
   var cut = {state: 'gone', x: CAR_ROAD, y: -40, face: 's', path: null};
   var gma = {id: 'gma', x: GMA_SEAT[0], y: GMA_SEAT[1], face: 'n', t: 0, mask: BIG, speed: 9, task: 'at home', pose: 'walk', inWater: false, pool: null, hidden: true, here: false, lot: false};
   ACT.gma = gma;
@@ -2086,8 +2090,7 @@
   var GMA_HUM = ['Amazing Grace', 'Jesus Loves Me', 'How Great Thou Art', 'This Little Light of Mine', 'In the Garden'];
   function gmaPlan(steps, task){ gma.task = task; setPlan(gma, steps); }
   function walkTo(pts, speed){ return pts.map(function(p){ return {k: 'straight', x: p[0], y: p[1], show: true, speed: speed || gma.speed}; }); }
-  function deckGo(a, p, speed){ var q = snap(BIG, p[0], p[1]); return go(q[0], q[1], {speed: speed || a.speed}); }
-  function onBench(secs, task){ return [deckGo(gma, GMA_SEAT), {k: 'straight', x: GMA_SEAT[0], y: GMA_SEAT[1], speed: gma.speed}, fn(function(){ gma.face = 'n'; gma.task = task || 'on her bench by the girls'; }), act('sit', secs)]; }
+  function onBench(secs, task){ return [{k: 'straight', x: GMA_SEAT[0], y: GMA_SEAT[1], speed: gma.speed}, fn(function(){ gma.face = 'n'; gma.task = task || 'on her bench by the bike path'; }), act('sit', secs)]; }
   function visiting(k){ return /^(visiting|going to see) Grandma/.test(k.task || ''); }
 
   // the car: in off the street, down the north lot aisle, and into the stall right next to the Navigator
@@ -2103,9 +2106,7 @@
     if (d <= s){ cut.x = p[0]; cut.y = p[1]; cut.path.shift(); if (!cut.path.length && cut.then){ var f = cut.then; cut.then = null; f(); } }
     else { cut.x += dx / d * s; cut.y += dy / d * s; }
   }
-  // out of the Cutlass, up the drive and in the front door, then out the gate onto the deck and over to her bench
-  function inDoor(){ return [{k: 'straight', x: FRONT_DOOR[0], y: FRONT_DOOR[1], hide: true, speed: gma.speed}, fn(function(){ gma.lot = false; }), act(null, 2.5, {hide: true}),
-    fn(function(){ gma.x = PLACES.gate.inside[0]; gma.y = PLACES.gate.inside[1] + 4; }), {k: 'straight', x: PLACES.gate.door[0], y: PLACES.gate.door[1] + 4, show: true, speed: gma.speed}]; }
+  // out of the Cutlass, down the drive past the front door, across the south lot and onto the grass to her bench
   function gmaHello(){
     return fn(function(){
       convo([['gma', pick(['Yoo-hoo! Grandma is here!', 'Good morning, my sweethearts!', 'Hello, hello! Grandma made it.'])]].concat(kids.m.here || kids.mel.here ? [[kids.mel.here ? 'mel' : 'm', pick(['Grandma!', 'Hi, Grandma Sweetheart!', "Grandma's here!"])]] : []));
@@ -2114,31 +2115,30 @@
   }
   function gmaOut(){
     gma.x = GMA_DOOR[0]; gma.y = GMA_DOOR[1]; gma.hidden = false; gma.here = true; gma.lot = true; gma.leaving = false; gma.face = 's';
-    gmaPlan([wait(1.5)].concat(walkTo([[GMA_DOOR[0], 84]].concat(FROM_NORTH.slice(0, 2))), inDoor(), [gmaHello(), fn(function(){
-      log('Grandma Sweetheart drove up in her gold Cutlass, parked next to the Navigator, and came out to her bench by the girls.', 'gma');
+    gmaPlan([wait(1.5)].concat(walkTo([[GMA_DOOR[0], 84], [548, 84], [548, 218]].concat(TO_BENCH)), [fn(function(){ gma.lot = false; }), gmaHello(), fn(function(){
+      log('Grandma Sweetheart drove up in her gold Cutlass, parked next to the Navigator, and walked over to her bench by the bike path.', 'gma');
     })], onBench(8)), 'walking in from her car');
   }
-  // inside with the family until the storm passes, then right back out to her bench
+  // in a storm she goes inside with the family, in the front door, and comes right back out after
   function gmaInside(){
-    gmaPlan([deckGo(gma, [PLACES.gate.door[0], PLACES.gate.door[1] + 4]), {k: 'straight', x: PLACES.gate.inside[0], y: PLACES.gate.inside[1] + 4, hide: true, speed: gma.speed},
-      fn(function(){ gma.here = false; gma.hidden = true; gma.leaving = false; gma.task = 'inside with the family until the storm passes'; })], 'heading inside with the family');
+    gma.lot = true;
+    gmaPlan(walkTo(TO_BENCH.slice().reverse().concat([[548, 218], FRONT_DOOR])).concat([fn(function(){ gma.here = false; gma.hidden = true; gma.lot = false; gma.leaving = false; gma.task = 'inside with the family until the storm passes'; })]), 'heading inside with the family');
   }
   function gmaBackOut(){
-    gma.here = true; gma.hidden = true; gma.lot = false; gma.leaving = false; gma.x = PLACES.gate.inside[0]; gma.y = PLACES.gate.inside[1] + 4;
-    gmaPlan([{k: 'straight', x: PLACES.gate.door[0], y: PLACES.gate.door[1] + 4, show: true, speed: gma.speed}].concat(onBench(6)), 'coming back out to her bench');
+    gma.here = true; gma.hidden = false; gma.lot = true; gma.leaving = false; gma.x = FRONT_DOOR[0]; gma.y = FRONT_DOOR[1];
+    gmaPlan(walkTo([[548, 218]].concat(TO_BENCH)).concat([fn(function(){ gma.lot = false; })], onBench(6)), 'coming back out to her bench');
   }
-  // the end of the day: out the gate with the family, through the building, and she follows the Navigator home
+  // the end of the day: she walks back with the family, past the front door, to her car, and follows the Navigator home
   function gmaHome(){
     convo([['gma', pick(['Bye bye, sweethearts. Grandma loves you.', 'I love you all to pieces. See you tomorrow.', 'God bless, my darlings. See you tomorrow.'])]]);
-    gmaPlan([deckGo(gma, [PLACES.gate.door[0], PLACES.gate.door[1] + 4]), {k: 'straight', x: PLACES.gate.inside[0], y: PLACES.gate.inside[1] + 4, hide: true, speed: gma.speed},
-      act(null, 2.5, {hide: true}), fn(function(){ gma.x = FRONT_DOOR[0]; gma.y = FRONT_DOOR[1]; gma.lot = true; })]
-      .concat(walkTo(FROM_NORTH.slice(0, 2).reverse().concat([[GMA_DOOR[0], 84], GMA_DOOR])), [fn(function(){ gma.hidden = true; gma.task = 'in her Cutlass, waiting on the Navigator'; }),
+    gma.lot = true;
+    gmaPlan(walkTo(TO_BENCH.slice().reverse().concat([[548, 218], [548, 84], [GMA_DOOR[0], 84], GMA_DOOR])).concat([fn(function(){ gma.hidden = true; gma.task = 'in her Cutlass, waiting on the Navigator'; }),
       // she lets the Navigator pull out first and follows it home
       until(function(){ return car.state !== 'parked'; }, 40), wait(1.5),
       fn(function(){ gma.here = false; gma.lot = false; gma.leaving = false; gma.task = 'home for the night'; MEM.today.gma = 2; save(); boardDirty = true; cutLeave(); })]), 'walking out with the family');
   }
 
-  // anybody coming to see her walks over on the deck and stands right in front of her bench
+  // anybody coming to see her walks over to the fence, right in front of her bench
   function toBench(a, spot, speed){ var q = snap(BIG, spot[0], spot[1]); return [go(q[0], q[1], {speed: speed || a.speed}), {k: 'straight', x: spot[0], y: spot[1], speed: speed || a.speed}]; }
   function parkBack(a){
     if (a.park === 'nutty'){ var gs = a.speed || 11; return [{k: 'straight', x: NUTTY.gate[0], y: NUTTY.gate[1] - 2, speed: gs}, {k: 'straight', x: NUTTY.gate[0], y: NUTTY.gate[1] + 12, speed: gs}, fn(function(){ a.park = false; })]; }
@@ -2242,10 +2242,10 @@
     if (learn) log('Grandma Sweetheart asked leva: ' + q[0].replace(/^leva, honey, /, '') + ' He told her.', 'gma');
     gmaPlan([fn(function(){ gma.talkWave = 1.6; })].concat(onBench(12, 'on her bench, chatting with leva')), 'on her bench, chatting with leva');
   }
-  // a little stretch of the legs around the deck: over to watch the zero depth, past the lap pool, and back
+  // a little stretch of the legs down the bike path, past the trees, and back to her bench
   function gmaStroll(){
     GMA.lastWalk = W.clock;
-    gmaPlan([deckGo(gma, [404, 290]), fn(function(){ gma.face = 'n'; }), act(null, 4), deckGo(gma, [290, 318]), fn(function(){ gma.face = 'n'; }), act(null, 4)].concat(onBench(10)), 'taking a little walk around the deck');
+    gmaPlan(walkTo([[395, 408], [330, 408], [270, 408]]).concat([fn(function(){ gma.face = 'n'; }), act(null, 3)], walkTo([[330, 408], [395, 408]]), onBench(10)), 'taking a little walk on the bike path');
   }
   function pickGma(){
     var r = Math.random(), girlsFree = [kids.m, kids.mel].some(function(k){ return k.here && !k.leaving && girlFree(k); });
@@ -2256,7 +2256,7 @@
     if (!lv.hidden && !B.rescue && W.clock - GMA.lastLeva > 140 && r < 0.88) return gmaLeva();
     if (!wxWhy() && W.clock - GMA.lastWalk > 160 && r < 0.94) return gmaStroll();
     if (W.clock - GMA.lastHum > 60 && Math.random() < 0.4){ GMA.lastHum = W.clock; var h = pick(GMA_HUM); say('gma', pick(['*humming ' + h + '*', '*hums ' + h + ' to herself*'])); return gmaPlan(onBench(14, 'on her bench, humming ' + h), 'on her bench, humming ' + h); }
-    gmaPlan(onBench(10 + Math.random() * 10), pick(['on her bench by the girls', 'on her bench, watching the girls swim', 'on her bench, watching the water', 'on her bench, waiting for the kids to come see her']));
+    gmaPlan(onBench(10 + Math.random() * 10), pick(['on her bench by the bike path', 'on her bench, watching the girls swim', 'on her bench under the tree', 'on her bench, waiting for the kids to come see her']));
   }
   function stepGma(dt, open, why){
     cutStep(dt);
@@ -2277,7 +2277,7 @@
     if (MEM.today.gma === 2) return;
     MEM.today.gma = 1; cut.state = 'parked'; cut.x = GMA_STALL[0]; cut.y = GMA_STALL[1]; cut.face = 's'; cut.path = null;
     gma.here = true; gma.hidden = false; gma.lot = false; gma.leaving = false; gma.x = GMA_SEAT[0]; gma.y = GMA_SEAT[1];
-    gmaPlan([fn(function(){ gma.face = 'n'; }), act('sit', 6)], 'on her bench by the girls');
+    gmaPlan([fn(function(){ gma.face = 'n'; }), act('sit', 6)], 'on her bench by the bike path');
   }
   function drawCutlass(c){
     if (cut.state === 'gone') return;
@@ -2325,7 +2325,7 @@
     c.fillStyle = '#d7263b'; c.fillRect(x + 1, y - 1, 8, 2); c.fillStyle = '#ffffff'; c.fillRect(x + 2, y - 1, 2, 1); c.fillRect(x + 6, y - 1, 2, 1);
     c.fillStyle = '#3a2c12'; c.fillRect(x + 2, y - 5, 6, 1); c.fillRect(x + 2, y - 5, 1, 4); c.fillRect(x + 7, y - 5, 1, 4);
   }
-  // her bench on the south deck, facing the pool: the seat goes under everybody, the backrest in front of her
+  // her bench on the grass by the bike path, facing the pool: the seat goes under her, the backrest in front of her
   function drawPark(ctx){
     var b = BENCH, x = b.x, y = b.y;
     ctx.fillStyle = 'rgba(20,24,40,.2)'; ctx.fillRect(x + 1, y + 1, b.w, 10);
