@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Levagood Park in 3D</title>
+<meta name="description" content="Walk Levagood Park in Dearborn in 3D: the ball diamonds, the courts, the playgrounds and the pool. Look around from above, or sign in free and walk it.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 56S6 40 6 22a13 13 0 0 1 26-4 13 13 0 0 1 26 4c0 18-26 34-26 34z' fill='%23FF2E88'/%3E%3C/svg%3E">
+<style>
+  :root{--ink:#0A0A0A;--pink:#FF2E88;--cyan:#22d3ee}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#9fd3f0;overflow:hidden;font-family:"Inter Tight",system-ui,-apple-system,sans-serif;color:var(--ink)}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  .bar{position:fixed;top:12px;left:12px;right:12px;display:flex;gap:10px;align-items:center;z-index:5;pointer-events:none;flex-wrap:wrap}
+  .bar>*{pointer-events:auto}
+  .logo{display:inline-flex;align-items:center;gap:6px;padding:0 14px;min-height:44px;background:#fff;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--pink);font:800 18px/1 "Inter Tight",system-ui,sans-serif;color:var(--ink);text-decoration:none}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:0 16px;min-height:44px;background:var(--ink);color:#fff;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--pink);font:700 14px/1 "Inter Tight",system-ui,sans-serif;cursor:pointer;text-decoration:none}
+  .btn.light{background:#fff;color:var(--ink)}
+  .btn[aria-pressed="true"]{background:var(--pink);border-color:var(--pink);color:#fff}
+  .btn:focus-visible,.logo:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+  .spacer{flex:1}
+  .help{position:fixed;left:12px;bottom:12px;z-index:5;max-width:min(440px,calc(100vw - 24px));padding:10px 14px;background:rgba(255,255,255,.92);border:2px solid var(--ink);font:500 13px/1.45 "Inter Tight",system-ui,sans-serif}
+  .help b{font-weight:800}
+  .where{position:fixed;right:12px;bottom:12px;z-index:5;padding:8px 12px;background:rgba(255,255,255,.92);border:2px solid var(--ink);font:700 12px/1.3 "Inter Tight",system-ui,sans-serif;letter-spacing:.04em;text-transform:uppercase;display:none}
+  body.walking .where{display:block}
+  .gate{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(10,10,10,.45);padding:16px}
+  .gate.on{display:flex}
+  .gate-card{width:min(420px,100%);background:#fff;border:2px solid var(--ink);box-shadow:8px 8px 0 var(--pink);padding:22px}
+  .gate-card h2{margin:0 0 8px;font:800 22px/1.15 "Inter Tight",system-ui,sans-serif}
+  .gate-card p{margin:0 0 16px;font:500 15px/1.5 "Inter Tight",system-ui,sans-serif}
+  .gate-row{display:flex;gap:10px;flex-wrap:wrap}
+  #stick{position:fixed;left:24px;bottom:24px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.35);border:2px solid rgba(10,10,10,.5);z-index:6;display:none;touch-action:none}
+  #stick i{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(10,10,10,.55)}
+  body.walking.touch #stick{display:block}
+  body.walking.touch .help{display:none}
+  .cross{position:fixed;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 0 0 1px rgba(0,0,0,.5);z-index:4;display:none;pointer-events:none}
+  body.walking .cross{display:block}
+  .loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:30;background:#9fd3f0;font:700 16px/1 "Inter Tight",system-ui,sans-serif;transition:opacity .4s}
+  .loading.done{opacity:0;pointer-events:none}
+  @media (max-width:600px){.btn{padding:0 12px;font-size:13px}.logo{font-size:16px}}
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="Levagood Park in 3D" role="img"></canvas>
+<div class="loading" id="loading">Mowing the park…</div>
+<div class="bar">
+  <a class="logo" href="index.html">leva<svg width="18" height="16" viewBox="0 0 64 56" aria-hidden="true"><path d="M32 54S2 36 2 18a14 14 0 0 1 30-6 14 14 0 0 1 30 6c0 18-30 36-30 36z" fill="#FF2E88"/></svg></a>
+  <span class="spacer"></span>
+  <button class="btn light" id="look" aria-pressed="true" type="button">Look around</button>
+  <button class="btn" id="walk" aria-pressed="false" type="button">Walk the park</button>
+  <a class="btn light" href="pool.html">Pool map</a>
+</div>
+<div class="help" id="help"><b>Look around:</b> drag to turn, scroll or pinch to zoom. <b>Walk the park</b> to go down and walk it yourself.</div>
+<div class="where" id="where"></div>
+<div class="cross"></div>
+<div id="stick" aria-hidden="true"><i></i></div>
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-h">
+  <div class="gate-card">
+    <h2 id="gate-h">Sign in free to walk the park</h2>
+    <p>Looking around from above is open to everybody. Walking the park, the diamonds, the courts and the pool deck takes a free account. It takes a minute, and it's just your email.</p>
+    <div class="gate-row"><a class="btn" id="gate-go" href="account.html">Sign in free</a><button class="btn light" type="button" id="gate-x">Not now</button></div>
+  </div>
+</div>
+
+<script src="pool/park.js?v=1"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
+// ---------------- the park, from OpenStreetMap, in meters ----------------
+// x runs east, z runs south, from the center of the park. The real place: Levagood Park, Dearborn, Michigan.
+const D = window.PARK;
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias: true, powerPreference: 'high-performance'});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+const scene = new THREE.Scene();
+{ const cv = document.createElement('canvas'); cv.width = 16; cv.height = 512; const g = cv.getContext('2d'); const gr = g.createLinearGradient(0, 0, 0, 512); gr.addColorStop(0, '#3f8fd9'); gr.addColorStop(0.45, '#8ec6ee'); gr.addColorStop(0.75, '#cfe7f5'); gr.addColorStop(1, '#e9f2f6'); g.fillStyle = gr; g.fillRect(0, 0, 16, 512);
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; const sky = new THREE.Mesh(new THREE.SphereGeometry(1400, 32, 16), new THREE.MeshBasicMaterial({map: t, side: THREE.BackSide, fog: false})); scene.add(sky);
+  const cloudM = new THREE.MeshBasicMaterial({color: '#ffffff', transparent: true, opacity: 0.9, fog: false}); let cs = 5;
+  for (let i = 0; i < 26; i++){ cs = (cs * 16807) % 2147483647; const a = cs / 2147483647 * 6.28; cs = (cs * 16807) % 2147483647; const d = 500 + cs / 2147483647 * 700; cs = (cs * 16807) % 2147483647; const sz = 40 + cs / 2147483647 * 70;
+    for (let k = 0; k < 4; k++){ cs = (cs * 16807) % 2147483647; const o = (cs / 2147483647 - 0.5) * sz * 1.6; const c = new THREE.Mesh(new THREE.SphereGeometry(sz * (0.5 + k * 0.12), 10, 7), cloudM); c.position.set(Math.cos(a) * d + o, 220 + Math.abs(o) * 0.1, Math.sin(a) * d + o * 0.4); c.scale.y = 0.45; scene.add(c); } } }
+scene.fog = new THREE.Fog('#c4e4f3', 260, 900);
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 2000);
+
+scene.add(new THREE.HemisphereLight('#dff1ff', '#6c8f4e', 0.85));
+const sun = new THREE.DirectionalLight('#fff3dc', 2.2);
+sun.position.set(-160, 260, 140); sun.castShadow = true;
+sun.shadow.mapSize.set(4096, 4096);
+Object.assign(sun.shadow.camera, {left: -260, right: 260, top: 240, bottom: -240, near: 20, far: 700});
+sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.05;
+scene.add(sun);
+
+const M = (color, o = {}) => new THREE.MeshStandardMaterial(Object.assign({color, roughness: 0.9, metalness: 0}, o));
+const mat = {
+  grass: M('#6fae56', {roughness: 1}), infield: M('#c9975d', {roughness: 1}), asphalt: M('#777a80', {roughness: 1}), road: M('#696c71', {roughness: 1}), concrete: M('#cfcbc0', {roughness: 1}),
+  path: M('#8e9196', {roughness: 1}), tennis: M('#2f6fd1', {roughness: 0.85}), tennisOut: M('#4e9a4a', {roughness: 0.9}), court: M('#8a8d92'), rink: M('#d8e9ef'), mulch: M('#8a6a4a', {roughness: 1}),
+  white: M('#f4f3ee'), chrome: M('#d9dee5', {metalness: 0.85, roughness: 0.25}), dark: M('#2c3038'), tan: M('#d6c3a0'), roofPool: M('#6f4f43', {flatShading: true}), trim: M('#efe2c8'),
+  red: M('#d7263b'), redBench: M('#c62b2b', {roughness: 0.8}), yellow: M('#ffd84a', {roughness: 0.5}), blue: M('#2a52c4'), teal: M('#2e9ab0'), post: M('#5d626b'), fence: M('#4a4e55'),
+  trunk: M('#6b4a32'), leaf: M('#5ea64a', {flatShading: true}), leafD: M('#2f6539', {flatShading: true}), spruce: M('#2f5a3a', {flatShading: true}), glass: M('#2d3a4a', {roughness: 0.2, metalness: 0.3}),
+  navy: M('#16207a'), tire: M('#1d1f24', {roughness: 0.95}), siding: M('#e7e2d6'), brick: M('#9c6b58'), roofHouse: M('#5f5a58', {flatShading: true}), boulder: M('#8f8c86', {flatShading: true, roughness: 1})
+};
+function box(w, h, d, m, x, y, z, cast = true){ const g = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); g.position.set(x, y, z); g.castShadow = cast; g.receiveShadow = true; scene.add(g); return g; }
+function cyl(r0, r1, h, m, x, y, z, seg = 10){ const g = new THREE.Mesh(new THREE.CylinderGeometry(r0, r1, h, seg), m); g.position.set(x, y, z); g.castShadow = true; g.receiveShadow = true; scene.add(g); return g; }
+function flat(pts, m, y = 0.01, cast = false){
+  const sh = new THREE.Shape(pts.map(p => new THREE.Vector2(p[0], -p[1])));
+  const g = new THREE.Mesh(new THREE.ShapeGeometry(sh), m); g.rotation.x = -Math.PI / 2; g.position.y = y; g.receiveShadow = true; g.castShadow = cast; scene.add(g); return g;
+}
+function strip(pts, w, m, y = 0.02){
+  for (let i = 0; i < pts.length - 1; i++){
+    const [ax, az] = pts[i], [bx, bz] = pts[i + 1], L = Math.hypot(bx - ax, bz - az); if (L < 0.05) continue;
+    const g = new THREE.Mesh(new THREE.PlaneGeometry(L + w * 0.9, w), m); g.rotation.x = -Math.PI / 2; g.rotation.z = -Math.atan2(bz - az, bx - ax);
+    g.position.set((ax + bx) / 2, y, (az + bz) / 2); g.receiveShadow = true; scene.add(g);
+  }
+}
+function centroid(pts){ let x = 0, z = 0; pts.forEach(p => { x += p[0]; z += p[1]; }); return [x / pts.length, z / pts.length]; }
+function bounds(pts){ const xs = pts.map(p => p[0]), zs = pts.map(p => p[1]); return [Math.min(...xs), Math.min(...zs), Math.max(...xs), Math.max(...zs)]; }
+function inPoly(x, z, pts){ let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++){ const [xi, zi] = pts[i], [xj, zj] = pts[j]; if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) c = !c; } return c; }
+let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+// ---------------- ground ----------------
+const far = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), mat.grass); far.rotation.x = -Math.PI / 2; far.position.y = -0.02; far.receiveShadow = true; scene.add(far);
+flat(D.park, M('#7ab65c', {roughness: 1}), 0.0);
+// a little texture to the lawn: mowing stripes
+{ const cv = document.createElement('canvas'); cv.width = 256; cv.height = 256; const g = cv.getContext('2d');
+  for (let i = 0; i < 256; i += 32){ g.fillStyle = i % 64 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.04)'; g.fillRect(i, 0, 32, 256); }
+  const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(40, 40); t.rotation = 0.3;
+  const lawn = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), new THREE.MeshStandardMaterial({map: t, transparent: true, roughness: 1})); lawn.rotation.x = -Math.PI / 2; lawn.position.y = 0.005; scene.add(lawn); }
+
+// ---------------- streets, drives, lots and sidewalks ----------------
+D.roads.forEach(r => { strip(r.pts, 8, mat.road, 0.015); strip(r.pts, 8.6, mat.concrete, 0.012); });
+// center lines
+D.roads.forEach(r => { for (let i = 0; i < r.pts.length - 1; i++){ const [ax, az] = r.pts[i], [bx, bz] = r.pts[i + 1], L = Math.hypot(bx - ax, bz - az), n = Math.floor(L / 6);
+  for (let k = 0; k < n; k++){ const t = (k + 0.5) / n; const g = new THREE.Mesh(new THREE.PlaneGeometry(3, 0.15), mat.yellow); g.rotation.x = -Math.PI / 2; g.rotation.z = -Math.atan2(bz - az, bx - ax); g.position.set(ax + (bx - ax) * t, 0.03, az + (bz - az) * t); scene.add(g); } } });
+D.service.forEach(l => strip(l, 5, mat.asphalt, 0.018));
+D.parking.forEach(p => flat(p, mat.asphalt, 0.02));
+D.paths.forEach(l => strip(l, 2.6, mat.path, 0.025));
+// stall lines and a few parked cars in each lot
+const CARC = ['#d7262b', '#2857d1', '#f2f2ee', '#1c1d22', '#9aa0a8', '#3f8f5a', '#e8c230', '#6b3fa0'];
+function car(x, z, rot, col){
+  const g = new THREE.Group(), body = M(col, {roughness: 0.35, metalness: 0.4}), len = 4.6, wid = 1.85;
+  const b = new THREE.Mesh(new THREE.BoxGeometry(wid, 0.75, len), body); b.position.y = 0.6; b.castShadow = true; g.add(b);
+  const c = new THREE.Mesh(new THREE.BoxGeometry(wid * 0.86, 0.6, len * 0.5), mat.glass); c.position.set(0, 1.25, -0.1); c.castShadow = true; g.add(c);
+  const cr = new THREE.Mesh(new THREE.BoxGeometry(wid * 0.84, 0.06, len * 0.46), body); cr.position.set(0, 1.56, -0.1); g.add(cr);
+  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, zz]) => { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.25, 12), mat.tire); w.rotation.z = Math.PI / 2; w.position.set(a * wid * 0.48, 0.34, zz * len * 0.32); g.add(w); });
+  g.position.set(x, 0, z); g.rotation.y = rot; scene.add(g); return g;
+}
+D.parking.forEach(p => {
+  const [x0, z0, x1, z1] = bounds(p), w = x1 - x0, d = z1 - z0, along = w > d;   // stalls run across the short way
+  const n = Math.floor((along ? w : d) / 2.8);
+  for (let i = 0; i < n; i++){
+    const t = (i + 0.5) / n, x = along ? x0 + w * t : x0 + w * 0.5, z = along ? z0 + d * 0.5 : z0 + d * t;
+    if (!inPoly(x, z, p)) continue;
+    if (rnd() < 0.3) car(x, z, along ? 0 : Math.PI / 2, CARC[Math.floor(rnd() * 8)]);
+  }
+});
+
+// ---------------- fences ----------------
+const fenceTex = (() => { const cv = document.createElement('canvas'); cv.width = 64; cv.height = 64; const g = cv.getContext('2d'); g.strokeStyle = 'rgba(70,74,82,.9)'; g.lineWidth = 3;
+  g.beginPath(); g.moveTo(0, 0); g.lineTo(64, 64); g.moveTo(64, 0); g.lineTo(0, 64); g.stroke(); const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; })();
+const walls = [];
+function fence(pts, h = 1.2){
+  for (let i = 0; i < pts.length - 1; i++){
+    const [ax, az] = pts[i], [bx, bz] = pts[i + 1], L = Math.hypot(bx - ax, bz - az); if (L < 0.05) continue;
+    const t = fenceTex.clone(); t.needsUpdate = true; t.repeat.set(L / 0.6, h / 0.6);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(L, h), new THREE.MeshStandardMaterial({map: t, transparent: true, alphaTest: 0.3, side: THREE.DoubleSide, roughness: 0.7}));
+    m.position.set((ax + bx) / 2, h / 2, (az + bz) / 2); m.rotation.y = -Math.atan2(bz - az, bx - ax); scene.add(m);
+    const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, L, 6), mat.post); rail.rotation.z = Math.PI / 2; rail.rotation.y = -Math.atan2(bz - az, bx - ax); rail.position.set((ax + bx) / 2, h, (az + bz) / 2); scene.add(rail);
+    for (let s = 0; s <= L; s += 3){ const u = s / L; cyl(0.04, 0.04, h + 0.05, mat.post, ax + (bx - ax) * u, h / 2, az + (bz - az) * u, 6); }
+    walls.push([ax, az, bx, bz]);
+  }
+}
+
+// ---------------- the ball diamonds ----------------
+D.pitches.filter(p => p.sport === 'baseball').forEach(p => {
+  flat(p.pts, mat.infield, 0.03);
+  flat(p.pts, M('#c49055', {roughness: 1}), 0.031);
+  // home plate is the corner nearest the fence corner: the vertex farthest from the centroid
+  const c = centroid(p.pts); let home = p.pts[0], best = 0;
+  p.pts.forEach(q => { const d = Math.hypot(q[0] - c[0], q[1] - c[1]); if (d > best){ best = d; home = q; } });
+  const ang = Math.atan2(c[1] - home[1], c[0] - home[0]);
+  // the backstop: a tall chain link arc behind home
+  for (let i = -2; i <= 2; i++){
+    const a = ang + Math.PI + i * 0.35, r = 7, x = home[0] + Math.cos(a) * r, z = home[1] + Math.sin(a) * r;
+    cyl(0.06, 0.06, 6, mat.fence, x, 3, z, 6);
+    if (i > -2){ const pa = ang + Math.PI + (i - 1) * 0.35, px = home[0] + Math.cos(pa) * r, pz = home[1] + Math.sin(pa) * r;
+      const L = Math.hypot(x - px, z - pz), m = new THREE.Mesh(new THREE.PlaneGeometry(L, 6), new THREE.MeshStandardMaterial({color: '#555a62', transparent: true, opacity: 0.45, side: THREE.DoubleSide}));
+      m.position.set((x + px) / 2, 3, (z + pz) / 2); m.rotation.y = -Math.atan2(z - pz, x - px); scene.add(m); }
+  }
+  // the number on the backstop
+  // dugouts: two blue boxes either side, like the ones in the photo
+  [-1, 1].forEach(s => { const a = ang + s * Math.PI / 2, x = home[0] + Math.cos(a) * 9 + Math.cos(ang) * 4, z = home[1] + Math.sin(a) * 9 + Math.sin(ang) * 4;
+    const g = box(3.2, 1.6, 1.2, mat.teal, x, 0.8, z); g.rotation.y = -a; });
+  // a bench, the bases and the pitcher's mound
+  box(0.3, 0.05, 0.3, mat.white, home[0] + Math.cos(ang) * 1.2, 0.04, home[1] + Math.sin(ang) * 1.2, false);
+  [-0.785, 0, 0.785].forEach(o => { const a = ang + o, r = o ? 19.5 : 27.6; box(0.38, 0.08, 0.38, mat.white, home[0] + Math.cos(a) * r, 0.05, home[1] + Math.sin(a) * r, false); });
+  cyl(2.2, 2.6, 0.25, M('#b8824a', {roughness: 1}), home[0] + Math.cos(ang) * 14, 0.1, home[1] + Math.sin(ang) * 14, 16);
+  // foul lines in chalk, and the number sign on the backstop
+  [-0.785, 0.785].forEach(o => { const a = ang + o; strip([[home[0], home[1]], [home[0] + Math.cos(a) * 60, home[1] + Math.sin(a) * 60]], 0.12, mat.white, 0.05); });
+  const bx = home[0] + Math.cos(ang + Math.PI) * 7, bz = home[1] + Math.sin(ang + Math.PI) * 7; const sg = box(0.9, 0.7, 0.04, mat.white, bx, 5.2, bz); sg.rotation.y = -ang;
+  // a bench behind each dugout, and a set of bleachers
+  [-1, 1].forEach(s => { const a = ang + s * Math.PI / 2, x = home[0] + Math.cos(a) * 12 + Math.cos(ang) * 1, z = home[1] + Math.sin(a) * 12 + Math.sin(ang) * 1;
+    for (let k = 0; k < 3; k++){ const g = box(3.6, 0.08, 0.35, M('#b9bec6', {metalness: 0.6, roughness: 0.4}), x + Math.cos(ang + Math.PI) * k * 0.6, 0.35 + k * 0.3, z + Math.sin(ang + Math.PI) * k * 0.6); g.rotation.y = -a; } });
+});
+
+// ---------------- courts, the rink, the playgrounds ----------------
+D.pitches.filter(p => p.sport !== 'baseball').forEach(p => {
+  const [x0, z0, x1, z1] = bounds(p.pts), cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, w = x1 - x0, d = z1 - z0;
+  if (p.sport === 'tennis'){ flat(p.pts, mat.tennisOut, 0.03); box(w * 0.68, 0.01, d * 0.8, mat.tennis, cx, 0.045, cz, false);
+    // net across the middle, lines, and the chain link around it
+    const long = d > w; box(long ? w * 0.72 : 0.05, 1.0, long ? 0.05 : d * 0.72, mat.dark, cx, 0.5, cz); box(long ? w * 0.72 : 0.03, 0.06, long ? 0.03 : d * 0.72, mat.white, cx, 1.02, cz);
+    [[-1, 0], [1, 0], [0, -1], [0, 1]].forEach(([a, b]) => box(a ? 0.03 : w * 0.68, 0.01, b ? 0.03 : d * 0.8, mat.white, cx + a * w * 0.34, 0.05, cz + b * d * 0.4, false));
+    fence([[x0, z0], [x1, z0], [x1, z1], [x0, z1], [x0, z0]], 3.2);
+  } else if (p.sport === 'basketball'){ flat(p.pts, mat.court, 0.03); [[cx, z0 + 1], [cx, z1 - 1]].forEach(([x, z]) => { cyl(0.08, 0.08, 3.2, mat.post, x, 1.6, z); box(1.6, 1.0, 0.05, mat.white, x, 3.2, z + (z < cz ? 0.6 : -0.6)); }); }
+  else if (p.sport === 'volleyball'){ flat(p.pts, M('#e3cf9a', {roughness: 1}), 0.03); cyl(0.05, 0.05, 2.4, mat.post, x0 + w * 0.2, 1.2, cz); cyl(0.05, 0.05, 2.4, mat.post, x1 - w * 0.2, 1.2, cz); box(w * 0.6, 0.9, 0.03, mat.dark, cx, 1.8, cz); }
+  else if (p.sport === 'hockey'){ flat(p.pts, mat.court, 0.03); fence([[x0, z0], [x1, z0], [x1, z1], [x0, z1], [x0, z0]], 1.2); }
+});
+if (D.rink.length){ flat(D.rink, mat.rink, 0.03); const [x0, z0, x1, z1] = bounds(D.rink); fence([[x0, z0], [x1, z0], [x1, z1], [x0, z1], [x0, z0]], 1.1); }
+D.playgrounds.forEach(pg => {
+  flat(pg, mat.mulch, 0.03);
+  const [cx, cz] = centroid(pg), [x0, z0, x1, z1] = bounds(pg), s = Math.min(x1 - x0, z1 - z0);
+  if (s < 6) return;
+  // a slide, a climber and a couple of swings in the park's colors
+  box(0.15, 2.2, 0.15, mat.yellow, cx - 1.5, 1.1, cz - 1); box(0.15, 2.2, 0.15, mat.yellow, cx + 1.5, 1.1, cz - 1); box(3.2, 0.15, 1.2, mat.blue, cx, 2.2, cz - 1);
+  const slide = box(0.8, 0.1, 3.4, mat.red, cx + 2.6, 1.1, cz - 1); slide.rotation.z = 0; slide.rotation.x = -0.6;
+  box(0.1, 2.6, 0.1, mat.blue, cx - 2, 1.3, cz + 2.4); box(0.1, 2.6, 0.1, mat.blue, cx + 2, 1.3, cz + 2.4); box(4.2, 0.1, 0.1, mat.blue, cx, 2.6, cz + 2.4);
+  [-1, 1].forEach(k => { box(0.5, 0.06, 0.2, mat.dark, cx + k * 0.9, 0.5, cz + 2.4); cyl(0.01, 0.01, 2.1, mat.chrome, cx + k * 0.9 - 0.22, 1.55, cz + 2.4, 4); cyl(0.01, 0.01, 2.1, mat.chrome, cx + k * 0.9 + 0.22, 1.55, cz + 2.4, 4); });
+});
+
+// ---------------- Dunworth Pool: the pools, the deck, the building ----------------
+const poolMain = D.pools.find(p => p.name) || D.pools[0];
+const poolC = centroid(poolMain.pts);
+const waterMat = new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false,
+  uniforms: {t: {value: 0}, deep: {value: new THREE.Color('#1f7fc4')}, shallow: {value: new THREE.Color('#6fd6f2')}, sunDir: {value: sun.position.clone().normalize()}},
+  vertexShader: `varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
+  fragmentShader: `uniform float t; uniform vec3 deep; uniform vec3 shallow; uniform vec3 sunDir; varying vec3 vW;
+    float wave(vec2 p){ return sin(p.x * 1.7 + t * 1.3) * .5 + sin(p.y * 2.3 - t * 1.1) * .5 + sin((p.x + p.y) * 3.1 + t * 1.9) * .25; }
+    void main(){ vec2 p = vW.xz; float e = .06, h = wave(p), hx = wave(p + vec2(e, 0.)) - h, hz = wave(p + vec2(0., e)) - h;
+      vec3 n = normalize(vec3(-hx * 1.6, 1.0, -hz * 1.6)); vec3 v = normalize(cameraPosition - vW); float fres = pow(1.0 - max(dot(n, v), 0.0), 3.0);
+      float c = pow(abs(sin(p.x * 3.3 + t * .9 + sin(p.y * 2.1 + t)) * sin(p.y * 3.7 - t * .7 + sin(p.x * 1.9))), 6.0);
+      vec3 col = mix(shallow, deep, .35) + c * .35; float spec = pow(max(dot(reflect(-normalize(sunDir), n), v), 0.0), 120.0);
+      col = mix(col, vec3(.85, .93, 1.0), fres * .6) + spec * 1.4; gl_FragColor = vec4(col, .62 + fres * .3); }`
+});
+// the deck is the ring the path makes around the pool; the pools sit on it
+const deckRing = D.paths.reduce((best, l) => { const c = centroid(l), d = Math.hypot(c[0] - poolC[0], c[1] - poolC[1]); return (l.length > 20 && d < 40 && (!best || l.length > best.length)) ? l : best; }, null);
+if (deckRing){ flat(deckRing, mat.concrete, 0.028); strip(deckRing, 3, mat.path, 0.032); }
+D.pools.forEach(p => {
+  flat(p.pts, mat.white, 0.035);
+  const sh = new THREE.Shape(p.pts.map(q => new THREE.Vector2(q[0], -q[1]))); const w = new THREE.Mesh(new THREE.ShapeGeometry(sh), waterMat); w.rotation.x = -Math.PI / 2; w.position.y = 0.06; scene.add(w);
+  // a lip and a line of lounge chairs beside the big one
+  const [x0, z0, x1, z1] = bounds(p.pts);
+  if (p.name){ for (let i = 0; i < 6; i++){ const z = z0 + (z1 - z0) * (i + 0.5) / 6; lounge(x0 - 3.5, z); lounge(x1 + 3.5, z); }
+    // the lifeguard stand and lane ropes
+    stand(x0 - 1.6, (z0 + z1) / 2); for (let k = 1; k < 5; k++){ const x = x0 + (x1 - x0) * k / 5; strip([[x, z0 + 0.4], [x, z1 - 0.4]], 0.18, mat.blue, 0.08); } }
+});
+function lounge(x, z){ const g = new THREE.Group(); const seat = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.07, 1.6), mat.white); seat.position.set(0, 0.35, 0.2); seat.castShadow = true; g.add(seat);
+  const back = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.07, 0.8), mat.white); back.position.set(0, 0.6, -0.6); back.rotation.x = 0.7; g.add(back);
+  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => { const l = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.35, 0.05), mat.chrome); l.position.set(a * 0.3, 0.17, b * 0.7); g.add(l); });
+  g.position.set(x, 0, z); scene.add(g); }
+function stand(x, z){ [[-.6, -.6], [.6, -.6], [-.6, .6], [.6, .6]].forEach(([a, b]) => box(0.08, 2.2, 0.08, mat.white, x + a, 1.1, z + b)); box(1.4, 0.1, 1.4, mat.white, x, 2.2, z); box(1.2, 0.12, 0.9, mat.red, x, 2.3, z + 0.2); box(1.2, 0.9, 0.1, mat.white, x, 2.7, z + 0.65); }
+// the pool building: tan brick with the hipped roof, like the photos
+D.buildings.forEach(b => {
+  const [x0, z0, x1, z1] = bounds(b.pts), w = x1 - x0, d = z1 - z0, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
+  const nearPool = Math.hypot(cx - poolC[0], cz - poolC[1]) < 70;
+  if (b.kind === 'house' || b.kind === 'garage'){
+    const H = b.kind === 'garage' ? 2.6 : 3.2; box(w, H, d, mat.siding, cx, H / 2, cz);
+    const prof = new THREE.Shape(); const s = Math.min(w, d); prof.moveTo(-s / 2 - 0.4, 0); prof.lineTo(0, s * 0.42); prof.lineTo(s / 2 + 0.4, 0); prof.lineTo(-s / 2 - 0.4, 0);
+    const rg = new THREE.ExtrudeGeometry(prof, {depth: Math.max(w, d) + 0.6, bevelEnabled: false}); const r = new THREE.Mesh(rg, mat.roofHouse); r.castShadow = true; r.receiveShadow = true;
+    if (w >= d){ r.rotation.y = Math.PI / 2; r.position.set(cx - w / 2 - 0.3, H, cz); } else { r.position.set(cx, H, cz - d / 2 - 0.3); } scene.add(r);
+  } else if (b.kind === 'school'){
+    flat(b.pts, mat.brick, 0.04); const sh = new THREE.Shape(b.pts.map(q => new THREE.Vector2(q[0], -q[1]))); const g = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, {depth: 5, bevelEnabled: false}), mat.brick); g.rotation.x = -Math.PI / 2; g.position.y = 0; g.castShadow = true; g.receiveShadow = true; scene.add(g);
+  } else {
+    const H = nearPool ? 3.6 : 3.0, wallM = nearPool ? mat.tan : mat.concrete; box(w, H, d, wallM, cx, H / 2, cz);
+    box(w + 0.4, 0.2, d + 0.4, mat.trim, cx, H, cz, false);
+    const s = Math.min(w, d); const prof = new THREE.Shape(); prof.moveTo(-s / 2 - 0.3, 0); prof.lineTo(0, s * 0.35); prof.lineTo(s / 2 + 0.3, 0); prof.lineTo(-s / 2 - 0.3, 0);
+    const rg = new THREE.ExtrudeGeometry(prof, {depth: Math.max(w, d) + 0.6, bevelEnabled: false}); const r = new THREE.Mesh(rg, mat.roofPool); r.castShadow = true; r.receiveShadow = true;
+    if (w >= d){ r.rotation.y = Math.PI / 2; r.position.set(cx - w / 2 - 0.3, H + 0.1, cz); } else { r.position.set(cx, H + 0.1, cz - d / 2 - 0.3); } scene.add(r);
+    if (nearPool && w * d > 60){ box(0.1, 2.4, 1.2, mat.glass, x1 + 0.05, 1.2, cz, false); box(0.1, 1.2, 2.2, M('#1e8fd8'), x0 - 0.05, 2.2, cz, false); }
+  }
+  walls.push([x0, z0, x1, z0], [x1, z0, x1, z1], [x1, z1, x0, z1], [x0, z1, x0, z0]);
+});
+// the fence around the pool deck, with a gate on the lot side
+if (deckRing){ const ring = deckRing.slice(); fence(ring, 2.4); }
+
+// ---------------- trees: tall spruces and pines along the edges, big maples and oaks in the open ----------------
+const trunks = [];
+function spruce(x, z, h){ cyl(0.18, 0.28, h * 0.25, mat.trunk, x, h * 0.125, z, 7); for (let i = 0; i < 4; i++){ const r = (h * 0.22) * (1 - i * 0.18), y = h * 0.3 + i * h * 0.18; const c = new THREE.Mesh(new THREE.ConeGeometry(r, h * 0.3, 8), mat.spruce); c.position.set(x, y, z); c.castShadow = true; c.receiveShadow = true; scene.add(c); } trunks.push([x, z, 0.4]); }
+function maple(x, z, h, dark){ const R = h * 0.42; cyl(0.25, 0.4, h * 0.45, mat.trunk, x, h * 0.22, z, 8); for (let i = 0; i < 5; i++){ const a = rnd() * 6.28, d = rnd() * R * 0.4, s = R * (0.6 + rnd() * 0.3);
+  const b = new THREE.Mesh(new THREE.IcosahedronGeometry(s, 1), dark ? mat.leafD : mat.leaf); b.position.set(x + Math.cos(a) * d, h * 0.45 + s * 0.6 + rnd() * 1.2, z + Math.sin(a) * d); b.castShadow = true; b.receiveShadow = true; scene.add(b); } trunks.push([x, z, 0.5]); }
+function clear(x, z){
+  if (!inPoly(x, z, D.park)) return false;
+  for (const p of D.pitches) if (inPoly(x, z, p.pts)) return false;
+  for (const p of D.playgrounds) if (inPoly(x, z, p)) return false;
+  for (const p of D.parking) if (inPoly(x, z, p)) return false;
+  for (const p of D.pools) if (inPoly(x, z, p.pts)) return false;
+  if (Math.hypot(x - poolC[0], z - poolC[1]) < 48) return false;
+  for (const l of D.paths) for (let i = 0; i < l.length - 1; i++){ const [ax, az] = l[i], [bx, bz] = l[i + 1]; const L2 = (bx - ax) ** 2 + (bz - az) ** 2; let t = L2 ? ((x - ax) * (bx - ax) + (z - az) * (bz - az)) / L2 : 0; t = Math.max(0, Math.min(1, t)); if (Math.hypot(x - (ax + (bx - ax) * t), z - (az + (bz - az) * t)) < 2.5) return false; }
+  for (const l of D.service) for (let i = 0; i < l.length - 1; i++){ const [ax, az] = l[i], [bx, bz] = l[i + 1]; const L2 = (bx - ax) ** 2 + (bz - az) ** 2; let t = L2 ? ((x - ax) * (bx - ax) + (z - az) * (bz - az)) / L2 : 0; t = Math.max(0, Math.min(1, t)); if (Math.hypot(x - (ax + (bx - ax) * t), z - (az + (bz - az) * t)) < 4) return false; }
+  for (const b of D.buildings){ const [x0, z0, x1, z1] = bounds(b.pts); if (x > x0 - 3 && x < x1 + 3 && z > z0 - 3 && z < z1 + 3) return false; }
+  for (const t of trunks) if (Math.hypot(x - t[0], z - t[1]) < 9) return false;
+  return true;
+}
+const [px0, pz0, px1, pz1] = bounds(D.park);
+// the band of trees around the edge, thickest on the north and east like the satellite view
+for (let i = 0; i < 2200; i++){
+  const x = px0 + rnd() * (px1 - px0), z = pz0 + rnd() * (pz1 - pz0);
+  const edge = Math.min(x - px0, px1 - x, z - pz0, pz1 - z), north = z - pz0, east = px1 - x;
+  const want = edge < 14 ? 0.55 : (north < 70 || east < 60) ? 0.22 : 0.035;
+  if (rnd() > want || !clear(x, z)) continue;
+  const r = rnd();
+  if (r < 0.3) spruce(x, z, 14 + rnd() * 8); else maple(x, z, 11 + rnd() * 7, r < 0.6);
+}
+// trees along the streets outside the park, and the houses' yards
+for (let i = 0; i < 160; i++){ const x = px0 - 60 + rnd() * (px1 - px0 + 120), z = pz0 - 60 + rnd() * (pz1 - pz0 + 120); if (inPoly(x, z, D.park)) continue; if (D.buildings.some(b => { const [x0, z0, x1, z1] = bounds(b.pts); return x > x0 - 2 && x < x1 + 2 && z > z0 - 2 && z < z1 + 2; })) continue; if (D.roads.some(r => r.pts.some(p => Math.hypot(p[0] - x, p[1] - z) < 6))) continue; maple(x, z, 10 + rnd() * 6, rnd() < 0.4); }
+
+// ---------------- picnic tables, benches, light poles, the boulder, the hydrant ----------------
+function picnic(x, z, rot){ const g = new THREE.Group(); const top = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.06, 0.8), mat.redBench); top.position.y = 0.76; top.castShadow = true; g.add(top);
+  [-0.65, 0.65].forEach(o => { const s = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.05, 0.3), mat.redBench); s.position.set(0, 0.45, o); g.add(s); });
+  [-0.6, 0.6].forEach(o => { const l = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.76, 1.5), mat.dark); l.position.set(o, 0.38, 0); g.add(l); }); g.position.set(x, 0, z); g.rotation.y = rot; scene.add(g); }
+// tables where the picnic areas are: by the pool lot, up by Wilson, and scattered under the trees
+let placed = 0;
+for (let i = 0; i < 400 && placed < 26; i++){ const x = px0 + rnd() * (px1 - px0), z = pz0 + rnd() * (pz1 - pz0); const nearPath = D.paths.some(l => l.some(p => Math.hypot(p[0] - x, p[1] - z) < 9)); if (!nearPath || !clear(x, z)) continue; picnic(x, z, rnd() * 3.14); trunks.push([x, z, 1.0]); placed++; }
+// light poles along the paths
+D.paths.filter(l => l.length > 6).forEach(l => { for (let i = 2; i < l.length; i += 6){ const [x, z] = l[i]; cyl(0.07, 0.1, 7, mat.post, x + 1.8, 3.5, z); box(0.6, 0.18, 0.3, M('#fff6d0', {emissive: '#fff2c0', emissiveIntensity: 0.4}), x + 1.8, 7, z); trunks.push([x + 1.8, z, 0.3]); } });
+// the boulder and the yellow pipe rail by the pool lot, and a hydrant
+{ const b = new THREE.Mesh(new THREE.DodecahedronGeometry(1.1, 0), mat.boulder); b.position.set(poolC[0] + 2, 0.7, poolC[1] + 46); b.scale.set(1.5, 0.9, 1.1); b.castShadow = true; scene.add(b); trunks.push([poolC[0] + 2, poolC[1] + 46, 1.6]);
+  for (let k = 0; k < 6; k++) cyl(0.05, 0.05, 0.9, mat.yellow, poolC[0] - 8 + k * 3, 0.45, poolC[1] + 44, 6); box(15, 0.06, 0.06, mat.yellow, poolC[0] - 0.5, 0.85, poolC[1] + 44); box(15, 0.06, 0.06, mat.yellow, poolC[0] - 0.5, 0.5, poolC[1] + 44);
+  cyl(0.18, 0.2, 0.8, mat.yellow, poolC[0] + 12, 0.4, poolC[1] + 40, 8); }
+
+// ---------------- a few people ----------------
+const people = [];
+function person(x, z, shirt){ const g = new THREE.Group(); const legs = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.8, 0.26), M('#2b3a66')); legs.position.y = 0.4; g.add(legs);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.62, 0.3), M(shirt)); body.position.y = 1.1; body.castShadow = true; g.add(body);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.17, 10, 8), M('#e2b48c')); head.position.y = 1.6; g.add(head); g.position.set(x, 0, z); scene.add(g); return g; }
+const SHIRTS = ['#d7263b', '#2a52c4', '#f2f2ee', '#e8c230', '#3f8f5a', '#ff2e88', '#1c1d22'];
+D.paths.filter(l => l.length > 8).forEach(l => { for (let i = 1; i < l.length - 1; i += 7){ if (rnd() < 0.5) continue; const [x, z] = l[i]; const nx = l[i + 1][0] - x, nz = l[i + 1][1] - z; const L = Math.hypot(nx, nz) || 1;
+  people.push({g: person(x, z, SHIRTS[Math.floor(rnd() * 7)]), line: l, i, t: rnd(), dir: rnd() < 0.5 ? 1 : -1, speed: 1 + rnd() * 0.6}); } });
+D.pitches.filter(p => p.sport === 'baseball').forEach(p => { const c = centroid(p.pts); for (let k = 0; k < 4; k++) person(c[0] + (rnd() - 0.5) * 24, c[1] + (rnd() - 0.5) * 24, SHIRTS[Math.floor(rnd() * 7)]); });
+function peopleStep(dt){ people.forEach(w => { const a = w.line[w.i], b = w.line[w.i + 1]; if (!b){ w.i = 0; return; } const L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1; w.t += w.dir * w.speed * dt / L;
+  if (w.t > 1){ w.t = 0; w.i++; if (w.i >= w.line.length - 1){ w.i = w.line.length - 2; w.dir = -1; w.t = 1; } } else if (w.t < 0){ w.t = 1; w.i--; if (w.i < 0){ w.i = 0; w.dir = 1; w.t = 0; } }
+  const aa = w.line[w.i], bb = w.line[w.i + 1]; w.g.position.set(aa[0] + (bb[0] - aa[0]) * w.t, 0, aa[1] + (bb[1] - aa[1]) * w.t); w.g.rotation.y = -Math.atan2((bb[1] - aa[1]) * w.dir, (bb[0] - aa[0]) * w.dir) + Math.PI / 2; }); }
+
+// ---------------- moving around ----------------
+const orbit = new OrbitControls(camera, canvas);
+orbit.target.set(30, 0, 20); camera.position.set(-110, 120, 230);
+orbit.enableDamping = true; orbit.minDistance = 15; orbit.maxDistance = 600; orbit.maxPolarAngle = 1.32; orbit.screenSpacePanning = false; orbit.update();
+
+let mode = 'look', yaw = 0, pitch = 0;
+// you start at the pool lot entrance on Denwood
+const lotEntry = (() => { const lot = D.parking.reduce((b, p) => { const c = centroid(p); return (!b || Math.hypot(c[0] - poolC[0], c[1] - poolC[1]) < Math.hypot(b[0] - poolC[0], b[1] - poolC[1])) ? c : b; }, null); return lot || [poolC[0] + 40, poolC[1]]; })();
+const me = {x: lotEntry[0], z: lotEntry[1] + 20, eye: 1.65};
+const keys = {};
+const lookBtn = document.getElementById('look'), walkBtn = document.getElementById('walk'), help = document.getElementById('help'), gate = document.getElementById('gate'), where = document.getElementById('where');
+const touch = matchMedia('(pointer: coarse)').matches; if (touch) document.body.classList.add('touch');
+function signedIn(){ try { return !!localStorage.getItem('leva_session'); } catch (e) { return false; } }
+function setMode(m){
+  mode = m; lookBtn.setAttribute('aria-pressed', m === 'look'); walkBtn.setAttribute('aria-pressed', m === 'walk');
+  document.body.classList.toggle('walking', m === 'walk'); orbit.enabled = m === 'look';
+  if (m === 'walk'){ me.x = lotEntry[0]; me.z = lotEntry[1] + 20; yaw = Math.atan2(-(poolC[0] - me.x), -(poolC[1] - me.z)); pitch = -0.05;
+    help.innerHTML = touch ? '' : '<b>Walk:</b> W A S D or the arrow keys, hold Shift to hurry. Click the view and move the mouse to look around. Esc lets go of the mouse.'; }
+  else { if (document.pointerLockElement) document.exitPointerLock(); help.innerHTML = '<b>Look around:</b> drag to turn, scroll or pinch to zoom. <b>Walk the park</b> to go down and walk it yourself.'; }
+}
+lookBtn.onclick = () => setMode('look');
+walkBtn.onclick = () => { if (!signedIn()){ gate.classList.add('on'); document.getElementById('gate-go').focus(); return; } setMode('walk'); };
+document.getElementById('gate-x').onclick = () => gate.classList.remove('on');
+document.getElementById('gate-go').onclick = () => { try { localStorage.setItem('leva_next', 'park3d.html'); } catch (e) {} };
+gate.addEventListener('click', e => { if (e.target === gate) gate.classList.remove('on'); });
+addEventListener('keydown', e => { if (e.key === 'Escape') gate.classList.remove('on'); keys[e.key.toLowerCase()] = true; if (mode === 'walk' && ['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(e.key.toLowerCase())) e.preventDefault(); });
+addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+canvas.addEventListener('click', () => { if (mode === 'walk' && !touch && canvas.requestPointerLock) canvas.requestPointerLock(); });
+addEventListener('mousemove', e => { if (mode === 'walk' && document.pointerLockElement === canvas){ yaw -= e.movementX * 0.0025; pitch = Math.max(-1.3, Math.min(1.3, pitch - e.movementY * 0.0025)); } });
+const stick = document.getElementById('stick'), knob = stick.querySelector('i'); let sv = {x: 0, y: 0}, stickId = null, lookId = null, lx = 0, ly = 0;
+stick.addEventListener('pointerdown', e => { stickId = e.pointerId; stick.setPointerCapture(e.pointerId); moveStick(e); });
+stick.addEventListener('pointermove', e => { if (e.pointerId === stickId) moveStick(e); });
+stick.addEventListener('pointerup', e => { if (e.pointerId === stickId){ stickId = null; sv = {x: 0, y: 0}; knob.style.transform = ''; } });
+function moveStick(e){ const r = stick.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2), L = Math.min(45, Math.hypot(dx, dy)), a = Math.atan2(dy, dx); sv = {x: Math.cos(a) * L / 45, y: Math.sin(a) * L / 45}; knob.style.transform = `translate(${Math.cos(a) * L}px,${Math.sin(a) * L}px)`; }
+canvas.addEventListener('pointerdown', e => { if (mode === 'walk' && e.pointerType !== 'mouse'){ lookId = e.pointerId; lx = e.clientX; ly = e.clientY; } });
+canvas.addEventListener('pointermove', e => { if (e.pointerId === lookId){ yaw -= (e.clientX - lx) * 0.005; pitch = Math.max(-1.2, Math.min(1.2, pitch - (e.clientY - ly) * 0.005)); lx = e.clientX; ly = e.clientY; } });
+canvas.addEventListener('pointerup', e => { if (e.pointerId === lookId) lookId = null; });
+
+const RAD = 0.35;
+function segPush(p, s){ const [ax, az, bx, bz] = s, vx = bx - ax, vz = bz - az, L2 = vx * vx + vz * vz; let t = L2 ? ((p.x - ax) * vx + (p.z - az) * vz) / L2 : 0; t = Math.max(0, Math.min(1, t));
+  const cx = ax + vx * t, cz = az + vz * t, dx = p.x - cx, dz = p.z - cz, d = Math.hypot(dx, dz); if (d < RAD && d > 1e-6){ p.x = cx + dx / d * RAD; p.z = cz + dz / d * RAD; } }
+function collide(p){
+  trunks.forEach(([x, z, r]) => { const dx = p.x - x, dz = p.z - z, d = Math.hypot(dx, dz); if (d < r + RAD && d > 1e-6){ p.x = x + dx / d * (r + RAD); p.z = z + dz / d * (r + RAD); } });
+  walls.forEach(s => segPush(p, s));
+  p.x = Math.max(px0 - 80, Math.min(px1 + 80, p.x)); p.z = Math.max(pz0 - 80, Math.min(pz1 + 80, p.z));
+}
+function inPool(x, z){ for (const p of D.pools) if (inPoly(x, z, p.pts)) return p; return null; }
+function placeName(x, z){
+  for (const p of D.pitches) if (inPoly(x, z, p.pts)) return p.sport === 'baseball' ? 'On a ball diamond' : 'On the ' + p.sport + ' court';
+  for (const p of D.playgrounds) if (inPoly(x, z, p)) return 'At the playground';
+  if (inPool(x, z)) return 'In Dunworth Pool';
+  if (D.rink.length && inPoly(x, z, D.rink)) return 'On the rink';
+  if (Math.hypot(x - poolC[0], z - poolC[1]) < 42) return 'On the pool deck';
+  for (const p of D.parking) if (inPoly(x, z, p)) return 'In the parking lot';
+  if (!inPoly(x, z, D.park)) return 'Out on the street';
+  return 'Levagood Park';
+}
+let eyeNow = 1.65, lastWhere = '';
+function walkStep(dt){
+  let f = 0, s = 0;
+  if (keys['w'] || keys['arrowup']) f += 1; if (keys['s'] || keys['arrowdown']) f -= 1; if (keys['a'] || keys['arrowleft']) s -= 1; if (keys['d'] || keys['arrowright']) s += 1;
+  if (touch){ f -= sv.y; s += sv.x; }
+  const pool = inPool(me.x, me.z), speed = (pool ? 1.2 : (keys['shift'] ? 5.6 : 2.8)) * dt;
+  const L = Math.hypot(f, s); if (L > 1){ f /= L; s /= L; }
+  const fx = -Math.sin(yaw), fz = -Math.cos(yaw), rx = Math.cos(yaw), rz = -Math.sin(yaw);
+  const p = {x: me.x + (fx * f + rx * s) * speed, z: me.z + (fz * f + rz * s) * speed}; collide(p); me.x = p.x; me.z = p.z;
+  const want = pool ? 0.45 : 1.65; eyeNow += (want - eyeNow) * Math.min(1, dt * 4);
+  const bob = (Math.abs(f) + Math.abs(s)) > 0.1 && !pool ? Math.sin(performance.now() / 160) * 0.03 : 0;
+  camera.position.set(me.x, eyeNow + bob, me.z); camera.rotation.set(pitch, yaw, 0, 'YXZ');
+  const w = placeName(me.x, me.z); if (w !== lastWhere){ lastWhere = w; where.textContent = w; }
+}
+function resize(){ renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+try { if (signedIn() && localStorage.getItem('leva_next') === 'park3d.html'){ localStorage.removeItem('leva_next'); setTimeout(() => setMode('walk'), 300); } } catch (e) {}
+if (new URLSearchParams(location.search).get('walk') === '1' && signedIn()) setMode('walk');
+document.getElementById('loading').classList.add('done');
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(() => { const dt = Math.min(0.05, clock.getDelta()); waterMat.uniforms.t.value += dt; if (mode === 'walk') walkStep(dt); else orbit.update(); peopleStep(dt); renderer.render(scene, camera); });
+window.__park3d = {scene, camera, me, setMode, D, poolC};
+</script>
+</body>
+</html>
