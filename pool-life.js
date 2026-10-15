@@ -192,7 +192,9 @@
     office: {door: [411, 176], inside: [432, 176], name: 'the office'},
     pit: {door: [411, 194], inside: [432, 194], name: 'the pit'},
     arcade: {door: [411, 222], inside: [432, 222], name: 'the guard shack'},
-    gate: {door: [416, 190], inside: [440, 190], name: 'the front gate'}
+    gate: {door: [416, 190], inside: [440, 190], name: 'the front gate'},
+    girls: {door: [414, 108], inside: [470, 108], name: "the girls' bathhouse"},
+    boys: {door: [414, 272], inside: [470, 272], name: "the boys' bathhouse"}
   };
   var KIT_SPOTS = {lap: [[263, 109, 'e'], [247, 313, 'w']], zero: [[409, 213, 'w']], dive: [[171, 241, 'w']]};
   var GATE_SPOT = [371, 107];
@@ -1584,16 +1586,17 @@
       if (why === 'storm') convo([['m', 'Come on, Mel!'], ['mel', 'Can we come back after?'], ['leva', 'Thirty minutes after the last thunder.']]);
       else if (why === 'tornado') convo([['m', 'Come on, Mel. Inside.']]);
       else if (why === 'cold' || why === 'snow') convo([['m', "Too cold, leva! We're going home."], ['leva', 'Good call. See you on a warmer day.']]);
-      else convo([['m', 'Bye leva! Bye Ari!'], ['leva', 'See you tomorrow. Walk to the gate.']]);
+      else convo([['m', 'Bye leva! Bye Ari!'], ['leva', 'See you tomorrow. Walk, please.']]);
     }
-    kidPlan(k, steps.concat([go(PLACES.gate.door[0], PLACES.gate.door[1] + (k.id === 'm' ? -3 : 3), {speed: why === 'tornado' || why === 'storm' ? 18 : 12}), {k: 'straight', x: PLACES.gate.inside[0], y: PLACES.gate.inside[1], hide: true, speed: 12},
+    var bh = bathFor(k);
+    kidPlan(k, steps.concat([go(bh.door[0], bh.door[1] + (k.id === 'm' ? -3 : 3), {speed: why === 'tornado' || why === 'storm' ? 18 : 12}), {k: 'straight', x: bh.inside[0], y: bh.inside[1], hide: true, speed: 12},
       fn(function(){ k.here = false; k.hidden = true; k.leaving = false; k.task = away; })]), why === 'tornado' || why === 'storm' ? 'heading inside' : 'heading home');
   }
   function arriveKid(k, walkIn){
     k.here = true; k.hidden = false; k.leaving = false;
     if (!walkIn){ var t = TOWELS[k.id]; k.x = t[0]; k.y = t[1]; kidPlan(k, [fn(function(){ k.face = 's'; }), act('sit', k.cool)], 'on her towel'); return; }
-    k.x = PLACES.gate.inside[0]; k.y = PLACES.gate.inside[1];
-    kidPlan(k, [{k: 'straight', x: PLACES.gate.door[0], y: PLACES.gate.door[1], show: true, speed: 12}].concat(towelSteps(k, 5)), 'coming in');
+    var bi = bathFor(k); k.x = bi.inside[0]; k.y = bi.inside[1];
+    kidPlan(k, [{k: 'straight', x: bi.door[0], y: bi.door[1], show: true, speed: 12}].concat(towelSteps(k, 5)), 'coming in');
     if (k.id === 'm'){
       var back = k.awayWhy, hr = new Date().getHours();
       if (back === 'storm') convo([['m', 'Is the storm over?'], ['leva', 'Thirty minutes since the last thunder. Come on in. Walk, please.']]);
@@ -1607,7 +1610,7 @@
     var open = api.isOpen() && !stay;
     ['m', 'mel'].forEach(function(id){
       var k = kids[id];
-      if (open && !k.here && familyIn(W.clock > 3)) arriveKid(k, W.clock > 3);
+      if (open && !k.here && wxSettled() && familyIn(W.clock > 3 && !firstDay)) arriveKid(k, W.clock > 3 && !firstDay);
       // (not in the middle of a jump: she lands first, then heads out)
       if (!open && k.here && !k.leaving && !k.hopping) leaveKid(k, api.isOpen() ? why : null);
       if (!k.here) return;
@@ -1628,6 +1631,8 @@
       if (k.act === 'sit') k.pose = 'sit'; else if (k.act === 'float') k.pose = 'float'; else if (k.act === 'handstand') k.pose = 'handstand';
       else if (k.inWater) k.pose = 'swim'; else k.pose = 'walk';
     });
+    // the first time this page sees them, they were already here: Grandma too, if it's past her usual time
+    if (firstDay && kids.m.here && kids.mel.here){ firstDay = false; if (new Date().getHours() >= 11 && !gma.here && !MEM.today.gma) gmaAlreadyHere(); }
     stepYen(dt, open, why);
     stepGma(dt, open, why);
   }
@@ -1777,10 +1782,10 @@
     var t = towelBand ? YEN_TOWEL.band : YEN_TOWEL.day;
     yenPlan([
       fn(function(){ say('yenny', kind === 'lunch' ? 'I am grabbing the cooler from the car, girls.' : 'Be right back with a snack.'); }),
-      go(PLACES.gate.door[0], PLACES.gate.door[1] + 6, {speed: yen.speed}), {k: 'straight', x: PLACES.gate.inside[0], y: PLACES.gate.inside[1], hide: true, speed: 12},
+      go(PLACES.girls.door[0], PLACES.girls.door[1] + 6, {speed: yen.speed}), {k: 'straight', x: PLACES.girls.inside[0], y: PLACES.girls.inside[1], hide: true, speed: 12},
       act(null, 7, {hide: true}),
       fn(function(){ yen.carry = kind; }),
-      {k: 'straight', x: PLACES.gate.door[0], y: PLACES.gate.door[1] + 6, show: true, speed: 12},
+      {k: 'straight', x: PLACES.girls.door[0], y: PLACES.girls.door[1] + 6, show: true, speed: 12},
       go(t[0] - 8, t[1], {speed: yen.speed}),
       fn(function(){
         yen.face = 's';
@@ -1962,8 +1967,8 @@
   function arriveYen(walkIn){
     yen.here = true; yen.hidden = false; yen.leaving = false; yen.lot = false;
     if (!walkIn){ var t = towelBand ? YEN_TOWEL.band : YEN_TOWEL.day; yen.x = t[0]; yen.y = t[1]; yenPlan([fn(function(){ yen.face = 's'; }), act('sit', yen.cool)], 'on her towel, watching the girls'); return; }
-    yen.x = PLACES.gate.inside[0]; yen.y = PLACES.gate.inside[1] + 6;
-    yenPlan([{k: 'straight', x: PLACES.gate.door[0], y: PLACES.gate.door[1] + 6, show: true, speed: 12}, fn(function(){ convo([['yenny', pick(['Good morning, leva!', 'Hi, leva. We made it.', 'Hello, everybody!'])]].concat(lv.hidden ? [] : [['leva', 'Morning, Yenny.']])); setTimeout(function(){ ariToYen('hello'); }, 800); })].concat(chairSteps(6)), 'coming in with the girls');
+    yen.x = PLACES.girls.inside[0]; yen.y = PLACES.girls.inside[1] + 6;
+    yenPlan([{k: 'straight', x: PLACES.girls.door[0], y: PLACES.girls.door[1] + 6, show: true, speed: 12}, fn(function(){ convo([['yenny', pick(['Good morning, leva!', 'Hi, leva. We made it.', 'Hello, everybody!'])]].concat(lv.hidden ? [] : [['leva', 'Morning, Yenny.']])); setTimeout(function(){ ariToYen('hello'); }, 800); })].concat(chairSteps(6)), 'coming in with the girls');
   }
   function stepYen(dt, open, why){
     carStep(dt);
@@ -2044,6 +2049,15 @@
     ctx.fillStyle = '#ffffff'; for (var i = 0; i < 12; i += 2){ ctx.fillRect(x + i, y, 1, 1); ctx.fillRect(x + i, y + 16, 1, 1); }
   }
 
+
+  // ---------------- coming and going ----------------
+  // Everybody comes onto the deck and leaves it through their own bathhouse: girls and moms through the girls'
+  // bathhouse at the north end of the building, boys through the boys' at the south end.
+  function bathFor(a){ return PLACES[a.boy ? 'boys' : 'girls']; }
+  // On a fresh page the family is already here, or already home. That waits for the real weather to come in (a few
+  // seconds at most), so nobody gets put on the deck and then sent home because it turns out to be too cold.
+  var wxT0 = Date.now(), firstDay = true;
+  function wxSettled(){ return !window.PoolWeather || !!(WXS() || window.PoolWeather.failed) || Date.now() - wxT0 > 5000; }
 
   // ---------------- Grandma Sweetheart ----------------
   // Em and Mel's great grandma, and the sweetest grandma on the planet. Every day she drives up in her gold Cutlass,
@@ -3147,7 +3161,8 @@
       var den = snap(SMALL, 270, 94); ari.x = den[0]; ari.y = den[1];
       ariPlan([act('happy', 3)], 'wagging');
       var wr = wxWhy(), stayHome = wr === 'tornado' || wr === 'storm' || wr === 'snow' || wr === 'cold';
-      if (api.isOpen() && !stayHome){ familyIn(false); arriveKid(kids.m, false); arriveKid(kids.mel, false); arriveYen(false); if (new Date().getHours() >= 11) gmaAlreadyHere(); }
+      if (!api.isOpen() || stayHome) firstDay = false;
+      if (api.isOpen() && !stayHome && wxSettled()){ familyIn(false); arriveKid(kids.m, false); arriveKid(kids.mel, false); arriveYen(false); if (new Date().getHours() >= 11) gmaAlreadyHere(); firstDay = false; }
       else if (api.isOpen() && (wr === 'storm' || wr === 'tornado')){ familyIn(false); yen.task = wr === 'tornado' ? 'inside with the girls for the tornado warning' : 'waiting out the storm inside with the girls'; }
       else {
         kids.m.task = kids.mel.task = api.isOpen() ? ({tornado: 'inside for the tornado warning', storm: 'waiting out the storm inside', snow: 'home. No swimming in the snow.', cold: 'home. Too cold to swim today.'}[wr]) : 'home for the night';
