@@ -120,7 +120,7 @@
         if (res.ok){ msg.textContent = 'Sent to ' + email + '. Open the link on this device. It works once and expires in 20 minutes.'; msg.className = 'gate-msg ok'; }
         else { msg.textContent = (res.d && res.d.error) || 'Couldn’t send the link. Try again in a minute.'; msg.className = 'gate-msg bad'; }
       })
-      .catch(function(){ btn.disabled = false; msg.textContent = 'Couldn’t reach levagood. Check your connection and try again.'; msg.className = 'gate-msg bad'; });
+      .catch(function(){ btn.disabled = false; var local = location.protocol === 'file:' || /^(127\.0\.0\.1|localhost)$/.test(location.hostname); msg.textContent = local ? 'Sign-in only works on the live site. Open levagood.com to get your link; this local copy can watch the pool but can’t sign in.' : 'Couldn’t reach levagood. Check your connection and try again.'; msg.className = 'gate-msg bad'; });
   }
 
   // the band above the map, so people know before they tap

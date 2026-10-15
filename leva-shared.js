@@ -4,7 +4,9 @@ window.LEVA = (() => {
   const API = (() => { try { return localStorage.getItem("leva_api") || (isLocal ? "http://127.0.0.1:8797" : "https://api.levagood.com"); } catch (_) { return "https://api.levagood.com"; } })();
   const session = { get: () => { try { return localStorage.getItem("leva_session") || ""; } catch (_) { return ""; } }, set: (t) => { try { t ? localStorage.setItem("leva_session", t) : localStorage.removeItem("leva_session"); } catch (_) {} } };
   async function call(method, path, body) {
-    const r = await fetch(API + path, { method, headers: { ...(body ? { "Content-Type": "application/json" } : {}), ...(session.get() ? { Authorization: "Bearer " + session.get() } : {}) }, body: body ? JSON.stringify(body) : undefined });
+    let r;
+    try { r = await fetch(API + path, { method, headers: { ...(body ? { "Content-Type": "application/json" } : {}), ...(session.get() ? { Authorization: "Bearer " + session.get() } : {}) }, body: body ? JSON.stringify(body) : undefined }); }
+    catch (_) { const local = location.protocol === "file:" || /^(127\.0\.0\.1|localhost)$/.test(location.hostname); return { status: 0, error: local ? "Sign-in only works on the live site. Open levagood.com for your link." : "Couldn't reach levagood. Check your connection and try again." }; }
     let d = {}; try { d = await r.json(); } catch (_) {}
     if (r.status === 401) { session.set(""); }
     return { status: r.status, ...d };
