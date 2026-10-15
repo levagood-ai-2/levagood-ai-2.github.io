@@ -336,9 +336,10 @@ waterRect(137.5, 122.5, 181.5, 231.5);
 waterRect(213.5, 122.5, 297, 299);
 { // the zero depth: half an ellipse
   const sh = new THREE.Shape(), zx = 335, zy = 208, rx = 52.6, ry = 62.4;
-  sh.moveTo(0, -ry * S);
-  for (let i = 0; i <= 40; i++){ const a = -Math.PI / 2 + Math.PI * i / 40; sh.lineTo(Math.cos(a) * rx * S, Math.sin(a) * ry * S); }
-  realWater(new THREE.ShapeGeometry(sh), X(zx), Z(zy), Math.PI / 2);
+  // the shape is laid flat with its face up (the water only renders from above), so the shape's y runs north
+  sh.moveTo(0, ry * S);
+  for (let i = 0; i <= 40; i++){ const a = -Math.PI / 2 + Math.PI * i / 40; sh.lineTo(Math.cos(a) * rx * S, -Math.sin(a) * ry * S); }
+  realWater(new THREE.ShapeGeometry(sh), X(zx), Z(zy), -Math.PI / 2);
 }
 // coping: the white lip around each pool
 function coping(x0, y0, x1, y1){
