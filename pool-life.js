@@ -59,6 +59,9 @@
   // the real Dearborn weather, from pool-weather.js, once it has something to say
   function WXS(){ var w = window.PoolWeather; return w && w.ok ? w : null; }
   function wxWhy(){ var w = WXS(); return w ? w.reason() : null; }
+  // cold and snow mean no swimming; the family still comes. Storms and tornado warnings send everybody inside until they pass.
+  function chilly(){ var w = wxWhy(); return w === 'cold' || w === 'snow'; }
+  function okOut(){ var w = wxWhy(); return !w || w === 'cold' || w === 'snow' || w === 'heat' || w === 'wind' || w === 'fog'; }   // fine for a walk to the window or the bench
   function wet(w){ return !!w && (w.kind === 'rain' || w.kind === 'drizzle' || w.kind === 'storm' || w.kind === 'sleet' || w.kind === 'tornado'); }
   function cellIdx(x, y){ var gx = Math.floor(x / 2), gy = Math.floor(y / 2); if (gx < 0 || gy < 0 || gx >= GW || gy >= GH) return -1; return gy * GW + gx; }
   function on(mask, x, y){ var i = cellIdx(x, y); return i >= 0 && mask[i] === 1; }
@@ -1273,7 +1276,8 @@
     var other = k.id === 'm' ? kids.mel : kids.m, free = !other.plan || other.task === 'on her towel';
     var r = Math.random();
     // a lesson, when one of them knows something the other does not
-    if (free && !other.inWater && r < 0.35 && W.clock - pickKid.lastLesson > 45){
+    var cold = chilly();
+    if (free && !other.inWater && !cold && r < 0.35 && W.clock - pickKid.lastLesson > 45){
       var gaps = Object.keys(SKILL).map(function(s){ return {s: s, gap: MEM[k.id][s] - MEM[other.id][s]}; }).filter(function(g){ return Math.abs(g.gap) > 0.3; });
       if (gaps.length){ var g = gaps[Math.floor(Math.random() * gaps.length)]; startLesson(g.gap > 0 ? k : other, g.gap > 0 ? other : k, g.s); return; }
     }
@@ -1289,6 +1293,7 @@
     if (k.id === 'mel' && r < 0.5 && !lv.hidden && !B.rescue && B.talking <= 0 && W.clock - pickKid.lastQ > 55){ pickKid.lastQ = W.clock; return askLeva(k); }
     if (k.id === 'm' && r < 0.45 && !lv.hidden && !B.rescue && B.talking <= 0 && MEM.leva.jokes.length < JOKES.length && W.clock - pickKid.lastJ > 90){ pickKid.lastJ = W.clock; return tellJoke(k); }
     if (r < 0.6 && !ari.inWater && ari.task !== 'up to something' && W.clock - pickKid.lastAri > 40){ pickKid.lastAri = W.clock; return trainAri(k); }
+    if (cold) return kidPlan(k, towelSteps(k, 10 + Math.random() * 10), r < 0.5 ? 'bundled up on her towel' : 'on her towel');
     if (r < 0.85){
       var spot = k.id === 'm' ? (Math.random() < 0.5 ? 'lapN' : 'lapS') : (Math.random() < 0.7 ? 'zero' : 'lapN');
       return kidPlan(k, swimSteps(k, spot, 14 + Math.random() * 16).concat(towelSteps(k, 6 + Math.random() * 6)), 'swimming in ' + POOLS[SPOTS[spot].pool].name);
@@ -1606,7 +1611,7 @@
     k.awayWhy = null;
   }
   function stepKids(dt){
-    var why = wxWhy(), stay = why === 'tornado' || why === 'storm' || why === 'snow' || why === 'cold';
+    var why = wxWhy(), stay = why === 'tornado' || why === 'storm';
     var open = api.isOpen() && !stay;
     ['m', 'mel'].forEach(function(id){
       var k = kids[id];
@@ -1956,10 +1961,10 @@
     if (gone) return yenPlan(chairSteps(10), 'on her towel');
     // lunch around noon, snacks in the afternoon
     var lunchTime = hr >= 11 && hr < 14 && !MEM.today.lunch, snackTime = hr >= 14 && (MEM.today.snacks || 0) < 4 && W.clock - YEN.lastFood > 160;
-    if ((lunchTime || snackTime || (DO && W.clock - YEN.lastFood > 120 && r < 0.3)) && !wxWhy()) return lunchTime ? nuttyRun('lunch') : (Math.random() < 0.55 ? nuttyRun('snack') : foodRun('snack'));
+    if ((lunchTime || snackTime || (DO && W.clock - YEN.lastFood > 120 && r < 0.3)) && okOut()) return lunchTime ? nuttyRun('lunch') : (Math.random() < 0.55 ? nuttyRun('snack') : foodRun('snack'));
     if (open && girlFree(em) && girlFree(mel) && r < 0.2 && W.clock - YEN.lastTrio > 140) return trio();
     if (open && girlFree(em) && r < 0.45 && W.clock - YEN.lastCoach > 75) return coachEm();
-    if (girlFree(mel) && r < 0.6 && W.clock - YEN.lastSwim > 90 && wxWhy() !== 'cold') return swimWithMel();
+    if (girlFree(mel) && r < 0.6 && W.clock - YEN.lastSwim > 90 && !chilly()) return swimWithMel();
     if (!lv.hidden && !B.rescue && B.talking <= 0 && r < 0.72 && W.clock - YEN.lastLeva > 120) return visitLeva();
     if (r < 0.85 && W.clock - (ari.lastYen || -99) > 45 && ariToYen('pets')) return yenPlan([until(function(){ return ari.task !== 'getting pets from Yenny'; }, 16)].concat(chairSteps(6)), 'petting Ari');
     yenPlan(chairSteps(10 + Math.random() * 10), pick(['on her towel, watching the girls', 'reading on her towel', 'soaking up some sun']));
@@ -2263,12 +2268,12 @@
   }
   function pickGma(){
     var r = Math.random(), girlsFree = [kids.m, kids.mel].some(function(k){ return k.here && !k.leaving && girlFree(k); });
-    if (!wxWhy() && girlsFree && W.clock - GMA.lastCall > (DO ? 60 : 120) && r < 0.5) { if (callKids()) return; }
-    if (!wxWhy() && W.clock - GMA.lastYen > 150 && r < 0.62 && yenToGma()) return;
+    if (okOut() && girlsFree && W.clock - GMA.lastCall > (DO ? 60 : 120) && r < 0.5) { if (callKids()) return; }
+    if (okOut() && W.clock - GMA.lastYen > 150 && r < 0.62 && yenToGma()) return;
     if (W.clock - GMA.lastAri > 90 && r < 0.72 && ariToGma()) return gmaPlan([until(function(){ return ari.task !== 'visiting Grandma Sweetheart'; }, 20)].concat(onBench(4)), 'on her bench, loving on Ari');
     if (W.clock - GMA.lastNews > 100 && r < 0.8) return gmaNews();
     if (!lv.hidden && !B.rescue && W.clock - GMA.lastLeva > 140 && r < 0.88) return gmaLeva();
-    if (!wxWhy() && W.clock - GMA.lastWalk > 160 && r < 0.94) return gmaStroll();
+    if (okOut() && wxWhy() !== 'snow' && W.clock - GMA.lastWalk > 160 && r < 0.94) return gmaStroll();
     if (W.clock - GMA.lastHum > 60 && Math.random() < 0.4){ GMA.lastHum = W.clock; var h = pick(GMA_HUM); say('gma', pick(['*humming ' + h + '*', '*hums ' + h + ' to herself*'])); return gmaPlan(onBench(14, 'on her bench, humming ' + h), 'on her bench, humming ' + h); }
     gmaPlan(onBench(10 + Math.random() * 10), pick(['on her bench by the bike path', 'on her bench, watching the girls swim', 'on her bench under the tree', 'on her bench, waiting for the kids to come see her']));
   }
@@ -2515,12 +2520,12 @@
         log('The tornado warning for Dearborn ended. Everybody came back out.', 'leva');
         if (!B.rescue) setPlan(B, null);
       }
-      if (why === 'snow') log('Snow in Dearborn. No swimming today. leva is getting the shovel.', 'leva');
+      if (why === 'snow') log('Snow in Dearborn. No swimming today, but the family came anyway. leva is getting the shovel.', 'leva');
       if (why === 'rain'){
         log('Rain in Dearborn. Rain is fine. leva is listening for thunder.', 'leva');
         if (kidsHere) convo([['m', "It's raining!"], ['mel', "We're already wet!"]]);
       }
-      if (why === 'cold' && was !== 'snow') log('Too cold to swim. Em and Mel are staying home.', 'leva');
+      if (why === 'cold' && was !== 'snow') log('Too cold to swim. Em and Mel are here anyway, bundled up on their towels and out of the water.', 'leva');
     }
     if (why === 'heat' && kidsHere && W.clock - heatLine > 240 && !B.rescue){ heatLine = W.clock; convo([['leva', 'Hot one. Drink some water, you two.'], ['mel', 'Okay!']]); }
     if (wx.flashAt && wx.flashAt !== lastFlash){ lastFlash = wx.flashAt; ariThunder(); }
@@ -3160,7 +3165,7 @@
       levaPlan([act('watch', 2.5, {face: 's'})], 'starting his rounds');
       var den = snap(SMALL, 270, 94); ari.x = den[0]; ari.y = den[1];
       ariPlan([act('happy', 3)], 'wagging');
-      var wr = wxWhy(), stayHome = wr === 'tornado' || wr === 'storm' || wr === 'snow' || wr === 'cold';
+      var wr = wxWhy(), stayHome = wr === 'tornado' || wr === 'storm';
       if (!api.isOpen() || stayHome) firstDay = false;
       if (api.isOpen() && !stayHome && wxSettled()){ familyIn(false); arriveKid(kids.m, false); arriveKid(kids.mel, false); arriveYen(false); if (new Date().getHours() >= 11) gmaAlreadyHere(); firstDay = false; }
       else if (api.isOpen() && (wr === 'storm' || wr === 'tornado')){ familyIn(false); yen.task = wr === 'tornado' ? 'inside with the girls for the tornado warning' : 'waiting out the storm inside with the girls'; }
@@ -3308,10 +3313,10 @@
         if (!gma.here || gma.hidden || gma.leaving || gma.lot) return 'away';
         if (what === 'wave'){ gma.talkWave = 1.6; gma.talking = Math.max(gma.talking || 0, 2); return 'ok'; }
         gma.talking = 0;
-        if (what === 'snack'){ if (wxWhy()) return 'weather'; if (W.clock - GMA.lastCall < 45) return 'soon'; if (!callKids()) return 'noother'; return 'ok'; }
+        if (what === 'snack'){ if (!okOut()) return 'weather'; if (W.clock - GMA.lastCall < 45) return 'soon'; if (!callKids()) return 'noother'; return 'ok'; }
         if (what === 'treat'){ if (MEM.today.treats >= TREAT_LIMIT) return 'limit'; if (!ariToGma()) return 'noari'; return 'ok'; }
         if (what === 'news'){ gmaNews(); return 'ok'; }
-        if (what === 'walk'){ if (wxWhy()) return 'weather'; gmaStroll(); return 'ok'; }
+        if (what === 'walk'){ if (!okOut() || wxWhy() === 'snow') return 'weather'; gmaStroll(); return 'ok'; }
         return 'no';
       }
       if (id === 'yenny'){
@@ -3322,8 +3327,8 @@
         yen.talking = 0;
         if (what === 'coach'){ if (bandNight()) return 'band'; if (!girlFree(kids.m)) return 'noother'; coachEm(); return 'ok'; }
         if (what === 'trio'){ if (bandNight()) return 'band'; if (!girlFree(kids.m) || !girlFree(kids.mel)) return 'noother'; trio(); return 'ok'; }
-        if (what === 'swim'){ if (!girlFree(kids.mel)) return 'noother'; swimWithMel(); return 'ok'; }
-        if (what === 'lunch' || what === 'snack'){ if (W.clock - YEN.lastFood < 60) return 'soon'; if (wxWhy()) return 'weather'; if (what === 'lunch' && !MEM.today.lunch) nuttyRun('lunch'); else if (Math.random() < 0.5) nuttyRun('snack'); else foodRun('snack'); return 'ok'; }
+        if (what === 'swim'){ if (chilly()) return 'weather'; if (!girlFree(kids.mel)) return 'noother'; swimWithMel(); return 'ok'; }
+        if (what === 'lunch' || what === 'snack'){ if (W.clock - YEN.lastFood < 60) return 'soon'; if (!okOut()) return 'weather'; if (what === 'lunch' && !MEM.today.lunch) nuttyRun('lunch'); else if (Math.random() < 0.5) nuttyRun('snack'); else foodRun('snack'); return 'ok'; }
         if (what === 'treat'){ if (MEM.today.treats >= TREAT_LIMIT) return 'limit'; if (!ariToYen('pets')) return 'noari'; setTimeout(function(){ yenTreat(); }, 2500); return 'ok'; }
         return 'no';
       }
