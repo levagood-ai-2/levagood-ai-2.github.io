@@ -2283,6 +2283,8 @@
     if (gma.talkWave > 0) gma.talkWave -= dt;
     // she comes every day the girls are here, once the family has parked
     if (open && girls && !gma.here && !MEM.today.gma && cut.state === 'gone' && car.state === 'parked' && W.clock > GMA.due){ MEM.today.gma = 1; save(); cutCome(); }
+    // she went home early (a cold day used to send everybody home) but the girls are back: so is she
+    if (open && girls && !gma.here && MEM.today.gma === 2 && !yen.leaving && cut.state === 'gone' && car.state === 'parked' && !gma.plan){ MEM.today.gma = 1; save(); cutCome(); }
     // after a storm she comes back out with everybody
     if (open && girls && !gma.here && cut.state === 'parked' && MEM.today.gma === 1 && /storm/.test(gma.task) && !gma.plan) gmaBackOut();
     if (gma.here && !gma.leaving && !gma.lot && !gma.hidden && (!open || !girls || yen.leaving)){ gma.leaving = true; if (storm && api.isOpen()) gmaInside(); else gmaHome(); }
