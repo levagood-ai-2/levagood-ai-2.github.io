@@ -469,13 +469,7 @@ function ladder(x, y){ // two chrome rails curving over the edge
   });
 }
 ladder(209, 135.5); ladder(299.5, 135.5); ladder(299.5, 283.5); ladder(187, 232.5);
-[[153, 103], [153, 240], [191, 252], [338, 112]].forEach(([x, y]) => {
-  const cx = X(x + 5.5), cz = Z(y + 5.5);
-  [[-.6, -.6], [.6, -.6], [-.6, .6], [.6, .6]].forEach(([a, b]) => box(0.08, 2.2, 0.08, mat.white, cx + a, 1.1, cz + b)); solidBox(cx, cz, 1.3, 1.3, 2.4);
-  box(1.4, 0.1, 1.4, mat.white, cx, 2.2, cz); box(1.2, 0.12, 0.9, mat.red, cx, 2.3, cz + 0.2); box(1.2, 0.9, 0.1, mat.white, cx, 2.7, cz + 0.65);
-  for (let i = 1; i < 4; i++) box(1.2, 0.05, 0.05, mat.white, cx, i * 0.55, cz - 0.6, false);
-});
-
+// the lifeguard stands are built after the cast exists (the guards in the chairs are people); see guardStands() below
 // ---------------- the zero depth: mushroom, grab bar, life ring ----------------
 cyl(0.12, 0.2, 1.4, mat.yellow, X(367.5), 0.7, Z(209.5)); trunks.push([X(367.5), Z(209.5), 0.22]);
 { const cap = new THREE.Mesh(new THREE.SphereGeometry(2.6, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), mat.yellow); cap.scale.y = 0.45; cap.position.set(X(367.5), 1.35, Z(209.5)); cap.castShadow = true; scene.add(cap); }
@@ -1021,21 +1015,30 @@ function hairDo(r, o){
   const head = r.head, R = o.headR, hair = o.hairM, s = o.hairStyle, hy = o.hy;
   if (s === 'none') return;
   const H = new THREE.Group(); H.position.y = hy; head.add(H);
-  // a piece of a sphere around the head: a0..a1 is the span in radians around the head (0 is straight ahead), t0..t1 the band from the top (in turns of pi), rr the radius in heads
-  const piece = (a0, a1, t0, t1, rr = 1.09) => part(new THREE.SphereGeometry(R * rr, 24, 12, Math.PI / 2 - a1, a1 - a0, Math.PI * t0, Math.PI * (t1 - t0)), hair, 0, 0, -R * 0.02, H);
-  // the cap: the hairline is high on the forehead, dips at the temples, and the back comes down to the neck
-  const capOf = (front = 0.3, temple = 0.42, back = 0.62, a = 0.75, part_ = 0) => { if (part_){ piece(part_, a, 0, front); piece(-a, -part_, 0, front); } else piece(-a, a, 0, front); piece(a, a + 0.5, 0, temple); piece(-a - 0.5, -a, 0, temple); piece(a + 0.5, Math.PI * 2 - a - 0.5, 0, back); };
+  // the cap is one smooth shell. Its lower edge is the hairline: high on the forehead, dipping at the temples, down to the nape at the back. No pieces, so no seams or gaps.
+  // front, temple and back are how far down the hairline sits at each spot (in turns of pi from the top); part_ draws a part line that far off center (radians)
+  const capOf = (front = 0.3, temple = 0.42, back = 0.62, a = 0.75, part_ = 0, rr = 1.09) => {
+    const line = phi => { const p = Math.abs(phi), ks = [[0, front], [a - 0.1, front + 0.03], [a + 0.45, temple], [a + 1.1, (temple + back) / 2], [a + 1.6, back], [Math.PI, back + 0.02]]; for (let i = 1; i < ks.length; i++) if (p <= ks[i][0]){ const t = (p - ks[i - 1][0]) / (ks[i][0] - ks[i - 1][0]), u = 0.5 - 0.5 * Math.cos(t * Math.PI); return Math.PI * (ks[i - 1][1] + (ks[i][1] - ks[i - 1][1]) * u); } return Math.PI * (back + 0.02); };
+    const U = 56, V = 14, pos = [], uv = [], idx = [];
+    for (let i = 0; i <= V; i++) for (let j = 0; j <= U; j++){ const phi = -Math.PI + 2 * Math.PI * j / U, th = line(phi) * i / V, rad = R * rr; pos.push(Math.sin(th) * Math.sin(phi) * rad, Math.cos(th) * rad, Math.sin(th) * Math.cos(phi) * rad - R * 0.02); uv.push(j / U, i / V); }
+    for (let i = 0; i < V; i++) for (let j = 0; j < U; j++){ const q = i * (U + 1) + j; idx.push(q, q + U + 1, q + 1, q + 1, q + U + 1, q + U + 2); }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); geo.setIndex(idx); geo.computeVertexNormals();
+    const m = new THREE.Mesh(geo, hair); m.castShadow = true; m.receiveShadow = true; H.add(m);
+    if (part_ !== 0){ // the part: a thin darker line from the hairline back toward the crown
+      const dark = SM(new THREE.Color(o.hairM.color).multiplyScalar(0.7)), th1 = line(part_), th0 = 0.04 * Math.PI; const pg = new THREE.Group(); pg.rotation.y = part_; pg.position.z = -R * 0.02; H.add(pg);
+      const t = part(new THREE.TorusGeometry(R * rr * 1.004, R * 0.014, 6, 20, th1 - th0), dark, 0, 0, 0, pg); t.rotation.set(0, -Math.PI / 2, Math.PI / 2 - th1); t.castShadow = false; }
+  };
   if (s === 'long'){ capOf(0.3, 0.44, 0.64); const back = part(new THREE.CapsuleGeometry(R * 0.9, R * 1.4, 6, 16), hair, 0, -R * 0.6, -R * 0.5, H); back.scale.set(1, 1, 0.5);
     [-1, 1].forEach(k => { const st = cap(R * 0.24, R * 1.6, hair, k * R * 0.9, -R * 0.55, R * 0.12, H); st.rotation.z = k * 0.06; });
     const fr = piece(-1.0, 0.95, 0.04, 0.37, 1.12); fr.rotation.z = 0.14; fr.rotation.x = 0.03; }   // bangs swept to one side
   if (s === 'bob'){ capOf(0.33, 0.46, 0.66); const b = part(new THREE.SphereGeometry(R * 1.14, 28, 14, 0, Math.PI * 2, 0, Math.PI * 0.42), hair, 0, R * 0.16, -R * 0.12, H); b.scale.set(1, 1.0, 1);
     [-1, 1].forEach(k => { cap(R * 0.3, R * 1.0, hair, k * R * 0.92, -R * 0.2, R * 0.1, H); }); piece(-1.0, 1.0, 0.04, 0.36, 1.13); }   // straight bangs
-  if (s === 'wavy'){ capOf(0.29, 0.44, 0.64, 0.75, 0.07); const back = part(new THREE.CapsuleGeometry(R * 1.0, R * 1.2, 6, 16), hair, 0, -R * 0.5, -R * 0.55, H); back.scale.set(1, 1, 0.55);
+  if (s === 'wavy'){ capOf(0.29, 0.44, 0.64, 0.75, 0.14); const back = part(new THREE.CapsuleGeometry(R * 1.0, R * 1.2, 6, 16), hair, 0, -R * 0.5, -R * 0.55, H); back.scale.set(1, 1, 0.55);
     for (let i = 0; i < 7; i++){ const w = ball(R * 0.32, hair, Math.sin(i * 2.3) * R * 0.55, -R * 0.3 - i * R * 0.28, -R * 0.85 - Math.cos(i * 1.1) * R * 0.1, H); w.scale.set(1, 1.3, 0.8); }
     [-1, 1].forEach(k => { const st = cap(R * 0.3, R * 2.0, hair, k * R * 0.95, -R * 0.75, R * 0.05, H); st.rotation.z = k * 0.1; for (let i = 0; i < 4; i++){ const w2 = ball(R * 0.26, hair, k * R * (0.98 + Math.sin(i * 2.1) * 0.08), -R * (0.2 + i * 0.42), R * (0.12 + Math.cos(i * 1.7) * 0.1), H); w2.scale.set(1, 1.25, 0.85); } }); }   // parted off the middle, long waves past the shoulders
-  if (s === 'longStraight'){ capOf(0.3, 0.44, 0.64, 0.75, 0.06); const back = part(new THREE.CapsuleGeometry(R * 0.9, R * 1.8, 6, 16), hair, 0, -R * 0.8, -R * 0.5, H); back.scale.set(1, 1, 0.5);
+  if (s === 'longStraight'){ capOf(0.3, 0.44, 0.64, 0.75, 0.12); const back = part(new THREE.CapsuleGeometry(R * 0.9, R * 1.8, 6, 16), hair, 0, -R * 0.8, -R * 0.5, H); back.scale.set(1, 1, 0.5);
     [-1, 1].forEach(k => { const st = cap(R * 0.22, R * 2.0, hair, k * R * 0.93, -R * 0.75, R * 0.08, H); st.rotation.z = k * 0.05; }); }   // long and straight, parted in the middle, past the shoulders
-  if (s === 'back'){ capOf(0.28, 0.4, 0.64, 0.75, 0.05); const back = part(new THREE.CapsuleGeometry(R * 0.86, R * 1.1, 6, 16), hair, 0, -R * 0.5, -R * 0.52, H); back.scale.set(1, 1, 0.5);
+  if (s === 'back'){ capOf(0.28, 0.4, 0.64, 0.75, 0.1); const back = part(new THREE.CapsuleGeometry(R * 0.86, R * 1.1, 6, 16), hair, 0, -R * 0.5, -R * 0.52, H); back.scale.set(1, 1, 0.5);
     [-1, 1].forEach(k => { const st = cap(R * 0.2, R * 1.2, hair, k * R * 0.9, -R * 0.45, -R * 0.3, H); st.rotation.z = k * 0.05; }); }   // pushed back behind the ears, down to the shoulders
   if (s === 'short'){ capOf(0.31, 0.42, 0.6, 0.8); }
   if (s === 'silver'){ capOf(0.3, 0.44, 0.62, 0.75); for (let i = 0; i < 8; i++){ const a = i / 8 * Math.PI * 2; ball(R * 0.3, hair, Math.cos(a) * R * 0.75, R * 0.62 + Math.sin(a * 2) * R * 0.06, Math.sin(a) * R * 0.75, H).scale.set(1, 0.8, 1); } }
@@ -1043,7 +1046,7 @@ function hairDo(r, o){
     [-1, 1].forEach(k => { const c = part(new THREE.CylinderGeometry(R * 0.2, R * 0.2, R * 0.12, 16), gm, k * R * 0.34, R * 0.72, R * 0.78, H); c.rotation.x = Math.PI / 2 - 0.4; }); }
   if (o.bow){ const bm = SM(o.bow, {roughness: 0.6}); [-1, 1].forEach(k => { const b = ball(R * 0.22, bm, R * 0.72 + k * R * 0.2, R * 0.72, R * 0.35, H); b.scale.set(1, 0.7, 0.5); }); ball(R * 0.1, bm, R * 0.72, R * 0.72, R * 0.4, H); }
   if (o.shadesUp){ // sunglasses pushed up on her hair
-    const sg = SM('#15171c', {roughness: 0.2, metalness: 0.3}); [-1, 1].forEach(k => { const L = ball(R * 0.24, sg, k * R * 0.3, R * 0.88, R * 0.72, H); L.scale.set(1, 0.6, 0.3); L.rotation.x = -0.85; L.rotation.y = k * 0.2; const arm = cap(R * 0.025, R * 0.95, sg, k * R * 0.8, R * 0.8, R * 0.26, H); arm.rotation.x = Math.PI / 2; }); const br = cap(R * 0.03, R * 0.26, sg, 0, R * 0.9, R * 0.74, H); br.rotation.z = Math.PI / 2; }
+    const sg = SM('#15171c', {roughness: 0.2, metalness: 0.3}); [-1, 1].forEach(k => { const L = ball(R * 0.24, sg, k * R * 0.3, R * 0.85, R * 0.7, H); L.scale.set(1, 0.6, 0.3); L.rotation.x = -0.8; L.rotation.y = k * 0.2; const arm = cap(R * 0.025, R * 0.95, sg, k * R * 0.76, R * 0.78, R * 0.24, H); arm.rotation.x = Math.PI / 2; }); const br = cap(R * 0.03, R * 0.26, sg, 0, R * 0.87, R * 0.72, H); br.rotation.z = Math.PI / 2; }
   if (o.cap){ const cm = SM(o.cap, {roughness: 0.8}); part(new THREE.SphereGeometry(R * 1.1, 28, 12, 0, Math.PI * 2, 0, Math.PI * 0.5), cm, 0, R * 0.12, 0, H); const brim = part(new THREE.CylinderGeometry(R * 1.1, R * 1.1, R * 0.08, 24, 1, false, -Math.PI / 2, Math.PI), cm, 0, R * 0.2, R * 0.25, H); brim.scale.z = 1.4; }
 }
 // a person
@@ -1198,9 +1201,9 @@ const LOOKS = {
   guard: {hair: '#8a5a2a', hairStyle: 'short', suit: '#d7263b', pants: '#d7263b', whistle: true, cap: '#f4f3ee', sunglasses: true, skin: '#e2b48c', size: 1.02, fem: false, eyeK: 0.9, nose: 1.15, smile: 0.3, jaw: 0.86},
   nutty: {hair: '#2a1a12', hairStyle: 'short', suit: '#f4f3ee', pants: '#1b1b1b', cap: '#d7263b', apron: true, skin: '#c68642', size: 1.0, fem: false, eyeK: 0.9, nose: 1.15, smile: 0.75, jaw: 0.88}
 };
-function actorFor(id){
-  const look = LOOKS[id], r = look.robot ? toonRobot() : toonHuman(look);
-  r.id = id; if (r.sitting) r.state = 'sit'; r.floatY = -(0.09 + 0.12 * Math.cos(SWIM_PITCH)) * (r.size || 1);   // where the root sits when swimming: hips just under the surface, back and shoulders out
+function actorFor(id){ const r = actorFrom(LOOKS[id]); r.id = id; return r; }
+function actorFrom(look){
+  const r = look.robot ? toonRobot() : toonHuman(look); if (r.sitting) r.state = 'sit'; r.floatY = -(0.09 + 0.12 * Math.cos(SWIM_PITCH)) * (r.size || 1);   // where the root sits when swimming: hips just under the surface, back and shoulders out
   r.set = function(n, s = 1){ if (n === 'idle' && this.sitting) n = 'sit'; this.state = n; this.speed = s; };
   r.tick = function(dt){ toonTick(this, dt); };
   return r;
@@ -1562,6 +1565,32 @@ const FOUND = {
 };
 function found(id){ if (!FOUND[id] || save.found.includes(id)) return; save.found.push(id); save.pts += FOUND[id][2]; store(); toast(FOUND[id][0] + ' — ' + FOUND[id][1], 'find'); updateHud(); }
 
+// ---------------- lifeguard stands: two at the deep end of the zero depth, four around the lap pool, two on each side of the diving well. Every chair faces the water in front of it, and there is a guard in every chair ----------------
+const SITTERS = [], STANDS = [];
+const GUARD_LOOKS = [
+  {hair: '#8a5a2a', hairStyle: 'short', suit: '#d7263b', pants: '#d7263b', whistle: true, cap: '#f4f3ee', sunglasses: true, skin: '#e2b48c', size: 1.0, fem: false, eyeK: 0.9, nose: 1.1, smile: 0.35, jaw: 0.88, sit: true},
+  {hair: '#c9a060', hairStyle: 'back', suit: '#d7263b', onePiece: true, whistle: true, sunglasses: true, skin: '#f0cfae', size: 0.96, lashes: true, eyeK: 0.98, nose: 0.9, smile: 0.5, jaw: 0.93, sit: true},
+  {hair: '#1c1410', hairStyle: 'short', suit: '#d7263b', pants: '#d7263b', whistle: true, cap: '#f4f3ee', sunglasses: true, skin: '#7a4a2e', size: 1.02, fem: false, eyeK: 0.9, nose: 1.1, smile: 0.4, jaw: 0.88, sit: true},
+  {hair: '#3a2415', hairStyle: 'back', suit: '#d7263b', onePiece: true, whistle: true, sunglasses: true, cap: '#f4f3ee', skin: '#c98f62', size: 0.97, lashes: true, eyeK: 0.98, nose: 0.95, smile: 0.5, jaw: 0.92, sit: true}];
+function guardStand(mx, my, yaw, pool, i){
+  const g = new THREE.Group(), cx = X(mx), cz = Z(my); g.position.set(cx, 0, cz); g.rotation.y = yaw; scene.add(g);   // the chair faces +z in its own space; yaw turns it toward the water
+  const add = (w, h, d, m, x, y, z, cast = true) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); b.castShadow = cast; b.receiveShadow = true; g.add(b); return b; };
+  [[-.6, -.6], [.6, -.6], [-.6, .6], [.6, .6]].forEach(([a, b]) => add(0.08, 2.2, 0.08, mat.white, a, 1.1, b));
+  add(1.4, 0.1, 1.4, mat.white, 0, 2.2, 0);   // the platform
+  [[-.5, -.5], [.5, -.5], [-.5, .5], [.5, .5]].forEach(([a, b]) => add(0.06, 0.4, 0.06, mat.white, a, 2.45, b - 0.15, false));   // chair legs on the platform
+  add(1.2, 0.1, 0.95, mat.red, 0, 2.62, -0.15); add(1.2, 0.9, 0.1, mat.white, 0, 3.1, -0.62);   // the seat, the backrest at the back
+  [-0.6, 0.6].forEach(s => add(0.06, 0.08, 0.8, mat.white, s, 2.92, -0.15, false));   // armrests
+  for (let k = 1; k < 4; k++) add(1.2, 0.05, 0.05, mat.white, 0, k * 0.55, 0.62, false);   // the ladder up the front
+  solidBox(cx, cz, 1.5, 1.5, 2.4);
+  const look = GUARD_LOOKS[i % GUARD_LOOKS.length], a = actorFrom(look); g.add(a.g); a.g.position.set(0, 2.67 - 0.44 * (look.size || 1), -0.08);   // sitting on the seat, feet on the platform a.g.rotation.y = 0; a.set('idle'); a.phase = i * 1.7;
+  SITTERS.push(a); STANDS.push({x: cx, z: cz, yaw, pool, mx, my}); return g;
+}
+// yaw: 0 faces south (+z), Math.PI north, Math.PI / 2 east (+x), -Math.PI / 2 west
+const YAW_E = Math.PI / 2, YAW_W = -Math.PI / 2;
+[[327, 178, YAW_E, 'zero'], [327, 238, YAW_E, 'zero'],                                   // the deep end of the zero depth: the straight wall with the grab bar, looking east over the water
+ [203, 165, YAW_E, 'lap'], [203, 255, YAW_E, 'lap'], [308, 165, YAW_W, 'lap'], [308, 255, YAW_W, 'lap'],   // around the lap pool: two on the west side, two on the east
+ [192, 150, YAW_W, 'dive'], [192, 205, YAW_W, 'dive'], [126, 151, YAW_E, 'dive'], [126, 203, YAW_E, 'dive']  // the diving well: two on the east side, two on the west between the boards
+].forEach(([mx, my, yaw, pool], i) => guardStand(mx, my, yaw, pool, i));
 // ---------------- stars ----------------
 const starGeo = (() => { const sh = new THREE.Shape(); for (let i = 0; i < 10; i++){ const r = i % 2 ? 0.16 : 0.38, a = i / 10 * Math.PI * 2 - Math.PI / 2; i ? sh.lineTo(Math.cos(a) * r, Math.sin(a) * r) : sh.moveTo(Math.cos(a) * r, Math.sin(a) * r); } sh.closePath(); return new THREE.ExtrudeGeometry(sh, {depth: 0.08, bevelEnabled: false}); })();
 const starMat = M('#ffd84a', {emissive: '#b8860b', emissiveIntensity: 0.5, roughness: 0.3, metalness: 0.4});
@@ -1666,6 +1695,7 @@ function walkStep(dt){
     if (n.id !== 'gma' && n.id !== 'ari' && !n.moving){ if (d < 6){ const want = Math.atan2(me.x - n.x, me.z - n.z); let dd = want - n.a.g.rotation.y; while (dd > Math.PI) dd -= Math.PI * 2; while (dd < -Math.PI) dd += Math.PI * 2; n.a.g.rotation.y += dd * Math.min(1, dt * 6); } else n.a.g.rotation.y += (n.face - n.a.g.rotation.y) * Math.min(1, dt * 2); }
     if (SCHED[n.id]) routine(n, dt); else if (n.id !== 'ari') n.a.tick(dt, false);
     n.tag.visible = n.id === 'ari' ? d < 18 : d < 7; });
+  SITTERS.forEach(a => { a.tick(dt); if (a.face){ const d = Math.hypot(a.g.position.x - me.x, a.g.position.z - me.z); a.face.target = d < 9 && playerHead ? playerHead : null; } });
   nearNpc = near; if (player.face) player.face.target = near && near.a.head && Math.hypot(near.x - me.x, near.z - me.z) < 5 ? near.a.head.getWorldPosition(headTmp2) : null;
   const verb = near ? (near.id === 'ari' ? 'Look inside Ari' : 'Talk to ' + near.name) : '';
   prompt.innerHTML = near ? (touch ? verb : `<kbd>${pad.on ? 'X' : 'E'}</kbd> ${verb}`) : ''; prompt.classList.toggle('on', !!near && !insideOpen && !chat.n); talkBtn.textContent = near && near.id === 'ari' ? 'Look inside' : 'Talk'; talkBtn.classList.toggle('on', !!near && !insideOpen && !chat.n);
@@ -1708,7 +1738,7 @@ toonify(scene); window.__toonify = toonify;
 document.getElementById('loading').classList.add('done');
 const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => { const dt = Math.min(0.05, clock.getDelta()); waterMat.uniforms.t.value += dt; waters.forEach(w => { w.material.uniforms.time.value += dt * 0.6; }); dayStep(dt); if (mode === 'walk') walkStep(dt); else { orbit.update(); camNow += dt; think(dt, camNow); } peopleStep(dt); renderer.render(scene, camera); });
-window.__park3d = {scene, camera, me, setMode, D, poolC, X, Z, S, SITE, inPool, onDeck, placeName, NPC, STARS, talk, save, keys, MIND, FOUND, openInside, closeInside, openChat, closeChat, ask, pocket, CARDS, memOf, endOfDay, moodOf, region, routeWps, brain, get player(){ return player; }, jump: () => { wantJump = true; }, cam: () => [camYaw, camPitch], setCam: (y, p) => { camYaw = y; camPitch = p; camTouched = camNow; }, setDay: t => { dayT = t; }, step: (dt, n = 1) => { for (let i = 0; i < n; i++) walkStep(dt); }, pause: () => renderer.setAnimationLoop(null), render: () => { dayStep(0.001); for (let i = 0; i < 20; i++){ NPC.forEach(n => { if (n.id !== 'ari') n.a.tick(0.03); }); if (player) player.tick(0.03); } renderer.render(scene, camera); }, walls, solids, trunks};
+window.__park3d = {scene, camera, me, setMode, D, poolC, X, Z, S, SITE, inPool, onDeck, placeName, NPC, STARS, talk, save, keys, MIND, FOUND, openInside, closeInside, openChat, closeChat, ask, pocket, CARDS, memOf, endOfDay, moodOf, region, routeWps, brain, get player(){ return player; }, jump: () => { wantJump = true; }, cam: () => [camYaw, camPitch], setCam: (y, p) => { camYaw = y; camPitch = p; camTouched = camNow; }, setDay: t => { dayT = t; }, step: (dt, n = 1) => { for (let i = 0; i < n; i++) walkStep(dt); }, pause: () => renderer.setAnimationLoop(null), render: () => { dayStep(0.001); for (let i = 0; i < 20; i++){ NPC.forEach(n => { if (n.id !== 'ari') n.a.tick(0.03); }); if (player) player.tick(0.03); } renderer.render(scene, camera); }, walls, solids, trunks, STANDS, SITTERS};
 </script>
 </body>
 </html>
