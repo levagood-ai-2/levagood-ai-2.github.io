@@ -936,9 +936,13 @@ const FACE_REST = {brow: 0, tilt: 0, lid: 0.05, squint: 0.05, smile: 0.5, open: 
 const FACE_MOODS = {happy: {brow: 0.35, tilt: 0, lid: 0, squint: 0.35, smile: 1}, hungry: {brow: -0.15, tilt: -0.2, lid: 0.12, squint: 0, smile: 0.25}, tired: {brow: -0.05, tilt: 0.15, lid: 0.5, squint: 0, smile: 0.2},
   'a little lonely': {brow: 0.15, tilt: 0.35, lid: 0.18, squint: 0, smile: 0.12}, chill: {brow: 0, tilt: 0, lid: 0.05, squint: 0.08, smile: 0.55}};
 // the skull: round on top, fuller at the cheeks, narrowing to a chin. jaw 1 is round like a kid, lower is a longer face
+const HEAD_PROF = [[0, 1.05], [0.42, 1.0], [0.68, 0.88], [0.86, 0.66], [0.96, 0.4], [1.0, 0.1], [0.99, -0.15], [0.95, -0.38], [0.86, -0.6], [0.7, -0.78], [0.5, -0.92], [0.26, -1.02], [0, -1.06]];   // the skull, top to chin, in heads (x out, y up)
+const HEAD_Z = 0.94;   // the head is a touch shallower front to back than it is wide
+function headProfile(jaw = 1){ return HEAD_PROF.map(([x, y]) => [x * (y < 0 ? 1 - (1 - jaw) * (-y / 1.06) : 1), y]); }
+// the skull's radius (in heads) at an angle th down from the top, read off the profile
+function headRadius(prof, th){ let a0 = 0; for (let k = 1; k < prof.length; k++){ const a1 = Math.atan2(prof[k][0], prof[k][1]); if (th <= a1 || k === prof.length - 1){ const t = Math.max(0, Math.min(1, (th - a0) / (a1 - a0 || 1))); return Math.hypot(prof[k - 1][0] + (prof[k][0] - prof[k - 1][0]) * t, prof[k - 1][1] + (prof[k][1] - prof[k - 1][1]) * t); } a0 = a1; } return 1; }
 function headShape(R, jaw = 1){
-  const prof = [[0, 1.05], [0.42, 1.0], [0.68, 0.88], [0.86, 0.66], [0.96, 0.4], [1.0, 0.1], [0.99, -0.15], [0.95, -0.38], [0.86, -0.6], [0.7, -0.78], [0.5, -0.92], [0.26, -1.02], [0, -1.06]];
-  const pts = prof.reverse().map(([x, y]) => new THREE.Vector2(x * R * (y < 0 ? 1 - (1 - jaw) * (-y / 1.06) : 1), y * R));   // bottom to top, so the lathe faces outward
+  const pts = headProfile(jaw).reverse().map(([x, y]) => new THREE.Vector2(x * R, y * R));   // bottom to top, so the lathe faces outward
   return new THREE.LatheGeometry(pts, 36);
 }
 function face(r, o){
@@ -1028,31 +1032,34 @@ function hairDo(r, o){
   const H = new THREE.Group(); H.position.y = hy; head.add(H);
   // the cap is one smooth shell. Its lower edge is the hairline: high on the forehead, dipping at the temples, down to the nape at the back. No pieces, so no seams or gaps.
   // front, temple and back are how far down the hairline sits at each spot (in turns of pi from the top); part_ draws a part line that far off center (radians)
-  const capOf = (front = 0.3, temple = 0.42, back = 0.62, a = 0.75, part_ = 0, rr = 1.09) => {
+  const piece = (a0, a1, t0, t1, rr = 1.09) => part(new THREE.SphereGeometry(R * rr, 24, 12, Math.PI / 2 - a1, a1 - a0, Math.PI * t0, Math.PI * (t1 - t0)), hair, 0, 0, -R * 0.02, H);   // a sphere piece, for bangs
+  const capOf = (front = 0.3, temple = 0.42, back = 0.62, a = 0.75, part_ = 0, thick = 1.07) => {
     const line = phi => { const p = Math.abs(phi), ks = [[0, front], [a - 0.1, front + 0.03], [a + 0.45, temple], [a + 1.1, (temple + back) / 2], [a + 1.6, back], [Math.PI, back + 0.02]]; for (let i = 1; i < ks.length; i++) if (p <= ks[i][0]){ const t = (p - ks[i - 1][0]) / (ks[i][0] - ks[i - 1][0]), u = 0.5 - 0.5 * Math.cos(t * Math.PI); return Math.PI * (ks[i - 1][1] + (ks[i][1] - ks[i - 1][1]) * u); } return Math.PI * (back + 0.02); };
+    // the skull is not a sphere (it bulges at the temples), so the cap is the skull's own surface pushed out by a constant share. phi runs around the head (0 is the front), th down from the top
+    const prof = headProfile(o.jaw || 1), at = (phi, th, k) => { const rr = headRadius(prof, th) * k * R; return [Math.sin(th) * Math.sin(phi) * rr, Math.cos(th) * rr, Math.sin(th) * Math.cos(phi) * rr * HEAD_Z]; };
     const U = 56, V = 14, pos = [], uv = [], idx = [];
-    for (let i = 0; i <= V; i++) for (let j = 0; j <= U; j++){ const phi = -Math.PI + 2 * Math.PI * j / U, th = line(phi) * i / V, rad = R * rr; pos.push(Math.sin(th) * Math.sin(phi) * rad, Math.cos(th) * rad, Math.sin(th) * Math.cos(phi) * rad - R * 0.02); uv.push(j / U, i / V); }
+    for (let i = 0; i <= V; i++) for (let j = 0; j <= U; j++){ const phi = -Math.PI + 2 * Math.PI * j / U, th = line(phi) * i / V; pos.push(...at(phi, th, thick)); uv.push(j / U, i / V); }
     for (let i = 0; i < V; i++) for (let j = 0; j < U; j++){ const q = i * (U + 1) + j; idx.push(q, q + U + 1, q + 1, q + 1, q + U + 1, q + U + 2); }
     const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); geo.setIndex(idx); geo.computeVertexNormals();
     const m = new THREE.Mesh(geo, hair); m.castShadow = true; m.receiveShadow = true; H.add(m);
-    if (part_ !== 0){ // the part: a thin darker line from the hairline back toward the crown
-      const dark = SM(new THREE.Color(o.hairM.color).multiplyScalar(0.7)), th1 = line(part_), th0 = 0.04 * Math.PI; const pg = new THREE.Group(); pg.rotation.y = part_; pg.position.z = -R * 0.02; H.add(pg);
-      const t = part(new THREE.TorusGeometry(R * rr * 1.004, R * 0.014, 6, 20, th1 - th0), dark, 0, 0, 0, pg); t.rotation.set(0, -Math.PI / 2, Math.PI / 2 - th1); t.castShadow = false; }
+    if (part_ !== 0){ // the part: a thin darker line along the cap from the hairline back toward the crown
+      const dark = SM(new THREE.Color(o.hairM.color).multiplyScalar(0.7)), th1 = line(part_), pts = []; for (let k = 0; k <= 12; k++){ const th = 0.04 * Math.PI + (th1 - 0.05 * Math.PI) * k / 12; pts.push(new THREE.Vector3(...at(part_, th, thick * 1.004))); }
+      const t = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, R * 0.014, 6, false), dark); t.castShadow = false; H.add(t); }
   };
-  if (s === 'long'){ capOf(0.3, 0.44, 0.64); const back = part(new THREE.CapsuleGeometry(R * 0.9, R * 1.4, 6, 16), hair, 0, -R * 0.6, -R * 0.5, H); back.scale.set(1, 1, 0.5);
+  if (s === 'long'){ capOf(0.31, 0.44, 0.64); const back = part(new THREE.CapsuleGeometry(R * 0.9, R * 1.4, 6, 16), hair, 0, -R * 0.6, -R * 0.5, H); back.scale.set(1, 1, 0.5);
     [-1, 1].forEach(k => { const st = cap(R * 0.24, R * 1.6, hair, k * R * 0.9, -R * 0.55, R * 0.12, H); st.rotation.z = k * 0.06; });
     const fr = piece(-1.0, 0.95, 0.04, 0.37, 1.12); fr.rotation.z = 0.14; fr.rotation.x = 0.03; }   // bangs swept to one side
   if (s === 'bob'){ capOf(0.33, 0.46, 0.66); const b = part(new THREE.SphereGeometry(R * 1.14, 28, 14, 0, Math.PI * 2, 0, Math.PI * 0.42), hair, 0, R * 0.16, -R * 0.12, H); b.scale.set(1, 1.0, 1);
     [-1, 1].forEach(k => { cap(R * 0.3, R * 1.0, hair, k * R * 0.92, -R * 0.2, R * 0.1, H); }); piece(-1.0, 1.0, 0.04, 0.36, 1.13); }   // straight bangs
-  if (s === 'wavy'){ capOf(0.29, 0.44, 0.64, 0.75, 0.14); const back = part(new THREE.CapsuleGeometry(R * 1.0, R * 1.2, 6, 16), hair, 0, -R * 0.5, -R * 0.55, H); back.scale.set(1, 1, 0.55);
+  if (s === 'wavy'){ capOf(0.3, 0.44, 0.64, 0.75, 0.14); const back = part(new THREE.CapsuleGeometry(R * 1.0, R * 1.2, 6, 16), hair, 0, -R * 0.5, -R * 0.55, H); back.scale.set(1, 1, 0.55);
     for (let i = 0; i < 7; i++){ const w = ball(R * 0.32, hair, Math.sin(i * 2.3) * R * 0.55, -R * 0.3 - i * R * 0.28, -R * 0.85 - Math.cos(i * 1.1) * R * 0.1, H); w.scale.set(1, 1.3, 0.8); }
     [-1, 1].forEach(k => { const st = cap(R * 0.3, R * 2.0, hair, k * R * 0.95, -R * 0.75, R * 0.05, H); st.rotation.z = k * 0.1; for (let i = 0; i < 4; i++){ const w2 = ball(R * 0.26, hair, k * R * (0.98 + Math.sin(i * 2.1) * 0.08), -R * (0.2 + i * 0.42), R * (0.12 + Math.cos(i * 1.7) * 0.1), H); w2.scale.set(1, 1.25, 0.85); } }); }   // parted off the middle, long waves past the shoulders
-  if (s === 'longStraight'){ capOf(0.3, 0.44, 0.64, 0.75, 0.12); const back = part(new THREE.CapsuleGeometry(R * 0.9, R * 1.8, 6, 16), hair, 0, -R * 0.8, -R * 0.5, H); back.scale.set(1, 1, 0.5);
+  if (s === 'longStraight'){ capOf(0.31, 0.44, 0.64, 0.75, 0.12); const back = part(new THREE.CapsuleGeometry(R * 0.9, R * 1.8, 6, 16), hair, 0, -R * 0.8, -R * 0.5, H); back.scale.set(1, 1, 0.5);
     [-1, 1].forEach(k => { const st = cap(R * 0.22, R * 2.0, hair, k * R * 0.93, -R * 0.75, R * 0.08, H); st.rotation.z = k * 0.05; }); }   // long and straight, parted in the middle, past the shoulders
-  if (s === 'back'){ capOf(0.28, 0.4, 0.64, 0.75, 0.1); const back = part(new THREE.CapsuleGeometry(R * 0.86, R * 1.1, 6, 16), hair, 0, -R * 0.5, -R * 0.52, H); back.scale.set(1, 1, 0.5);
+  if (s === 'back'){ capOf(0.29, 0.42, 0.64, 0.75, 0.1); const back = part(new THREE.CapsuleGeometry(R * 0.86, R * 1.1, 6, 16), hair, 0, -R * 0.5, -R * 0.52, H); back.scale.set(1, 1, 0.5);
     [-1, 1].forEach(k => { const st = cap(R * 0.2, R * 1.2, hair, k * R * 0.9, -R * 0.45, -R * 0.3, H); st.rotation.z = k * 0.05; }); }   // pushed back behind the ears, down to the shoulders
-  if (s === 'short'){ capOf(0.31, 0.42, 0.6, 0.8); }
-  if (s === 'silver'){ capOf(0.3, 0.44, 0.62, 0.75); for (let i = 0; i < 8; i++){ const a = i / 8 * Math.PI * 2; ball(R * 0.3, hair, Math.cos(a) * R * 0.75, R * 0.62 + Math.sin(a * 2) * R * 0.06, Math.sin(a) * R * 0.75, H).scale.set(1, 0.8, 1); } }
+  if (s === 'short'){ capOf(0.31, 0.43, 0.6, 0.8); }
+  if (s === 'silver'){ capOf(0.31, 0.44, 0.62, 0.75); for (let i = 0; i < 8; i++){ const a = i / 8 * Math.PI * 2; ball(R * 0.3, hair, Math.cos(a) * R * 0.75, R * 0.62 + Math.sin(a * 2) * R * 0.06, Math.sin(a) * R * 0.75, H).scale.set(1, 0.8, 1); } }
   if (o.goggles){ const gm = SM('#22d3ee', {roughness: 0.25}), band = SM('#0f8aa6'); const t = part(new THREE.TorusGeometry(R * 1.05, R * 0.05, 8, 32), band, 0, R * 0.5, 0, H); t.rotation.x = Math.PI / 2 - 0.4;
     [-1, 1].forEach(k => { const c = part(new THREE.CylinderGeometry(R * 0.2, R * 0.2, R * 0.12, 16), gm, k * R * 0.34, R * 0.72, R * 0.78, H); c.rotation.x = Math.PI / 2 - 0.4; }); }
   if (o.bow){ const bm = SM(o.bow, {roughness: 0.6}); [-1, 1].forEach(k => { const b = ball(R * 0.22, bm, R * 0.72 + k * R * 0.2, R * 0.72, R * 0.35, H); b.scale.set(1, 0.7, 0.5); }); ball(R * 0.1, bm, R * 0.72, R * 0.72, R * 0.4, H); }
@@ -1102,9 +1109,9 @@ function toonHuman(o){
   // the neck
   skinChain(r, [{y: T(0.5), rx: 0.065, rz: 0.06, w: [['chest', 1]]}, {y: T(0.56), rx: 0.055, rz: 0.052, w: [['chest', 0.5], ['head', 0.5]]}, {y: T(0.62), rx: 0.058, rz: 0.055, w: [['head', 1]]}], skinM, 16, false);
   // the head, rigid, hanging off the head bone
-  const hy = R * 0.82; const hd = part(headShape(R, o.jaw || 1), skinM, 0, hy, 0, r.head); hd.scale.set(1, 1, 0.94);
+  const hy = R * 0.82; const hd = part(headShape(R, o.jaw || 1), skinM, 0, hy, 0, r.head); hd.scale.set(1, 1, HEAD_Z);
   face(r, {headR: R, hy, skinM, hairM, skin: o.skin, eyes: o.eyes, lips: o.lips, blush: o.blush, sunglasses: o.sunglasses, lashes: o.lashes, fem, eyeK: o.eyeK, nose: o.nose, smile: o.smile, browM: o.brow ? SM(o.brow, {roughness: 0.8}) : null, freckles: o.freckles, braces: o.braces});
-  hairDo(r, {headR: R, hy, hairM, hairStyle: o.hairStyle, goggles: o.goggles, bow: o.bow, cap: o.cap, shadesUp: o.shadesUp});
+  hairDo(r, {headR: R, hy, hairM, hairStyle: o.hairStyle, goggles: o.goggles, bow: o.bow, cap: o.cap, shadesUp: o.shadesUp, jaw: o.jaw || 1});
   // arms: one skin each from the shoulder to the wrist, with a hand hanging off the elbow bone
   const armM = o.sleeves ? SM(o.sleeves, {roughness: 0.9}) : skinM, shY = T(0.275 + 0.195), elY = shY - 0.25, wrY = elY - 0.24;
   [-1, 1].forEach(k => { const a = k < 0 ? 'armL' : 'armR', f = k < 0 ? 'foreL' : 'foreR', cx = k * SH * sl;
