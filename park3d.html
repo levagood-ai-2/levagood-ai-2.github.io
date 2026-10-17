@@ -466,13 +466,17 @@ coping(137.5, 122.5, 181.5, 231.5); coping(213.5, 122.5, 297, 299);
     cyl(0.03, 0.03, 1.2, mat.chrome, X(basex) + 1.2, h + 0.6, Z(by) - 0.32); cyl(0.03, 0.03, 1.2, mat.chrome, X(basex) + 1.2, h + 0.6, Z(by) + 0.32);
   }
 });
-function ladder(x, y){ // two chrome rails curving over the edge
-  [-0.3, 0.3].forEach(dz => {
-    const c = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.035, 8, 16, Math.PI), mat.chrome);
-    c.position.set(X(x), 0.5, Z(y) + dz); c.rotation.y = x < 260 && x > 200 ? 0 : Math.PI; scene.add(c);
-  });
+// a pool ladder like the real ones: a pair of stainless ring rails, each anchored to the deck at both ends and looping up and out over the edge, with three steps recessed into the pool wall below.
+// edge is the pool edge (map x), y the spot along it, dir +1 when the water is to the east of the edge, -1 when it is to the west
+function ladder(edge, y, dir){
+  const g = new THREE.Group(); g.position.set(X(edge), 0, Z(y)); g.rotation.y = dir > 0 ? 0 : Math.PI; scene.add(g);   // local +z points out over the water
+  const pts = [[0, 0, -1.0], [0, 0.55, -1.0], [0, 0.9, -0.92], [0, 1.03, -0.62], [0, 1.05, -0.25], [0, 0.98, 0.0], [0, 0.72, 0.08], [0, 0.35, 0.06], [0, 0, 0.0]];
+  [-0.3, 0.3].forEach(dx => { const curve = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(dx, p[1], p[2])), false, 'catmullrom', 0.3); const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 40, 0.024, 10, false), mat.chrome); tube.castShadow = true; g.add(tube);
+    [[-1.0], [0.0]].forEach(([z]) => { const f = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.085, 0.025, 16), mat.chrome); f.position.set(dx, 0.012, z); g.add(f); }); });
+  for (let k = 0; k < 3; k++){ const step = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.09, 0.16), M('#2a3f5c', {roughness: 0.6})); step.position.set(0, -0.3 - k * 0.32, 0.08); g.add(step); const lip = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.02, 0.17), mat.chrome); lip.position.set(0, -0.255 - k * 0.32, 0.085); g.add(lip); }
+  trunks.push([X(edge) + (dir > 0 ? -0.3 : 0.3), Z(y) - 0.3, 0.08], [X(edge) + (dir > 0 ? -0.3 : 0.3), Z(y) + 0.3, 0.08]);
 }
-ladder(209, 135.5); ladder(299.5, 135.5); ladder(299.5, 283.5); ladder(187, 232.5); ladder(187, 140);
+ladder(213.5, 135.5, 1); ladder(297, 135.5, -1); ladder(297, 283.5, -1); ladder(181.5, 226, -1); ladder(181.5, 140, -1);
 // the lifeguard stands are built after the cast exists (the guards in the chairs are people); see guardStands() below
 // ---------------- the zero depth: mushroom, grab bar, life ring ----------------
 cyl(0.12, 0.2, 1.4, mat.yellow, X(367.5), 0.7, Z(209.5)); trunks.push([X(367.5), Z(209.5), 0.22]);
@@ -491,7 +495,7 @@ function lounge(x0, y0, x1, y1){
   [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([a, b]) => { const l = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.35, 0.05), mat.chrome); l.position.set(a * W * 0.42, 0.17, b * L * 0.4); g.add(l); });
   scene.add(g);
 }
-[[183, 49, 190, 68], [167, 53, 174, 72], [151, 57, 158, 76], [135, 61, 142, 80], [85, 197, 104, 204], [88, 223, 107, 230], [91, 249, 110, 256], [97, 301, 116, 308], [111, 317, 130, 324], [125, 333, 144, 340],
+[[183, 49, 190, 68], [167.8, 54.3, 174.8, 73.3], [154.8, 62.3, 161.8, 81.3], [143.4, 70.9, 150.4, 89.9], [85, 197, 104, 204], [88, 223, 107, 230], [91, 249, 110, 256], [102.9, 297.3, 121.9, 304.3], [114.5, 314.2, 133.5, 321.2], [128.1, 329.8, 147.1, 336.8],   // every lounger sits inside the fence with room to walk around it
  [161, 341, 168, 360], [177, 341, 184, 360], [193, 341, 200, 360], [209, 341, 216, 360], [225, 341, 232, 360]].forEach(b => lounge(...b));
 function umbrella(x, y, c1, c2){
   cyl(0.04, 0.04, 2.4, mat.chrome, X(x), 1.2, Z(y)); trunks.push([X(x), Z(y), 0.1]);
@@ -632,11 +636,13 @@ function deckFence(pts){
   for (let i = 0; i < pts.length - 1; i++){
     const [x0, y0] = pts[i], [x1, y1] = pts[i + 1], ax = X(x0), az = Z(y0), bx = X(x1), bz = Z(y1), L = Math.hypot(bx - ax, bz - az);
     if (L < 0.01) continue;
-    const t = fenceTex2.clone(); t.needsUpdate = true; t.repeat.set(L / 0.6, 2);
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(L, 1.2), new THREE.MeshStandardMaterial({map: t, transparent: true, alphaTest: 0.3, side: THREE.DoubleSide, roughness: 0.7}));
-    m.position.set((ax + bx) / 2, 0.6, (az + bz) / 2); m.rotation.y = -Math.atan2(bz - az, bx - ax); scene.add(m);
-    const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, L, 6), mat.post); rail.rotation.z = Math.PI / 2; rail.rotation.y = -Math.atan2(bz - az, bx - ax); rail.position.set((ax + bx) / 2, 1.2, (az + bz) / 2); scene.add(rail);
-    cyl(0.04, 0.04, 1.25, mat.post, ax, 0.62, az, 6);
+    const FH = 3.2;   // the pool fence is as tall as the tennis court fence, about ten and a half feet
+    const t = fenceTex2.clone(); t.needsUpdate = true; t.repeat.set(L / 0.6, FH / 0.6);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(L, FH), new THREE.MeshStandardMaterial({map: t, transparent: true, alphaTest: 0.3, side: THREE.DoubleSide, roughness: 0.7}));
+    m.position.set((ax + bx) / 2, FH / 2, (az + bz) / 2); m.rotation.y = -Math.atan2(bz - az, bx - ax); scene.add(m);
+    const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, L, 6), mat.post); rail.rotation.z = Math.PI / 2; rail.rotation.y = -Math.atan2(bz - az, bx - ax); rail.position.set((ax + bx) / 2, FH, (az + bz) / 2); scene.add(rail);
+    const mid = rail.clone(); mid.position.y = FH / 2; scene.add(mid);
+    cyl(0.05, 0.05, FH + 0.05, mat.post, ax, FH / 2, az, 6); if (L > 4) for (let q = 3; q < L - 1; q += 3) cyl(0.045, 0.045, FH + 0.05, mat.post, ax + (bx - ax) * q / L, FH / 2, az + (bz - az) * q / L, 6);
     fences.push([ax, az, bx, bz]);
   }
 }
@@ -1701,8 +1707,8 @@ function found(id){ if (!FOUND[id] || save.found.includes(id)) return; save.foun
 // A plan is a list of steps (walk, hop in, swim, tread, float, climb out, do something for a while, say something). When a plan ends the picker chooses the next one from the time of day and how they feel.
 const MU = (x, y) => [X(x), Z(y)];
 const LADDER = {   // deck point, water point, and which way you face climbing out
-  lapNW: {deck: MU(209, 135.5), water: MU(218, 135.5), face: -Math.PI / 2}, lapNE: {deck: MU(301.5, 135.5), water: MU(293, 135.5), face: Math.PI / 2}, lapSE: {deck: MU(301.5, 283.5), water: MU(293, 283.5), face: Math.PI / 2},
-  diveE: {deck: MU(186, 140), water: MU(177, 140), face: Math.PI / 2}};
+  lapNW: {deck: MU(208.5, 135.5), water: MU(217, 135.5), face: -Math.PI / 2}, lapNE: {deck: MU(302, 135.5), water: MU(293.5, 135.5), face: Math.PI / 2}, lapSE: {deck: MU(302, 283.5), water: MU(293.5, 283.5), face: Math.PI / 2},
+  diveE: {deck: MU(186.5, 140), water: MU(178, 140), face: Math.PI / 2}};
 const LANE = k => X(213.5 + 83.5 * (k + 0.5) / 6);   // lane centers, west to east
 const BOARDS = {low1: {y: 138, base: 118, tip: 150, h: 1}, low2: {y: 164, base: 118, tip: 150, h: 1}, high1: {y: 190, base: 112, tip: 156, h: 3}, high2: {y: 216, base: 112, tip: 156, h: 3}};
 const GRASS_VB = MU(380, 374), TOWEL = {em: MU(378, 389), mel: MU(390, 389), yen: MU(366, 389)}, ZERO_IN = MU(393, 196), ZERO_FLOAT = MU(357, 192), ZERO_WADE = MU(363, 199);   // in from the beach on the north side of the mushroom; float where it is waist deep
@@ -1918,7 +1924,7 @@ const GUARD_LOOKS = [
   {hair: '#5a3a22', hairStyle: 'short', suit: '#d7263b', pants: '#d7263b', whistle: true, sunglasses: true, skin: '#d9a77c', size: 0.99, fem: false, eyeK: 0.9, nose: 1.05, smile: 0.45, jaw: 0.87},
   {hair: '#2a1a12', hairStyle: 'back', suit: '#d7263b', onePiece: true, whistle: true, sunglasses: true, skin: '#e8c3a0', size: 0.95, lashes: true, eyeK: 0.98, nose: 0.9, smile: 0.55, jaw: 0.94}];
 const steelM = M('#9aa3ad', {metalness: 0.7, roughness: 0.35}), railM = M('#f4f3ee', {roughness: 0.4}), tubeM = M('#d7263b', {roughness: 0.6});
-const SEAT_Y = 2.13, CLIMB_S = 2.4, WALK_V = 2.0;
+const SEAT_Y = 2.13, CLIMB_S = 1.1, WALK_V = 4.0;   // guards walk briskly on a change and a handoff takes a few seconds, so the chairs are all re-seated in under twenty
 function guardStand(mx, my, yaw, pool){
   const g = new THREE.Group(), cx = X(mx), cz = Z(my); g.position.set(cx, 0, cz); g.rotation.y = yaw; scene.add(g);   // the chair faces +z in its own space; yaw turns it to the water
   const add = (geo, m, x, y, z, cast = true) => { const b = new THREE.Mesh(geo, m); b.position.set(x, y, z); b.castShadow = cast; b.receiveShadow = true; g.add(b); return b; };
@@ -2014,7 +2020,7 @@ const STAR_TOTAL = STARS.length + save.stars.length;
 function updateHud(){ hudStars.textContent = save.stars.length + ' / ' + STAR_TOTAL; hudFound.textContent = save.found.length + ' / ' + Object.keys(FOUND).length; }
 
 // ---------------- the day: 11 in the morning to 8 at night, over ten minutes ----------------
-let dayT = 0; const DAY_LEN = 600;
+let dayT = 0; const DAY_LEN = 900;   // a park day, 11 am to 8 pm, in fifteen real minutes: a guard change every fifty seconds, with time to sit still between
 const hemi = scene.children.find(c => c.isHemisphereLight);
 const lamps = [];
 scene.traverse(o => { if (o.material && o.material.emissive && o.material.emissiveIntensity === 0.4) lamps.push(o.material); });
