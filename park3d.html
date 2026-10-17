@@ -54,6 +54,15 @@
   #talk-btn{position:fixed;right:22px;bottom:134px;z-index:6;display:none}
   body.walking.touch #talk-btn.on{display:inline-flex}
   #toy-prompt{bottom:160px}
+  .jumps{position:fixed;left:50%;bottom:206px;transform:translateX(-50%);display:none;gap:6px;z-index:6;flex-wrap:wrap;justify-content:center;width:max-content;max-width:calc(100vw - 28px)}
+  .jumps.on{display:flex}
+  .jumps button{border:0;border-radius:999px;padding:9px 14px;background:rgba(255,255,255,.95);font:800 14px var(--font);color:var(--ink);box-shadow:0 6px 18px rgba(20,30,50,.16);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .jumps button.sel{background:var(--pink);color:#fff}
+  .jumps kbd{display:inline-block;min-width:20px;padding:3px 6px;border-radius:6px;background:rgba(27,29,36,.1);font:800 12px/1 var(--font);text-align:center}
+  .jumps button.sel kbd{background:rgba(255,255,255,.25)}
+  .jumps span{align-self:center;font:800 13px var(--font);color:#fff;background:rgba(27,29,36,.8);padding:8px 12px;border-radius:999px}.jumps span kbd{background:#fff;color:var(--ink)}
+  body.walking.touch .jumps{bottom:128px}
+  body.panel-open .jumps{display:none!important}
   #toy-btn{position:fixed;right:22px;bottom:186px;z-index:6;display:none;background:#fff}
   body.walking.touch #toy-btn.on{display:inline-flex}
   .msg.dog p{background:#fff8ec}
@@ -152,6 +161,7 @@
 <button id="run-btn" class="tbtn" type="button" aria-label="Run">Run</button>
 <button id="talk-btn" class="pill ink" type="button">Talk</button>
 <div class="prompt" id="toy-prompt"></div>
+<div class="jumps" id="jumps"></div>
 <button id="toy-btn" class="pill" type="button">Grab</button>
 <aside class="inside" id="inside" aria-label="Inside">
   <header><b id="inside-title">Inside Ari</b><button type="button" id="inside-x" aria-label="Close">✕</button></header>
@@ -1230,6 +1240,14 @@ function toonTick(r, dt){
   else if (st === 'cheer'){ r.phase += dt * 6; const ph = r.phase, s = Math.sin(ph); P.armL = [-2.6 + s * 0.3, 0, -0.5 + s * 0.2]; P.armR = [-2.6 - s * 0.3, 0, 0.5 - s * 0.2]; P.foreL = [-0.35, 0, 0]; P.foreR = [-0.35, 0, 0]; P.hipY = Math.abs(Math.sin(ph)) * 0.05; P.head = [-0.2, s * 0.12, 0]; P.shinL = [Math.max(0, -s) * 0.2, 0, 0]; P.shinR = [Math.max(0, -s) * 0.2, 0, 0]; }
   else if (st === 'sing'){ const w = Math.sin(now * 1.3); P.hipY = Math.sin(now * 2.6) * 0.008; P.hips = [0, w * 0.06, w * 0.04]; P.chest = [0.02, -w * 0.08, -w * 0.04]; P.head = [-0.08 + Math.sin(now * 2) * 0.05, w * 0.35, Math.sin(now * 1.7) * 0.12]; P.armL = [-0.3 + Math.sin(now * 2.6) * 0.1, 0, 0.5]; P.foreL = [-1.6, 0, 0]; P.armR = [0.05, 0, -0.15]; P.foreR = [-0.25, 0, 0]; P.legL = [0.02, 0, 0.05]; P.legR = [0.02, 0, -0.05]; }
   else if (st === 'pet'){ const w = Math.sin(now * 3); P.hipY = -0.34; P.legL = [-1.15, 0, 0.14]; P.legR = [-1.15, 0, -0.14]; P.shinL = [1.35, 0, 0]; P.shinR = [1.35, 0, 0]; P.footL = [-0.2, 0, 0]; P.footR = [-0.2, 0, 0]; P.torso = [0.4, 0, 0]; P.head = [0.1, w * 0.1, 0]; P.armR = [-0.95 + w * 0.12, 0, -0.25]; P.foreR = [-0.5 + w * 0.15, 0, 0]; P.armL = [-0.4, 0, 0.3]; P.foreL = [-0.9, 0, 0]; }
+  else if (st === 'cannon'){ P.hipY = -0.12; P.legL = [-2.45, 0, 0.14]; P.legR = [-2.45, 0, -0.14]; P.shinL = [2.35, 0, 0]; P.shinR = [2.35, 0, 0]; P.footL = [0.5, 0, 0]; P.footR = [0.5, 0, 0];   // knees to the chest, arms wrapped around the shins, leaning back
+    P.armL = [-0.95, 0, 0.4]; P.armR = [-0.95, 0, -0.4]; P.foreL = [-1.35, 0, 0]; P.foreR = [-1.35, 0, 0]; P.torso = [0.5, 0, 0]; P.chest = [0.15, 0, 0]; P.head = [-0.25, 0, 0]; P.rootX = -0.4; }
+  else if (st === 'pencil'){ P.legL = [0, 0, 0.03]; P.legR = [0, 0, -0.03]; P.footL = [0.8, 0, 0]; P.footR = [0.8, 0, 0]; P.armL = [0.06, 0, 0.06]; P.foreL = [-0.08, 0, 0]; P.armR = [-0.55, 0, -0.3]; P.foreR = [-2.35, 0, 0]; P.head = [0.06, 0, 0]; }   // straight, toes pointed, one hand holding the nose
+  else if (st === 'pushout'){ const u = r.pushP || 0;   // up and out: reach onto the deck, press, knee up, stand
+    if (u < 0.19){ P.armL = [-2.2, 0, 0.35]; P.armR = [-2.2, 0, -0.35]; P.foreL = [-0.25, 0, 0]; P.foreR = [-0.25, 0, 0]; P.legL = [-0.4, 0, -0.2]; P.legR = [-0.4, 0, 0.2]; P.shinL = [0.9, 0, 0]; P.shinR = [0.9, 0, 0]; P.torso = [0.05, 0, 0]; }
+    else if (u < 0.52){ const b = (u - 0.19) / 0.33; P.armL = [-1.5 + 1.65 * b, 0, 0.35 - 0.12 * b]; P.armR = [-1.5 + 1.65 * b, 0, -0.35 + 0.12 * b]; P.foreL = [-0.9 * (1 - b), 0, 0]; P.foreR = [-0.9 * (1 - b), 0, 0]; P.torso = [0.4 * b, 0, 0]; P.legL = [0.25, 0, 0.05]; P.legR = [0.25, 0, -0.05]; P.shinL = [0.3, 0, 0]; P.shinR = [0.3, 0, 0]; P.footL = [0.6, 0, 0]; P.footR = [0.6, 0, 0]; P.head = [-0.2, 0, 0]; }
+    else if (u < 0.77){ P.armL = [0.15, 0, 0.25]; P.armR = [0.15, 0, -0.25]; P.torso = [0.55, 0, 0]; P.legR = [-1.75, 0, -0.1]; P.shinR = [2.05, 0, 0]; P.footR = [0.3, 0, 0]; P.legL = [0.3, 0, 0.05]; P.shinL = [0.4, 0, 0]; P.head = [-0.3, 0, 0]; }
+    else { const c = (u - 0.77) / 0.23; P.armL = [0.1, 0, 0.15]; P.armR = [0.1, 0, -0.15]; P.torso = [0.4 * (1 - c), 0, 0]; P.legR = [-1.2 * (1 - c), 0, -0.05]; P.shinR = [1.4 * (1 - c), 0, 0]; P.legL = [-0.2 * (1 - c), 0, 0.03]; P.shinL = [0.5 * (1 - c), 0, 0]; } }
   else if (st === 'throw'){ const u = r.stT, A = u < 0.24 ? 0 : u < 0.36 ? 1 : 2;   // overhand: wind up with the arm back over the shoulder and the other arm pointing, step and whip it through, follow down across the body
     P.armR = [[-2.6, 0, 0.55], [-1.35, 0, 0.2], [-0.35, 0, -0.35]][A]; P.foreR = [[-1.75, 0, 0], [-0.15, 0, 0], [-0.35, 0, 0]][A];
     P.armL = [[-1.35, 0, 0.25], [-0.5, 0, 0.35], [0.15, 0, 0.3]][A]; P.foreL = [[-0.25, 0, 0], [-0.6, 0, 0], [-0.4, 0, 0]][A];
@@ -1804,7 +1822,7 @@ function runPlan(n, dt){
   if (st.k === 'go'){ const there = moveNpc(n, st.to, dt, st.speed, st.stop); n.y = inPool(n.x, n.z) === 'zero' ? -zeroDepth(n.x, n.z) : 0; a.tick(dt, !there && n.moving, st.run); done = there; }
   else if (st.k === 'wade'){ const dx = st.to[0] - n.x, dz = st.to[1] - n.z, d = Math.hypot(dx, dz), sp = st.speed * dt; if (d <= sp){ n.x = st.to[0]; n.z = st.to[1]; done = true; } else { n.x += dx / d * sp; n.z += dz / d * sp; a.g.rotation.y = Math.atan2(dx, dz); }
     n.y = inPool(n.x, n.z) === 'zero' ? -zeroDepth(n.x, n.z) : 0; a.tick(dt, !done); if (!done && n.y < -0.05 && Math.random() < dt * 1.6) splash(n.x, n.z, true, 0.35); n.inWater = n.y < -0.05; }
-  else if (st.k === 'hop'){ if (!st.from) st.from = [n.x, n.z, n.y]; const t = Math.min(1, P.t / 0.75); n.x = st.from[0] + (st.to[0] - st.from[0]) * t; n.z = st.from[1] + (st.to[1] - st.from[1]) * t; n.y = st.from[2] * (1 - t) + a.floatY * t + 2.4 * t * (1 - t); a.g.rotation.y = Math.atan2(st.to[0] - st.from[0], st.to[1] - st.from[1]); a.set(t < 0.55 ? 'jump' : 'fall'); a.tick(dt); if (t >= 1){ splash(n.x, n.z, true, 0.9); n.inWater = true; done = true; } }
+  else if (st.k === 'hop'){ done = npcHop(n, st, P, a, dt); }
   else if (st.k === 'swim'){ const dx = st.to[0] - n.x, dz = st.to[1] - n.z, d = Math.hypot(dx, dz), sp = st.speed * dt; if (d <= Math.max(sp, 0.25)){ n.x = st.to[0]; n.z = st.to[1]; done = true; } else { n.x += dx / d * sp; n.z += dz / d * sp; let want = Math.atan2(dx, dz), dd = want - a.g.rotation.y; while (dd > Math.PI) dd -= Math.PI * 2; while (dd < -Math.PI) dd += Math.PI * 2; a.g.rotation.y += dd * Math.min(1, dt * 5); }
     n.y += (a.floatY - n.y) * Math.min(1, dt * 5); a.set('swim'); a.tick(dt); n.kick = (n.kick || 0) + dt; if (n.kick > 0.45){ n.kick = 0; splash(n.x - Math.sin(a.g.rotation.y) * 0.7, n.z - Math.cos(a.g.rotation.y) * 0.7, true, 0.4); } n.inWater = true; }
   else if (st.k === 'tread'){ n.y += (a.treadY - n.y) * Math.min(1, dt * 4); a.set('tread'); a.tick(dt); done = P.t >= st.secs; }
@@ -1812,8 +1830,8 @@ function runPlan(n, dt){
   else if (st.k === 'climb'){ if (!st.from) st.from = [n.x, n.z, n.y]; const t = Math.min(1, P.t / 1.4), m = Math.max(0, (t - 0.45) / 0.55); n.x = st.from[0] + (st.to[0] - st.from[0]) * m; n.z = st.from[1] + (st.to[1] - st.from[1]) * m; n.y = st.from[2] + (0 - st.from[2]) * Math.min(1, t / 0.6); a.g.rotation.y = st.face; a.set('climb'); a.tick(dt); if (t >= 1){ n.y = 0; n.inWater = false; done = true; } }
   else if (st.k === 'up'){ const t = Math.min(1, P.t / (st.h * 0.6)); if (!st.from) st.from = [n.x, n.z]; n.x = st.from[0] + (st.x - 0.9 - st.from[0]) * t; n.y = st.h * t; a.g.rotation.y = Math.PI / 2; a.set(st.h > 1.5 ? 'climb' : 'jump'); a.tick(dt); if (t >= 1){ n.y = st.h; done = true; } }
   else if (st.k === 'along'){ const dx = st.to[0] - n.x, dz = st.to[1] - n.z, d = Math.hypot(dx, dz), sp = 1.1 * dt; n.y = st.h; if (d <= sp){ n.x = st.to[0]; n.z = st.to[1]; done = true; } else { n.x += dx / d * sp; n.z += dz / d * sp; a.g.rotation.y = Math.atan2(dx, dz); } a.tick(dt, !done); }
-  else if (st.k === 'dive'){ if (!st.from){ st.from = [n.x, n.z, n.y]; st.dir = [Math.sin(a.g.rotation.y), Math.cos(a.g.rotation.y)]; } const t = P.t; n.x = st.from[0] + st.dir[0] * st.fwd * t; n.z = st.from[1] + st.dir[1] * st.fwd * t; n.y = st.from[2] + st.upv * t - 0.5 * G * t * t; a.set(st.pose === 'sit' ? 'tuck' : (n.y > st.from[2] ? 'jump' : 'fall')); a.tick(dt);
-    if (n.y <= a.floatY){ n.y = a.floatY; splash(n.x, n.z, true, st.pose === 'sit' ? 1.6 : 1.0); if (st.pose === 'sit') splash(n.x, n.z, false); n.inWater = true; done = true; } }
+  else if (st.k === 'dive'){ if (!st.from){ st.from = [n.x, n.z, n.y]; st.dir = [Math.sin(a.g.rotation.y), Math.cos(a.g.rotation.y)]; } const t = P.t; n.x = st.from[0] + st.dir[0] * st.fwd * t; n.z = st.from[1] + st.dir[1] * st.fwd * t; n.y = st.from[2] + st.upv * t - 0.5 * G * t * t; a.set(st.pose === 'sit' ? 'cannon' : (n.y > st.from[2] ? 'jump' : 'pencil')); a.tick(dt);
+    if (n.y <= a.floatY){ n.y = a.floatY; bigSplash(n.x, n.z, st.pose === 'sit' ? 1.9 : 0.8, st.pose === 'sit' ? 'cannon' : 'pencil'); bubblesAt(n.x, -1.0, n.z, 8); n.inWater = true; done = true; } }
   else if (st.k === 'act'){ if (st.face !== undefined) a.g.rotation.y = st.face; const zp = inPool(n.x, n.z) === 'zero'; if (zp && st.state !== 'float' && st.state !== 'swim') n.y = -zeroDepth(n.x, n.z); else if (n.inWater) n.y += (a.floatY - n.y) * Math.min(1, dt * 4); a.set(st.state); a.tick(dt); done = P.t >= st.secs;
     if (st.state === 'chew' && n.id === 'luke' && TOYS.rope.state === 'ground'){ TOYS.rope.x = n.x + Math.sin(a.g.rotation.y) * 0.55; TOYS.rope.z = n.z + Math.cos(a.g.rotation.y) * 0.55; TOYS.rope.y = 0.08; chewToy.rotation.y = a.g.rotation.y; }
     if (st.state === 'volley'){ vball.visible = true; vball.position.set(n.x + Math.sin(a.g.rotation.y) * 0.3, n.y + 1.0 * (a.size || 1) + Math.abs(Math.sin(P.t * 4.2)) * 1.1, n.z + Math.cos(a.g.rotation.y) * 0.3); if (done) vball.visible = false; } }
@@ -1822,7 +1840,7 @@ function runPlan(n, dt){
   else if (st.k === 'say'){ bubble(n, st.text, st.secs); done = true; }
   else if (st.k === 'fn'){ st.f(n); done = true; }
   else if (st.k === 'until'){ a.set(st.state); a.tick(dt); done = st.cond(n) || P.t > st.max; }
-  a.g.position.set(n.x, n.y, n.z);
+  a.g.position.set(n.x, n.y, n.z); if (n.flip) pivotPitch(a, n.x, n.y, n.z, a.g.rotation.y, n.flip, (a.hipY || 0.8) * (a.size || 1) * 0.9);
   if (done){ P.i++; P.t = 0; if (P.i >= P.steps.length){ n.plan = null; n.busy = false; if (P.after) P.after(n); } }
 }
 function crewStep(n, dt){
@@ -2377,6 +2395,144 @@ const fx = [];
 function splash(x, z, water = true, size = 1){ const n = water ? 1 : 6; for (let i = 0; i < n; i++){ const m = water ? new THREE.Mesh(new THREE.RingGeometry(0.2, 0.5, 20), M('#ffffff', {transparent: true, opacity: 0.9})) : new THREE.Mesh(new THREE.SphereGeometry(0.09, 6, 5), M('#e9e4d8', {transparent: true, opacity: 0.8}));
     if (water){ m.rotation.x = -Math.PI / 2; m.position.set(x, 0.07, z); } else { const a = i / n * Math.PI * 2; m.position.set(x + Math.cos(a) * 0.25, 0.08, z + Math.sin(a) * 0.25); m.userData.v = [Math.cos(a) * 1.4, 1.2, Math.sin(a) * 1.4]; }
     m.scale.setScalar(size); scene.add(m); fx.push({m, t: 0, water, size}); } }
+// ---------------- jumping in and climbing out ----------------
+// How it really looks, from coaches and splash physics:
+//  cannonball: jump up and out, knees to the chest, arms wrapped around the shins, lean back a little. It punches a big hole in the water; when the hole
+//    slams shut it throws a column straight up (a Worthington jet) inside a ring of spray, the biggest splash there is.
+//  pencil: straight as a pencil, toes pointed, arms tight, a hand holding the nose. A small splash, and it goes deep.
+//  front flip: swing the arms up, jump, tuck, turn over once, spot the water, open up and go in feet first. A back flip starts with your back to the water.
+//  getting out with no ladder: hands on the deck about shoulder width, belly to the wall, one hard press up and out, a knee up onto the deck, stand.
+const JUMPS = {
+  cannon: {label: 'Cannonball', key: '1', vy: 7.0, fwd: 2.3, rot: 0, lean: -0.55, power: 1.7, deep: 1.1},
+  pencil: {label: 'Pencil jump', key: '2', vy: 6.6, fwd: 2.0, rot: 0, lean: 0, power: 0.5, deep: 1.8},
+  front: {label: 'Front flip', key: '3', vy: 8.3, fwd: 2.5, rot: 1, lean: 0, power: 1.0, deep: 1.4},
+  back: {label: 'Back flip', key: '4', vy: 8.3, fwd: 2.0, rot: -1, lean: 0, power: 1.0, deep: 1.4}
+};
+const POOLS_M = {dive: {x0: X(137.5), x1: X(181.5), z0: Z(122.5), z1: Z(231.5), depth: 3.6}, lap: {x0: X(213.5), x1: X(297), z0: Z(122.5), z1: Z(299), depth: 1.3}};
+const LADDERS = [[213.5, 135.5, 1], [297, 135.5, -1], [297, 283.5, -1], [181.5, 226, -1], [181.5, 140, -1]].map(([e, y, d]) => ({water: [X(e + d * 3.2), Z(y)], wall: [X(e), Z(y)], deck: [X(e - d * 4.5), Z(y)], face: d > 0 ? -Math.PI / 2 : Math.PI / 2}));
+const smooth = t => { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); };
+
+// ---------------- splashes: a ring of spray, a jet for the big ones, foam that spreads and fades, drops that fall back in ----------------
+const DROP_MAX = 1400, dropMesh = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 7, 5), new THREE.MeshBasicMaterial({color: '#f2fbff', transparent: true, opacity: 0.88, depthWrite: false}), DROP_MAX);
+dropMesh.frustumCulled = false; dropMesh.count = 0; dropMesh.renderOrder = 3; scene.add(dropMesh);
+const DROPS = [], dropM = new THREE.Matrix4(), dropQ = new THREE.Quaternion(), dropS = new THREE.Vector3(), dropP = new THREE.Vector3();
+function addDrop(x, y, z, vx, vy, vz, r, delay = 0, bubble = false){ if (DROPS.length >= DROP_MAX) return; DROPS.push({x, y, z, vx, vy, vz, r, delay, bubble}); }
+const foamTex = (() => { const cv = document.createElement('canvas'); cv.width = cv.height = 128; const g = cv.getContext('2d'); const gr = g.createRadialGradient(64, 64, 6, 64, 64, 64); gr.addColorStop(0, 'rgba(255,255,255,.95)'); gr.addColorStop(0.55, 'rgba(240,250,255,.8)'); gr.addColorStop(0.8, 'rgba(255,255,255,.45)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+  for (let i = 0; i < 70; i++){ g.fillStyle = 'rgba(160,210,240,.35)'; g.beginPath(); g.arc(64 + (Math.random() - 0.5) * 90, 64 + (Math.random() - 0.5) * 90, 2 + Math.random() * 5, 0, 7); g.fill(); } const t = new THREE.CanvasTexture(cv); return t; })();
+const FOAM = [];
+function foamAt(x, z, size, life = 1.6, delay = 0){ const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({map: foamTex, transparent: true, depthWrite: false, opacity: 0})); m.rotation.x = -Math.PI / 2; m.rotation.z = Math.random() * 6; m.position.set(x, 0.06, z); m.renderOrder = 2; scene.add(m); FOAM.push({m, t: -delay, life, size}); }
+function bigSplash(x, z, power = 1, kind = 'fall'){
+  const P = Math.max(0.3, power), sq = Math.sqrt(P), rnd = Math.random;
+  // the crown: a ring of drops thrown up and out from the edge of the hole
+  const nC = Math.round(46 * P + 10); for (let i = 0; i < nC; i++){ const a = i / nC * Math.PI * 2 + rnd() * 0.2, rr = 0.25 + 0.18 * sq, sp = (1.0 + rnd() * 1.8) * sq; addDrop(x + Math.cos(a) * rr, 0.05, z + Math.sin(a) * rr, Math.cos(a) * sp, (2.6 + rnd() * 2.6) * sq, Math.sin(a) * sp, 0.035 + rnd() * 0.05 * sq, rnd() * 0.06); }
+  // spray: small fast drops every which way
+  const nS = Math.round(22 * P); for (let i = 0; i < nS; i++){ const a = rnd() * Math.PI * 2, sp = (0.6 + rnd() * 2.6) * sq; addDrop(x, 0.1, z, Math.cos(a) * sp, (1.5 + rnd() * 3.5) * sq, Math.sin(a) * sp, 0.015 + rnd() * 0.02); }
+  // the jet: when the hole closes it shoots a column straight up. Biggest on a cannonball, a little one on a pencil.
+  const jet = kind === 'cannon' ? 1.0 : kind === 'pencil' ? 0.35 : kind === 'flip' ? 0.6 : 0.45 * Math.min(1, P);
+  const nJ = Math.round(44 * jet * sq); for (let i = 0; i < nJ; i++){ const f = i / Math.max(1, nJ), w = 0.1 + 0.12 * jet; addDrop(x + (rnd() - 0.5) * w, 0.05, z + (rnd() - 0.5) * w, (rnd() - 0.5) * 0.6, (3.0 + f * 5.6) * jet * sq + 1, (rnd() - 0.5) * 0.6, 0.05 + rnd() * 0.07 * jet, 0.22 + f * 0.14); }
+  // foam on the surface, and the rings
+  foamAt(x, z, 1.2 + 1.2 * P, 1.8); foamAt(x, z, 0.8 + 0.8 * P, 1.2, 0.3);
+  splash(x, z, true, 0.9 * sq); setTimeout(() => splash(x, z, true, 1.5 * sq), 180); if (P > 1.2) setTimeout(() => splash(x, z, true, 2.1 * sq), 420);
+}
+function bubblesAt(x, y, z, n = 8){ for (let i = 0; i < n; i++) addDrop(x + (Math.random() - 0.5) * 0.4, y + Math.random() * 0.3, z + (Math.random() - 0.5) * 0.4, 0, 0.6 + Math.random() * 0.8, 0, 0.03 + Math.random() * 0.03, Math.random() * 0.4, true); }
+function splashStep(dt){
+  let k = 0;
+  for (let i = DROPS.length - 1; i >= 0; i--){ const d = DROPS[i]; if (d.delay > 0){ d.delay -= dt; continue; }
+    if (d.bubble){ d.y += d.vy * dt; d.x += Math.sin(d.y * 9 + i) * 0.003; if (d.y >= 0.02){ DROPS[i] = DROPS[DROPS.length - 1]; DROPS.pop(); continue; } }
+    else { d.vy -= 9.8 * dt; d.x += d.vx * dt; d.y += d.vy * dt; d.z += d.vz * dt; d.vx *= 1 - dt * 0.4; d.vz *= 1 - dt * 0.4;
+      if (d.y < 0.02 && d.vy < 0){ if (d.r > 0.05 && Math.random() < 0.15) splash(d.x, d.z, true, 0.25); DROPS[i] = DROPS[DROPS.length - 1]; DROPS.pop(); continue; } } }
+  for (const d of DROPS){ if (d.delay > 0) continue; const stretch = d.bubble ? 1 : 1 + Math.min(1.5, Math.abs(d.vy) * 0.12); dropP.set(d.x, d.y, d.z); dropS.set(d.r, d.r * stretch, d.r); dropM.compose(dropP, dropQ, dropS); dropMesh.setMatrixAt(k++, dropM); }
+  dropMesh.count = k; dropMesh.instanceMatrix.needsUpdate = true;
+  for (let i = FOAM.length - 1; i >= 0; i--){ const f = FOAM[i]; f.t += dt; if (f.t < 0) continue; const u = f.t / f.life; f.m.scale.setScalar(f.size * (0.6 + u * 0.9)); f.m.material.opacity = Math.max(0, (u < 0.12 ? u / 0.12 : 1 - (u - 0.12) / 0.88)) * 0.9; if (u >= 1){ scene.remove(f.m); f.m.geometry.dispose(); f.m.material.dispose(); FOAM.splice(i, 1); } }
+}
+
+// ---------------- the edge: which way the deep water is, from where you stand ----------------
+function waterAhead(){
+  const fl = floorAt(me.x, me.z, me.y), here = inPool(me.x, me.z);
+  if (!me.ground || me.dive || me.exit || me.sub) return null; if (here && fl === 0) return null;
+  let best = null, bs = 1e9;
+  for (let i = 0; i < 24; i++){ const a = i * Math.PI / 12; let dd = a - me.face; while (dd > Math.PI) dd -= Math.PI * 2; while (dd < -Math.PI) dd += Math.PI * 2;
+    for (const d of [0.7, 1.3, 1.9]){ const x = me.x + Math.sin(a) * d, z = me.z + Math.cos(a) * d, p = inPool(x, z); if (p === 'lap' || p === 'dive'){ const sc = Math.abs(dd) + d * 0.4; if (sc < bs){ bs = sc; best = {a, pool: p, d}; } break; } } }
+  return best;
+}
+const airtime = (vy, h) => (vy + Math.sqrt(vy * vy + 2 * G * Math.max(0, h + 0.05))) / G;
+let jumpStyle = (save.jumpStyle && JUMPS[save.jumpStyle]) ? save.jumpStyle : 'cannon';
+function startDive(style, edge){ const J = JUMPS[style]; jumpStyle = style; save.jumpStyle = style; store();
+  const dir = edge.a, T = airtime(J.vy, me.y), fwd = Math.max(J.fwd, (edge.d + 1.0) / T); me.face = style === 'back' ? dir + Math.PI : dir;   // a back flip starts with your back to the water; push off hard enough to clear the wall
+  me.vx = Math.sin(dir) * fwd; me.vz = Math.cos(dir) * fwd; me.vy = J.vy; me.ground = false; me.air = 1; me.jumps = 2; me.buf = 0; me.squash = 1.1;
+  me.dive = {style, t: 0, T: airtime(J.vy, me.y), dir}; }
+// in the air: arms swing, tuck, turn over, open up; the body turns around the hips, not the feet
+function diveRot(D){ const J = JUMPS[D.style], t = D.t; if (J.rot) return J.rot * Math.PI * 2 * smooth((t - 0.12) / Math.max(0.25, D.T * 0.82 - 0.12)); return J.lean * smooth(t / 0.3); }
+function divePose(D){ const J = JUMPS[D.style], t = D.t; if (D.style === 'pencil') return t < 0.1 ? 'jump' : 'pencil'; if (D.style === 'cannon') return t < 0.12 ? 'jump' : 'cannon';
+  const u = (t - 0.12) / Math.max(0.25, D.T * 0.82 - 0.12); return t < 0.12 ? 'jump' : u < 0.8 ? 'tuck' : 'pencil'; }
+function pivotPitch(a, x, y, z, yaw, th, hc){ a.g.rotation.x = th; a.g.position.set(x - hc * Math.sin(th) * Math.sin(yaw), y + hc - hc * Math.cos(th), z - hc * Math.sin(th) * Math.cos(yaw)); }
+// in you go: the splash, then down under and back up
+function enterWater(vIn){ const D = me.dive, st = D ? D.style : null, J = st ? JUMPS[st] : null, pool = inPool(me.x, me.z), depth = (POOLS_M[pool] || {depth: 1.3}).depth;
+  const speed = Math.max(0, -vIn), power = (J ? J.power : Math.min(1.2, Math.max(0.3, speed / 9))) * (1 + Math.max(0, speed - 9) * 0.06);
+  bigSplash(me.x, me.z, power, st === 'front' || st === 'back' ? 'flip' : st || 'fall');
+  me.sub = {t: 0, D: Math.min(J ? J.deep + speed * 0.05 : 0.5 + speed * 0.05, depth - 0.15), style: st || 'fall'}; me.dive = null; player.g.rotation.x = 0;
+  if (st){ const shown = save.jumpsDone || (save.jumpsDone = []); if (!shown.includes(st)){ shown.push(st); store(); toast(`${J.label}!`); } } }
+function subStep(dt){ const S_ = me.sub; S_.t += dt; const t = S_.t, ty = player.treadY || -1.3; me.vx *= 1 - Math.min(1, dt * 3); me.vz *= 1 - Math.min(1, dt * 3); me.vy = 0;
+  if (t < 0.32) me.y = -S_.D * smooth(t / 0.32) * 1.0; else if (t < 0.5) me.y = -S_.D; else me.y = -S_.D + (S_.D + ty) * smooth((t - 0.5) / 0.6);
+  if (t > 0.1 && t < 0.5 && Math.random() < dt * 30) bubblesAt(me.x, me.y + 0.6, me.z, 2);
+  if (t >= 1.1){ me.sub = null; me.y = ty; } }
+
+// ---------------- getting out: up and out at the wall, or the ladder ----------------
+function exitOptions(){ const pool = inPool(me.x, me.z); if (pool !== 'lap' && pool !== 'dive') return null; const B = POOLS_M[pool];
+  for (const L of LADDERS){ if (Math.hypot(L.water[0] - me.x, L.water[1] - me.z) < 1.5) return {kind: 'ladder', L}; }
+  const dl = me.x - B.x0, dr = B.x1 - me.x, dn = me.z - B.z0, ds = B.z1 - me.z, m = Math.min(dl, dr, dn, ds); if (m > 1.05) return null;
+  const n = m === dl ? [-1, 0] : m === dr ? [1, 0] : m === dn ? [0, -1] : [0, 1], wall = m === dl ? [B.x0, me.z] : m === dr ? [B.x1, me.z] : m === dn ? [me.x, B.z0] : [me.x, B.z1];
+  if (pool === 'dive'){ for (const [x0, x1, z0, z1] of PLATS) if (wall[0] > x0 - 0.5 && wall[0] < x1 + 0.5 && wall[1] > z0 - 0.6 && wall[1] < z1 + 0.6) return null; }   // not under a board
+  return {kind: 'wall', n, wall}; }
+function startExit(){ const o = exitOptions(); if (!o) return false;
+  if (o.kind === 'ladder'){ const L = o.L; me.exit = {kind: 'ladder', t: 0, from: [me.x, me.y, me.z], L, face: L.face}; }
+  else { const n = o.n, W = o.wall; me.exit = {kind: 'wall', t: 0, from: [me.x, me.y, me.z], A: [W[0] - n[0] * 0.32, W[1] - n[1] * 0.32], B: [W[0] - n[0] * 0.12, W[1] - n[1] * 0.12], C: [W[0] + n[0] * 0.55, W[1] + n[1] * 0.55], face: Math.atan2(n[0], n[1])}; }
+  me.vx = me.vz = me.vy = 0; me.sub = null; return true; }
+function exitStep(dt){ const E = me.exit; E.t += dt; const t = E.t, sz = player.size || 1, ty = player.treadY || -1.3;
+  let dd = E.face - me.face; while (dd > Math.PI) dd -= Math.PI * 2; while (dd < -Math.PI) dd += Math.PI * 2; me.face += dd * Math.min(1, dt * 10);
+  const lerp2 = (a, b, u) => [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u];
+  if (E.kind === 'wall'){ // reach, press up and out, knee up onto the deck, stand
+    const T1 = 0.3, T2 = 0.8, T3 = 1.2, T4 = 1.55; let xz, y;
+    if (t < T1){ const u = smooth(t / T1); xz = lerp2([E.from[0], E.from[2]], E.A, u); y = E.from[1] + (ty - E.from[1]) * u; }
+    else if (t < T2){ const u = smooth((t - T1) / (T2 - T1)); xz = lerp2(E.A, E.B, u); y = ty + (-0.55 * sz - ty) * u; if (Math.random() < dt * 12) splash(me.x, me.z, true, 0.4); }
+    else if (t < T3){ const u = smooth((t - T2) / (T3 - T2)); xz = lerp2(E.B, E.C, u); y = -0.55 * sz * (1 - u) + 0.0 * u + Math.sin(u * Math.PI) * 0.12; }
+    else { xz = E.C; y = 0; }
+    me.x = xz[0]; me.z = xz[1]; me.y = y; player.pushP = Math.min(1, t / T4);
+    if (t >= T4){ me.exit = null; me.y = 0; me.ground = true; me.vy = 0; inWater = false; for (let i = 0; i < 3; i++) splash(me.x + (Math.random() - 0.5) * 0.5, me.z + (Math.random() - 0.5) * 0.5, false); } }
+  else { // swim to the ladder, climb the steps in the wall, swing over the rails onto the deck
+    const L = E.L, T1 = 0.45, T2 = 1.75, T3 = 2.2; let xz, y;
+    if (t < T1){ const u = smooth(t / T1); xz = lerp2([E.from[0], E.from[2]], [L.water[0] + (L.wall[0] - L.water[0]) * 0.72, L.water[1] + (L.wall[1] - L.water[1]) * 0.72], u); y = E.from[1] + (ty - E.from[1]) * u; }
+    else if (t < T2){ const u = (t - T1) / (T2 - T1); xz = [L.water[0] + (L.wall[0] - L.water[0]) * (0.72 + 0.2 * u), L.water[1] + (L.wall[1] - L.water[1]) * (0.72 + 0.2 * u)]; y = ty + (0.0 - ty) * u + Math.max(0, Math.sin(u * Math.PI * 4)) * 0.04; if (u < 0.5 && Math.random() < dt * 6) splash(me.x, me.z, true, 0.3); }
+    else { const u = smooth((t - T2) / (T3 - T2)); const a = [L.water[0] + (L.wall[0] - L.water[0]) * 0.92, L.water[1] + (L.wall[1] - L.water[1]) * 0.92]; xz = lerp2(a, [L.wall[0] + (L.deck[0] - L.wall[0]) * 0.3, L.wall[1] + (L.deck[1] - L.wall[1]) * 0.3], u); y = Math.sin(u * Math.PI) * 0.08; }
+    me.x = xz[0]; me.z = xz[1]; me.y = y;
+    if (t >= T3){ me.exit = null; me.y = 0; me.ground = true; me.vy = 0; inWater = false; } }
+}
+
+// ---------------- the jump picker by the water, and the climb-out button ----------------
+const jumpsEl = document.getElementById('jumps');
+let jumpsKey = '';
+function poolUi(swimming){
+  if (chat.n || insideOpen){ if (jumpsKey){ jumpsKey = ''; jumpsEl.innerHTML = ''; jumpsEl.classList.remove('on'); } return; }
+  const edge = !swimming ? waterAhead() : null, ex = swimming && !me.exit && !me.sub ? exitOptions() : null;
+  const key = edge ? 'edge:' + jumpStyle : ex ? 'exit:' + ex.kind : '';
+  if (key !== jumpsKey){ jumpsKey = key;
+    if (edge) jumpsEl.innerHTML = Object.entries(JUMPS).map(([k, J]) => `<button type="button" data-j="${k}" class="${k === jumpStyle ? 'sel' : ''}">${touch ? '' : `<kbd>${J.key}</kbd>`}${J.label}</button>`).join('') + (touch ? '' : `<span><kbd>Space</kbd> jump</span>`);
+    else if (ex) jumpsEl.innerHTML = `<button type="button" data-x="1" class="sel">${touch ? '' : '<kbd>Space</kbd>'}${ex.kind === 'ladder' ? 'Climb the ladder' : 'Climb out'}</button>`;
+    else jumpsEl.innerHTML = '';
+    jumpsEl.classList.toggle('on', !!key); }
+  return edge;
+}
+jumpsEl.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.j){ const edge = waterAhead(); if (edge) startDive(b.dataset.j, edge); } else if (b.dataset.x) startExit(); });
+addEventListener('keydown', e => { if (mode !== 'walk' || (e.target && /INPUT|TEXTAREA/.test(e.target.tagName))) return; const k = Object.keys(JUMPS).find(s => JUMPS[s].key === e.key); if (k){ jumpStyle = k; save.jumpStyle = k; store(); jumpsKey = ''; } });
+
+// the crew jumps in their own way: Em goes big, Mel likes a pencil and a cannonball, everybody else goes in feet first
+function pickJump(n){ const r = Math.random(); if (n.id === 'em') return r < 0.4 ? 'cannon' : r < 0.75 ? 'front' : 'pencil'; if (n.id === 'mel') return r < 0.5 ? 'pencil' : r < 0.85 ? 'cannon' : 'front'; return 'pencil'; }
+function npcHop(n, st, P, a, dt){ if (!st.from){ st.from = [n.x, n.z, n.y]; st.style = st.style || pickJump(n); }
+  const J = JUMPS[st.style], dur = J.rot ? 0.95 : 0.8, t = Math.min(1, P.t / dur), H = J.rot ? 3.4 : 2.6, yaw = Math.atan2(st.to[0] - st.from[0], st.to[1] - st.from[1]);
+  n.x = st.from[0] + (st.to[0] - st.from[0]) * t; n.z = st.from[1] + (st.to[1] - st.from[1]) * t; n.y = st.from[2] * (1 - t) + a.floatY * t + H * t * (1 - t);
+  a.g.rotation.y = st.style === 'back' ? yaw + Math.PI : yaw; const D = {style: st.style, t: P.t, T: dur}; a.set(divePose(D)); a.tick(dt); n.flip = t < 1 ? diveRot(D) : 0;
+  if (t >= 1){ a.g.rotation.x = 0; bigSplash(n.x, n.z, J.power * 0.85, st.style === 'front' || st.style === 'back' ? 'flip' : st.style); bubblesAt(n.x, -0.8, n.z, 6); n.inWater = true; return true; } return false; }
+
 function walkStep(dt){
   camNow += dt; pollPad();
   let f = 0, s = 0;
@@ -2398,27 +2554,32 @@ function walkStep(dt){
   if (L > 0.2) for (const [lx_, lz_] of LAD) if (Math.hypot(me.x - lx_, me.z - lz_) < 0.9 && me.y < 3.0 && me.y >= -0.1){ climbing = true; me.x = lx_; me.z = lz_; me.vx = me.vz = 0; me.y = Math.min(3.0, me.y + 2.2 * dt); me.vy = 0; me.ground = true; me.jumps = 0; if (me.y >= 3.0){ me.x = lx_ + 0.9; me.y = 3.0; } }
   // run: ease toward the speed you're asking for, slower to turn in the air
   const top = (swimming ? 1.9 : sprint ? 7.2 : 4.6) * (wade > 0 ? Math.max(0.35, 1 - wade * 0.6) : 1), acc = (me.ground || swimming) ? 11 : 4;   // wading is slow going
-  if (!climbing){ me.vx += (dx * top - me.vx) * Math.min(1, dt * acc); me.vz += (dz * top - me.vz) * Math.min(1, dt * acc);
-    const p = {x: me.x + me.vx * dt, z: me.z + me.vz * dt}; collide(p, me.y); if (Math.abs(p.x - (me.x + me.vx * dt)) > 1e-4) me.vx *= 0.2; if (Math.abs(p.z - (me.z + me.vz * dt)) > 1e-4) me.vz *= 0.2; me.x = p.x; me.z = p.z; }
-  const sp = Math.hypot(me.vx, me.vz); if (sp > 0.4){ const want = Math.atan2(me.vx, me.vz); let d = want - me.face; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; me.face += d * Math.min(1, dt * 14); }
+  if (!climbing && !me.exit){ if (!me.dive && !me.sub){ me.vx += (dx * top - me.vx) * Math.min(1, dt * acc); me.vz += (dz * top - me.vz) * Math.min(1, dt * acc); }
+    const p = {x: me.x + me.vx * dt, z: me.z + me.vz * dt}; collide(p, me.y); if (swimming && POOLS_M[pool]){ const B = POOLS_M[pool]; p.x = Math.max(B.x0 + 0.3, Math.min(B.x1 - 0.3, p.x)); p.z = Math.max(B.z0 + 0.3, Math.min(B.z1 - 0.3, p.z)); } if (Math.abs(p.x - (me.x + me.vx * dt)) > 1e-4) me.vx *= 0.2; if (Math.abs(p.z - (me.z + me.vz * dt)) > 1e-4) me.vz *= 0.2; me.x = p.x; me.z = p.z; }
+  const sp = Math.hypot(me.vx, me.vz); if (sp > 0.4 && !me.dive && !me.exit){ const want = Math.atan2(me.vx, me.vz); let d = want - me.face; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; me.face += d * Math.min(1, dt * 14); }
   // up and down: jump with a little grace (you can press a hair early or a hair late), double jump, swim
   me.buf = wantJump ? 0.12 : Math.max(0, me.buf - dt); wantJump = false;
-  if (climbing){ /* on the ladder */ }
-  else if (swimming){ me.vy = 0; const floatTo = sp > 0.4 ? (player.floatY || -0.11) : (player.treadY || -1.3); me.y += ((floatTo + Math.sin(performance.now() / 400) * 0.03) - me.y) * Math.min(1, dt * 4); me.ground = true; me.jumps = 0; me.air = 0;   // moving: on your belly; still: upright, treading
+  if (me.exit){ exitStep(dt); me.ground = true; me.jumps = 0; me.air = 0; }
+  else if (climbing){ /* on the ladder */ }
+  else if (swimming && me.sub){ subStep(dt); me.ground = true; me.jumps = 0; me.air = 0; inWater = true; if (me.buf > 0){ me.buf = 0; } }
+  else if (swimming){ const vIn = me.vy; me.vy = 0; const floatTo = sp > 0.4 ? (player.floatY || -0.11) : (player.treadY || -1.3); me.y += ((floatTo + Math.sin(performance.now() / 400) * 0.03) - me.y) * Math.min(1, dt * 4); me.ground = true; me.jumps = 0; me.air = 0;   // moving: on your belly; still: upright, treading
     me.kick = (me.kick || 0) + dt; if (me.kick > (sp > 0.4 ? 0.42 : 0.9)){ me.kick = 0; if (sp > 0.4) splash(me.x - Math.sin(me.face) * 0.7, me.z - Math.cos(me.face) * 0.7, true, 0.45); else splash(me.x, me.z, true, 0.5); }
-    if (me.buf > 0){ me.y = 0.05; me.vy = 6.0; me.buf = 0; me.squash = 1.15; } if (!inWater){ splash(me.x, me.z); if (firstPool){ firstPool = false; hint('You can swim. Jump to get out.'); } } inWater = true; }
+    if (me.buf > 0){ me.buf = 0; if (!startExit() && !me.toldOut){ me.toldOut = true; hint('Swim to the wall or a ladder, then jump to climb out.'); } } if (!inWater){ enterWater(vIn); if (firstPool){ firstPool = false; hint('Swim to the wall or a ladder and jump to climb out.', 4500); } } inWater = true; }
   else { inWater = false; me.vy -= G * dt; me.y += me.vy * dt; const fl = (pool && floor === 0) ? (pool === 'zero' ? -wade : -0.6) : floor;
     if (wade > 0.04 && sp > 0.5){ me.kick = (me.kick || 0) + dt; if (me.kick > 0.5){ me.kick = 0; splash(me.x, me.z, true, 0.4); } }   // ripples as you wade
-    if (me.y <= fl && me.vy <= 0 && !(pool && pool !== 'zero' && fl < 0)){ if (!me.ground && me.vy < -6){ splash(me.x, me.z, false); me.squash = 0.82; } me.y = fl; me.vy = 0; me.ground = true; me.jumps = 0; me.air = 0; }
+    if (me.y <= fl && me.vy <= 0 && !(pool && pool !== 'zero' && fl < 0)){ me.dive = null; if (!me.ground && me.vy < -6){ splash(me.x, me.z, false); me.squash = 0.82; } me.y = fl; me.vy = 0; me.ground = true; me.jumps = 0; me.air = 0; }
     else { me.ground = false; me.air += dt; }
+    if (me.buf > 0 && me.ground && !me.dive && !me.exit){ const edge = waterAhead(); if (edge) startDive(jumpStyle, edge); }   // at the edge, a jump is your pool jump
     const canJump = (me.ground || me.air < 0.12) && me.jumps === 0 ? 1 : (me.jumps === 1 && !me.ground ? 2 : 0);
     if (me.buf > 0 && canJump){ me.vy = canJump === 1 ? 7.6 : 6.6; me.jumps = canJump; me.ground = false; me.air = 1; me.buf = 0; me.squash = 1.14; }
   }
   // the body: squash on landing, stretch on the jump
   me.squash += (1 - me.squash) * Math.min(1, dt * 9); const sz = player.size || 1; player.g.scale.set(sz / Math.sqrt(me.squash), sz * me.squash, sz / Math.sqrt(me.squash));
   player.g.position.set(me.x, me.y, me.z); player.g.rotation.y = me.face;
-  if (me.act && !swimming) player.set(me.act.k === 'throw' ? 'throw' : 'pet'); else if (climbing) player.set('climb'); else if (swimming) player.set(sp > 0.4 ? 'swim' : 'tread'); else if (!me.ground) player.set(me.vy > 0.5 ? 'jump' : 'fall'); else player.set(sp > 0.4 ? (sprint ? 'run' : 'jog') : 'idle', 1);
+  if (me.exit) player.set(me.exit.kind === 'ladder' ? 'climb' : 'pushout'); else if (me.dive) player.set(divePose(me.dive)); else if (me.sub) player.set(me.sub.t < 0.55 ? (me.sub.style === 'cannon' ? 'cannon' : 'pencil') : 'tread'); else if (me.act && !swimming) player.set(me.act.k === 'throw' ? 'throw' : 'pet'); else if (climbing) player.set('climb'); else if (swimming) player.set(sp > 0.4 ? 'swim' : 'tread'); else if (!me.ground) player.set(me.vy > 0.5 ? 'jump' : 'fall'); else player.set(sp > 0.4 ? (sprint ? 'run' : 'jog') : 'idle', 1);
   player.tick(dt);
+  if (me.dive){ me.dive.t += dt; pivotPitch(player, me.x, me.y, me.z, me.face, diveRot(me.dive), (player.hipY || 0.8) * (player.size || 1) * 0.9); }   // flips turn around the hips
+  splashStep(dt); poolUi(swimming);
   // the camera, behind you, kept out of the walls
   const cfull = camDist, cy0 = me.y + 1.4; const tx = me.x + Math.sin(camYaw) * Math.cos(camPitch) * cfull, tz = me.z + Math.cos(camYaw) * Math.cos(camPitch) * cfull, ty = Math.max(0.5, cy0 + Math.sin(camPitch) * cfull);
   const reach = camReach(me.x, me.z, tx, tz, ty); const cd = Math.max(0.5, cfull * reach - 0.25); camNear = camNear === undefined ? cd : (cd < camNear ? cd : camNear + (cd - camNear) * Math.min(1, dt * 3));
@@ -2503,7 +2664,7 @@ toonify(scene); window.__toonify = toonify;
 document.getElementById('loading').classList.add('done');
 const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => { const dt = Math.min(0.05, clock.getDelta()); waterMat.uniforms.t.value += dt; waters.forEach(w => { w.material.uniforms.time.value += dt * 0.6; }); dayStep(dt); if (mode === 'walk') walkStep(dt); else { orbit.update(); camNow += dt; think(dt, camNow); guardsStep(dt); } peopleStep(dt); renderer.render(scene, camera); });
-window.__park3d = {scene, camera, me, setMode, D, poolC, X, Z, S, SITE, inPool, onDeck, placeName, NPC, STARS, talk, save, keys, MIND, FOUND, openInside, closeInside, openChat, closeChat, ask, pocket, CARDS, memOf, endOfDay, moodOf, region, routeWps, brain, get player(){ return player; }, jump: () => { wantJump = true; }, cam: () => [camYaw, camPitch], setCam: (y, p) => { camYaw = y; camPitch = p; camTouched = camNow; }, setDay: t => { dayT = t; }, step: (dt, n = 1) => { for (let i = 0; i < n; i++) walkStep(dt); }, pause: () => renderer.setAnimationLoop(null), render: () => { dayStep(0.001); for (let i = 0; i < 20; i++){ NPC.forEach(n => { if (n.id !== 'ari') n.a.tick(0.03); }); if (player) player.tick(0.03); } renderer.render(scene, camera); }, walls, solids, trunks, STANDS, GUARDS, CHAINS, guardChange: startChanges, zeroDepth, setPlayer, get who(){ return PLAYER.id; }, byId, bubble, runPlan, get levaN(){ return levaN; }, LUKE, poolDetour, moveNpc, TOYS, DOGS, hearCue, reward, playerDog, fetchPlay, throwToy, setToy, dogOf, skillOf, ari, playerToy, dogHears};
+window.__park3d = {scene, camera, me, setMode, D, poolC, X, Z, S, SITE, inPool, onDeck, placeName, NPC, STARS, talk, save, keys, MIND, FOUND, openInside, closeInside, openChat, closeChat, ask, pocket, CARDS, memOf, endOfDay, moodOf, region, routeWps, brain, get player(){ return player; }, jump: () => { wantJump = true; }, cam: () => [camYaw, camPitch], setCam: (y, p) => { camYaw = y; camPitch = p; camTouched = camNow; }, setDay: t => { dayT = t; }, step: (dt, n = 1) => { for (let i = 0; i < n; i++) walkStep(dt); }, pause: () => renderer.setAnimationLoop(null), draw: () => renderer.render(scene, camera), render: () => { dayStep(0.001); for (let i = 0; i < 20; i++){ NPC.forEach(n => { if (n.id !== 'ari') n.a.tick(0.03); }); if (player) player.tick(0.03); } renderer.render(scene, camera); }, walls, solids, trunks, STANDS, GUARDS, CHAINS, guardChange: startChanges, zeroDepth, setPlayer, get who(){ return PLAYER.id; }, byId, bubble, runPlan, get levaN(){ return levaN; }, LUKE, poolDetour, moveNpc, JUMPS, startDive, waterAhead, startExit, exitOptions, bigSplash, get DROPS(){ return DROPS; }, LADDERS, TOYS, DOGS, hearCue, reward, playerDog, fetchPlay, throwToy, setToy, dogOf, skillOf, ari, playerToy, dogHears};
 </script>
 </body>
 </html>
