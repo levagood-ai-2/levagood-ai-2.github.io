@@ -1491,6 +1491,7 @@ function think(dt, now){
   if (!P || (best.goal !== P.goal && best.util > P.util + 0.25 && now - MIND.lastSwitch > 2 && !ari.inWater)){ if (P && best.goal !== P.goal) MIND.note = `"${best.label}" beat "${P.label}", so he switched.`; MIND.plan = P = makePlan(best); MIND.lastSwitch = now; }
   else if (P) P.util = (opts.find(o => o.goal === P.goal) || P).util;
   const st = P.steps[P.i]; MIND.moving = false;
+  if (ari.hold > 0 && P.goal !== 'play'){ ari.moving = false; ari.a.tick(dt, false); return; }   // somebody walked up to him: he keeps thinking, but waits for them
   if (st.at){ const there = moveNpc(ari, st.at(), dt, P.run ? 4.8 : 3.4, P.goal === 'play' ? 1.6 : 0.5); MIND.moving = ari.moving;
     if (there){ P.i = Math.min(P.steps.length - 1, P.i + 1); P.t = 0; ari.a.tick(dt, false); } else ari.a.tick(dt, true, P.run); }
   else { P.t += dt; ari.a.tick(dt, false);
@@ -2105,6 +2106,13 @@ function walkStep(dt){
   NPC.forEach(n => { if (n.played) return; const d = Math.hypot(n.x - me.x, n.z - me.z); if (d < nd){ nd = d; near = n; }
     if (n.a.face){ const F = n.a.face; if (!F.robot && n.feel){ const md = FACE_MOODS[moodOf(n)] || FACE_MOODS.chill; F.want.brow = md.brow; F.want.tilt = md.tilt; F.want.lid = md.lid; F.want.squint = md.squint; F.want.smile = md.smile * (0.5 + F.smileBase * 0.7); if (chat.n === n){ F.want.smile = Math.min(1, F.want.smile + 0.25); F.want.brow += 0.15; } } F.target = d < 6 && playerHead ? playerHead : null; }
     if (n.id !== 'gma' && !n.a.dog && !n.moving && !n.busy && !n.inWater){ if (d < 6){ const want = Math.atan2(me.x - n.x, me.z - n.z); let dd = want - n.a.g.rotation.y; while (dd > Math.PI) dd -= Math.PI * 2; while (dd < -Math.PI) dd += Math.PI * 2; n.a.g.rotation.y += dd * Math.min(1, dt * 6); } else n.a.g.rotation.y += (n.face - n.a.g.rotation.y) * Math.min(1, dt * 2); }
+    // walk up to somebody and they stop for you: they hold still and turn to you while you're close or talking, and go back to what they were doing a moment after you leave
+    { const talking = chat.n === n, st_ = n.plan && n.plan.steps[n.plan.i], fetched = n.id === 'luke' && st_ && st_.k === 'follow';
+      if (!n.played && (talking || (d < 3.2 && !fetched && !n.inWater))) n.hold = talking ? 2.5 : 1.5; else n.hold = Math.max(0, (n.hold || 0) - dt);
+      if (n.hold > 0){ n.moving = false; n.nudge = null; n.stuck = 0;
+        if (n.id !== 'gma'){ const want = Math.atan2(me.x - n.x, me.z - n.z); let dd = want - n.a.g.rotation.y; while (dd > Math.PI) dd -= Math.PI * 2; while (dd < -Math.PI) dd += Math.PI * 2; n.a.g.rotation.y += dd * Math.min(1, dt * 6); }
+        if (n.id !== 'ari'){ if (n.inWater && n.a.set) n.a.set('tread'); n.a.tick(dt, false); }
+        n.tag.visible = n.a.dog ? d < 18 : d < 7; return; } }
     if (n.id === 'leva'){ levaWatch(n, dt); levaFetch(n, dt); }
     if (n.id === 'luke') lukeThink(n, dt); else if (n.id !== 'ari' && (SCHED[n.id] || PICK[n.id])) crewStep(n, dt); else if (n.id !== 'ari') n.a.tick(dt, false);
     n.tag.visible = n.a.dog ? d < 18 : d < 7; });
