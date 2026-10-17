@@ -15,6 +15,8 @@
   #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
   .vig{position:fixed;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 58%,rgba(20,30,50,.22) 100%)}
   .bar{position:fixed;top:14px;left:14px;right:14px;display:flex;gap:10px;align-items:center;z-index:5;pointer-events:none}
+  .who{position:fixed;top:66px;right:14px;z-index:6;display:none;flex-direction:column;gap:6px;padding:12px;background:rgba(255,255,255,.96);border-radius:18px;box-shadow:0 8px 30px rgba(20,30,40,.18);font-family:Nunito,Inter Tight,system-ui,sans-serif;min-width:180px}
+  .who.on{display:flex}.who b{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#5b6170;padding:0 4px 2px}.who button{border:0;border-radius:12px;padding:10px 12px;font:inherit;font-weight:800;font-size:15px;text-align:left;background:#f1f3f6;color:#1b1d24;cursor:pointer}.who button:hover{background:#e4e8ee}.who button.on{background:#1b1d24;color:#fff}.who small{color:#5b6170;font-size:12px;padding:4px 4px 0;max-width:220px}
   .bar>*{pointer-events:auto}
   .pill{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;background:var(--card);box-shadow:0 6px 24px rgba(20,30,50,.14),inset 0 0 0 1px rgba(255,255,255,.6);font:800 15px/1 var(--font);color:var(--ink);text-decoration:none;border:0;cursor:pointer}
   .pill.ink{background:rgba(27,29,36,.86);color:#fff}
@@ -131,8 +133,10 @@
   <span class="spacer"></span>
   <button class="pill" id="look" aria-pressed="true" type="button">Look around</button>
   <button class="pill ink" id="walk" aria-pressed="false" type="button">Play</button>
+  <button class="pill" id="who-btn" type="button" aria-haspopup="true" aria-expanded="false">You're leva ▾</button>
   <a class="pill" href="pool.html" id="look-btn">Pool map</a>
 </div>
+<div class="who" id="who" role="menu" aria-label="Play as"><b>Play as</b><button type="button" data-who="leva">leva</button><button type="button" data-who="em">Em</button><button type="button" data-who="mel">Mel</button><small>leva walks the park on his own when you're somebody else.</small></div>
 <div class="hint" id="hint" role="status"></div>
 <div class="talk" id="talk" role="status"><b id="talk-who"></b><span id="talk-txt"></span></div>
 <div class="prompt" id="prompt"></div>
@@ -1252,6 +1256,7 @@ const mel = npc('mel', 'Mel', 290, 312, Math.PI);
 const ari = npc('ari', 'Ari', 300, 345, 0);
 const guard = npc('guard', 'Lifeguard', 197, 180, Math.PI / 2);
 const nutty = npc('nutty', 'Nutty Dip', 390.5, 53, 0);
+const levaN = npc('leva', 'leva', 300, 330, Math.PI);   // leva the character: hidden while you are him, walking his rounds when you are somebody else
 const Q = {gmaCool: 0, nuttyCool: 0};
 const byId = Object.fromEntries(NPC.map(n => [n.id, n]));
 const hourNow = () => 11 + dayT / DAY_LEN * 9;
@@ -1281,6 +1286,11 @@ function moveNpc(n, tgt, dt, speed, stop = 0.5){
 // ---------------- who they are ----------------
 // What each of them is like, in a few lines. These feed the pocket brains, the model when there is one, the journals and the panel.
 const CARDS = {
+  leva: {who: 'leva, the park\'s robot. Runs Levagood Park: tests the water, skims leaves, keeps the deck safe. Steel head, cyan visor, pink antenna, blue coveralls.', voice: 'calm, kind, plain, a little dry, short sentences, says "walk, please"',
+    loves: ['clean water', 'a quiet deck at opening', 'Ari, even when he sneaks in', 'kids who walk'], dislikes: ['running on the deck', 'leaves in the skimmer', 'thunder', 'a low chlorine reading'],
+    secret: 'he keeps a dog cookie in his left pocket for Ari and pretends he does not', goal: 'a whole summer with nobody hurt', color: 'pool blue', food: 'he does not eat, but he likes the smell of Nutty Dip', animal: 'Ari', song: 'the hum of the pump room',
+    chips: ['What are you doing?', 'How is the water?', 'Are you a robot?', 'How do you think?', 'Why do guards rotate?', 'Do you remember me?'],
+    reflect: ['Chlorine held all day. Good water is quiet water.', 'Ari got in twice. He is getting better at it. I am getting better at noticing.', 'The guards changed on time all day. That is how a pool stays safe.', 'Somebody asked me how I think. I am still working out how to say it.']},
   em: {who: 'Em, the older of the two girls. Long straight hair, navy suit, cannonballs first.', voice: 'quick, competitive, big-hearted, short sentences, says "okay but" and "no way"',
     loves: ['volleyball', 'cannonballs off the low board', 'soccer', 'racing in the lap pool', 'Nutty Dip', 'winning by a lot'], dislikes: ['waiting around', 'cold water first thing', 'losing by one point', 'adult swim'],
     secret: 'the high dive scares her a little and she will not say so', goal: 'make the relay team', color: 'bright blue, like the lane lines', food: 'Nutty Dip, obviously', animal: 'Ari, and then dolphins', song: 'whatever is on the deck radio, loud',
@@ -1331,9 +1341,10 @@ function endOfDay(){
   save.events = {}; save.day++; store(); toast('Day ' + (save.day - 1) + ' is in the books. Everybody wrote in their journal.'); }
 
 // ---------------- their days: where they go and how they feel ----------------
-const SPOT = {towels_em: [378, 389], towels_mel: [390, 389], towels_yen: [366, 389], lap_em: [255, 312], lap_mel: [290, 312], low: [128, 151], nutty: [395, 66], nutty2: [388, 70], bench_yen: [372, 399], shade: [117.5, 279.5], zero: [392, 230]};
-const SPOTNAME = {towels_em: 'the towels', towels_mel: 'the towels', towels_yen: 'the towels', lap_em: 'the lap pool', lap_mel: 'the lap pool', low: 'the low board', nutty: 'the Nutty Dip window', nutty2: 'the Nutty Dip window', bench_yen: 'Grandma\'s bench', shade: 'the shade', zero: 'the zero depth'};
+const SPOT = {towels_em: [378, 389], towels_mel: [390, 389], towels_yen: [366, 389], lap_em: [255, 312], lap_mel: [290, 312], low: [128, 151], lv_north: [255, 110], lv_dive: [195, 180], lv_zero: [330, 300], lv_south: [255, 318], nutty: [395, 66], nutty2: [388, 70], bench_yen: [372, 399], shade: [117.5, 279.5], zero: [392, 230]};
+const SPOTNAME = {towels_em: 'the towels', towels_mel: 'the towels', towels_yen: 'the towels', lap_em: 'the lap pool', lap_mel: 'the lap pool', low: 'the low board', lv_north: 'the north end', lv_dive: 'the diving well', lv_zero: 'the zero depth', lv_south: 'the south end', nutty: 'the Nutty Dip window', nutty2: 'the Nutty Dip window', bench_yen: 'Grandma\'s bench', shade: 'the shade', zero: 'the zero depth'};
 const SCHED = {
+  leva: [[11, 'lv_north', 'testing the lap pool water'], [12, 'lv_dive', 'checking the diving well'], [13, 'nutty', 'getting a lemonade at the window'], [13.6, 'lv_zero', 'skimming leaves off the zero depth'], [15, 'lv_south', 'reading the water'], [16.5, 'lv_dive', 'watching the boards'], [18, 'lv_north', 'getting the deck ready to close']],
   em: [[11, 'towels_em', 'getting her goggles on'], [11.3, 'lap_em', 'doing laps, counting them out loud'], [12.4, 'nutty', 'in line at the window'], [13, 'lap_em', 'racing anybody who will race'], [15, 'low', 'cannonballs off the low board'], [16.2, 'towels_em', 'drying off, arguing about who won'], [17.5, 'lap_em', 'one more set of laps']],
   mel: [[11, 'towels_mel', 'humming and putting on sunscreen'], [11.5, 'zero', 'floating in the zero depth, looking at clouds'], [12.5, 'nutty2', 'deciding between a pretzel and a Nutty Dip'], [13.2, 'lap_mel', 'watching Em race, cheering wrong on purpose'], [14.5, 'low', 'waiting her turn on the low board'], [16, 'towels_mel', 'telling Ari a secret'], [17.5, 'zero', 'floating again']],
   yen: [[11, 'towels_yen', 'setting up the towels'], [12.3, 'nutty2', 'getting lunch for everybody'], [13, 'towels_yen', 'coaching from the shade'], [16.5, 'bench_yen', 'sitting with Grandma for a bit'], [17.8, 'towels_yen', 'packing up slowly']]
@@ -1341,7 +1352,7 @@ const SCHED = {
 function routine(n, dt){
   const sch = SCHED[n.id]; if (!sch) return; const h = hourNow(); let cur = sch[0]; for (const s of sch) if (h >= s[0]) cur = s;
   const spot = cur[1], tgt = [X(SPOT[spot][0]), Z(SPOT[spot][1])];
-  if (n.spot !== spot){ n.spot = spot; n.arrived = false; n.wps = null; n.doing = 'on her way to ' + SPOTNAME[spot]; n.doingAt = cur[2]; }
+  if (n.spot !== spot){ n.spot = spot; n.arrived = false; n.wps = null; n.doing = (n.id === 'leva' ? 'on his way to ' : 'on her way to ') + SPOTNAME[spot]; n.doingAt = cur[2]; }
   if (!n.arrived){ const there = moveNpc(n, tgt, dt, 1.7, 0.6); if (there){ n.arrived = true; n.doing = cur[2]; n.a.g.rotation.y = n.id === 'yen' ? Math.PI - 0.3 : Math.PI; } n.a.tick(dt, true, false); }
   else n.a.tick(dt, false);
   // feelings drift with the day
@@ -1349,8 +1360,8 @@ function routine(n, dt){
   f.energy = Math.max(0, Math.min(1, f.energy + (n.moving ? -0.004 : 0.0015) * dt)); f.fun = Math.max(0, f.fun - 0.0015 * dt); f.social = Math.max(0, f.social - 0.001 * dt);
 }
 const moodOf = n => { const f = n.feel; return f.hunger > 0.75 ? 'hungry' : f.energy < 0.3 ? 'tired' : f.fun > 0.65 ? 'happy' : f.social < 0.2 ? 'a little lonely' : 'chill'; };
-const seesNear = (n, R = 14) => { const out = []; const d0 = Math.hypot(me.x - n.x, me.z - n.z); if (d0 <= R) out.push({name: 'leva', d: d0, what: me.sprinting ? 'running' : inPool(me.x, me.z) ? 'swimming' : 'standing there'});
-  for (const o of NPC){ if (o === n) continue; const d = Math.hypot(o.x - n.x, o.z - n.z); if (d <= R) out.push({name: o.name, d, what: o.id === 'ari' ? (MIND.plan ? MIND.plan.steps[Math.min(MIND.plan.i, MIND.plan.steps.length - 1)].label.toLowerCase() : 'thinking') : o.doing}); } return out.sort((a, b) => a.d - b.d); };
+const seesNear = (n, R = 14) => { const out = []; const d0 = Math.hypot(me.x - n.x, me.z - n.z); if (d0 <= R) out.push({name: PLAYER.name, d: d0, what: me.sprinting ? 'running' : inPool(me.x, me.z) ? 'swimming' : 'standing there'});
+  for (const o of NPC){ if (o === n || o.played) continue; const d = Math.hypot(o.x - n.x, o.z - n.z); if (d <= R) out.push({name: o.name, d, what: o.id === 'ari' ? (MIND.plan ? MIND.plan.steps[Math.min(MIND.plan.i, MIND.plan.steps.length - 1)].label.toLowerCase() : 'thinking') : o.doing}); } return out.sort((a, b) => a.d - b.d); };
 
 // ---------------- Ari's mind: senses, wants, a plan, and what he has learned pays off ----------------
 const MIND = {
@@ -1362,13 +1373,13 @@ const SHADE = [X(117.5), Z(279.5)];
 const sources = () => [
   {id: 'gma', name: 'Grandma', x: gma.x, z: gma.z, what: Q.gmaCool > 0 ? 'snack bag (she said no more for now)' : 'snack bag', gives: 'treat'},
   {id: 'nutty', name: 'Nutty Dip window', x: X(390.5), z: Z(62), what: hourNow() < 18.5 ? 'the smell of Nutty Dip' : 'the window, closed', gives: 'treat'},
-  {id: 'me', name: 'leva', x: me.x, z: me.z, what: me.sprinting ? 'running!' : 'standing around', gives: 'play'},
-  {id: 'em', name: 'Em', x: em.x, z: em.z, what: em.doing}, {id: 'mel', name: 'Mel', x: mel.x, z: mel.z, what: mel.doing}, {id: 'yen', name: 'Yenny', x: yen.x, z: yen.z, what: yen.doing}
-];
+  {id: 'me', name: PLAYER.name, x: me.x, z: me.z, what: me.sprinting ? 'running!' : 'standing around', gives: 'play'},
+  {id: 'em', name: 'Em', x: em.x, z: em.z, what: em.doing}, {id: 'mel', name: 'Mel', x: mel.x, z: mel.z, what: mel.doing}, {id: 'yen', name: 'Yenny', x: yen.x, z: yen.z, what: yen.doing}, {id: 'leva', name: 'leva', x: levaN.x, z: levaN.z, what: levaN.doing}
+].filter(s => !(byId[s.id] && byId[s.id].played));
 function sense(dt, now){
   const out = []; const srcs = sources();
   for (const s of srcs){ const d = Math.hypot(s.x - ari.x, s.z - ari.z); const seen = d <= MIND.range, heard = s.id === 'me' && me.sprinting && d <= MIND.range * 1.8;
-    if (seen || heard){ MIND.known[s.id] = {x: s.x, z: s.z, t: now, name: s.name}; out.push({id: s.id, name: s.name, d, what: heard && !seen ? 'hears leva running' : s.what, how: heard && !seen ? 'hears' : 'sees'}); }
+    if (seen || heard){ MIND.known[s.id] = {x: s.x, z: s.z, t: now, name: s.name}; out.push({id: s.id, name: s.name, d, what: heard && !seen ? `hears ${PLAYER.name} running` : s.what, how: heard && !seen ? 'hears' : 'sees'}); }
     else if (!MIND.memory) delete MIND.known[s.id]; }
   MIND.senses = out;
   const W = MIND.wants; W.treat = Math.min(1, W.treat + 0.011 * dt); const lev = MIND.known.me; W.play = Math.min(1, W.play + 0.006 * dt + (me.sprinting && lev && Math.hypot(lev.x - ari.x, lev.z - ari.z) < 16 ? 0.06 * dt : 0));
@@ -1380,7 +1391,7 @@ function options(){
   const o = [];
   if (K.gma && Q.gmaCool <= 0) o.push({goal: 'treat-gma', label: 'Get a treat from Grandma', util: W.treat * near(K.gma) * learned('gma'), why: 'wants a treat, knows where Grandma is' + (V.gma > 0.65 ? ', and that has paid off before' : '')});
   if (K.nutty && Q.nuttyCool <= 0) o.push({goal: 'treat-nutty', label: 'Beg at the Nutty Dip window', util: W.treat * 0.85 * near(K.nutty) * learned('nutty'), why: 'wants a treat, knows where the window is' + (V.nutty < 0.35 ? ', though that has not worked lately' : '')});
-  if (K.me) o.push({goal: 'play', label: 'Play with leva', util: W.play * near(K.me) * 1.1 * learned('play'), why: 'wants to play, knows where leva is'});
+  if (K.me) o.push({goal: 'play', label: `Play with ${PLAYER.name}`, util: W.play * near(K.me) * 1.1 * learned('play'), why: `wants to play, knows where ${PLAYER.name} is`});
   o.push({goal: 'rest', label: 'Nap in the shade', util: W.rest * 0.8 * learned('rest'), why: 'tired'});
   o.push({goal: 'sniff', label: 'Sniff around the deck', util: 0.22 + W.sniff * 0.25, why: 'nothing better to do'});
   return o.sort((a, b) => b.util - a.util);
@@ -1390,7 +1401,7 @@ function makePlan(opt){
   let steps;
   if (opt.goal === 'treat-gma') steps = [go('Trot over to Grandma', () => [gma.x, gma.z - 1.1]), act('Sit', 'sit', 1.0), act('Look cute', 'beg', 2.2), act('Get the treat', 'eat', 1.6)];
   else if (opt.goal === 'treat-nutty') steps = [go('Trot to the window', () => [X(390.5), Z(63)]), act('Sit by the window', 'sit', 1.0), act('Beg', 'beg', 3.0), act(hourNow() < 18.5 ? 'Pup cup!' : 'Window is closed', 'eat', 1.6)];
-  else if (opt.goal === 'play') steps = [go('Run to leva', () => [me.x, me.z]), act('Hop around leva', 'hop', 3.5)];
+  else if (opt.goal === 'play') steps = [go(`Run to ${PLAYER.name}`, () => [me.x, me.z]), act(`Hop around ${PLAYER.name}`, 'hop', 3.5)];
   else if (opt.goal === 'rest') steps = [go('Walk to the shade', () => SHADE), act('Lie down', 'nap', 9)];
   else { let sp; for (let k = 0; k < 20; k++){ const a = Math.random() * Math.PI * 2, r = 60 + Math.random() * 100; sp = [CX + r * Math.cos(a), CY + r * Math.sin(a)]; if (!inPool(X(sp[0]), Z(sp[1])) && region(X(sp[0]), Z(sp[1])) === 'deck') break; } steps = [go('Wander over there', () => [X(sp[0]), Z(sp[1])]), act('Sniff', 'sniff', 2.5)]; }
   return {goal: opt.goal, label: opt.label, why: opt.why, util: opt.util, steps, i: 0, t: 0, run: opt.goal === 'play'};
@@ -1402,14 +1413,14 @@ function finishStep(st){
   if (st.kind === 'eat'){ if (P.goal === 'treat-gma'){ Q.gmaCool = 45; MIND.wants.treat = 0.06; learn('gma', 1); MIND.note = 'Grandma gave him one. His treat want dropped, and Grandma is worth a bit more to him now.'; event('ari', 'Got a treat from Grandma.'); event('gma', 'Ari came by for a snack. I gave him one. Of course I did.'); }
     else if (hourNow() < 18.5){ Q.nuttyCool = 70; MIND.wants.treat = 0.2; learn('nutty', 0.8); MIND.note = 'The Nutty Dip guy gave him a pup cup. Nobody told Ari to beg there; the rules added up to it.'; found('emerge'); event('ari', 'Begged at the window. Pup cup.'); event('nutty', 'Ari begged at the window. Gave him a pup cup. He did not pay.'); }
     else { Q.nuttyCool = 70; learn('nutty', 0); MIND.note = 'The window was closed. That trip did not pay off, so the window is worth less to him now.'; event('ari', 'Window was closed. Sat there anyway.'); } }
-  if (st.kind === 'hop'){ MIND.wants.play = Math.max(0, MIND.wants.play - 0.55); learn('play', 0.8); MIND.note = 'Playing used up his play want.'; event('ari', 'Played with leva.'); }
+  if (st.kind === 'hop'){ MIND.wants.play = Math.max(0, MIND.wants.play - 0.55); learn('play', 0.8); MIND.note = 'Playing used up his play want.'; event('ari', `Played with ${PLAYER.name}.`); }
   if (st.kind === 'nap'){ MIND.wants.rest = 0.05; learn('rest', 0.7); MIND.note = 'Rested. Rest want back to low.'; event('ari', 'Napped in the shade.'); }
 }
 function think(dt, now){
   sense(dt, now);
   const opts = options(), best = opts[0]; let P = MIND.plan;
   const lost = P && ((P.goal === 'treat-gma' && (!MIND.known.gma || Q.gmaCool > 0)) || (P.goal === 'treat-nutty' && (!MIND.known.nutty || Q.nuttyCool > 0)) || (P.goal === 'play' && !MIND.known.me));
-  if (lost){ MIND.note = P.goal === 'play' ? 'He lost track of leva, so that plan is gone.' : 'He can\'t count on that anymore, so the plan is gone.'; P = MIND.plan = null; }
+  if (lost){ MIND.note = P.goal === 'play' ? `He lost track of ${PLAYER.name}, so that plan is gone.` : 'He can\'t count on that anymore, so the plan is gone.'; P = MIND.plan = null; }
   if (!P || (best.goal !== P.goal && best.util > P.util + 0.25 && now - MIND.lastSwitch > 2)){ if (P && best.goal !== P.goal) MIND.note = `"${best.label}" beat "${P.label}", so he switched.`; MIND.plan = P = makePlan(best); MIND.lastSwitch = now; }
   else if (P) P.util = (opts.find(o => o.goal === P.goal) || P).util;
   const st = P.steps[P.i]; MIND.moving = false;
@@ -1438,6 +1449,7 @@ function closeChat(){ if (!chat.n) return; chat.el.classList.remove('on'); if (!
 document.getElementById('chat-x').onclick = closeChat;
 document.getElementById('chat-inside').onclick = () => { if (chat.n) openInside(chat.n); };
 function greet(n, m){ const c = CARDS[n.id], nm = m.about.name ? ', ' + m.about.name : ''; const last = m.notes.length ? m.notes[m.notes.length - 1] : null;
+  if (n.id === 'leva'){ const lt = last ? last.t.replace(/\.$/, '') : ''; return last && last.d < save.day ? `Hey${nm}. Last time ${lt}. Water's good today.` : last ? `Hey again${nm}. I'm ${n.doing}.` : `Hey${nm}. I'm leva. I run the park: water, deck, Ari. I'm ${n.doing}. Walk, please.`; }
   const lt = last ? last.t.replace(/\.$/, '') : ''; if (last && last.d < save.day) return ({em: `Hey${nm}! Last time ${lt}. Okay but today I'm faster.`, mel: `Oh hi${nm}. Wait, I remember: ${lt}. Did you think about it more?`, yen: `Hi hon${nm}. ${lt}. That was yesterday, right?`, gma: `Well hello, sweetheart${nm}. I remember you. ${lt}.`, guard: `Hey${nm}. Walk, don't run. ${lt}.`, nutty: `Back again${nm}! ${lt}.`})[n.id];
   if (last) return ({em: `Hey again${nm}. What now?`, mel: `Hi again${nm}. I was just thinking about something.`, yen: `Hi hon. Everything okay?`, gma: `Hello again, sweetheart.`, guard: `Yep?`, nutty: `What can I get you${nm}?`})[n.id];
   return ({em: `Hey! I'm Em. Want to race? I'm ${n.doing}.`, mel: `Oh, hi. I'm Mel. I was ${n.doing}. Do you like fish?`, yen: `Hi hon, I'm Yenny, the girls' mom. You need anything, I'm right here by the towels.`, gma: `Well hello, sweetheart. I'm Grandma. Sit with me a minute. Do you want a snack?`, guard: `Hey. I'm on the stand today. Walk, don't run, and you'll have a great time.`, nutty: `Welcome to Nutty Dip, best thing on the deck since 1965. What'll it be?`})[n.id]; }
@@ -1453,10 +1465,10 @@ async function ask(text){ const n = chat.n; if (!n || brain.busy) return; mine(t
   n.lastLearned = learnAbout(n.id, text);
   try { out = await answer(n, text); } catch (e) { out = pocket(n, text); }
   const wait = Math.max(0, 600 + Math.random() * 500 - (performance.now() - started)); await new Promise(r => setTimeout(r, wait));
-  thinking(false); brain.busy = false; say(n, out.text, out.how, out.src); chat.count = (chat.count || 0) + 1; if (chat.count >= 4) found('tag'); if (out.how !== 'remembered' || !n.lastLearned.length){ remember(n.id, 'leva asked about ' + gist(text)); event(n.id, `leva asked me about ${gist(text)}.`); } n.feel.fun = Math.min(1, n.feel.fun + 0.1); chips(n); }
+  thinking(false); brain.busy = false; say(n, out.text, out.how, out.src); chat.count = (chat.count || 0) + 1; if (chat.count >= 4) found('tag'); if (out.how !== 'remembered' || !n.lastLearned.length){ remember(n.id, PLAYER.name + ' asked about ' + gist(text)); event(n.id, `leva asked me about ${gist(text)}.`); } n.feel.fun = Math.min(1, n.feel.fun + 0.1); chips(n); }
 const gist = t => t.replace(/[?!.]+$/, '').replace(/^(hey|hi|so|um|okay|ok)[, ]+/i, '').slice(0, 48).toLowerCase();
 async function answer(n, text){
-  if (GUARD.some(r => r.test(text))) return {text: ({em: 'Okay but not that. Ask me about the pool.', mel: 'Hmm, I don\'t talk about stuff like that. Fish, though. Ask me about fish.', yen: 'Let\'s keep that off the deck, hon.', gma: 'Oh, sweetheart, that\'s not for the pool. Ask me about my grandkids instead.', guard: 'Not on my deck. What else?', nutty: 'Let\'s stick to ice cream, friend.'})[n.id] + ' (leva: Yep. Let\'s keep that stuff off the deck.)', how: 'guard'};
+  if (GUARD.some(r => r.test(text))) return {text: ({em: 'Okay but not that. Ask me about the pool.', mel: 'Hmm, I don\'t talk about stuff like that. Fish, though. Ask me about fish.', yen: 'Let\'s keep that off the deck, hon.', gma: 'Oh, sweetheart, that\'s not for the pool. Ask me about my grandkids instead.', guard: 'Not on my deck. What else?', nutty: 'Let\'s stick to ice cream, friend.', leva: 'Not here. Ask me about the pool, the water, or how I think.'})[n.id] + (n.id === 'leva' ? '' : ' (leva: Yep. Let\'s keep that stuff off the deck.)'), how: 'guard'};
   const mem = memoryAnswer(n, text); if (mem) return mem;
   if (n.id === 'ari') return {text: 'Ari tilts his head. Then he goes back to what he was doing.', how: 'knew'};
   await checkBrains();
@@ -1474,6 +1486,7 @@ function pocket(n, text){
   const c = CARDS[n.id], t = text.toLowerCase().trim(), m = memOf(n.id), pick = a => a[Math.floor(Math.random() * a.length)], name = m.about.name ? ' ' + m.about.name : '';
   const K = (...ws) => ws.some(w => t.includes(w));
   const knew = x => ({text: x, how: 'knew'}), guess = x => { m.wonders.push(gist(text)); if (m.wonders.length > 8) m.wonders.shift(); store(); return {text: x, how: 'guessed'}; };
+  if (n.id === 'leva') return levaPocket(n, t, m, {knew, guess, pick, name, K});
   if (n.lastLearned && n.lastLearned.length){ const g = n.lastLearned, nm = g.find(x => x[0] === 'name'), lk = g.find(x => x[0] === 'like'), fv = g.find(x => x[0] === 'fav'), hs = g.find(x => x[0] === 'has'); const parts = [];
     if (nm) parts.push(({em: `${nm[1]}! Okay, got it.`, mel: `${nm[1]}. I like that name. It sounds like a fish that would be nice to you.`, yen: `Nice to meet you, ${nm[1]}.`, gma: `${nm[1]}. What a lovely name, sweetheart. I'll remember it.`, guard: `${nm[1]}. Noted.`, nutty: `${nm[1]}! A name I can put on a cone.`})[n.id]);
     if (lk) parts.push(({em: `${lk[1]}? Okay but is it better than volleyball? Don't answer that.`, mel: `You like ${lk[1]}? Wait, really? Tell me the best part.`, yen: `${lk[1]}, huh. The girls would get along with you.`, gma: `${lk[1]}. Well, isn't that nice. One of my grandkids loves that too.`, guard: `${lk[1]}. Good. Keep it off the deck tiles.`, nutty: `${lk[1]}! Goes great with soft serve.`})[n.id]);
@@ -1492,8 +1505,8 @@ function pocket(n, text){
   if (/favou?rite/.test(t)) return knew(`Here? ${pick(c.loves)}.`);
   if (/\b(joke|funny)\b/.test(t)) return knew(pick(['Why did the dog sit in the shade? He didn\'t want to be a hot dog.', 'What do you call a fish with no eyes? A fsh.', 'Why don\'t pools ever get in trouble? They always stay in their lane.', 'What did the ocean say to the pool? Nothing. It just waved.']));
   if (/\b(sing|song)\b/.test(t) && n.id === 'mel') return knew(pick(['🎵 Catfish, catfish, down in the deep, you got whiskers and you never sleep 🎵 ... I made that up. Just now.', '🎵 Floating, floating, clouds like fish, if I had a flathead that\'d be my wish 🎵']));
-  if (/\b(race|swim with me|beat you)\b/.test(t) && n.id === 'em'){ event('em', 'leva wanted to race.'); return knew(pick(['Yes. Lap pool, two lengths, go!', 'Okay but I\'m not going easy on you. Deep end, now.'])); }
-  if (/\b(snack|hungry|food|eat)\b/.test(t) && n.id === 'gma'){ event('gma', 'Gave leva a snack from the bag.'); return knew('Of course, sweetheart. Here. The second pocket is Ari\'s, don\'t tell him I told you.'); }
+  if (/\b(race|swim with me|beat you)\b/.test(t) && n.id === 'em'){ event('em', `${PLAYER.name} wanted to race.`); return knew(pick(['Yes. Lap pool, two lengths, go!', 'Okay but I\'m not going easy on you. Deep end, now.'])); }
+  if (/\b(snack|hungry|food|eat)\b/.test(t) && n.id === 'gma'){ event('gma', `Gave ${PLAYER.name} a snack from the bag.`); return knew('Of course, sweetheart. Here. The second pocket is Ari\'s, don\'t tell him I told you.'); }
   if (/\b(catfish|fish|fishing|flathead|bass)\b/.test(t) && n.id === 'mel') return knew(pick(['Catfish find food with their whiskers. Barbels. They taste with their whole body, kind of.', 'Flatheads can live a long, long time. Like, older than Mom. Don\'t tell her I said that.', 'Channel cats are the ones with the forked tail. Flatheads are the big grumpy ones.']));
   if (/\b(volleyball|serve|spike|team)\b/.test(t) && (n.id === 'em' || n.id === 'yen')) return knew(n.id === 'em' ? 'My serve is getting good. Mom says "coming along," which means good.' : 'Em\'s serve is coming along. Her patience is the project.');
   if (/\b(cutlass|car|drive)\b/.test(t) && n.id === 'gma') return knew('My gold Cutlass. She\'s older than your mother and she starts on the first try. I drive her here every day.');
@@ -1509,6 +1522,34 @@ function pocket(n, text){
   if (/^(do you|can you|have you|will you|would you|are you)/.test(t)) return guess(pick([({em: `Probably? I'll try anything once. Twice if I win.`, mel: `Maybe. I've never thought about it. Now I am.`, yen: `I'd have to think about that one, hon.`, gma: `I might, sweetheart. I've done a lot of things in my years.`, guard: `Depends. Is it on the deck?`, nutty: `Sure, if it comes with sprinkles.`})[n.id], `I'm not sure yet. Ask me tomorrow, I'll have thought about ${topic}.`]));
   if (/^(what|who|where|when|which)/.test(t)) return guess(({em: `I don't know that one. My guess: something to do with ${likes}. Okay but ask me tomorrow, I'll find out.`, mel: `Hmm. I don't know ${topic}. I'll find out. I like finding out.`, yen: `I'm not sure, hon. I'll find out for you.`, gma: `I don't know that one, sweetheart, and I'm not going to pretend. I'll learn it. I learn something every day.`, guard: `Don't know. I'll ask around.`, nutty: `Beats me. Nutty Dip, though. I know everything about that.`})[n.id]);
   return guess(pick([({em: `Huh. I never thought about ${topic}. I'm going to.`, mel: `${topic}? Wait, really? Tell me more, I'm collecting it.`, yen: `Tell me more about that, hon.`, gma: `Well, isn't that something. Tell me more, sweetheart.`, guard: `Hm. Go on.`, nutty: `Interesting. Keep going.`})[n.id], `I don't know much about ${topic}, but I want to. What do you know?`]));
+}
+// leva's own pocket answers: the water, the deck, the guards, how he thinks, and an honest guess for the rest
+function levaPocket(n, t, m, h){
+  const {knew, guess, pick, name, K} = h;
+  if (n.lastLearned && n.lastLearned.length){ const g = n.lastLearned, nm = g.find(x => x[0] === 'name'), lk = g.find(x => x[0] === 'like'), fv = g.find(x => x[0] === 'fav'), hs = g.find(x => x[0] === 'has'); const parts = [];
+    if (nm) parts.push(`${nm[1]}. Got it. I don't forget names.`); if (lk) parts.push(`${lk[1]}. Noted. Does it hold up in the water?`); if (fv) parts.push(`Favorite ${fv[1]}. I'll remember that.`); if (hs) parts.push(`A ${hs[1]}. Keep it off the deck, and we're friends.`);
+    remember('leva', nm ? `learned your name is ${nm[1]}` : `learned you like ${(lk || fv || hs)[1]}`); return {text: parts.join(' '), how: 'remembered'}; }
+  if (/^(hi|hey|hello|yo|sup)\b/.test(t)) return knew(pick([`Hey${name}.`, `Hi${name}. Walk, please.`, `Hey there${name}. Water's good.`]));
+  if (/\b(bye|see you|later|gotta go)\b/.test(t)) return knew(pick(['See you. Walk out, please.', 'Later. Drink some water.']));
+  if (/thank/.test(t)) return knew(pick(['Anytime.', 'That is the job.']));
+  if (/what are you doing|whatcha doing|what('?re| are) you up to/.test(t)) return knew(`I'm ${n.doing}. ${hourNow() > 17.5 ? 'Closing is at eight.' : 'Then the next thing on the list.'}`);
+  if (/\b(water|chlorine|ph|clean|test)\b/.test(t)) return knew(pick(['pH 7.6, chlorine 1.5. That is good water. You can tell because nothing smells like a pool. A pool that smells like a pool needs work.', 'I test every pool every hour. Chlorine eats what people bring in. pH keeps it from stinging your eyes.']));
+  if (/\b(guard|rotat|chair|stand|change)/.test(t)) return knew('Every half hour the guards change chairs. A fresh set of eyes on every pool. The new guard watches the water before the old one climbs down, so nobody is ever unwatched.');
+  if (/\b(zero depth|baby pool|beach|shallow)\b/.test(t)) return knew('The zero depth starts at nothing, like a beach, and gets to three and a half feet at the wall. You walk in. Nobody needs to swim there.');
+  if (/\b(deep end|diving|dive|board)\b/.test(t)) return knew('The diving well is twelve feet. Two one meter boards, two three meter boards. Feet first the first time, please.');
+  if (/\b(are you (real|a robot|an? ai|alive|human|a person)|real person|robot)\b/.test(t)) return knew('I am a robot. The park\'s robot. I am also a character in this game, so the real park has a real crew and I am the one who gets to talk to you.');
+  if (/\b(what is|what'?s) (an? )?(ai|artificial intelligence|agent)\b/.test(t) || /how (do|does) (you|ari) (think|decide|learn|work)/.test(t)) return knew('I sense, I want, I plan, I act, and I notice what worked. Ari does the same thing with a smaller list. Press E on Ari and you can see every step of it. That is all an agent is.');
+  if (/\b(ari|dog|beagle)\b/.test(t)) return knew(pick(['Ari gets in the pool about twice a day. I get him out about twice a day. We have an understanding.', 'Ari wants a treat, a nap, or you. In that order, mostly.']));
+  if (/\b(em|mel|yenny|grandma)\b/.test(t)) return knew('Good people. Em races anybody. Mel knows every fish in Michigan. Yenny runs lunch. Grandma runs the snacks. Go say hi.');
+  if (/\b(rule|allowed|can i|run)\b/.test(t)) return knew('Walk on the deck. Feet first the first time. Out of the water when you hear thunder. That is about it.');
+  { const fav = t.match(/favou?rite (colou?r|food|animal|song)/); if (fav){ const k = fav[1].startsWith('colo') ? 'color' : fav[1]; return knew(`My favorite ${k}: ${CARDS.leva[k]}.`); } }
+  if (/\b(joke|funny)\b/.test(t)) return knew(pick(['Why did the robot go to the pool? To test the water. That is also why I went.', 'What do you call a dog in the deep end? Ari. Every day.']));
+  if (/do you (remember|know) me|who am i/.test(t)) return knew(m.about.name ? `You're ${m.about.name}. ${m.notes.length} things in my notes about you.` : 'Not yet. Tell me your name and I will.');
+  const topic = gist(t);
+  if (/^(why|how come)/.test(t)) return guess(`I don't know for sure. My guess: ${topic} works like the pool does, a little at a time. I'll find out.`);
+  if (/^(do you|can you|have you|will you|would you|are you)/.test(t)) return guess(pick([`Probably. I'll check.`, `Not yet. I'd like to.`]));
+  if (/^(what|who|where|when|which)/.test(t)) return guess(`I don't have that one. I'll put ${topic} on the list and find out.`);
+  return guess(pick([`${topic}. I'll think on that between water tests.`, `Huh. ${topic}. Ask me tomorrow, I'll have looked.`]));
 }
 // a real model, when one is around: the leva model in Ollama on this Mac, or your API
 async function modelReply(n, text){
@@ -1769,7 +1810,7 @@ function walkStep(dt){
   // the crew: who's near, who turns to look at you, whose name you can read
   let near = null, nd = 3.0;
   const playerHead = player.head ? player.head.getWorldPosition(headTmp) : null;
-  NPC.forEach(n => { const d = Math.hypot(n.x - me.x, n.z - me.z); if (d < nd){ nd = d; near = n; }
+  NPC.forEach(n => { if (n.played) return; const d = Math.hypot(n.x - me.x, n.z - me.z); if (d < nd){ nd = d; near = n; }
     if (n.a.face){ const F = n.a.face; if (!F.robot && n.feel){ const md = FACE_MOODS[moodOf(n)] || FACE_MOODS.chill; F.want.brow = md.brow; F.want.tilt = md.tilt; F.want.lid = md.lid; F.want.squint = md.squint; F.want.smile = md.smile * (0.5 + F.smileBase * 0.7); if (chat.n === n){ F.want.smile = Math.min(1, F.want.smile + 0.25); F.want.brow += 0.15; } } F.target = d < 6 && playerHead ? playerHead : null; }
     if (n.id !== 'gma' && n.id !== 'ari' && !n.moving){ if (d < 6){ const want = Math.atan2(me.x - n.x, me.z - n.z); let dd = want - n.a.g.rotation.y; while (dd > Math.PI) dd -= Math.PI * 2; while (dd < -Math.PI) dd += Math.PI * 2; n.a.g.rotation.y += dd * Math.min(1, dt * 6); } else n.a.g.rotation.y += (n.face - n.a.g.rotation.y) * Math.min(1, dt * 2); }
     if (SCHED[n.id]) routine(n, dt); else if (n.id !== 'ari') n.a.tick(dt, false);
@@ -1800,7 +1841,20 @@ addEventListener('keydown', e => { if (mode !== 'walk') return; if (e.target && 
 jumpBtn.addEventListener('pointerdown', e => { e.preventDefault(); wantJump = true; });
 runBtn.addEventListener('pointerdown', e => { e.preventDefault(); runHeld = true; runBtn.classList.add('held'); }); ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => runBtn.addEventListener(ev, () => { runHeld = false; runBtn.classList.remove('held'); }));
 talkBtn.addEventListener('click', () => { if (nearNpc) talk(nearNpc); });
-let player = actorFor('leva'); player.g.position.set(me.x, 0, me.z); blob(player.g, 0.5);
+// who you play: leva, Em or Mel. The one you are steps out of the crew; the one you were steps back in where you left them.
+const PLAYABLE = {leva: 'leva', em: 'Em', mel: 'Mel'}; let PLAYER = {id: 'leva', name: 'leva'}, player = null;
+const whoBtn = document.getElementById('who-btn'), whoBox = document.getElementById('who');
+function setPlayer(id){
+  if (!PLAYABLE[id]) id = 'leva'; const px = me.x, pz = me.z, face = me.face;
+  if (player){ fadePlayer(1); fadeMats = null; scene.remove(player.g); const old = byId[PLAYER.id]; if (old){ old.played = false; old.a.g.visible = true; old.x = px; old.z = pz; old.a.g.position.set(px, 0, pz); old.a.g.rotation.y = face; old.arrived = false; old.wps = null; } }
+  PLAYER = {id, name: PLAYABLE[id]}; save.who = id; store();
+  const n = byId[id]; if (n){ n.played = true; n.a.g.visible = false; if (chat.n === n) closeChat(); if (nearNpc === n) nearNpc = null; }
+  player = actorFrom(LOOKS[id]); player.id = id; player.g.position.set(px, 0, pz); player.g.rotation.y = face; blob(player.g, 0.5); if (window.__toonify) window.__toonify(player.g);
+  whoBtn.textContent = `You're ${PLAYER.name} ▾`; whoBox.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.who === id));
+}
+whoBtn.addEventListener('click', () => { const on = !whoBox.classList.contains('on'); whoBox.classList.toggle('on', on); whoBtn.setAttribute('aria-expanded', on); });
+whoBox.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { setPlayer(b.dataset.who); whoBox.classList.remove('on'); whoBtn.setAttribute('aria-expanded', 'false'); toast(`You're ${PLAYER.name} now.`); }));
+setPlayer(save.who || 'leva');
 updateHud();
 
 function resize(){ renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); }
@@ -1817,7 +1871,7 @@ toonify(scene); window.__toonify = toonify;
 document.getElementById('loading').classList.add('done');
 const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => { const dt = Math.min(0.05, clock.getDelta()); waterMat.uniforms.t.value += dt; waters.forEach(w => { w.material.uniforms.time.value += dt * 0.6; }); dayStep(dt); if (mode === 'walk') walkStep(dt); else { orbit.update(); camNow += dt; think(dt, camNow); guardsStep(dt); } peopleStep(dt); renderer.render(scene, camera); });
-window.__park3d = {scene, camera, me, setMode, D, poolC, X, Z, S, SITE, inPool, onDeck, placeName, NPC, STARS, talk, save, keys, MIND, FOUND, openInside, closeInside, openChat, closeChat, ask, pocket, CARDS, memOf, endOfDay, moodOf, region, routeWps, brain, get player(){ return player; }, jump: () => { wantJump = true; }, cam: () => [camYaw, camPitch], setCam: (y, p) => { camYaw = y; camPitch = p; camTouched = camNow; }, setDay: t => { dayT = t; }, step: (dt, n = 1) => { for (let i = 0; i < n; i++) walkStep(dt); }, pause: () => renderer.setAnimationLoop(null), render: () => { dayStep(0.001); for (let i = 0; i < 20; i++){ NPC.forEach(n => { if (n.id !== 'ari') n.a.tick(0.03); }); if (player) player.tick(0.03); } renderer.render(scene, camera); }, walls, solids, trunks, STANDS, GUARDS, CHAINS, guardChange: startChanges, zeroDepth};
+window.__park3d = {scene, camera, me, setMode, D, poolC, X, Z, S, SITE, inPool, onDeck, placeName, NPC, STARS, talk, save, keys, MIND, FOUND, openInside, closeInside, openChat, closeChat, ask, pocket, CARDS, memOf, endOfDay, moodOf, region, routeWps, brain, get player(){ return player; }, jump: () => { wantJump = true; }, cam: () => [camYaw, camPitch], setCam: (y, p) => { camYaw = y; camPitch = p; camTouched = camNow; }, setDay: t => { dayT = t; }, step: (dt, n = 1) => { for (let i = 0; i < n; i++) walkStep(dt); }, pause: () => renderer.setAnimationLoop(null), render: () => { dayStep(0.001); for (let i = 0; i < 20; i++){ NPC.forEach(n => { if (n.id !== 'ari') n.a.tick(0.03); }); if (player) player.tick(0.03); } renderer.render(scene, camera); }, walls, solids, trunks, STANDS, GUARDS, CHAINS, guardChange: startChanges, zeroDepth, setPlayer, get who(){ return PLAYER.id; }};
 </script>
 </body>
 </html>
