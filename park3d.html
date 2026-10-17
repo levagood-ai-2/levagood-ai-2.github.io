@@ -53,6 +53,12 @@
   body.walking.touch .tbtn{display:block}
   #talk-btn{position:fixed;right:22px;bottom:134px;z-index:6;display:none}
   body.walking.touch #talk-btn.on{display:inline-flex}
+  #toy-prompt{bottom:160px}
+  #toy-btn{position:fixed;right:22px;bottom:186px;z-index:6;display:none;background:#fff}
+  body.walking.touch #toy-btn.on{display:inline-flex}
+  .msg.dog p{background:#fff8ec}
+  .msg.learn{max-width:100%}.msg.learn p{background:rgba(36,87,214,.08);box-shadow:none;font:700 13px/1.4 var(--font)}
+  .chips.dog{gap:5px;max-height:150px;overflow:auto}.chips.dog button{padding:7px 10px;font-size:12px}.chips.dog button.act{background:rgba(36,87,214,.13)}.chips.dog .sep{flex-basis:100%;height:0}
   body.walking.touch .where{display:none}
   body.walking.touch .prompt{display:none}
   .gate{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(10,10,10,.45);padding:16px}
@@ -119,7 +125,7 @@
   .chat form{display:flex;gap:8px;padding:8px 14px 14px}
   .chat input{flex:1;min-width:0;border:0;border-radius:999px;padding:0 16px;height:44px;background:#fff;box-shadow:inset 0 0 0 2px rgba(27,29,36,.1);font:700 15px var(--font);color:var(--ink)}
   .chat input:focus{outline:0;box-shadow:inset 0 0 0 2px var(--pink)}
-  body.panel-open #stick,body.panel-open .tbtn,body.panel-open #talk-btn{display:none!important}
+  body.panel-open #stick,body.panel-open .tbtn,body.panel-open #talk-btn,body.panel-open #toy-btn{display:none!important}
   @media (max-width:700px){.chat{max-height:70vh}.inside{top:auto;left:14px;right:14px;bottom:14px;width:auto;height:56vh}.bar{gap:8px}.pill{min-height:40px;padding:0 13px;font-size:14px}.hud{gap:10px}}
 </style>
 </head>
@@ -145,6 +151,8 @@
 <button id="jump-btn" class="tbtn" type="button" aria-label="Jump">Jump</button>
 <button id="run-btn" class="tbtn" type="button" aria-label="Run">Run</button>
 <button id="talk-btn" class="pill ink" type="button">Talk</button>
+<div class="prompt" id="toy-prompt"></div>
+<button id="toy-btn" class="pill" type="button">Grab</button>
 <aside class="inside" id="inside" aria-label="Inside">
   <header><b id="inside-title">Inside Ari</b><button type="button" id="inside-x" aria-label="Close">✕</button></header>
   <div class="scroll" id="inside-body"></div>
@@ -800,7 +808,7 @@ stick.addEventListener('pointercancel', e => { if (e.pointerId === stickId){ sti
 function moveStick(e){ const r = stick.getBoundingClientRect(), dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2), L = Math.min(50, Math.hypot(dx, dy)), a = Math.atan2(dy, dx); sv = {x: Math.cos(a) * L / 50, y: Math.sin(a) * L / 50}; knob.style.transform = `translate(${Math.cos(a) * L}px,${Math.sin(a) * L}px)`; }
 canvas.addEventListener('wheel', e => { if (mode === 'walk'){ camDist = Math.max(3, Math.min(12, camDist + e.deltaY * 0.01)); e.preventDefault(); } }, {passive: false});
 // a gamepad, if one is plugged in: left stick runs, right stick turns the camera, A jumps, X looks inside or talks, RT or RB sprints
-const pad = {x: 0, y: 0, cx: 0, cy: 0, jump: false, act: false, sprint: false, back: false, prevJump: false, prevAct: false, prevBack: false, on: false};
+const pad = {x: 0, y: 0, cx: 0, cy: 0, jump: false, act: false, sprint: false, back: false, toy: false, prevJump: false, prevAct: false, prevBack: false, prevToy: false, on: false};
 function pollPad(){
   pad.jump = pad.act = pad.back = false; pad.x = pad.y = pad.cx = pad.cy = 0; pad.sprint = false;
   const gps = navigator.getGamepads ? navigator.getGamepads() : []; let g = null; for (const p of gps) if (p && p.connected){ g = p; break; }
@@ -808,7 +816,7 @@ function pollPad(){
   const dz = v => Math.abs(v) < 0.15 ? 0 : (v - Math.sign(v) * 0.15) / 0.85;
   pad.x = dz(g.axes[0] || 0); pad.y = dz(g.axes[1] || 0); pad.cx = dz(g.axes[2] || 0); pad.cy = dz(g.axes[3] || 0);
   const b = i => !!(g.buttons[i] && g.buttons[i].pressed);
-  const j = b(0), a = b(2) || b(3), bk = b(1); pad.jump = j && !pad.prevJump; pad.act = a && !pad.prevAct; pad.back = bk && !pad.prevBack; pad.prevJump = j; pad.prevAct = a; pad.prevBack = bk;
+  const j = b(0), a = b(2), bk = b(1), ty = b(3); pad.toy = ty && !pad.prevToy; pad.prevToy = ty; pad.jump = j && !pad.prevJump; pad.act = a && !pad.prevAct; pad.back = bk && !pad.prevBack; pad.prevJump = j; pad.prevAct = a; pad.prevBack = bk;
   pad.sprint = b(7) || b(5) || b(10);
 }
 // what you bump into: fences and walls (lines), trees and poles (circles), and solid things with a height (boxes)
@@ -877,20 +885,21 @@ const melSuitTex = (() => { const cv = document.createElement('canvas'); cv.widt
 function eyes(head, y = 0.02, dx = 0.07, z = 0.17, color = '#1b1b1b'){ [-dx, dx].forEach(x => bx(0.045, 0.06, 0.02, M(color), x, y, z, head)); }
 // Ari: a corn red beagle with the white chest, white socks and the pink collar
 function beagle(){
-  const g = new THREE.Group(), red = M('#b5471e', {roughness: 0.9}), white = M('#f6f1e6', {roughness: 0.9}), dark = M('#6b2a10', {roughness: 0.9});
-  const body = cap(0.17, 0.62, red, 0, 0.42, 0, g); body.rotation.x = Math.PI / 2;
-  const belly = cap(0.13, 0.5, white, 0, 0.33, 0.02, g); belly.rotation.x = Math.PI / 2;
-  const mk = (x, z) => { const l = new THREE.Group(); l.position.set(x, 0.36, z); g.add(l); cap(0.05, 0.34, red, 0, -0.14, 0, l); cap(0.055, 0.16, white, 0, -0.28, 0, l); return l; };
+  const g = new THREE.Group(), inner = new THREE.Group(); g.add(inner); const red = M('#b5471e', {roughness: 0.9}), white = M('#f6f1e6', {roughness: 0.9}), dark = M('#6b2a10', {roughness: 0.9});
+  const body = cap(0.17, 0.62, red, 0, 0.42, 0, inner); body.rotation.x = Math.PI / 2;
+  const belly = cap(0.13, 0.5, white, 0, 0.33, 0.02, inner); belly.rotation.x = Math.PI / 2;
+  const mk = (x, z) => { const l = new THREE.Group(); l.position.set(x, 0.36, z); inner.add(l); cap(0.05, 0.34, red, 0, -0.14, 0, l); cap(0.055, 0.16, white, 0, -0.28, 0, l); return l; };
   const legL = mk(-0.1, 0.2), legR = mk(0.1, 0.2), armL = mk(-0.1, -0.22), armR = mk(0.1, -0.22);   // front pair, back pair
-  const head = new THREE.Group(); head.position.set(0, 0.6, 0.36); g.add(head);
+  const head = new THREE.Group(); head.position.set(0, 0.6, 0.36); inner.add(head);
   ball(0.16, red, 0, 0, 0, head); bx(0.1, 0.1, 0.16, white, 0, -0.04, 0.17, head); ball(0.04, M('#1b1b1b'), 0, -0.01, 0.26, head);
   bx(0.04, 0.3, 0.02, white, 0, 0.0, 0.14, head);
   eyes(head, 0.04, 0.07, 0.13);
   [-1, 1].forEach(k => { const e = bx(0.08, 0.26, 0.05, dark, k * 0.16, -0.08, -0.02, head); e.rotation.z = -k * 0.25; });
-  part(new THREE.TorusGeometry(0.13, 0.025, 8, 20), M('#FF2E88'), 0, 0.5, 0.26, g).rotation.x = Math.PI / 2 - 0.3;
-  const tail = cap(0.035, 0.3, red, 0, 0.56, -0.44, g); tail.rotation.x = -0.9; ball(0.04, white, 0, 0.68, -0.54, g);
+  part(new THREE.TorusGeometry(0.13, 0.025, 8, 20), M('#FF2E88'), 0, 0.5, 0.26, inner).rotation.x = Math.PI / 2 - 0.3;
+  const tail = new THREE.Group(); tail.position.set(0, 0.5, -0.3); inner.add(tail); const tl = cap(0.035, 0.3, red, 0, 0.1, -0.11, tail); tl.rotation.x = -0.9; ball(0.04, white, 0, 0.19, -0.23, tail);
   scene.add(g);
-  return {g, legL, legR, armL, armR, head, tail, phase: 0, dog: true};
+  inner.traverse(o => { if (o.isMesh) o.castShadow = true; });
+  return {g, inner, legL, legR, armL, armR, head, tail, phase: 0, dog: true, legH: 0.36, bodyH: 0.42, bodyR: 0.17};
 }
 // a name floating over somebody's head
 function label(text, color = '#0a0a0a'){ const cv = document.createElement('canvas'); cv.width = 256; cv.height = 64; const g = cv.getContext('2d'); g.font = '800 34px Inter Tight, system-ui, sans-serif'; g.textAlign = 'center';
@@ -1181,7 +1190,7 @@ const angTo = (a, b) => { let d = (b - a) % (Math.PI * 2); if (d > Math.PI) d -=
 function lerpRot(obj, x, y, z, k){ obj.rotation.x += angTo(obj.rotation.x, x) * k; obj.rotation.y += angTo(obj.rotation.y, y) * k; obj.rotation.z += angTo(obj.rotation.z, z) * k; }
 const SWIM_PITCH = 1.4;   // how flat a swimmer lies: 0 is standing up, half pi is flat on the water
 function toonTick(r, dt){
-  r.t += dt; const st = r.state, k = Math.min(1, dt * 12), sp = r.speed, now = r.t;
+  r.t += dt; r.stT = (r.stT || 0) + dt; const st = r.state, k = Math.min(1, dt * (st === 'throw' ? 22 : 12)), sp = r.speed, now = r.t;
   const Z = () => [0, 0, 0];
   let P = {hips: Z(), hipY: 0, torso: Z(), chest: Z(), head: Z(), armL: [0.05, 0, 0.1], armR: [0.05, 0, -0.1], foreL: [-0.18, 0, 0], foreR: [-0.18, 0, 0], legL: Z(), legR: Z(), shinL: Z(), shinR: Z(), footL: Z(), footR: Z(), rootX: 0};
   if (st === 'walk' || st === 'jog' || st === 'run'){
@@ -1221,6 +1230,11 @@ function toonTick(r, dt){
   else if (st === 'cheer'){ r.phase += dt * 6; const ph = r.phase, s = Math.sin(ph); P.armL = [-2.6 + s * 0.3, 0, -0.5 + s * 0.2]; P.armR = [-2.6 - s * 0.3, 0, 0.5 - s * 0.2]; P.foreL = [-0.35, 0, 0]; P.foreR = [-0.35, 0, 0]; P.hipY = Math.abs(Math.sin(ph)) * 0.05; P.head = [-0.2, s * 0.12, 0]; P.shinL = [Math.max(0, -s) * 0.2, 0, 0]; P.shinR = [Math.max(0, -s) * 0.2, 0, 0]; }
   else if (st === 'sing'){ const w = Math.sin(now * 1.3); P.hipY = Math.sin(now * 2.6) * 0.008; P.hips = [0, w * 0.06, w * 0.04]; P.chest = [0.02, -w * 0.08, -w * 0.04]; P.head = [-0.08 + Math.sin(now * 2) * 0.05, w * 0.35, Math.sin(now * 1.7) * 0.12]; P.armL = [-0.3 + Math.sin(now * 2.6) * 0.1, 0, 0.5]; P.foreL = [-1.6, 0, 0]; P.armR = [0.05, 0, -0.15]; P.foreR = [-0.25, 0, 0]; P.legL = [0.02, 0, 0.05]; P.legR = [0.02, 0, -0.05]; }
   else if (st === 'pet'){ const w = Math.sin(now * 3); P.hipY = -0.34; P.legL = [-1.15, 0, 0.14]; P.legR = [-1.15, 0, -0.14]; P.shinL = [1.35, 0, 0]; P.shinR = [1.35, 0, 0]; P.footL = [-0.2, 0, 0]; P.footR = [-0.2, 0, 0]; P.torso = [0.4, 0, 0]; P.head = [0.1, w * 0.1, 0]; P.armR = [-0.95 + w * 0.12, 0, -0.25]; P.foreR = [-0.5 + w * 0.15, 0, 0]; P.armL = [-0.4, 0, 0.3]; P.foreL = [-0.9, 0, 0]; }
+  else if (st === 'throw'){ const u = r.stT, A = u < 0.24 ? 0 : u < 0.36 ? 1 : 2;   // overhand: wind up with the arm back over the shoulder and the other arm pointing, step and whip it through, follow down across the body
+    P.armR = [[-2.6, 0, 0.55], [-1.35, 0, 0.2], [-0.35, 0, -0.35]][A]; P.foreR = [[-1.75, 0, 0], [-0.15, 0, 0], [-0.35, 0, 0]][A];
+    P.armL = [[-1.35, 0, 0.25], [-0.5, 0, 0.35], [0.15, 0, 0.3]][A]; P.foreL = [[-0.25, 0, 0], [-0.6, 0, 0], [-0.4, 0, 0]][A];
+    P.chest = [[-0.08, 0.45, 0], [0.12, -0.25, 0], [0.18, -0.45, 0]][A]; P.torso = [[-0.12, 0, 0], [0.18, 0, 0], [0.3, 0, 0]][A]; P.hips = [0, [0.2, -0.15, -0.25][A], 0];
+    P.legL = [[-0.35, 0, 0.06], [-0.45, 0, 0.06], [-0.4, 0, 0.06]][A]; P.legR = [[0.25, 0, -0.06], [0.35, 0, -0.06], [0.4, 0, -0.06]][A]; P.shinL = [0.15, 0, 0]; P.shinR = [[0.2, 0, 0], [0.4, 0, 0], [0.6, 0, 0]][A]; P.head = [0, [-0.25, 0.1, 0.2][A], 0]; }
   else if (st === 'climb'){ r.phase += dt * 8; const s = Math.sin(r.phase); P.armL = [-2.6 + s * 0.4, 0, 0.2]; P.armR = [-2.6 - s * 0.4, 0, -0.2]; P.foreL = [-0.6, 0, 0]; P.foreR = [-0.6, 0, 0]; P.legL = [-0.9 + s * 0.5, 0, 0]; P.legR = [-0.9 - s * 0.5, 0, 0]; P.shinL = [1.2, 0, 0]; P.shinR = [1.2, 0, 0]; P.footL = [0.5, 0, 0]; P.footR = [0.5, 0, 0]; }
   else if (st === 'sit'){ P.hipY = -0.36; P.legL = [-1.5, 0, 0.1]; P.legR = [-1.5, 0, -0.1]; P.shinL = [1.5, 0, 0]; P.shinR = [1.5, 0, 0]; P.armL = [-0.6, 0, 0.2]; P.armR = [-0.6, 0, -0.2]; P.foreL = [-1.0, 0, 0]; P.foreR = [-1.0, 0, 0]; P.head = [0, Math.sin(now * 0.5) * 0.15, 0]; P.torso = [0.05 + Math.sin(now * 1.5) * 0.01, 0, 0]; }
   else if (st === 'talk'){ P.armR = [-0.8 + Math.sin(now * 5) * 0.15, 0, -0.5]; P.foreR = [-1.5 + Math.sin(now * 7) * 0.25, 0, 0]; P.armL = [-0.15, 0, 0.3]; P.foreL = [-0.5, 0, 0]; P.head = [Math.sin(now * 4) * 0.06, Math.sin(now * 1.3) * 0.08, Math.sin(now * 2.1) * 0.04]; P.chest = [0.03, Math.sin(now * 1.1) * 0.06, 0]; P.hipY = Math.sin(now * 1.6) * 0.004; }
@@ -1247,7 +1261,7 @@ const LOOKS = {
 function actorFor(id){ const r = actorFrom(LOOKS[id]); r.id = id; return r; }
 function actorFrom(look){
   const r = look.robot ? toonRobot() : toonHuman(look);  if (r.sitting) r.state = 'sit'; r.floatY = -(0.09 + 0.12 * Math.cos(SWIM_PITCH)) * (r.size || 1); r.treadY = -1.22 * (r.size || 1);   // treading: shoulders at the surface, chin up   // where the root sits when swimming: hips just under the surface, back and shoulders out
-  r.set = function(n, s = 1){ if (n === 'idle' && this.sitting) n = 'sit'; this.state = n; this.speed = s; };
+  r.set = function(n, s = 1){ if (n === 'idle' && this.sitting) n = 'sit'; if (this.state !== n) this.stT = 0; this.state = n; this.speed = s; };
   r.tick = function(dt, moving, run){ if (moving !== undefined && this.state !== 'talk') this.set(moving ? (run ? 'jog' : 'walk') : 'idle'); toonTick(this, dt); };
   return r;
 }
@@ -1258,7 +1272,7 @@ function animActor(a, moving, dt, run){
   a.armL.rotation.x += (-sw - a.armL.rotation.x) * 0.4; a.armR.rotation.x += (sw - a.armR.rotation.x) * 0.4;
   if (a.tail) a.tail.rotation.y = Math.sin(performance.now() / 120) * (moving ? 0.6 : 0.3);
 }
-const beagleActor = () => { const b = beagle(); b.tick = function(dt, moving, run){ animActor(this, moving, dt, run); }; b.set = () => {}; return b; };
+const beagleActor = () => dogActor(beagle());
 
 
 // a soft shadow blob under everybody, the cheap kind of contact shadow
@@ -1491,6 +1505,7 @@ function think(dt, now){
   if (!P || (best.goal !== P.goal && best.util > P.util + 0.25 && now - MIND.lastSwitch > 2 && !ari.inWater)){ if (P && best.goal !== P.goal) MIND.note = `"${best.label}" beat "${P.label}", so he switched.`; MIND.plan = P = makePlan(best); MIND.lastSwitch = now; }
   else if (P) P.util = (opts.find(o => o.goal === P.goal) || P).util;
   const st = P.steps[P.i]; MIND.moving = false;
+  if (ari.cmd || ari.fetch) return;   // doing what he was told, or chasing the ball
   if (ari.hold > 0 && P.goal !== 'play'){ ari.moving = false; ari.a.tick(dt, false); return; }   // somebody walked up to him: he keeps thinking, but waits for them
   if (st.at){ const there = moveNpc(ari, st.at(), dt, P.run ? 4.8 : 3.4, P.goal === 'play' ? 1.6 : 0.5); MIND.moving = ari.moving;
     if (there){ P.i = Math.min(P.steps.length - 1, P.i + 1); P.t = 0; ari.a.tick(dt, false); } else ari.a.tick(dt, true, P.run); }
@@ -1517,7 +1532,9 @@ async function checkBrains(){ if (brain.checked) return; brain.checked = true;
   if (!LOCAL){ try { const ctl = new AbortController(); setTimeout(() => ctl.abort(), 2500); const r = await fetch(window.LEVA_API + '/talk/ping', {signal: ctl.signal}); brain.api = r.ok; } catch (e) { brain.api = false; } } }
 const chat = {n: null, log: [], el: document.getElementById('chat'), logEl: document.getElementById('chat-log'), input: document.getElementById('chat-in'), chips: document.getElementById('chat-chips'), name: document.getElementById('chat-name'), mood: document.getElementById('chat-mood')};
 const HOW = {remembered: 'remembered', knew: 'knew it', model: 'worked it out', lookedup: 'looked it up', guessed: 'guessed', guard: 'leva stepped in'};
-function openChat(n){ chat.n = n; chat.log = []; chat.el.classList.add('on'); document.body.classList.add('panel-open'); chat.name.textContent = n.name; chat.mood.textContent = n.id === 'ari' ? '' : 'feeling ' + moodOf(n) + ' · ' + n.doing; chat.logEl.innerHTML = ''; checkBrains();
+function openChat(n){ chat.n = n; chat.log = []; chat.el.classList.add('on'); document.body.classList.add('panel-open'); chat.name.textContent = n.name; chat.mood.textContent = n.a.dog ? 'tap a command, or type one' : 'feeling ' + moodOf(n) + ' · ' + n.doing; chat.logEl.innerHTML = ''; chat.input.placeholder = n.a.dog ? `Tell ${n.name} what to do…` : 'Say something…';
+  if (n.a.dog){ dogOf(n); dogLine(n, n.id === 'ari' ? 'looks up at you and wags. He is checking your pockets for treats.' : 'trots over, ears up, tail going. He is checking your hands for the rope.'); chips(n); return; }
+  checkBrains();
   const m = memOf(n.id); const hi = n.id === 'ari' ? 'Ari looks up at you and wags.' : greet(n, m); say(n, hi, m.notes.length ? 'remembered' : 'knew'); chips(n); n.feel.social = Math.min(1, n.feel.social + 0.3);
   if (!touch) setTimeout(() => chat.input.focus(), 50); }
 function closeChat(){ if (!chat.n) return; chat.el.classList.remove('on'); if (!insideOpen) document.body.classList.remove('panel-open'); chat.input.blur(); if (chat.n.a.set) chat.n.a.set('idle'); chat.n = null; }
@@ -1531,11 +1548,15 @@ function greet(n, m){ const c = CARDS[n.id], nm = m.about.name ? ', ' + m.about.
 function say(n, text, how, src){ const d = document.createElement('div'); d.className = 'msg them'; d.innerHTML = `<p>${esc(text)}</p><small>${esc(HOW[how] || how)}${src ? ` · <a href="${esc(src)}" target="_blank" rel="noopener">source</a>` : ''}</small>`; chat.logEl.appendChild(d); chat.logEl.scrollTop = 1e9; chat.log.push({role: 'assistant', content: text}); if (n.a.set && how !== 'guard') { n.a.set('talk'); talker = n; talkT = 4; } }
 function mine(text){ const d = document.createElement('div'); d.className = 'msg me'; d.innerHTML = `<p>${esc(text)}</p>`; chat.logEl.appendChild(d); chat.logEl.scrollTop = 1e9; chat.log.push({role: 'user', content: text}); }
 function thinking(on){ let t = chat.logEl.querySelector('.msg.wait'); if (on && !t){ t = document.createElement('div'); t.className = 'msg them wait'; t.innerHTML = '<p><i></i><i></i><i></i></p>'; chat.logEl.appendChild(t); chat.logEl.scrollTop = 1e9; } if (!on && t) t.remove(); }
-function chips(n){ const c = CARDS[n.id]; const list = (c ? c.chips : ['Hi!']).slice(); for (let i = list.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
+function chips(n){ chat.chips.classList.toggle('dog', !!n.a.dog);
+  if (n.a.dog){ const held = Object.values(TOYS).some(t => t.state === 'hand' && t.by === 'me'); chat.chips.innerHTML = [['pet', 'Pet him'], ['treat', 'Give a treat'], ['praise', 'Good boy!'], held ? ['throw', 'Throw the toy'] : null].filter(Boolean).map(([k, l]) => `<button type="button" class="act" data-act="${k}">${l}</button>`).join('') + '<i class="sep"></i>' + CHIP_ORDER.map(k => `<button type="button" data-cmd="${k}">${esc(TRICKS[k].label)}</button>`).join(''); return; }
+  const c = CARDS[n.id]; const list = (c ? c.chips : ['Hi!']).slice(); for (let i = list.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
   chat.chips.innerHTML = list.slice(0, 3).map(t => `<button type="button">${esc(t)}</button>`).join(''); }
-chat.chips.addEventListener('click', e => { const b = e.target.closest('button'); if (b) ask(b.textContent); });
+chat.chips.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const n = chat.n;
+  if (n && n.a.dog && (b.dataset.cmd || b.dataset.act)){ mine(b.textContent); if (b.dataset.cmd) hearCue(n, b.dataset.cmd); else if (b.dataset.act === 'throw') toyWant = true; else playerDog(n, b.dataset.act); return; }
+  ask(b.textContent); });
 document.getElementById('chat-form').addEventListener('submit', e => { e.preventDefault(); const t = chat.input.value.trim(); if (t) ask(t); chat.input.value = ''; });
-async function ask(text){ const n = chat.n; if (!n || brain.busy) return; mine(text); brain.busy = true; thinking(true);
+async function ask(text){ const n = chat.n; if (!n) return; if (n.a.dog){ mine(text); dogHears(n, text); return; } if (brain.busy) return; mine(text); brain.busy = true; thinking(true);
   const started = performance.now(); let out;
   n.lastLearned = learnAbout(n.id, text);
   try { out = await answer(n, text); } catch (e) { out = pocket(n, text); }
@@ -1641,7 +1662,7 @@ You are talking with a kid. Keep it to one to three short sentences, warm, speci
 
 // ---------------- look inside: the panel, for everybody ----------------
 const inside = document.getElementById('inside'), insideBody = document.getElementById('inside-body'), insideTitle = document.getElementById('inside-title'); let insideOpen = false, insideT = 0, insideN = null;
-function openInside(n){ insideN = n || ari; insideOpen = true; inside.classList.add('on'); document.body.classList.add('panel-open'); insideTitle.textContent = 'Inside ' + insideN.name; if (insideN.id === 'ari') found('open'); renderInside(true); }
+function openInside(n){ insideN = n || ari; insideOpen = true; inside.classList.add('on'); document.body.classList.add('panel-open'); insideTitle.textContent = 'Inside ' + insideN.name; if (insideN.id === 'ari') found('open'); renderInside(true); if (insideN.a.dog) dogSkillsPanel(insideN, true); }
 function closeInside(){ insideOpen = false; inside.classList.remove('on'); if (!chat.n) document.body.classList.remove('panel-open'); }
 document.getElementById('inside-x').onclick = closeInside;
 let tinker = {treatT: -10, rangeT: -10, memT: -10, goalBefore: null, seenBefore: 0};
@@ -1794,7 +1815,7 @@ function runPlan(n, dt){
   else if (st.k === 'dive'){ if (!st.from){ st.from = [n.x, n.z, n.y]; st.dir = [Math.sin(a.g.rotation.y), Math.cos(a.g.rotation.y)]; } const t = P.t; n.x = st.from[0] + st.dir[0] * st.fwd * t; n.z = st.from[1] + st.dir[1] * st.fwd * t; n.y = st.from[2] + st.upv * t - 0.5 * G * t * t; a.set(st.pose === 'sit' ? 'tuck' : (n.y > st.from[2] ? 'jump' : 'fall')); a.tick(dt);
     if (n.y <= a.floatY){ n.y = a.floatY; splash(n.x, n.z, true, st.pose === 'sit' ? 1.6 : 1.0); if (st.pose === 'sit') splash(n.x, n.z, false); n.inWater = true; done = true; } }
   else if (st.k === 'act'){ if (st.face !== undefined) a.g.rotation.y = st.face; const zp = inPool(n.x, n.z) === 'zero'; if (zp && st.state !== 'float' && st.state !== 'swim') n.y = -zeroDepth(n.x, n.z); else if (n.inWater) n.y += (a.floatY - n.y) * Math.min(1, dt * 4); a.set(st.state); a.tick(dt); done = P.t >= st.secs;
-    if (st.state === 'chew'){ chewToy.position.set(n.x + Math.sin(a.g.rotation.y) * 0.5, 0.08, n.z + Math.cos(a.g.rotation.y) * 0.5); chewToy.rotation.y = a.g.rotation.y; }
+    if (st.state === 'chew' && n.id === 'luke' && TOYS.rope.state === 'ground'){ TOYS.rope.x = n.x + Math.sin(a.g.rotation.y) * 0.55; TOYS.rope.z = n.z + Math.cos(a.g.rotation.y) * 0.55; TOYS.rope.y = 0.08; chewToy.rotation.y = a.g.rotation.y; }
     if (st.state === 'volley'){ vball.visible = true; vball.position.set(n.x + Math.sin(a.g.rotation.y) * 0.3, n.y + 1.0 * (a.size || 1) + Math.abs(Math.sin(P.t * 4.2)) * 1.1, n.z + Math.cos(a.g.rotation.y) * 0.3); if (done) vball.visible = false; } }
   else if (st.k === 'follow'){ const who = st.who === 'leva' ? levaAt() : [me.x, me.z], dx = who[0] - n.x, dz = who[1] - n.z, d = Math.hypot(dx, dz), far = d > 2.2, sp = (d > 6 ? 5.5 : 3.2) * dt; if (far){ n.x += dx / d * sp; n.z += dz / d * sp; a.g.rotation.y = Math.atan2(dx, dz); } n.y = 0; a.tick(dt, far, d > 6); done = st.until() || P.t > st.max; }
   else if (st.k === 'orbit'){ const c = byId[st.who], ang = st.ang + P.t * 4, tx = c.x + Math.cos(ang) * st.r, tz = c.z + Math.sin(ang) * st.r, dx = tx - n.x, dz = tz - n.z, d = Math.hypot(dx, dz), sp = 5.5 * dt; if (d > sp){ n.x += dx / d * sp; n.z += dz / d * sp; } else { n.x = tx; n.z = tz; } a.g.rotation.y = Math.atan2(dx, dz); n.y = 0; a.tick(dt, true, true); done = P.t > 0.75; }
@@ -1809,6 +1830,7 @@ function crewStep(n, dt){
   if (n.a.state === 'talk' && talker !== n && !(n.plan && n.plan.steps[n.plan.i].k === 'act' && n.plan.steps[n.plan.i].state === 'talk')) n.a.set('idle');
   if (n.plan && n.plan.soft && !n.inWater && slotOf(n.id, hourNow()) !== n.plan.slot) n.plan = null;   // the day moved on
   if (n.plan){ runPlan(n, dt); return; }
+  if (fetchPlay(n)) return;   // sometimes somebody picks up a dog's toy and throws it
   if (PICK[n.id] && PICK[n.id](n)) return;
   routine(n, dt);
 }
@@ -1838,23 +1860,54 @@ function lukeDog(){
   const collar = part(new THREE.TorusGeometry(0.15, 0.028, 8, 20), slate, 0, 0.62, 0.32, inner); collar.rotation.x = Math.PI / 2 - 0.35; ball(0.03, M('#c9ced6', {metalness: 0.8, roughness: 0.3}), 0, 0.5, 0.42, inner).scale.set(1, 1, 0.4);
   const tail = cap(0.03, 0.46, tan, 0, 0.5, -0.52, inner); tail.rotation.x = -0.5;
   inner.traverse(o => { if (o.isMesh) o.castShadow = true; }); scene.add(g);
-  return {g, inner, legL, legR, armL, armR, head, tail, phase: 0, dog: true, size: 1.25, floatY: -0.52, treadY: -0.52, height: 1.0};
+  return {g, inner, legL, legR, armL, armR, head, tail, phase: 0, dog: true, size: 1.25, floatY: -0.52, treadY: -0.52, height: 1.0, legH: 0.46, bodyH: 0.52, bodyR: 0.2};
 }
-// a dog that takes the same orders as a person: set a state, tick each frame
+// a dog that takes the same orders as a person: set a state, tick each frame. The body (inner) tilts, drops and rolls; the legs swing from the shoulder and hip.
+// Poses follow how real dogs move: a sit drops the rump and keeps the front legs straight; a down folds the back legs under and reaches the front ones out;
+// roll over goes down, onto the side, onto the back and over; play dead tips onto the side with the head down; sit pretty rocks back onto the haunches.
 function dogActor(model){
-  const b = model; b.state = 'idle';
-  b.set = function(s){ this.state = s; };
+  const b = model; b.state = 'idle'; b.p = 0; b.t = 0; b.rollShift = 0;
+  const k = b.legH / 0.46, lieY = -(b.bodyH - b.bodyR);
+  b.set = function(s){ if (this.state !== s){ this.state = s; this.t = 0; } };
+  const lerp = (o, key, v, r) => { o[key] += (v - o[key]) * r; };
   b.tick = function(dt, moving, run){
     if (moving !== undefined){ if (moving) this.state = run ? 'run' : 'walk'; else if (this.state === 'walk' || this.state === 'run') this.state = 'idle'; }
-    const st = this.state, swimming = this.g.position.y < -0.3; if (moving === undefined) moving = st === 'walk' || st === 'jog' || st === 'run' || st === 'swim'; if (run === undefined) run = st === 'run' || st === 'jog';
-    animActor(this, moving || swimming, dt, run || swimming); const I = this.inner || this.g;
-    if (st === 'sit'){ this.armL.rotation.x += (-0.9 - this.armL.rotation.x) * 0.3; this.armR.rotation.x += (-0.9 - this.armR.rotation.x) * 0.3; I.rotation.x += (-0.3 - I.rotation.x) * 0.3; I.position.y += (0 - I.position.y) * 0.3; }
-    else if (st === 'nap' || st === 'chew'){ I.rotation.x += (0 - I.rotation.x) * 0.3; I.position.y += (-0.22 - I.position.y) * 0.3; this.legL.rotation.x += (-1.4 - this.legL.rotation.x) * 0.3; this.legR.rotation.x += (-1.4 - this.legR.rotation.x) * 0.3; this.armL.rotation.x += (1.3 - this.armL.rotation.x) * 0.3; this.armR.rotation.x += (1.3 - this.armR.rotation.x) * 0.3; if (st === 'chew') this.head.rotation.x = 0.35 + Math.sin(performance.now() / 110) * 0.12; else this.head.rotation.x += (0.5 - this.head.rotation.x) * 0.1; }
-    else if (st === 'hop'){ I.rotation.x += (0 - I.rotation.x) * 0.3; I.position.y = Math.abs(Math.sin(performance.now() / 120)) * 0.35; }
-    else if (st === 'bow'){ I.rotation.x += (0.45 - I.rotation.x) * 0.3; I.position.y += (-0.1 - I.position.y) * 0.3; this.tail.rotation.y = Math.sin(performance.now() / 90) * 0.7; }
-    else if (st === 'swim'){ I.rotation.x += (-0.22 - I.rotation.x) * 0.3; I.position.y += (0 - I.position.y) * 0.3; }
-    else { I.rotation.x += (0 - I.rotation.x) * 0.25; I.position.y += (0 - I.position.y) * 0.25; if (!moving) this.head.rotation.x += (0 - this.head.rotation.x) * 0.1; }
-    if (st !== 'chew' && st !== 'nap') this.head.rotation.x += (0 - this.head.rotation.x) * 0.15;
+    this.t += dt; const st = this.state, swimming = this.g.position.y < -0.3, now = performance.now(), p = this.p;
+    if (moving === undefined) moving = st === 'walk' || st === 'jog' || st === 'run' || st === 'swim' || st === 'spin'; if (run === undefined) run = st === 'run' || st === 'jog';
+    const I = this.inner, H = this.head, r = Math.min(1, dt * 9);
+    // targets: body offset and tilt, leg angles (front pair, back pair), how far the back legs splay, head pitch and tilt, the tail
+    let ix = 0, iy = 0, irx = 0, irz = 0, iry = 0, fl = null, frr = null, bk = null, splay = 0, hx = 0, hz = 0, wag = moving ? 0.6 : 0.3, wagRate = 120, direct = false;
+    const SIT = -0.42;
+    if (st === 'sit' || st === 'paw' || st === 'five' || st === 'speak' || st === 'wait'){ irx = SIT; iy = -0.1 * k; fl = 0.3; bk = -1.25; hx = -0.2; wag = 0.45; wagRate = 140;
+      if (st === 'paw'){ frr = -1.08 + Math.sin(this.t * 7) * 0.14; hz = 0.22; wag = 0.6; }
+      if (st === 'five'){ frr = this.t < 0.5 ? -1.0 : -2.15; irx = -0.55; hz = 0.12; wag = 0.7; }
+      if (st === 'speak'){ const bark = Math.max(0, Math.sin(Math.min(1, p * 1.25) * Math.PI * 4)); hx = -0.45 - bark * 0.3; iy += bark * 0.03; wag = 0.7; } }
+    else if (st === 'beg'){ irx = -1.0; iy = 0.12 * k; fl = 0.45; frr = 0.45; bk = -0.5; hx = 0.35; wag = 0.35; wagRate = 160; }
+    else if (st === 'down'){ iy = lieY; fl = -1.5; bk = -1.35; splay = 0.4; hx = -0.08; wag = 0.25; wagRate = 160; }
+    else if (st === 'nap' || st === 'chew'){ iy = -0.22 * k; fl = -1.4; bk = 1.3; hx = st === 'chew' ? 0.35 + Math.sin(now / 110) * 0.12 : 0.5; wag = 0.15; }
+    else if (st === 'roll' || st === 'belly' || st === 'dead'){
+      // roll on the long axis around the middle of the body, so it stays on the ground
+      let phi = 0, dx = 0;
+      if (st === 'roll'){ const e = Math.min(1, Math.max(0, (p - 0.15) / 0.7)), s = e * e * (3 - 2 * e); phi = s * Math.PI * 2; dx = s * 0.45 * k; this.rollShift = dx; fl = -0.95; bk = -0.95; hx = 0.25; wag = 0.2; }
+      else if (st === 'belly'){ phi = Math.PI * 0.86; fl = -0.7 + Math.sin(this.t * 3) * 0.1; bk = -0.6 + Math.max(0, Math.sin(this.t * 9)) * 0.5; hx = 0.2; wag = 0.9; wagRate = 60; }
+      else { const flop = Math.min(1, p * 5), up = Math.max(0, (p - 0.86) / 0.14), e = flop * (1 - up); phi = Math.PI / 2 * e * (1 + Math.sin(flop * Math.PI) * 0.08); fl = -0.15; bk = 0.1; hx = 0.35 * e; wag = up > 0 ? 0.8 : 0.0; }
+      const h = b.bodyH; ix = dx + h * Math.sin(phi); iy = b.bodyR - h * Math.cos(phi); irz = phi; direct = true; }
+    else if (st === 'spin'){ iry = Math.min(1, p) * Math.PI * 2; direct = true; wag = 0.8; }
+    else if (st === 'tilt'){ hz = Math.min(1, this.t * 3) * 0.45; hx = -0.1; wag = 0.2; }
+    else if (st === 'lean'){ irz = 0.1; hx = -0.3; wag = 1.0; wagRate = 55; }
+    else if (st === 'eat'){ hx = 0.55 + Math.sin(this.t * 16) * 0.12; wag = 0.7; wagRate = 70; }
+    else if (st === 'hop'){ iy = Math.abs(Math.sin(now / 120)) * 0.35; direct = true; wag = 0.9; wagRate = 60; }
+    else if (st === 'bow'){ irx = 0.45; iy = -0.1 * k; wag = 0.9; wagRate = 90; }
+    else if (st === 'swim'){ irx = -0.22; }
+    if (fl === null && bk === null) animActor(this, moving || swimming, dt, run || swimming);   // walking legs only when no pose is holding them
+    // apply: rolling and spinning set the body exactly, everything else eases in
+    if (direct){ I.position.x = ix; I.position.y = iy; I.rotation.z = irz; I.rotation.y = iry; lerp(I.rotation, 'x', irx, r); }
+    else { lerp(I.position, 'x', ix, r); lerp(I.position, 'y', iy, r); lerp(I.rotation, 'x', irx, r); lerp(I.rotation, 'z', irz, r); I.rotation.y = 0; }
+    if (fl !== null){ lerp(this.legL.rotation, 'x', fl, r); lerp(this.legR.rotation, 'x', frr !== null ? frr : fl, r); }
+    if (bk !== null){ lerp(this.armL.rotation, 'x', bk, r); lerp(this.armR.rotation, 'x', bk, r); }
+    lerp(this.armL.rotation, 'z', -splay, r); lerp(this.armR.rotation, 'z', splay, r);
+    lerp(H.rotation, 'x', hx, r * 0.8); lerp(H.rotation, 'z', hz, r * 0.6);
+    if (this.tail) this.tail.rotation.y = Math.sin(now / wagRate) * wag;
   };
   return b;
 }
@@ -1870,7 +1923,7 @@ function lukeOptions(n){
   const o = [
     {goal: 'zoomies', label: 'Zoomies around the deck', util: W.run * L('zoomies'), why: 'has to run'},
     {goal: 'park', label: 'Run off into the park', util: W.run * 0.9 * L('park') * (onDeck ? 1 : 0.3), why: 'has to run, and the park is right there past the gate'},
-    {goal: 'chew', label: 'Chew the rope toy', util: W.chew * L('chew'), why: 'wants his toy'},
+    {goal: 'chew', label: 'Chew the rope toy', util: W.chew * L('chew') * (TOYS.rope.state === 'ground' && !inPool(TOYS.rope.x, TOYS.rope.z) ? 1 : 0), why: 'wants his toy'},
     {goal: 'swim', label: 'Paddle in the zero depth', util: W.swim * L('swim') * (levaFar ? 1 : 0.3), why: levaFar ? 'wants a swim, and leva is far off' : 'wants a swim, but leva is close'},
     {goal: 'girls', label: girl ? `Go see ${girl.name}` : 'Go find the girls', util: W.girls * L('girls') * (girl ? 1 : 0.35), why: 'misses the girls'},
     {goal: 'ari', label: 'Play with Ari', util: W.play * L('ari') * (ariFree ? 1 : 0.1), why: ariFree ? 'wants to play, and Ari is free' : 'wants to play, but Ari is busy'},
@@ -1882,7 +1935,7 @@ function lukePlan(n, opt){
   let steps = [], after = null, doing = opt.label;
   if (g === 'zoomies'){ steps = [S_fn(() => { n.doing = 'zoomies'; })]; for (let k = 0; k < 5; k++) steps.push(S_go(deckPt(), 6.5, 1.0, true)); steps.push(S_act('idle', 1.5)); after = () => { LUKE.wants.run = 0.1; lukeLearn('zoomies', 0.85); LUKE.note = 'Zoomies done. Run want back to low.'; event('luke', 'Zoomies around the whole deck.'); n.feel.fun = Math.min(1, n.feel.fun + 0.3); }; }
   else if (g === 'park'){ steps = [S_fn(() => { n.doing = 'out the gate and into the park'; LUKE.away = 0; LUKE.fetched = false; }), S_go(BALL_SPOT.spot, 6.0, 1.2, true), S_fn(() => { n.doing = 'watching the ball diamond'; }), S_act('sit', 40, BALL_SPOT.face), S_go(TOWEL.em, 5.5, 1.5, true)]; after = () => { LUKE.wants.run = 0.15; LUKE.wants.girls = Math.min(1, LUKE.wants.girls + 0.4); lukeLearn('park', LUKE.fetched ? 0.55 : 0.9); LUKE.note = LUKE.fetched ? 'leva came and got him. He still had his run, so the park is worth a bit less, not a lot less.' : 'A run in the park and back to the girls on his own.'; event('luke', LUKE.fetched ? 'Got out into the park. leva came and got him.' : 'Ran out to the ball diamond and came back on his own.'); }; }
-  else if (g === 'chew'){ steps = [S_go(chewToy.userData.home, 3.0, 0.9), S_act('chew', 16, Math.PI), S_fn(() => { chewToy.position.set(chewToy.userData.home[0], 0.05, chewToy.userData.home[1]); })]; after = () => { LUKE.wants.chew = 0.1; lukeLearn('chew', 0.9); LUKE.note = 'Chewed his toy. Chew want gone.'; event('luke', 'Chewed the rope toy flat.'); }; }
+  else if (g === 'chew'){ steps = [S_go(TOYS.rope.state === 'ground' ? [TOYS.rope.x, TOYS.rope.z] : chewToy.userData.home, 3.0, 0.9), S_act('chew', 16, undefined), S_fn(() => { if (TOYS.rope.state === 'ground') TOYS.rope.y = TOYS.rope.r + 0.045; })]; after = () => { LUKE.wants.chew = 0.1; lukeLearn('chew', 0.9); LUKE.note = 'Chewed his toy. Chew want gone.'; event('luke', 'Chewed the rope toy flat.'); }; }
   else if (g === 'swim'){ steps = [S_go(ZERO_IN, 5.0, 1.0, true), S_fn(() => { n.doing = 'paddling in the zero depth'; }), S_wade([X(362), Z(190)], 1.6), S_act('swim', 18), S_wade(ZERO_IN, 1.4), S_act('idle', 1.5)]; after = () => { LUKE.wants.swim = 0.05; lukeLearn('swim', LUKE.caught ? 0.5 : 0.85); LUKE.note = LUKE.caught ? 'leva called him out of the water.' : 'A swim and a shake.'; event('luke', LUKE.caught ? 'Paddled in the zero depth until leva called him out.' : 'Paddled in the zero depth.'); LUKE.caught = false; }; }
   else if (g === 'girls'){ const gl = ['em', 'mel'].map(id => byId[id]).find(x => x && !x.played && !x.inWater) || byId.em; steps = [S_go([gl.x, gl.z], 5.5, 1.4, true), S_act('hop', 3.5, undefined), S_fn(() => { if (!gl.played && !gl.inWater && (!gl.plan || (gl.plan.steps[gl.plan.i].k === 'act'))){ gl.plan = {steps: [S_act('pet', 5, Math.atan2(n.x - gl.x, n.z - gl.z))], i: 0, t: 0, after: gl.plan ? gl.plan.after : null}; gl.doing = `petting Luke`; } }), S_act('sit', 6)]; after = () => { LUKE.wants.girls = 0.05; LUKE.wants.play = Math.max(0, LUKE.wants.play - 0.3); lukeLearn('girls', 1); LUKE.note = `Found ${gl.name}. That always pays off.`; event('luke', `Went and found ${gl.name}. Got pets.`); }; }
   else if (g === 'ari'){ steps = [S_go([ari.x, ari.z], 5.5, 1.6, true), S_act('bow', 2.2, undefined)]; for (let k = 0; k < 4; k++){ const a = k * Math.PI / 2; steps.push({k: 'orbit', who: 'ari', ang: a, r: 2.4}); } steps.push(S_act('idle', 1)); after = () => { LUKE.wants.play = 0.1; lukeLearn('ari', 0.8); LUKE.note = 'Played with Ari. Play want used up.'; event('luke', 'Ran circles around Ari. Ari allowed it.'); event('ari', 'Luke ran circles around him. He allowed it.'); }; }
@@ -1910,6 +1963,279 @@ function levaFetch(n, dt){
   const luke = byId.luke; if (!luke || !LUKE.plan || LUKE.plan.goal !== 'park' || LUKE.away < 7 || LUKE.fetched) return;
   plan(n, [S_go([luke.x, luke.z], 2.8, 2.8, true), S_say('Luke. Come on, buddy. Back to the deck.', 4), S_until(() => LUKE.fetched || !LUKE.plan || LUKE.plan.goal !== 'park', 8, 'talk'), S_go(MU(300, 330), 1.9, 1.0), S_fn(() => { event('leva', 'Went and got Luke out of the park. Again.'); n.spot = null; })], 'getting Luke back from the park');
 }
+
+// ---------------- the dogs take commands, and anybody can throw the toy ----------------
+// How real dogs learn, the way trainers describe it, and how the game copies it:
+// a dog connects a reward to what he just did within a second or two, so a treat has to come fast. Saying "Good boy!" right away marks the moment
+// and buys a few more seconds to get the treat out. Roll over goes down, onto the side, onto the back, and over. Play dead is lying on the side with
+// the head down, and it builds on down. Drop it is a trade: show a treat and he lets go. A dog that doesn't know a cue yet offers something he does know.
+const TRICKS = {
+  beg: {label: 'Sit pretty', re: /sit (pretty|up)|\bbeg\b/, pose: 'beg', dur: 1.0, hold: 3.0, miss: 'sit', did: ['sits up tall on his back legs, front paws tucked', 'sits pretty, wobbles, and holds it']},
+  sit: {label: 'Sit', re: /\bsit\b/, pose: 'sit', dur: 0.8, hold: 6, miss: 'look', did: ['sits right down', 'sits, tail sweeping the deck', 'plops into a sit and looks up at you']},
+  roll: {label: 'Roll over', re: /\broll\b/, pose: 'roll', dur: 2.4, hold: 2.5, miss: 'down', did: ['drops down, tips onto his side, goes all the way over, and pops his head up', 'rolls right over, legs in the air for a second']},
+  dead: {label: 'Play dead', re: /play dead|\bbang\b|\bdead\b/, pose: 'dead', dur: 3.6, hold: 0, miss: 'down', did: ['flops onto his side and holds still. Very dramatic.', 'falls over sideways, head down, then peeks at you']},
+  down: {label: 'Lie down', re: /\b(lie|lay|laying|lying)\b|\bdown\b/, pose: 'down', dur: 0.9, hold: 8, miss: 'sit', did: ['lies down, chin up', 'settles into a down, front paws out']},
+  five: {label: 'High five', re: /high[\s-]?five|\bfive\b/, pose: 'five', dur: 2.0, hold: 0, miss: 'shake', did: ['sits and slaps your hand up high', 'reaches way up for the high five']},
+  shake: {label: 'Shake', re: /\bshake\b|\bpaw\b/, pose: 'paw', dur: 2.2, hold: 0, miss: 'sit', did: ['sits and lifts a paw into your hand', 'offers a paw and shakes']},
+  spin: {label: 'Spin', re: /\bspin\b|\btwirl\b|turn around|circle/, pose: 'spin', dur: 1.3, hold: 0, miss: 'look', did: ['spins a full circle', 'whips around in a circle and stops facing you']},
+  speak: {label: 'Speak', re: /\bspeak\b|\bbark\b|\bsing\b|\bhowl\b/, pose: 'speak', dur: 1.6, hold: 0, miss: 'look', did: ['barks twice. WOOF. WOOF.', 'lets out a big bark, then looks proud of it']},
+  fetch: {label: 'Fetch your toy', re: /fetch|go get|get (your|the|it)|bring|find (your|the|it)/},
+  drop: {label: 'Drop it', re: /\bdrop\b|leave it|let go|\bgive\b|\bout\b|trade/},
+  stay: {label: 'Stay', re: /\bstay\b|\bwait\b/},
+  come: {label: 'Come', re: /\bcome\b|\bhere\b|c'?mere|\bheel\b/},
+  free: {label: 'Okay, free!', re: /\bok(ay)?\b|\bfree\b|release|go play|all done|at ease/}
+};
+const TRICK_ORDER = ['beg', 'sit', 'roll', 'dead', 'down', 'five', 'shake', 'spin', 'speak', 'fetch', 'drop', 'stay', 'come', 'free'];
+const CHIP_ORDER = ['sit', 'down', 'stay', 'come', 'shake', 'five', 'spin', 'roll', 'dead', 'beg', 'speak', 'fetch', 'drop', 'free'];
+const SKILL0 = {   // how well each one knows each cue on day one. A beagle sits for food all day and comes when his nose is done; Luke lives to fetch.
+  ari: {sit: 0.92, down: 0.78, stay: 0.4, come: 0.55, shake: 0.82, five: 0.25, spin: 0.3, roll: 0.28, dead: 0.06, beg: 0.72, speak: 0.62, fetch: 0.35, drop: 0.45},
+  luke: {sit: 0.9, down: 0.8, stay: 0.5, come: 0.75, shake: 0.62, five: 0.4, spin: 0.62, roll: 0.42, dead: 0.14, beg: 0.3, speak: 0.48, fetch: 0.88, drop: 0.62}
+};
+const PAYS = {ari: {treat: 1.0, pet: 0.55, praise: 0.3, toy: 0.35}, luke: {toy: 1.0, pet: 0.85, treat: 0.55, praise: 0.45}};   // what a reward is worth to him: Ari is all nose, Luke would rather have the rope
+const DOGS = {};
+function dogOf(n){ if (!DOGS[n.id]){ const m = memOf(n.id); m.skills = Object.assign({}, SKILL0[n.id], m.skills || {}); DOGS[n.id] = {n, focus: 0.8, last: null, mark: -9, treats: 0, unpaid: 0}; } return DOGS[n.id]; }
+const skillOf = (n, k) => { dogOf(n); return memOf(n.id).skills[k] || 0; };
+const nowS = () => performance.now() / 1000;
+const dogName = n => n.name;
+const pickOne = a => a[Math.floor(Math.random() * a.length)];
+
+// ---------------- the toys: Luke's rope and Ari's tennis ball ----------------
+const tennisBall = (() => { const g = new THREE.Group(); const b = new THREE.Mesh(new THREE.SphereGeometry(0.065, 18, 12), M('#d6ee3e', {roughness: 0.95})); b.castShadow = true; g.add(b); const seam = new THREE.Mesh(new THREE.TorusGeometry(0.064, 0.007, 6, 28), M('#f6f7ee')); seam.rotation.x = 1.1; g.add(seam); scene.add(g); return g; })();
+function makeToy(id, mesh, owner, home, name, r){ const t = {id, m: mesh, owner, home, name, r, x: home[0], y: r + 0.045, z: home[1], vx: 0, vy: 0, vz: 0, state: 'ground', by: null, thrower: null, spin: 0}; mesh.position.set(t.x, t.y, t.z); return t; }
+const TOYS = {rope: makeToy('rope', chewToy, 'luke', [X(384), Z(381)], 'the rope toy', 0.05), ball: makeToy('ball', tennisBall, 'ari', [X(312), Z(352)], 'the tennis ball', 0.065)};
+const TOY_OF = {luke: 'rope', ari: 'ball'};
+const toyFree = t => t.state === 'ground' || t.state === 'water';
+function handOf(r){ if (!r.hand){ const o = new THREE.Object3D(); o.position.set(0, -((r.dims && r.dims.upperArm) || 0.25) * 0.98 - 0.03, 0.04); r.foreR.add(o); r.hand = o; } return r.hand; }
+function mouthOf(a){ if (!a.mouth){ const o = new THREE.Object3D(); o.position.set(0, -0.08, a.legH > 0.4 ? 0.3 : 0.27); a.head.add(o); a.mouth = o; } return a.mouth; }
+const tmpV = new THREE.Vector3();
+function holderActor(t){ return t.by === 'me' ? player : t.by ? t.by.a : null; }
+function setToy(t, state, by = null){ t.state = state; t.by = by; if (state !== 'air'){ t.vx = t.vy = t.vz = 0; } }
+function dropToyAt(t, x, z){ const p = inPool(x, z); t.x = x; t.z = z; if (p && p !== 'zero'){ setToy(t, 'water'); t.y = 0.02; } else { setToy(t, 'ground'); t.y = t.r + (p === 'zero' ? -zeroDepth(x, z) : 0.045); } }
+// throw from a hand: toward a spot (flight time picked from the distance) or straight ahead at a speed
+function throwToy(t, from, opts){ const a = holderActor(t); a.g.updateMatrixWorld(true); handOf(a).getWorldPosition(tmpV); t.x = tmpV.x; t.y = Math.max(0.6, tmpV.y); t.z = tmpV.z;
+  if (opts.to){ const dx = opts.to[0] - t.x, dz = opts.to[1] - t.z, D = Math.hypot(dx, dz), T = 0.55 + D * 0.045; t.vx = dx / T; t.vz = dz / T; t.vy = (0.1 - t.y + 0.5 * G * T * T) / T; }
+  else { t.vx = Math.sin(opts.face) * opts.speed + (opts.vx || 0) * 0.5; t.vz = Math.cos(opts.face) * opts.speed + (opts.vz || 0) * 0.5; t.vy = opts.up; }
+  t.state = 'air'; t.by = null; t.thrower = from; t.spin = 8 + Math.random() * 6; dogsNotice(t); }
+// the toy in flight, bouncing, rolling, floating
+function toyStep(dt){
+  for (const t of Object.values(TOYS)){
+    if (t.state === 'hand'){ const a = holderActor(t); if (!a || (t.by !== 'me' && (!t.by.plan || !t.by.plan.fetchPlay))){ dropToyAt(t, t.by && t.by.x !== undefined ? t.by.x : t.x, t.by && t.by.z !== undefined ? t.by.z : t.z); continue; } a.g.updateMatrixWorld(true); handOf(a).getWorldPosition(tmpV); t.x = tmpV.x; t.y = tmpV.y; t.z = tmpV.z; t.m.rotation.set(0, a.g.rotation.y, 0); }
+    else if (t.state === 'mouth'){ const a = t.by.a; a.g.updateMatrixWorld(true); mouthOf(a).getWorldPosition(tmpV); t.x = tmpV.x; t.y = tmpV.y; t.z = tmpV.z; t.m.rotation.set(0, a.g.rotation.y, 0); }
+    else if (t.state === 'air'){
+      const px = t.x, pz = t.z; t.vy -= G * dt; t.x += t.vx * dt; t.y += t.vy * dt; t.z += t.vz * dt; t.m.rotation.x += t.spin * dt; t.m.rotation.z += t.spin * 0.4 * dt;
+      // fences and walls: bounce back off them
+      if (t.y < 3.3) for (const s of walls){ const k = segHit(px, pz, t.x, t.z, s[0], s[1], s[2], s[3]); if (k !== null){ const wx = s[2] - s[0], wz = s[3] - s[1], L = Math.hypot(wx, wz) || 1, nx = -wz / L, nz = wx / L, dot = t.vx * nx + t.vz * nz; t.vx = (t.vx - 2 * dot * nx) * 0.4; t.vz = (t.vz - 2 * dot * nz) * 0.4; t.x = px; t.z = pz; break; } }
+      for (const b of solids){ if (t.y < (b[4] || 2.5) && t.x > b[0] && t.x < b[2] && t.z > b[1] && t.z < b[3]){ if (b[2] - b[0] > 30 || b[3] - b[1] > 30) continue; if (t.y > (b[4] || 2.5) - 0.3 && t.vy < 0){ t.y = b[4]; t.vy = -t.vy * 0.3; t.vx *= 0.6; t.vz *= 0.6; } else { t.x = px; t.z = pz; t.vx *= -0.35; t.vz *= -0.35; } } }
+      const pool = inPool(t.x, t.z), wade = pool === 'zero' ? zeroDepth(t.x, t.z) : 0;
+      if (pool && (pool !== 'zero' || wade > 0.08) && t.y <= 0.03){ t.y = 0.02; setToy(t, 'water'); splash(t.x, t.z, true, 0.45); }
+      else { const floor = t.r + (pool === 'zero' ? -wade : onSite([t.x, t.z]) ? 0.045 : 0.01); if (t.y <= floor){ t.y = floor; if (t.vy < -1.2){ t.vy = -t.vy * 0.38; t.vx *= 0.72; t.vz *= 0.72; } else { t.vy = 0; t.state = 'ground'; t.roll = true; } } }
+      if (Math.hypot(t.x - px0, t.z - pz0) > 5000) dropToyAt(t, t.home[0], t.home[1]);
+    }
+    else if (t.state === 'ground' && t.roll){ const sp = Math.hypot(t.vx, t.vz); if (sp < 0.05){ t.vx = t.vz = 0; t.roll = false; } else { const k = Math.max(0, sp - 3.2 * dt) / sp, px = t.x, pz = t.z; t.vx *= k; t.vz *= k; t.x += t.vx * dt; t.z += t.vz * dt; t.m.rotation.x += sp * dt / t.r;
+        for (const s of walls){ if (segHit(px, pz, t.x, t.z, s[0], s[1], s[2], s[3]) !== null){ t.x = px; t.z = pz; t.vx = t.vz = 0; break; } }
+        const pool = inPool(t.x, t.z); if (pool && pool !== 'zero'){ t.y = 0.02; setToy(t, 'water'); splash(t.x, t.z, true, 0.3); } else if (pool === 'zero') t.y = t.r - zeroDepth(t.x, t.z); } }
+    else if (t.state === 'water'){ const pool = inPool(t.x, t.z);   // it floats and the pump current drifts it to the wall
+      if (!pool || (pool === 'zero' && zeroDepth(t.x, t.z) < 0.05)){ dropToyAt(t, t.x, t.z); continue; }
+      if (pool !== 'zero'){ const e = poolEdge(t.x, t.z); if (e.gap > 0.32){ const dx = e.wall[0] - t.x, dz = e.wall[1] - t.z, d = Math.hypot(dx, dz) || 1; t.x += dx / d * 0.22 * dt; t.z += dz / d * 0.22 * dt; } }
+      t.y = 0.02 + Math.sin(performance.now() / 420 + t.x) * 0.012; t.m.rotation.y += dt * 0.3; }
+    t.m.position.set(t.x, t.y, t.z);
+  }
+}
+// the deck spot right at a pool's wall nearest a point, and how far that point is from the wall (meters)
+function poolEdge(x, z){ const u = (x - SITE[0]) / S, v = (z - SITE[1]) / S, p = inPool(x, z);
+  if (p === 'zero'){ const ex = poolExit(x, z) || [x, z]; return {pt: ex, wall: ex, gap: Math.hypot(ex[0] - x, ex[1] - z)}; }
+  const B = p === 'dive' ? [137.5, 122.5, 181.5, 231.5] : [213.5, 122.5, 297, 299], dl = u - B[0], dr = B[2] - u, dn = v - B[1], ds = B[3] - v, m = Math.min(dl, dr, dn, ds), o = 2.2;
+  if (m === dl) return {pt: [X(B[0] - o), Z(v)], wall: [X(B[0]), Z(v)], gap: dl * S}; if (m === dr) return {pt: [X(B[2] + o), Z(v)], wall: [X(B[2]), Z(v)], gap: dr * S};
+  if (m === dn) return {pt: [X(u), Z(B[1] - o)], wall: [X(u), Z(B[1])], gap: dn * S}; return {pt: [X(u), Z(B[3] + o)], wall: [X(u), Z(B[3])], gap: ds * S}; }
+
+// ---------------- little hearts when somebody pets a dog ----------------
+const heartTex = (() => { const cv = document.createElement('canvas'); cv.width = cv.height = 64; const g = cv.getContext('2d'); g.fillStyle = '#FF2E88'; g.beginPath(); g.moveTo(32, 54); g.bezierCurveTo(4, 34, 8, 8, 32, 20); g.bezierCurveTo(56, 8, 60, 34, 32, 54); g.fill(); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+const hearts = [];
+function heartsAt(x, y, z, n = 3){ for (let i = 0; i < n; i++){ const s = new THREE.Sprite(new THREE.SpriteMaterial({map: heartTex, transparent: true, depthWrite: false})); s.scale.setScalar(0.28); s.position.set(x + (Math.random() - 0.5) * 0.5, y + Math.random() * 0.2, z + (Math.random() - 0.5) * 0.5); s.userData.t = -i * 0.25; scene.add(s); hearts.push(s); } }
+function heartsStep(dt){ for (let i = hearts.length - 1; i >= 0; i--){ const s = hearts[i]; s.userData.t += dt; const t = s.userData.t; s.visible = t > 0; if (t > 0){ s.position.y += dt * 0.7; s.material.opacity = Math.max(0, 1 - t / 1.3); } if (t > 1.3){ scene.remove(s); hearts.splice(i, 1); } } }
+
+// ---------------- what the dog says back: a line in the talk panel when it's open with him ----------------
+function dogLine(n, text, tag){ if (chat.n !== n) return; const d = document.createElement('div'); d.className = 'msg them dog'; d.innerHTML = `<p><i>${esc(n.name)} ${esc(text)}</i></p>${tag ? `<small>${esc(tag)}</small>` : ''}`; chat.logEl.appendChild(d); chat.logEl.scrollTop = 1e9; }
+function dogLearnLine(n, text){ if (chat.n !== n) return; const d = document.createElement('div'); d.className = 'msg learn'; d.innerHTML = `<p>${text}</p>`; chat.logEl.appendChild(d); chat.logEl.scrollTop = 1e9; }
+
+// ---------------- a dog hears a cue ----------------
+function focusOf(n){ const D = dogOf(n); let f = D.focus;
+  if (n.id === 'ari'){ if (MIND.plan && MIND.plan.goal === 'sneak') f *= 0.3; if (nowS() - (D.treatAt || -99) < 90) f = Math.min(1, f + 0.15); }   // he can smell the treats in your pocket
+  else { if (LUKE.plan && LUKE.plan.goal === 'park' && region(n.x, n.z) !== 'deck') f *= 0.35; if (LUKE.plan && LUKE.plan.goal === 'run') f *= 0.7; if (TOYS.rope.state === 'hand' && TOYS.rope.by === 'me') f = Math.min(1, f + 0.2); }
+  return Math.max(0.05, Math.min(1, f)); }
+function startCmd(n, c){ const a = n.a; n.cmd = Object.assign({t: 0}, c); n.moving = false; n.nudge = null; if (!n.inWater){ a.g.rotation.x = 0; a.g.rotation.z = 0; a.g.position.y = 0; n.y = 0; } a.p = 0; }
+function hearCue(n, key, from = 'me'){
+  const D = dogOf(n), T = TRICKS[key], now = nowS();
+  if (n.inWater){ dogLine(n, 'keeps paddling, ears floating. Get him out of the water first.'); return; }
+  if (n.fetch && key !== 'drop' && key !== 'come'){ dogLine(n, 'is busy with the toy right now.'); return; }
+  D.unpaid++; if (D.unpaid > 6) D.focus = Math.max(0.2, D.focus - 0.05);   // a lot of asking and no paying: he loses interest, like a real dog in a long session
+  const p = Math.max(0.03, Math.min(0.97, skillOf(n, key) * (0.45 + 0.55 * focusOf(n)) + 0.06)), ok = Math.random() < p;
+  if (key === 'free'){ if (n.cmd) n.cmd = null; dogLine(n, 'shakes it off and trots away happy.', 'released'); return; }
+  if (key === 'come'){ const d = Math.hypot(me.x - n.x, me.z - n.z); if (d > 40){ dogLine(n, 'is too far away to hear you.'); return; }
+    if (ok){ if (n.fetch) n.fetch.to = 'me'; else startCmd(n, {k: 'come'}); dogLine(n, d > 3 ? 'comes running.' : 'is already right here, wagging.', 'came'); D.last = {cue: 'come', ok: true, t: now}; }
+    else { dogLine(n, n.id === 'ari' ? 'has his nose in something. He heard you. He is choosing the smell.' : 'looks at you, then back at what he was doing.', 'not yet'); D.last = {cue: 'come', ok: false, did: 'look', t: now}; } return; }
+  if (key === 'stay'){ if (ok){ const pose = n.cmd && (n.cmd.pose === 'down' || n.cmd.pose === 'sit') ? n.cmd.pose : 'sit'; startCmd(n, {k: 'stay', pose, max: 45}); dogLine(n, `${pose === 'down' ? 'stays down' : 'sits and stays'}, eyes on you. Walk away, then call him.`, 'staying'); D.last = {cue: 'stay', ok: true, t: now}; }
+    else { dogLine(n, 'gets up and follows you. Stay is hard.', 'not yet'); D.last = {cue: 'stay', ok: false, did: 'follow', t: now}; } return; }
+  if (key === 'fetch'){ const t = TOYS[TOY_OF[n.id]];
+    if (t.state === 'hand' && t.by === 'me'){ dogLine(n, `stares at ${t.name} in your hand, then at you, then the toy. Throw it!`); return; }
+    if (t.state === 'mouth'){ dogLine(n, t.by === n ? 'already has it. Try Drop it.' : `can't. ${t.by.name} has it.`); return; }
+    if (t.state === 'hand'){ dogLine(n, `watches ${t.by.name} hold ${t.name}.`); return; }
+    if (ok){ n.cmd = null; n.fetch = {phase: 'chase', toy: t, to: 'me', t: 0, cue: true}; dogLine(n, `goes to get ${t.name}.`, 'fetching'); }
+    else { dogLine(n, `looks over at ${t.name}, then lies down. Not feeling it.`, 'not yet'); startCmd(n, {k: 'trick', pose: 'down', dur: 0.9, hold: 3}); D.last = {cue: 'fetch', ok: false, did: 'down', t: now}; } return; }
+  if (key === 'drop'){ const t = Object.values(TOYS).find(x => x.state === 'mouth' && x.by === n);
+    if (!t){ dogLine(n, "doesn't have anything. He checks your hands."); return; }
+    if (ok){ dropFromMouth(n, t); dogLine(n, `drops ${t.name}.`, 'dropped it'); D.last = {cue: 'drop', ok: true, t: now}; }
+    else { dogLine(n, 'clamps down and play-bows. Keep away is the best game. Try trading him a treat.', 'not yet'); D.last = {cue: 'drop', ok: false, did: 'bow', t: now}; } return; }
+  // a trick: the real thing, or what he offers instead when he doesn't know it yet
+  if (ok){ startCmd(n, {k: 'trick', key, pose: T.pose, dur: T.dur, hold: T.hold}); dogLine(n, pickOne(T.did), 'did it'); D.last = {cue: key, ok: true, did: key, t: now}; }
+  else { const miss = T.miss, mk = miss !== 'look' && skillOf(n, miss) > 0.5 ? miss : 'look';
+    if (mk === 'look'){ startCmd(n, {k: 'trick', pose: 'tilt', dur: 1.6, hold: 0}); dogLine(n, 'tilts his head. He doesn\'t know that one yet.', 'not yet'); }
+    else { const M2 = TRICKS[mk]; startCmd(n, {k: 'trick', key: mk, pose: M2.pose, dur: M2.dur, hold: Math.min(3, M2.hold)}); dogLine(n, `${M2.pose === 'down' ? 'lies down' : M2.pose === 'sit' ? 'sits' : M2.pose === 'paw' ? 'offers a paw' : 'tries'} instead. Close! That's the one he knows best.`, 'not yet'); }
+    D.last = {cue: key, ok: false, did: mk, t: now}; }
+}
+function dropFromMouth(n, t){ const f = n.a.g.rotation.y; dropToyAt(t, n.x + Math.sin(f) * 0.55, n.z + Math.cos(f) * 0.55); if (n.fetch) n.fetch = null; }
+// a reward lands: a treat, a pet, a "Good boy!", or the toy. If it lands right after the right move, that move gets stronger.
+function reward(n, kind){
+  const D = dogOf(n), now = nowS(), L = D.last, val = PAYS[n.id][kind] * (kind === 'treat' && n.id === 'luke' && D.treats >= 6 ? 0.15 : 1);
+  if (kind === 'praise'){ D.mark = now; }
+  if (kind === 'treat'){ D.treats++; D.treatAt = now; const held = Object.values(TOYS).find(x => x.state === 'mouth' && x.by === n); if (held){ dropFromMouth(n, held); dogLine(n, `drops ${held.name} for the treat. That's a trade.`, 'trade'); if (L && L.cue === 'drop' && !L.ok) L.ok = true, L.did = 'drop'; else D.last = {cue: 'drop', ok: true, did: 'drop', t: now}; }
+    if (n.id === 'ari'){ MIND.wants.treat = Math.max(0, MIND.wants.treat - 0.25); } else LUKE.wants.treat = Math.max(0, LUKE.wants.treat - 0.25); }
+  if (kind === 'pet'){ if (n.id === 'ari') MIND.wants.play = Math.max(0, MIND.wants.play - 0.15); else LUKE.wants.girls = Math.max(0, LUKE.wants.girls - 0.2); }
+  n.feel.fun = Math.min(1, n.feel.fun + 0.15);
+  const LL = D.last; if (!LL || LL.paid) return;
+  const age = now - LL.t, marked = D.mark >= LL.t && D.mark - LL.t <= 2.5, inTime = age <= 2.5 || (marked && age <= 9);
+  if (kind === 'praise'){ if (age <= 2.5) dogLearnLine(n, `<b>Marked.</b> "Good boy!" told him <i>that</i> was it. Now you have a few seconds to pay him.`); return; }   // praise marks the moment; the pay still has to come
+  if (!inTime){ if (age < 15) dogLearnLine(n, `<b>Too late.</b> He doesn't know what that ${kind === 'pet' ? 'pet' : kind} was for. Pay within a second or two, or say "Good boy!" first.`); return; }
+  LL.paid = true; D.unpaid = 0; D.focus = Math.min(1, D.focus + 0.12);
+  const sk = memOf(n.id).skills, before = sk[LL.cue] || 0;
+  if (LL.ok){ sk[LL.cue] = Math.min(0.99, before + 0.32 * val * (1 - before)); dogLearnLine(n, `<b>${TRICKS[LL.cue].label}</b> ${Math.round(before * 100)}% → ${Math.round(sk[LL.cue] * 100)}%. The reward came right after the right move, so it stuck.`);
+    if (before < 0.5 && sk[LL.cue] >= 0.5) event(n.id, `Got better at ${TRICKS[LL.cue].label.toLowerCase()}. Somebody paid right on time.`); }
+  else if (LL.did && LL.did !== 'look'){ sk[LL.cue] = Math.max(0.02, before - 0.07 * val); const didL = TRICKS[LL.did] ? TRICKS[LL.did].label.toLowerCase() : LL.did; dogLearnLine(n, `<b>Oops.</b> That paid for ${didL}, not ${TRICKS[LL.cue].label.toLowerCase()}. Now "${TRICKS[LL.cue].label.toLowerCase()}" means a little less to him (${Math.round(before * 100)}% → ${Math.round(sk[LL.cue] * 100)}%). Wait for the real thing.`); }
+  store();
+}
+// the player's hands: pet, treat, throw
+function playerDog(n, what){
+  const d = Math.hypot(n.x - me.x, n.z - me.z);
+  if (what === 'praise'){ dogLine(n, n.id === 'ari' ? 'wiggles his whole back end.' : 'grins and wags.'); reward(n, 'praise'); return; }
+  if (what === 'pet' || what === 'treat'){
+    if (d > 2.4){ dogLine(n, `is too far to reach. Call him: Come.`); return; }
+    me.act = {k: 'pet', t: 0, dur: what === 'pet' ? 2.2 : 1.3, dog: n}; me.vx = me.vz = 0;
+    if (what === 'pet'){ const pose = n.cmd && ['down', 'roll', 'dead'].includes(n.cmd.pose) ? 'belly' : 'lean'; const keep = n.cmd && n.cmd.k === 'stay' ? n.cmd : null; startCmd(n, {k: 'pet', pose, dur: 2.4, after: keep}); heartsAt(n.x, 1.0, n.z, 4); dogLine(n, pose === 'belly' ? 'flips over for a belly rub, back leg kicking.' : n.id === 'luke' ? 'leans his whole weight on your legs and closes his eyes.' : 'shoves his head under your hand for more.'); reward(n, 'pet'); }
+    else { const full = n.id === 'luke' && dogOf(n).treats >= 6; startCmd(n, {k: 'eat', pose: 'eat', dur: 1.3}); dogLine(n, full ? 'sniffs it, eats it to be polite, and looks at the rope. He\'s had plenty.' : n.id === 'ari' ? 'inhales it. Gone. He checks the ground for crumbs.' : 'takes it gently and crunches.'); reward(n, 'treat'); }
+    return; }
+}
+
+// ---------------- running a command: the poses play out, a stay holds, a come runs to you ----------------
+function dogCmdStep(n, dt){
+  const c = n.cmd, a = n.a; c.t += dt; a.g.position.set(n.x, 0, n.z); n.y = 0;
+  const faceTo = (x, z, k = 6) => { const want = Math.atan2(x - n.x, z - n.z); let dd = want - a.g.rotation.y; while (dd > Math.PI) dd -= Math.PI * 2; while (dd < -Math.PI) dd += Math.PI * 2; a.g.rotation.y += dd * Math.min(1, dt * k); };
+  if (c.k === 'come'){ const tgt = inPool(me.x, me.z) ? (poolExit(me.x, me.z) || [me.x, me.z]) : [me.x, me.z]; const there = moveNpc(n, tgt, dt, n.id === 'luke' ? 6.2 : 4.8, 1.3); a.tick(dt, !there, true);
+    if (there){ const sitOk = Math.random() < skillOf(n, 'sit'); startCmd(n, {k: 'trick', key: sitOk ? 'sit' : null, pose: sitOk ? 'sit' : 'lean', dur: 0.8, hold: 4}); dogLine(n, sitOk ? 'skids in and sits at your feet.' : 'skids in and leans on your legs.', 'here'); dogOf(n).last = {cue: 'come', ok: true, t: nowS()}; }
+    if (c.t > 25) n.cmd = null; return; }
+  if (c.k === 'stay'){ a.set(c.pose); a.tick(dt); faceTo(me.x, me.z, 3); if (c.t > c.max){ n.cmd = null; dogLine(n, 'gets up. That was a long stay. Good dog.'); } return; }
+  if (c.k === 'pet' || c.k === 'eat'){ a.set(c.pose); a.p = Math.min(1, c.t / c.dur); a.tick(dt); faceTo(me.x, me.z, 4); if (c.t >= c.dur){ n.cmd = c.after || (c.k === 'eat' && n.id === 'ari' ? {k: 'trick', pose: 'beg', dur: 1.0, hold: 2.5, t: 0} : null); } return; }
+  if (c.k === 'wait'){ a.set('sit'); a.tick(dt); const w = c.watch === 'me' ? [me.x, me.z] : [c.watch.x, c.watch.z]; faceTo(w[0], w[1], 4); if (c.t > c.max) n.cmd = null; return; }
+  // a trick: play the pose through, hold it, then get up
+  a.set(c.pose); a.p = Math.min(1, c.t / c.dur); if (c.t < 0.6) faceTo(me.x, me.z, 5); a.tick(dt);
+  if (c.pose === 'speak' && !c.barked && c.t > 0.25){ c.barked = true; if (n.tag) n.tag.setText(n.name, n.id === 'ari' ? 'AROOO!' : 'WOOF! WOOF!'); setTimeout(() => n.tag && n.tag.setText(n.name), 1600); }
+  if (c.t >= c.dur + (c.hold || 0)){ if (c.pose === 'roll' && a.rollShift){ const yaw = a.g.rotation.y; n.x += Math.cos(yaw) * a.rollShift; n.z -= Math.sin(yaw) * a.rollShift; a.inner.position.x = 0; a.rollShift = 0; a.set('down'); a.inner.rotation.z = 0; a.inner.position.y = -(a.bodyH - a.bodyR); }
+    n.cmd = null; a.set('idle'); }
+}
+
+// ---------------- fetch: chase it, pick it up, bring it back, drop it ----------------
+function dogsNotice(t){
+  for (const n of [ari, byId.luke]){ if (!n || n.inWater || n.fetch) continue; if (n.cmd && n.cmd.k === 'stay'){ dogLine(n, 'quivers, watches it fly... and stays. That\'s a real stay.', 'stayed'); dogOf(n).last = {cue: 'stay', ok: true, t: nowS()}; continue; }
+    const d = Math.hypot(t.x - n.x, t.z - n.z); if (d > 45) continue; if (n.id === 'luke' && LUKE.plan && LUKE.plan.goal === 'park' && region(n.x, n.z) !== 'deck') continue;
+    const own = TOY_OF[n.id] === t.id, want = n.id === 'ari' ? MIND.wants.play : LUKE.wants.play, chance = (0.25 + skillOf(n, 'fetch') * 0.55 + want * 0.25) * (own ? 1 : 0.55) + (Math.random() - 0.5) * 0.2;
+    if (chance > 0.45){ n.cmd = null; n.fetch = {phase: 'chase', toy: t, to: t.thrower, t: 0}; } }
+}
+function fetchStep(n, dt){
+  const f = n.fetch, t = f.toy, a = n.a, run = n.id === 'luke' ? 6.6 : 5.0; f.t += dt;
+  const toXZ = () => f.to === 'me' ? [me.x, me.z] : f.to && f.to.x !== undefined ? [f.to.x, f.to.z] : [n.x, n.z];
+  const faceTo = (x, z) => { a.g.rotation.y = Math.atan2(x - n.x, z - n.z); };
+  const wadeTo = (x, z, sp) => { const dx = x - n.x, dz = z - n.z, d = Math.hypot(dx, dz), s = sp * dt; if (d <= s){ n.x = x; n.z = z; } else { n.x += dx / d * s; n.z += dz / d * s; faceTo(x, z); } const zp = inPool(n.x, n.z) === 'zero' ? zeroDepth(n.x, n.z) : 0; n.inWater = zp > 0.05; a.g.position.set(n.x, -zp * 0.8, n.z); if (zp > 0.1 && Math.random() < dt * 4) splash(n.x, n.z, true, 0.35); a.tick(dt, d > s, true); return d <= s; };
+  if (f.phase === 'chase'){
+    if (t.state === 'mouth' && t.by !== n){ n.fetch = null; dogLine(n, `stops. ${t.by.name} got there first.`); return; }
+    if (t.state === 'hand'){ n.fetch = null; n.cmd = {k: 'wait', t: 0, max: 6, watch: t.by === 'me' ? 'me' : t.by}; return; }
+    const pool = inPool(t.x, t.z);
+    if (t.state === 'water' && pool && pool !== 'zero'){ const e = poolEdge(t.x, t.z), there = moveNpc(n, e.pt, dt, run, 0.4); a.g.position.set(n.x, 0, n.z);
+      if (there){ faceTo(t.x, t.z); if (Math.hypot(t.x - n.x, t.z - n.z) < 1.15){ f.phase = 'grab'; f.t = 0; } else { a.set('sit'); a.tick(dt); if (!f.whined){ f.whined = true; dogLine(n, n.id === 'ari' ? `sits at the edge and barks at ${t.name}. Beagles aren't allowed in the pool, and he knows it.` : `waits at the edge, whining, watching ${t.name} drift closer.`); } if (f.t > 30){ n.fetch = null; dogLine(n, 'gives up on it. Somebody will have to swim for it.'); } } }
+      else a.tick(dt, true, true); return; }
+    if (pool === 'zero' || f.wading){ if (!f.wading){ const ex = poolExit(t.x, t.z) || [t.x, t.z]; if (moveNpc(n, ex, dt, run, 0.5)) f.wading = true; else { a.g.position.set(n.x, 0, n.z); a.tick(dt, true, true); } return; }
+      if (wadeTo(t.x, t.z, 2.4) || Math.hypot(t.x - n.x, t.z - n.z) < 0.5){ f.phase = 'grab'; f.t = 0; } return; }
+    const there = moveNpc(n, [t.x, t.z], dt, run, 0.45); a.g.position.set(n.x, 0, n.z); a.tick(dt, !there, true);
+    if (there && t.state !== 'air'){ f.phase = 'grab'; f.t = 0; } if (f.t > 40){ n.fetch = null; } return; }
+  if (f.phase === 'grab'){ a.set('bow'); a.tick(dt); if (!f.wading) a.g.position.set(n.x, 0, n.z); faceTo(t.x, t.z);
+    if (f.t > 0.35){ if (!toyFree(t)){ n.fetch = null; return; } setToy(t, 'mouth', n); const keep = n.id === 'ari' && !f.cue && Math.random() > skillOf(n, 'fetch') * 0.8 + 0.2; f.phase = keep ? 'keep' : 'carry'; f.t = 0;
+      if (keep) dogLine(n, `got ${t.name}. Ari is keeping it. Finders keepers, says the beagle.`); } return; }
+  if (f.phase === 'keep'){ if (f.wading){ const ex = poolExit(n.x, n.z); if (!ex || wadeTo(ex[0], ex[1], 2.0)){ f.wading = false; n.inWater = false; } return; }
+    a.set('chew'); a.tick(dt); a.g.position.set(n.x, 0, n.z); if (f.t > 9){ dropFromMouth(n, t); } return; }
+  if (f.phase === 'carry'){ if (f.wading){ const ex = poolExit(n.x, n.z); if (!ex || wadeTo(ex[0], ex[1], 2.2)){ f.wading = false; n.inWater = false; a.g.position.y = 0; f.shake = 0.9; } return; }
+    if (f.shake > 0){ f.shake -= dt; a.set('idle'); a.tick(dt); a.inner.rotation.z = Math.sin(f.t * 30) * 0.25; if (Math.random() < dt * 10) splash(n.x + (Math.random() - 0.5) * 0.6, n.z + (Math.random() - 0.5) * 0.6, false); return; }
+    let tgt = toXZ(); if (inPool(tgt[0], tgt[1])) tgt = poolExit(tgt[0], tgt[1]) || tgt;
+    const there = moveNpc(n, tgt, dt, n.id === 'luke' ? 4.6 : 3.8, 1.25); a.g.position.set(n.x, 0, n.z); a.tick(dt, !there, true);
+    if (there){ f.phase = 'give'; f.t = 0; } if (f.t > 45){ dropFromMouth(n, t); } return; }
+  if (f.phase === 'give'){ const w = toXZ(); faceTo(w[0], w[1]); a.set('sit'); a.tick(dt); a.g.position.set(n.x, 0, n.z);
+    if (f.t > 0.5){ const toMe = f.to === 'me', ok = !toMe || Math.random() < skillOf(n, 'drop') * (0.5 + 0.5 * focusOf(n)) + 0.25;
+      if (ok){ dropFromMouth(n, t); dogOf(n).last = {cue: 'fetch', ok: true, did: 'fetch', t: nowS()}; if (toMe) dogLine(n, `drops ${t.name} at your feet and backs up, eyes locked on it. Again!`, 'fetched'); n.cmd = {k: 'wait', t: 0, max: 8, watch: f.to}; }
+      else { f.phase = 'hold'; f.t = 0; dogLine(n, `brings ${t.name} back but won't let go. Say "Drop it", or trade him a treat.`); } } return; }
+  if (f.phase === 'hold'){ a.set('idle'); a.tick(dt); a.g.position.set(n.x, 0, n.z); const w = toXZ(); faceTo(w[0], w[1]); if (f.t > 20) dropFromMouth(n, t); return; }
+}
+
+// ---------------- the crew plays fetch too: pick the toy up, throw it out on the deck, wait for the dog ----------------
+function throwSpot(n){ let best = null, bd = -1;
+  for (let k = 0; k < 24; k++){ const a = Math.random() * Math.PI * 2, r = 7 + Math.random() * 7, x = n.x + Math.cos(a) * r, z = n.z + Math.sin(a) * r;
+    if (!freeSpot(x, z)) continue; const u0 = (n.x - SITE[0]) / S, v0 = (n.z - SITE[1]) / S, u1 = (x - SITE[0]) / S, v1 = (z - SITE[1]) / S; if (POOL_BOX.some(B => segBox(u0, v0, u1, v1, B))) continue;
+    if (walls.some(s => segHit(n.x, n.z, x, z, s[0], s[1], s[2], s[3]) !== null)) continue; const sc = r; if (sc > bd){ bd = sc; best = [x, z]; } }
+  return best; }
+function fetchPlay(n){
+  if (!['em', 'mel', 'yen', 'leva'].includes(n.id) || n.played || n.inWater || n.plan) return false;
+  const opts = Object.values(TOYS).filter(t => t.state === 'ground' && region(t.x, t.z) === 'deck' && !inPool(t.x, t.z)).map(t => ({t, dog: TOY_OF.luke === t.id ? byId.luke : ari})).filter(o => o.dog && !o.dog.inWater && !o.dog.fetch && !(o.dog.cmd && o.dog.cmd.k === 'stay') && Math.hypot(o.dog.x - n.x, o.dog.z - n.z) < 30 && Math.hypot(o.t.x - n.x, o.t.z - n.z) < 25 && !(o.dog.id === 'luke' && LUKE.plan && LUKE.plan.goal === 'park'));
+  if (!opts.length) return false;
+  const want = n.id === 'leva' ? 0.08 : n.id === 'yen' ? 0.12 : 0.28; if (Math.random() > want || !cool(n, 'fetch', 150)) return false;
+  const {t, dog} = opts[0]; let rounds = n.id === 'leva' ? 1 : 3;
+  const round = () => { const act = S_act('throw', 0.34); let spot = null;
+    return [S_go([t.x, t.z], 1.7, 0.75), S_fn(m => { if (!toyFree(t) || t.state === 'water'){ m.plan.steps.length = m.plan.i + 1; return; } spot = throwSpot(m); if (!spot){ m.plan.steps.length = m.plan.i + 1; return; } setToy(t, 'hand', m); act.face = Math.atan2(spot[0] - m.x, spot[1] - m.z); m.doing = `playing fetch with ${dog.name}`; }),
+      act, S_fn(m => { if (t.state === 'hand' && t.by === m) throwToy(t, m, {to: spot}); }), S_act('idle', 0.5),
+      S_until(m => t.state === 'ground' && Math.hypot(t.x - m.x, t.z - m.z) < 3.5 && !dog.fetch, 25, 'idle'),
+      S_fn(m => { if (--rounds > 0 && t.state === 'ground' && Math.hypot(t.x - m.x, t.z - m.z) < 4) m.plan.steps.push(...round()); else event(m.id, `Played fetch with ${dog.name} on the deck.`); })]; };
+  plan(n, round(), `playing fetch with ${dog.name}`); n.plan.fetchPlay = true; return true;
+}
+
+// ---------------- the panel: what he knows ----------------
+let skillsT = 0;
+function dogSkillsPanel(n, force){ skillsT -= 1; if (!force && skillsT > 0) return; skillsT = 15;
+  let el = document.getElementById('in-skills'); if (!el){ insideBody.insertAdjacentHTML('beforeend', '<h4>What he knows <span class="small">rewards on time teach him</span></h4><div id="in-skills"></div><p class="small" id="in-skills-note"></p>'); el = document.getElementById('in-skills'); }
+  el.innerHTML = CHIP_ORDER.filter(k => k !== 'free').map(k => bar(TRICKS[k].label, skillOf(n, k), skillOf(n, k) > 0.7 ? 'play' : skillOf(n, k) > 0.4 ? 'treat' : 'rest')).join('');
+  const nt = document.getElementById('in-skills-note'); if (nt) nt.textContent = n.id === 'ari' ? 'Ari works for food. A treat right after the right move teaches him the most.' : 'Luke works for the rope. Throwing it right after the right move teaches him the most.'; }
+
+// ---------------- the player: pick the toy up, throw it ----------------
+const toyBtn = document.getElementById('toy-btn'), toyPrompt = document.getElementById('toy-prompt');
+let toyNear = null, toyWant = false;
+function playerToy(){ const held = Object.values(TOYS).find(t => t.state === 'hand' && t.by === 'me'); if (held){ if (!me.act){ me.act = {k: 'throw', t: 0, dur: 0.6, toy: held}; } return; } if (toyNear){ setToy(toyNear, 'hand', 'me'); hint(`Got ${toyNear.name}. Press ${touch ? 'Throw' : 'F'} to throw it.`); } }
+function playerToyStep(dt){
+  const held = Object.values(TOYS).find(t => t.state === 'hand' && t.by === 'me'); toyNear = null;
+  if (!held){ let bd = 1.7; for (const t of Object.values(TOYS)){ if (!toyFree(t)) continue; const d = Math.hypot(t.x - me.x, t.z - me.z); if (d < bd && Math.abs(t.y - me.y) < 1.4){ bd = d; toyNear = t; } } }
+  const label = held ? 'Throw it' : toyNear ? `Pick up ${toyNear.name}` : '';
+  toyPrompt.innerHTML = label ? (touch ? label : `<kbd>${pad.on ? 'Y' : 'F'}</kbd> ${label}`) : ''; toyPrompt.classList.toggle('on', !!label && !chat.n && !insideOpen); toyBtn.textContent = held ? 'Throw' : 'Grab'; toyBtn.classList.toggle('on', !!label);
+  if (toyWant){ toyWant = false; playerToy(); }
+}
+addEventListener('keydown', e => { if (mode !== 'walk' || (e.target && /INPUT|TEXTAREA/.test(e.target.tagName))) return; if (e.key.toLowerCase() === 'f') toyWant = true; });
+toyBtn.addEventListener('click', () => { toyWant = true; });
+// the player's hands while petting, giving a treat or throwing; returns true while the player should hold still
+function playerActStep(dt){ const A = me.act; if (!A) return false; A.t += dt;
+  if (A.k === 'throw'){ if (!A.released && A.t >= 0.27){ A.released = true; if (A.toy.state === 'hand' && A.toy.by === 'me'){ throwToy(A.toy, 'me', {face: me.face, speed: 9.5, up: 5.2, vx: me.vx, vz: me.vz}); for (const d of [ari, byId.luke]){ if (d && chat.n === d && Math.hypot(d.x - me.x, d.z - me.z) < 20){ const D = dogOf(d); if (D.last && !D.last.paid && nowS() - D.last.t < 2.5 && d.id === 'luke') reward(d, 'toy'); } } } } if (A.t >= A.dur) me.act = null; return false; }
+  if (A.dog){ const want = Math.atan2(A.dog.x - me.x, A.dog.z - me.z); let dd = want - me.face; while (dd > Math.PI) dd -= Math.PI * 2; while (dd < -Math.PI) dd += Math.PI * 2; me.face += dd * Math.min(1, dt * 8); }
+  if (A.t >= A.dur) me.act = null; return true; }
+// typing to a dog: he knows cues, rewards and his name, not sentences
+function dogHears(n, text){ const t = ' ' + text.toLowerCase().replace(/[^a-z' -]/g, ' ') + ' ';
+  if (/treat|cookie|biscuit|snack|bone/.test(t)) return playerDog(n, 'treat');
+  if (/\b(pet|scratch|rub|pat|hug|belly|cuddle|love)\b/.test(t)) return playerDog(n, 'pet');
+  if (/good (boy|dog|job|pup)|\byes\b|\bnice\b|atta ?boy|well done|\bbravo\b/.test(t)) return playerDog(n, 'praise');
+  if (/\b(throw|toss)\b/.test(t)){ toyWant = true; return; }
+  for (const k of TRICK_ORDER) if (TRICKS[k].re.test(t)) return hearCue(n, k);
+  if (new RegExp('\\b' + n.name.toLowerCase() + '\\b').test(t)){ dogOf(n).focus = Math.min(1, dogOf(n).focus + 0.1); dogLine(n, 'snaps his head around at his name, ears up, waiting.'); return; }
+  dogLine(n, 'tilts his head. Dogs know cues, not sentences. Try Sit, Down, Roll over, or Fetch your toy.'); if (!n.cmd && !n.fetch) startCmd(n, {k: 'trick', pose: 'tilt', dur: 1.4, hold: 0}); }
 
 // ---------------- lifeguard stands and guard changes ----------------
 // Ten pedestal chairs like Levagood's own: a galvanized column with a ladder up the back, a seat with a white hoop rail, a footrest bar, and a red rescue tube hanging off the side.
@@ -2056,7 +2382,8 @@ function walkStep(dt){
   let f = 0, s = 0;
   const typing = document.activeElement === chat.input;
   if (!typing){ if (keys['w'] || keys['arrowup']) f += 1; if (keys['s'] || keys['arrowdown']) f -= 1; if (keys['a'] || keys['arrowleft']) s -= 1; if (keys['d'] || keys['arrowright']) s += 1; }
-  if (touch){ f -= sv.y; s += sv.x; } if (pad.on){ f -= pad.y; s += pad.x; if (pad.jump) wantJump = true; if (pad.act && nearNpc) talk(nearNpc); if (pad.back){ closeInside(); closeChat(); } }
+  if (touch){ f -= sv.y; s += sv.x; } if (pad.on){ f -= pad.y; s += pad.x; if (pad.jump) wantJump = true; if (pad.toy) toyWant = true; if (pad.act && nearNpc) talk(nearNpc); if (pad.back){ closeInside(); closeChat(); } }
+  if (me.act && me.act.k === 'pet' && Math.hypot(f, s) > 0.3) me.act = null; if (playerActStep(dt)){ f = 0; s = 0; }   // petting or handing over a treat: you hold still
   const L0 = Math.hypot(f, s); if (L0 > 1){ f /= L0; s /= L0; } const L = Math.min(1, L0);
   const pool = inPool(me.x, me.z), floor = floorAt(me.x, me.z, me.y), wade = pool === 'zero' ? zeroDepth(me.x, me.z) : 0, swimming = !!pool && pool !== 'zero' && me.y <= 0.05 && floor === 0;
   const sprint = (!typing && !!keys['shift']) || pad.sprint || runHeld || (touch && L0 > 0.92);
@@ -2090,14 +2417,15 @@ function walkStep(dt){
   // the body: squash on landing, stretch on the jump
   me.squash += (1 - me.squash) * Math.min(1, dt * 9); const sz = player.size || 1; player.g.scale.set(sz / Math.sqrt(me.squash), sz * me.squash, sz / Math.sqrt(me.squash));
   player.g.position.set(me.x, me.y, me.z); player.g.rotation.y = me.face;
-  if (climbing) player.set('climb'); else if (swimming) player.set(sp > 0.4 ? 'swim' : 'tread'); else if (!me.ground) player.set(me.vy > 0.5 ? 'jump' : 'fall'); else player.set(sp > 0.4 ? (sprint ? 'run' : 'jog') : 'idle', 1);
+  if (me.act && !swimming) player.set(me.act.k === 'throw' ? 'throw' : 'pet'); else if (climbing) player.set('climb'); else if (swimming) player.set(sp > 0.4 ? 'swim' : 'tread'); else if (!me.ground) player.set(me.vy > 0.5 ? 'jump' : 'fall'); else player.set(sp > 0.4 ? (sprint ? 'run' : 'jog') : 'idle', 1);
   player.tick(dt);
   // the camera, behind you, kept out of the walls
   const cfull = camDist, cy0 = me.y + 1.4; const tx = me.x + Math.sin(camYaw) * Math.cos(camPitch) * cfull, tz = me.z + Math.cos(camYaw) * Math.cos(camPitch) * cfull, ty = Math.max(0.5, cy0 + Math.sin(camPitch) * cfull);
   const reach = camReach(me.x, me.z, tx, tz, ty); const cd = Math.max(0.5, cfull * reach - 0.25); camNear = camNear === undefined ? cd : (cd < camNear ? cd : camNear + (cd - camNear) * Math.min(1, dt * 3));
   const pe = camPitch + Math.max(0, 1 - camNear / 3) * 0.9;   // close in, look down from higher up
   const cx = me.x + Math.sin(camYaw) * Math.cos(pe) * camNear, cz = me.z + Math.cos(camYaw) * Math.cos(pe) * camNear, cy = camNear < 1.6 ? me.y + 2.4 : Math.max(0.5, cy0 + Math.sin(pe) * camNear);
-  camera.position.lerp(new THREE.Vector3(cx, cy, cz), Math.min(1, dt * 12)); camera.lookAt(me.x, me.y + 1.2, me.z);
+  chatLift += ((chat.n ? 1 : 0) - chatLift) * Math.min(1, dt * 3);   // a talk panel open: tip the view so whoever you're talking to sits above it
+  camera.position.lerp(new THREE.Vector3(cx, cy + chatLift * 0.25, cz), Math.min(1, dt * 12)); camera.lookAt(me.x, me.y + 1.2 - chatLift * 1.05, me.z);
   fadePlayer(camNear < 1.0 ? 0.25 : camNear < 1.8 ? 0.6 : 1);
   const w = floor > 0 ? (floor > 2 ? 'On the high dive' : 'On the low board') : placeName(me.x, me.z); if (w !== lastWhere){ lastWhere = w; where.textContent = w; }
   // the crew: who's near, who turns to look at you, whose name you can read
@@ -2106,6 +2434,7 @@ function walkStep(dt){
   NPC.forEach(n => { if (n.played) return; const d = Math.hypot(n.x - me.x, n.z - me.z); if (d < nd){ nd = d; near = n; }
     if (n.a.face){ const F = n.a.face; if (!F.robot && n.feel){ const md = FACE_MOODS[moodOf(n)] || FACE_MOODS.chill; F.want.brow = md.brow; F.want.tilt = md.tilt; F.want.lid = md.lid; F.want.squint = md.squint; F.want.smile = md.smile * (0.5 + F.smileBase * 0.7); if (chat.n === n){ F.want.smile = Math.min(1, F.want.smile + 0.25); F.want.brow += 0.15; } } F.target = d < 6 && playerHead ? playerHead : null; }
     if (n.id !== 'gma' && !n.a.dog && !n.moving && !n.busy && !n.inWater){ if (d < 6){ const want = Math.atan2(me.x - n.x, me.z - n.z); let dd = want - n.a.g.rotation.y; while (dd > Math.PI) dd -= Math.PI * 2; while (dd < -Math.PI) dd += Math.PI * 2; n.a.g.rotation.y += dd * Math.min(1, dt * 6); } else n.a.g.rotation.y += (n.face - n.a.g.rotation.y) * Math.min(1, dt * 2); }
+    if (n.a.dog && (n.cmd || n.fetch)){ if (n.fetch) fetchStep(n, dt); else dogCmdStep(n, dt); n.tag.visible = d < 18; return; }   // a command or a fetch comes first
     // walk up to somebody and they stop for you: they hold still and turn to you while you're close or talking, and go back to what they were doing a moment after you leave
     { const talking = chat.n === n, st_ = n.plan && n.plan.steps[n.plan.i], fetched = n.id === 'luke' && st_ && st_.k === 'follow';
       if (!n.played && (talking || (d < 3.2 && !fetched && !n.inWater))) n.hold = talking ? 2.5 : 1.5; else n.hold = Math.max(0, (n.hold || 0) - dt);
@@ -2116,29 +2445,30 @@ function walkStep(dt){
     if (n.id === 'leva'){ levaWatch(n, dt); levaFetch(n, dt); }
     if (n.id === 'luke') lukeThink(n, dt); else if (n.id !== 'ari' && (SCHED[n.id] || PICK[n.id])) crewStep(n, dt); else if (n.id !== 'ari') n.a.tick(dt, false);
     n.tag.visible = n.a.dog ? d < 18 : d < 7; });
-  guardsStep(dt);
+  guardsStep(dt); toyStep(dt); heartsStep(dt); playerToyStep(dt);
   if (PLAYER.id === 'leva' && MIND.plan && MIND.plan.goal === 'sneak' && MIND.plan.steps[MIND.plan.i].kind === 'paddle' && !MIND.plan.told){ MIND.plan.told = true; hint('Ari is in the lap pool. Go get him out.', 5000); }
   nearNpc = near; if (player.face) player.face.target = near && near.a.head && Math.hypot(near.x - me.x, near.z - me.z) < 5 ? near.a.head.getWorldPosition(headTmp2) : null;
-  const verb = near ? (near.a.dog ? 'Look inside ' + near.name : 'Talk to ' + near.name) : '';
-  prompt.innerHTML = near ? (touch ? verb : `<kbd>${pad.on ? 'X' : 'E'}</kbd> ${verb}`) : ''; prompt.classList.toggle('on', !!near && !insideOpen && !chat.n); talkBtn.textContent = near && near.a.dog ? 'Look inside' : 'Talk'; talkBtn.classList.toggle('on', !!near && !insideOpen && !chat.n);
-  if (near && near.id === 'ari' && firstNear){ firstNear = false; hint(touch ? 'Tap Look inside to see how Ari thinks.' : `Press ${pad.on ? 'X' : 'E'} to see how Ari thinks.`); }
+  const verb = near ? 'Talk to ' + near.name : '';
+  prompt.innerHTML = near ? (touch ? verb : `<kbd>${pad.on ? 'X' : 'E'}</kbd> ${verb}`) : ''; prompt.classList.toggle('on', !!near && !insideOpen && !chat.n); talkBtn.textContent = 'Talk'; talkBtn.classList.toggle('on', !!near && !insideOpen && !chat.n);
+  if (near && near.id === 'ari' && firstNear){ firstNear = false; hint(touch ? 'Tap Talk to give Ari a command, or Inside to see how he thinks.' : `Press ${pad.on ? 'X' : 'E'} to give Ari a command. Inside shows how he thinks.`); }
   // Ari thinks for himself
   think(dt, camNow);
-  renderInside(false);
+  renderInside(false); if (insideOpen && insideN && insideN.a.dog) dogSkillsPanel(insideN);
   if (chat.n && chat.n.id !== 'ari' && Math.floor(camNow) !== Math.floor(camNow - dt)) chat.mood.textContent = 'feeling ' + moodOf(chat.n) + ' · ' + chat.n.doing;
-  if (chat.n && Math.hypot(chat.n.x - me.x, chat.n.z - me.z) > 7) closeChat();
+  if (chat.n && Math.hypot(chat.n.x - me.x, chat.n.z - me.z) > (chat.n.a.dog ? 40 : 7)) closeChat();   // a dog hears you from across the deck
+  if (chat.n && chat.n.a.dog && Math.floor(camNow * 2) !== Math.floor((camNow - dt) * 2)) chips(chat.n);
   // stars
   for (let i = STARS.length - 1; i >= 0; i--){ const st = STARS[i]; st.m.rotation.y += dt * 2; st.m.position.y = st.y + Math.sin(performance.now() / 500 + i) * 0.1;
     if (Math.hypot(st.x - me.x, st.z - me.z) < 1.1 && Math.abs(st.y - (me.y + 0.8)) < 1.6){ scene.remove(st.m); STARS.splice(i, 1); save.stars.push(st.id); save.pts += 10; store(); toast('★ ' + save.stars.length + ' of ' + STAR_TOTAL); updateHud(); } }
   for (let i = fx.length - 1; i >= 0; i--){ const e = fx[i]; e.t += dt; if (e.water){ e.m.scale.setScalar((1 + e.t * 4) * (e.size || 1)); e.m.material.opacity = Math.max(0, 0.9 - e.t * 1.5); } else { const v = e.m.userData.v; v[1] -= 6 * dt; e.m.position.x += v[0] * dt; e.m.position.y += v[1] * dt; e.m.position.z += v[2] * dt; e.m.scale.setScalar(1 + e.t * 2); e.m.material.opacity = Math.max(0, 0.8 - e.t * 2); } if (e.t > 0.7){ scene.remove(e.m); fx.splice(i, 1); } }
   if (talkT > 0){ talkT -= dt; if (talkT <= 0){ talkBox.classList.remove('on'); if (talker){ talker.a.set('idle'); talker = null; } } }
 }
-let camNear, talkT = 0, talker = null, runHeld = false; const headTmp = new THREE.Vector3(), headTmp2 = new THREE.Vector3();
+let chatLift = 0, camNear, talkT = 0, talker = null, runHeld = false; const headTmp = new THREE.Vector3(), headTmp2 = new THREE.Vector3();
 // when the camera has to come in close, you go see-through so it never sits inside your head
 let fadeMats = null, fadeNow = 1;
 function fadePlayer(a){ if (Math.abs(a - fadeNow) < 0.01) return; fadeNow = a; if (!fadeMats){ fadeMats = []; player.g.traverse(o => { if (o.isMesh && o.material && !o.isSprite){ (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { if (!fadeMats.includes(m)) fadeMats.push(m); }); } }); }
   fadeMats.forEach(m => { if (m.isSpriteMaterial || m.map === blobTex) return; m.transparent = a < 1; m.opacity = a; m.depthWrite = a >= 1; }); }
-function talk(n){ if (n.a.dog){ openInside(n); return; } if (chat.n === n){ closeChat(); return; } closeInside(); openChat(n); }
+function talk(n){ if (chat.n === n){ closeChat(); return; } closeInside(); openChat(n); }
 addEventListener('keydown', e => { if (mode !== 'walk') return; if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return; const k = e.key.toLowerCase(); if (k === ' '){ wantJump = true; e.preventDefault(); } if ((k === 'e' || k === 'enter') && nearNpc) talk(nearNpc); });
 jumpBtn.addEventListener('pointerdown', e => { e.preventDefault(); wantJump = true; });
 runBtn.addEventListener('pointerdown', e => { e.preventDefault(); runHeld = true; runBtn.classList.add('held'); }); ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => runBtn.addEventListener(ev, () => { runHeld = false; runBtn.classList.remove('held'); }));
@@ -2173,7 +2503,7 @@ toonify(scene); window.__toonify = toonify;
 document.getElementById('loading').classList.add('done');
 const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => { const dt = Math.min(0.05, clock.getDelta()); waterMat.uniforms.t.value += dt; waters.forEach(w => { w.material.uniforms.time.value += dt * 0.6; }); dayStep(dt); if (mode === 'walk') walkStep(dt); else { orbit.update(); camNow += dt; think(dt, camNow); guardsStep(dt); } peopleStep(dt); renderer.render(scene, camera); });
-window.__park3d = {scene, camera, me, setMode, D, poolC, X, Z, S, SITE, inPool, onDeck, placeName, NPC, STARS, talk, save, keys, MIND, FOUND, openInside, closeInside, openChat, closeChat, ask, pocket, CARDS, memOf, endOfDay, moodOf, region, routeWps, brain, get player(){ return player; }, jump: () => { wantJump = true; }, cam: () => [camYaw, camPitch], setCam: (y, p) => { camYaw = y; camPitch = p; camTouched = camNow; }, setDay: t => { dayT = t; }, step: (dt, n = 1) => { for (let i = 0; i < n; i++) walkStep(dt); }, pause: () => renderer.setAnimationLoop(null), render: () => { dayStep(0.001); for (let i = 0; i < 20; i++){ NPC.forEach(n => { if (n.id !== 'ari') n.a.tick(0.03); }); if (player) player.tick(0.03); } renderer.render(scene, camera); }, walls, solids, trunks, STANDS, GUARDS, CHAINS, guardChange: startChanges, zeroDepth, setPlayer, get who(){ return PLAYER.id; }, byId, bubble, runPlan, get levaN(){ return levaN; }, LUKE, poolDetour, moveNpc};
+window.__park3d = {scene, camera, me, setMode, D, poolC, X, Z, S, SITE, inPool, onDeck, placeName, NPC, STARS, talk, save, keys, MIND, FOUND, openInside, closeInside, openChat, closeChat, ask, pocket, CARDS, memOf, endOfDay, moodOf, region, routeWps, brain, get player(){ return player; }, jump: () => { wantJump = true; }, cam: () => [camYaw, camPitch], setCam: (y, p) => { camYaw = y; camPitch = p; camTouched = camNow; }, setDay: t => { dayT = t; }, step: (dt, n = 1) => { for (let i = 0; i < n; i++) walkStep(dt); }, pause: () => renderer.setAnimationLoop(null), render: () => { dayStep(0.001); for (let i = 0; i < 20; i++){ NPC.forEach(n => { if (n.id !== 'ari') n.a.tick(0.03); }); if (player) player.tick(0.03); } renderer.render(scene, camera); }, walls, solids, trunks, STANDS, GUARDS, CHAINS, guardChange: startChanges, zeroDepth, setPlayer, get who(){ return PLAYER.id; }, byId, bubble, runPlan, get levaN(){ return levaN; }, LUKE, poolDetour, moveNpc, TOYS, DOGS, hearCue, reward, playerDog, fetchPlay, throwToy, setToy, dogOf, skillOf, ari, playerToy, dogHears};
 </script>
 </body>
 </html>
