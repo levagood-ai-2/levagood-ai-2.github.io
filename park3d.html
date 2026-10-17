@@ -1514,13 +1514,16 @@ function routeWps(from, to){ if (from === to) return []; const prev = {[from]: n
 // the pools as boxes with a little margin, in map units: a walk that would cross one goes around by the nearest corner
 const POOL_BOX = [[210.5, 119.5, 300, 302], [134.5, 119.5, 184.5, 234.5], [332, 142.6, 390.6, 273.4]];
 function segBox(ax, az, bx, bz, B){ let t0 = 0, t1 = 1; const dx = bx - ax, dz = bz - az; for (const [p, q] of [[-dx, ax - B[0]], [dx, B[2] - ax], [-dz, az - B[1]], [dz, B[3] - az]]){ if (p === 0){ if (q < 0) return false; } else { const t = q / p; if (p < 0){ if (t > t1) return false; if (t > t0) t0 = t; } else { if (t < t0) return false; if (t < t1) t1 = t; } } } return true; }
-function poolDetour(from, to){ const u0 = (from[0] - SITE[0]) / S, v0 = (from[1] - SITE[1]) / S, u1 = (to[0] - SITE[0]) / S, v1 = (to[1] - SITE[1]) / S;
-  for (const B of POOL_BOX){ if (!segBox(u0, v0, u1, v1, B)) continue; if (u1 > B[0] && u1 < B[2] && v1 > B[1] && v1 < B[3]) continue;   // the target is in the margin (a ladder, the edge): go straight
-    let pu = u0, pv = v0; if (pu > B[0] && pu < B[2] && pv > B[1] && pv < B[3]){ const dl = pu - B[0], dr = B[2] - pu, dn = pv - B[1], ds = B[3] - pv, m = Math.min(dl, dr, dn, ds); if (m === dl) pu = B[0] - 0.5; else if (m === dr) pu = B[2] + 0.5; else if (m === dn) pv = B[1] - 0.5; else pv = B[3] + 0.5; }   // standing in the margin: reckon from just outside it
-    const o = 3, corners = [[B[0] - o, B[1] - o], [B[2] + o, B[1] - o], [B[0] - o, B[3] + o], [B[2] + o, B[3] + o]]; let best = null, bd = 1e9;
-    for (const c of corners){ if (Math.hypot(c[0] - pu, c[1] - pv) < 1.2) continue; const d = Math.hypot(c[0] - pu, c[1] - pv) + Math.hypot(u1 - c[0], v1 - c[1]) + (segBox(pu, pv, c[0], c[1], B) ? 1e3 : 0) + (segBox(c[0], c[1], u1, v1, B) ? 200 : 0); if (d < bd){ bd = d; best = c; } }   // the shortest way round: a corner you can reach dry, and that gets you on toward the target dry if one does
-    return best ? [X(best[0]), Z(best[1])] : null; }
-  return null; }
+// does a straight walk get wet? Check the real water every third of a meter, not a box around it
+function wetAlong(ax, az, bx, bz){ const L = Math.hypot(bx - ax, bz - az), n = Math.max(2, Math.ceil(L / 0.35)); for (let i = 1; i < n; i++){ const t = i / n, p = inPool(ax + (bx - ax) * t, az + (bz - az) * t); if (p) return p; } return null; }
+const POOL_BY = {lap: POOL_BOX[0], dive: POOL_BOX[1], zero: POOL_BOX[2]};
+function poolDetour(from, to){
+  if (inPool(to[0], to[1]) || inPool(from[0], from[1])) return null;   // headed into the water on purpose, or already in it
+  const p = wetAlong(from[0], from[1], to[0], to[1]); if (!p) return null;
+  const B = POOL_BY[p], o = 3, corners = [[B[0] - o, B[1] - o], [B[2] + o, B[1] - o], [B[0] - o, B[3] + o], [B[2] + o, B[3] + o]].map(c => [X(c[0]), Z(c[1])]); let best = null, bd = 1e9;
+  for (const c of corners){ const dc = Math.hypot(c[0] - from[0], c[1] - from[1]); if (dc < 0.75) continue;   // already at this corner: pick the next one
+    const d = dc + Math.hypot(to[0] - c[0], to[1] - c[1]) + (wetAlong(from[0], from[1], c[0], c[1]) ? 1e3 : 0) + (wetAlong(c[0], c[1], to[0], to[1]) ? 150 : 0); if (d < bd){ bd = d; best = c; } }
+  return best; }
 // the nearest dry spot just outside a pool, for anyone who ends up in the water by accident
 function poolExit(x, z){ const u = (x - SITE[0]) / S, v = (z - SITE[1]) / S, p = inPool(x, z); if (!p) return null;
   if (p === 'zero'){ const du = (u - 335) / 52.6, dv = (v - 208) / 62.4, r = Math.hypot(du, dv) || 0.01; if (u - 335 < 4) return [X(334), Z(v)]; return [X(335 + du / r * 54.6), Z(208 + dv / r * 64.4)]; }
@@ -1537,8 +1540,10 @@ function solidDetour(from, to, rad = 0.4){
   return best; }
 function moveNpc(n, tgt, dt, speed, stop = 0.5){
   if (!n.inWater){ const ex = poolExit(n.x, n.z); if (ex){ n.x = ex[0]; n.z = ex[1]; } }   // nobody walks on water: step back onto the deck
+  { const dT = Math.hypot(tgt[0] - n.x, tgt[1] - n.z); if (!n.prog || Math.hypot(n.prog.x - tgt[0], n.prog.z - tgt[1]) > 2){ n.prog = {x: tgt[0], z: tgt[1], best: dT, t: 0}; } else if (dT < n.prog.best - 0.5){ n.prog.best = dT; n.prog.t = 0; } else n.prog.t += dt;
+    if (n.prog.t > 6){ n.prog.t = 0; n.prog.best = dT; n.wps = null; for (let k = 0; k < 8; k++){ const a0 = Math.random() * Math.PI * 2, nx_ = n.x + Math.sin(a0) * 3, nz_ = n.z + Math.cos(a0) * 3; if (!inPool(nx_, nz_) && !wetAlong(n.x, n.z, nx_, nz_)){ n.nudge = {x: nx_, z: nz_, t: 2.5}; break; } } } }
   if (!n.wps || n.rT !== region(tgt[0], tgt[1]) || (n.wps.length && n.stuck > 2)){ n.rT = region(tgt[0], tgt[1]); n.wps = routeWps(region(n.x, n.z), n.rT); n.stuck = 0; }
-  let nxt = n.wps.length ? n.wps[0] : tgt; const det = poolDetour([n.x, n.z], nxt); if (det && Math.hypot(det[0] - n.x, det[1] - n.z) > 0.6) nxt = det;
+  let nxt = n.wps.length ? n.wps[0] : tgt; const det = poolDetour([n.x, n.z], nxt); if (det) nxt = det;
   // stuck on something (a chair, a stand, a lounger): sidestep for a moment, then try again
   if ((n.stuck || 0) > 0.8 && !n.nudge){ const a0 = Math.atan2(nxt[0] - n.x, nxt[1] - n.z) + (Math.random() < 0.5 ? 1 : -1) * Math.PI / 2; n.nudge = {x: n.x + Math.sin(a0) * 1.8, z: n.z + Math.cos(a0) * 1.8, t: 1.5}; n.stuck = 0; }
   if (n.nudge){ n.nudge.t -= dt; if (n.nudge.t <= 0 || Math.hypot(n.nudge.x - n.x, n.nudge.z - n.z) < 0.3 || inPool(n.nudge.x, n.nudge.z)) n.nudge = null; else nxt = [n.nudge.x, n.nudge.z]; }
@@ -2215,6 +2220,7 @@ function throwToy(t, from, opts){ const a = holderActor(t); a.g.updateMatrixWorl
 // the toy in flight, bouncing, rolling, floating
 function toyStep(dt){
   for (const t of Object.values(TOYS)){
+    t.wetT = t.state === 'water' ? (t.wetT || 0) + dt : 0;
     if (t.state === 'hand'){ const a = holderActor(t); if (!a || (t.by !== 'me' && (!t.by.plan || !t.by.plan.fetchPlay))){ dropToyAt(t, t.by && t.by.x !== undefined ? t.by.x : t.x, t.by && t.by.z !== undefined ? t.by.z : t.z); continue; } a.g.updateMatrixWorld(true); handOf(a).getWorldPosition(tmpV); t.x = tmpV.x; t.y = tmpV.y; t.z = tmpV.z; t.m.rotation.set(0, a.g.rotation.y, 0); }
     else if (t.state === 'mouth'){ const a = t.by.a; a.g.updateMatrixWorld(true); mouthOf(a).getWorldPosition(tmpV); t.x = tmpV.x; t.y = tmpV.y; t.z = tmpV.z; t.m.rotation.set(0, a.g.rotation.y, 0); }
     else if (t.state === 'air'){
@@ -2232,11 +2238,16 @@ function toyStep(dt){
         const pool = inPool(t.x, t.z); if (pool && pool !== 'zero'){ t.y = 0.02; setToy(t, 'water'); splash(t.x, t.z, true, 0.3); } else if (pool === 'zero') t.y = t.r - zeroDepth(t.x, t.z); } }
     else if (t.state === 'water'){ const pool = inPool(t.x, t.z);   // it floats and the pump current drifts it to the wall
       if (!pool || (pool === 'zero' && zeroDepth(t.x, t.z) < 0.05)){ dropToyAt(t, t.x, t.z); continue; }
-      if (pool !== 'zero'){ const e = poolEdge(t.x, t.z); if (e.gap > 0.32){ const dx = e.wall[0] - t.x, dz = e.wall[1] - t.z, d = Math.hypot(dx, dz) || 1; t.x += dx / d * 0.22 * dt; t.z += dz / d * 0.22 * dt; } }
+      if (pool !== 'zero'){ const e = poolEdge(t.x, t.z); if (e.gap > 0.32){ const dx = e.wall[0] - t.x, dz = e.wall[1] - t.z, d = Math.hypot(dx, dz) || 1; t.x += dx / d * 0.55 * dt; t.z += dz / d * 0.55 * dt; } }
       t.y = 0.02 + Math.sin(performance.now() / 420 + t.x) * 0.012; t.m.rotation.y += dt * 0.3; }
     t.m.position.set(t.x, t.y, t.z);
   }
 }
+// a toy stuck out in the deep water: leva skims it out with the net and sets it on the deck
+function levaSkim(n){ if (n.played || n.plan) { if (PLAYER.id === 'leva') for (const t of Object.values(TOYS)) if (t.state === 'water' && t.wetT > 25 && !t.told && inPool(t.x, t.z) !== 'zero'){ t.told = true; hint(`${t.name} is floating in the pool. Swim out and grab it (${touch ? 'Grab' : 'F'}).`, 5000); } return; }
+  for (const t of Object.values(TOYS)){ const p = t.state === 'water' && inPool(t.x, t.z); if (!p || p === 'zero' || t.wetT < 25 || [ari, byId.luke].some(d => d && d.fetch && d.fetch.toy === t)) continue;
+    const e = poolEdge(t.x, t.z), out = [e.pt[0] + (e.pt[0] - e.wall[0]) * 0.8, e.pt[1] + (e.pt[1] - e.wall[1]) * 0.8];
+    plan(n, [S_go(e.pt, 2.4, 0.5), S_act('volley', 1.4, Math.atan2(t.x - e.pt[0], t.z - e.pt[1])), S_fn(() => { if (t.state === 'water'){ dropToyAt(t, out[0], out[1]); t.told = false; event('leva', `Skimmed ${t.name} out of the pool.`); } })], `skimming ${t.name} out of the pool`); return; } }
 // the deck spot right at a pool's wall nearest a point, and how far that point is from the wall (meters)
 function poolEdge(x, z){ const u = (x - SITE[0]) / S, v = (z - SITE[1]) / S, p = inPool(x, z);
   if (p === 'zero'){ const ex = poolExit(x, z) || [x, z]; return {pt: ex, wall: ex, gap: Math.hypot(ex[0] - x, ex[1] - z)}; }
@@ -2783,7 +2794,7 @@ function walkStep(dt){
         if (n.id !== 'gma'){ const want = Math.atan2(me.x - n.x, me.z - n.z); let dd = want - n.a.g.rotation.y; while (dd > Math.PI) dd -= Math.PI * 2; while (dd < -Math.PI) dd += Math.PI * 2; n.a.g.rotation.y += dd * Math.min(1, dt * 6); }
         if (n.id !== 'ari'){ if (n.inWater && n.a.set) n.a.set('tread'); n.a.tick(dt, false); }
         n.tag.visible = n.a.dog ? d < 18 : d < 7; return; } }
-    if (n.id === 'leva'){ levaWatch(n, dt); levaFetch(n, dt); }
+    if (n.id === 'leva'){ levaWatch(n, dt); levaFetch(n, dt); levaSkim(n); }
     if (n.id === 'luke') lukeThink(n, dt); else if (n.id !== 'ari' && (SCHED[n.id] || PICK[n.id])) crewStep(n, dt); else if (n.id !== 'ari') n.a.tick(dt, false);
     n.tag.visible = n.a.dog ? d < 18 : d < 7; });
   guardsStep(dt); toyStep(dt); heartsStep(dt); playerToyStep(dt);
