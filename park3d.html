@@ -472,7 +472,7 @@ function ladder(x, y){ // two chrome rails curving over the edge
     c.position.set(X(x), 0.5, Z(y) + dz); c.rotation.y = x < 260 && x > 200 ? 0 : Math.PI; scene.add(c);
   });
 }
-ladder(209, 135.5); ladder(299.5, 135.5); ladder(299.5, 283.5); ladder(187, 232.5);
+ladder(209, 135.5); ladder(299.5, 135.5); ladder(299.5, 283.5); ladder(187, 232.5); ladder(187, 140);
 // the lifeguard stands are built after the cast exists (the guards in the chairs are people); see guardStands() below
 // ---------------- the zero depth: mushroom, grab bar, life ring ----------------
 cyl(0.12, 0.2, 1.4, mat.yellow, X(367.5), 0.7, Z(209.5)); trunks.push([X(367.5), Z(209.5), 0.22]);
@@ -754,7 +754,7 @@ orbit.target.set(30, 0, 20); camera.position.set(-110, 120, 230);
 orbit.enableDamping = true; orbit.minDistance = 15; orbit.maxDistance = 600; orbit.maxPolarAngle = 1.32; orbit.screenSpacePanning = false; orbit.update();
 
 let mode = 'look';
-const me = {x: X(548), z: Z(330), y: 0, vy: 0, vx: 0, vz: 0, ground: true, jumps: 0, face: 0, air: 0, buf: 0, land: 0, squash: 1};
+const me = {x: X(250), z: Z(80), y: 0, vy: 0, vx: 0, vz: 0, ground: true, jumps: 0, face: 0, air: 0, buf: 0, land: 0, squash: 1};
 const keys = {};
 const lookBtn = document.getElementById('look'), walkBtn = document.getElementById('walk'), help = document.getElementById('help'), gate = document.getElementById('gate'), where = document.getElementById('where');
 const touch = matchMedia('(pointer: coarse)').matches; if (touch) document.body.classList.add('touch');
@@ -765,10 +765,12 @@ function signedIn(){ if (LOCAL) return true; try { return !!localStorage.getItem
 // the camera: behind you, follows where you run, and pulls in when a wall gets between you and it
 let camYaw = 0, camPitch = 0.32, camDist = 6.0, camTouched = -10, camNow = 0;
 function hint(text, ms = 3200){ const h = document.getElementById('hint'); h.textContent = text; h.classList.add('on'); clearTimeout(hint.t); hint.t = setTimeout(() => h.classList.remove('on'), ms); }
+// where you start: leva by the pump room door, facing the pools; Em and Mel at their towels, facing the pool
+function startSpot(){ const id = (typeof PLAYER !== 'undefined' && PLAYER.id) || 'leva'; return id === 'em' ? [X(378), Z(386), Math.PI] : id === 'mel' ? [X(390), Z(386), Math.PI] : [X(250), Z(80), 0]; }
 function setMode(m){
   mode = m; lookBtn.setAttribute('aria-pressed', m === 'look'); walkBtn.setAttribute('aria-pressed', m === 'walk');
   document.body.classList.toggle('walking', m === 'walk'); orbit.enabled = m === 'look';
-  if (m === 'walk'){ me.x = X(548); me.z = Z(330); me.y = 0; me.vy = 0; me.vx = me.vz = 0; camYaw = Math.atan2(me.x - X(543), me.z - Z(218)); camPitch = 0.32; player.g.position.set(me.x, 0, me.z); camera.position.set(me.x + Math.sin(camYaw) * 6, 3, me.z + Math.cos(camYaw) * 6);
+  if (m === 'walk'){ const sp = startSpot(); me.x = sp[0]; me.z = sp[1]; me.y = 0; me.vy = 0; me.vx = me.vz = 0; me.face = sp[2]; camYaw = sp[2] + Math.PI; camPitch = 0.32; player.g.position.set(me.x, 0, me.z); player.g.rotation.y = me.face; camera.position.set(me.x + Math.sin(camYaw) * 6, 3, me.z + Math.cos(camYaw) * 6);
     hint(touch ? 'Stick to run, Jump to jump. Find Ari.' : (navigator.getGamepads && [...navigator.getGamepads()].some(g => g) ? 'Left stick to run, A to jump, X to look inside. Find Ari.' : 'W A S D to run, Space to jump, Shift to sprint. Find Ari.'), 4500); }
 }
 lookBtn.onclick = () => setMode('look');
@@ -1014,13 +1016,13 @@ function faceTick(r, dt, now){
   else { w.gx = 0; w.gy = 0; F.headYaw = (F.headYaw || 0) * 0.9; F.headPitch = (F.headPitch || 0) * 0.9; }
   if (F.robot){ robotFace(r, dt, now); return; }
   const grin = Math.max(0, (F.cur.smile - 0.78) * 1.1);   // a big smile shows teeth
-  if (r.state === 'talk'){ const a = Math.sin(now * 9.5) * 0.55 + Math.sin(now * 14.3) * 0.45; w.open = Math.max(grin, Math.max(0, a) * 0.75); } else w.open = grin;
+  if (r.state === 'talk'){ const a = Math.sin(now * 9.5) * 0.55 + Math.sin(now * 14.3) * 0.45; w.open = Math.max(grin, Math.max(0, a) * 0.75); } else if (r.state === 'sing'){ w.open = Math.max(grin, 0.25 + Math.sin(now * 3.1) * 0.2 + Math.sin(now * 5.3) * 0.1); } else w.open = grin;
   faceApply(r, dt);
 }
 // leva's face is two lights on the glass: they blink, squint when he runs, go wide when he jumps, and slide toward whatever he is looking at
 function robotFace(r, dt, now){
   const F = r.face, c = F.cur, w = F.want, k = Math.min(1, dt * 10);
-  w.squint = r.state === 'run' ? 0.5 : r.state === 'swim' || r.state === 'tread' ? 0.2 : 0; w.wide = r.state === 'jump' || r.state === 'fall' ? 0.5 : 0;
+  w.squint = r.state === 'run' ? 0.5 : r.state === 'swim' || r.state === 'tread' || r.state === 'float' ? 0.2 : 0; w.wide = r.state === 'jump' || r.state === 'fall' ? 0.5 : 0;
   for (const key in c) c[key] += (w[key] - c[key]) * k;
   const bl = F.blinkT > 0 ? 0.08 : 1, sy = bl * (1 - c.squint * 0.55) * (1 + c.wide * 0.45) * 0.7, sx = 1 + c.wide * 0.1;
   F.eyes.forEach((e, i) => { const kk = i === 0 ? -1 : 1; e.scale.set(sx, sy, 0.25); e.position.x = e.userData.x0 + (c.gx + F.sx * 0.5) * F.R * 0.05; e.position.y = e.userData.y0 + (c.gy + F.sy * 0.5) * F.R * 0.04 + c.wide * F.R * 0.03; e.rotation.z = kk * c.squint * 0.25; });
@@ -1201,6 +1203,18 @@ function toonTick(r, dt){
     P.rootX = 0; P.hipY = 0; P.armL = [-0.3 + s * 0.15, 0.35 * c, -1.5 - s * 0.2]; P.armR = [-0.3 - s * 0.15, -0.35 * c, 1.5 - s * 0.2]; P.foreL = [-0.9 + c * 0.3, 0, 0]; P.foreR = [-0.9 - c * 0.3, 0, 0];
     P.legL = [-0.7 + s * 0.35, 0, -0.25]; P.legR = [-0.7 - s * 0.35, 0, 0.25]; P.shinL = [1.1 + c * 0.5, 0, 0]; P.shinR = [1.1 - c * 0.5, 0, 0]; P.footL = [0.5, 0, 0]; P.footR = [0.5, 0, 0];
     P.torso = [0.08, 0, 0]; P.chest = [0, s * 0.08, 0]; P.head = [-0.15, s * 0.1, 0]; }
+  else if (st === 'tuck'){ P.hipY = -0.1; P.legL = [-2.3, 0, 0.15]; P.legR = [-2.3, 0, -0.15]; P.shinL = [2.2, 0, 0]; P.shinR = [2.2, 0, 0]; P.footL = [0.5, 0, 0]; P.footR = [0.5, 0, 0]; P.armL = [-1.9, 0, 0.9]; P.armR = [-1.9, 0, -0.9]; P.foreL = [-1.7, 0, 0]; P.foreR = [-1.7, 0, 0]; P.torso = [0.35, 0, 0]; P.head = [-0.3, 0, 0]; P.rootX = -0.35; }
+  else if (st === 'float'){ r.phase += dt * 1.6; const s = Math.sin(r.phase);
+    // on the back: arms out, legs straight with the toes pointed, face to the sky, rocking a little on the water
+    P.rootX = -(SWIM_PITCH - 0.12) + s * 0.03; P.hipY = -(r.hipY - 0.12); P.armL = [0.1, 0, -1.55 + s * 0.06]; P.armR = [0.1, 0, 1.55 - s * 0.06]; P.foreL = [-0.1, 0, 0]; P.foreR = [-0.1, 0, 0];
+    P.legL = [0.05, 0, 0.1]; P.legR = [0.05, 0, -0.1]; P.footL = [0.7, 0, 0]; P.footR = [0.7, 0, 0]; P.head = [0.12, s * 0.06, 0]; P.chest = [0, 0, s * 0.04]; }
+  else if (st === 'volley'){ r.phase += dt * 4.2; const ph = r.phase, b = Math.max(0, Math.sin(ph));
+    // bumping a ball straight up: arms together out front, knees soft, up on the toes with the bump
+    P.armL = [-1.0 - b * 0.55, 0, 0.3]; P.armR = [-1.0 - b * 0.55, 0, -0.3]; P.foreL = [-0.05, 0, 0]; P.foreR = [-0.05, 0, 0]; P.legL = [-0.3 + b * 0.2, 0, 0.12]; P.legR = [-0.3 + b * 0.2, 0, -0.12]; P.shinL = [0.55 - b * 0.35, 0, 0]; P.shinR = [0.55 - b * 0.35, 0, 0];
+    P.hipY = -0.07 + b * 0.06; P.torso = [0.12, 0, 0]; P.head = [-0.4, 0, 0]; }
+  else if (st === 'cheer'){ r.phase += dt * 6; const ph = r.phase, s = Math.sin(ph); P.armL = [-2.6 + s * 0.3, 0, -0.5 + s * 0.2]; P.armR = [-2.6 - s * 0.3, 0, 0.5 - s * 0.2]; P.foreL = [-0.35, 0, 0]; P.foreR = [-0.35, 0, 0]; P.hipY = Math.abs(Math.sin(ph)) * 0.05; P.head = [-0.2, s * 0.12, 0]; P.shinL = [Math.max(0, -s) * 0.2, 0, 0]; P.shinR = [Math.max(0, -s) * 0.2, 0, 0]; }
+  else if (st === 'sing'){ const w = Math.sin(now * 1.3); P.hipY = Math.sin(now * 2.6) * 0.008; P.hips = [0, w * 0.06, w * 0.04]; P.chest = [0.02, -w * 0.08, -w * 0.04]; P.head = [-0.08 + Math.sin(now * 2) * 0.05, w * 0.35, Math.sin(now * 1.7) * 0.12]; P.armL = [-0.3 + Math.sin(now * 2.6) * 0.1, 0, 0.5]; P.foreL = [-1.6, 0, 0]; P.armR = [0.05, 0, -0.15]; P.foreR = [-0.25, 0, 0]; P.legL = [0.02, 0, 0.05]; P.legR = [0.02, 0, -0.05]; }
+  else if (st === 'pet'){ const w = Math.sin(now * 3); P.hipY = -0.34; P.legL = [-1.15, 0, 0.14]; P.legR = [-1.15, 0, -0.14]; P.shinL = [1.35, 0, 0]; P.shinR = [1.35, 0, 0]; P.footL = [-0.2, 0, 0]; P.footR = [-0.2, 0, 0]; P.torso = [0.4, 0, 0]; P.head = [0.1, w * 0.1, 0]; P.armR = [-0.95 + w * 0.12, 0, -0.25]; P.foreR = [-0.5 + w * 0.15, 0, 0]; P.armL = [-0.4, 0, 0.3]; P.foreL = [-0.9, 0, 0]; }
   else if (st === 'climb'){ r.phase += dt * 8; const s = Math.sin(r.phase); P.armL = [-2.6 + s * 0.4, 0, 0.2]; P.armR = [-2.6 - s * 0.4, 0, -0.2]; P.foreL = [-0.6, 0, 0]; P.foreR = [-0.6, 0, 0]; P.legL = [-0.9 + s * 0.5, 0, 0]; P.legR = [-0.9 - s * 0.5, 0, 0]; P.shinL = [1.2, 0, 0]; P.shinR = [1.2, 0, 0]; P.footL = [0.5, 0, 0]; P.footR = [0.5, 0, 0]; }
   else if (st === 'sit'){ P.hipY = -0.36; P.legL = [-1.5, 0, 0.1]; P.legR = [-1.5, 0, -0.1]; P.shinL = [1.5, 0, 0]; P.shinR = [1.5, 0, 0]; P.armL = [-0.6, 0, 0.2]; P.armR = [-0.6, 0, -0.2]; P.foreL = [-1.0, 0, 0]; P.foreR = [-1.0, 0, 0]; P.head = [0, Math.sin(now * 0.5) * 0.15, 0]; P.torso = [0.05 + Math.sin(now * 1.5) * 0.01, 0, 0]; }
   else if (st === 'talk'){ P.armR = [-0.8 + Math.sin(now * 5) * 0.15, 0, -0.5]; P.foreR = [-1.5 + Math.sin(now * 7) * 0.25, 0, 0]; P.armL = [-0.15, 0, 0.3]; P.foreL = [-0.5, 0, 0]; P.head = [Math.sin(now * 4) * 0.06, Math.sin(now * 1.3) * 0.08, Math.sin(now * 2.1) * 0.04]; P.chest = [0.03, Math.sin(now * 1.1) * 0.06, 0]; P.hipY = Math.sin(now * 1.6) * 0.004; }
@@ -1232,7 +1246,7 @@ function actorFrom(look){
   return r;
 }
 function animActor(a, moving, dt, run){
-  a.phase += dt * (moving ? (run ? 14 : 9) : 0);
+  a.phase += dt * (moving ? (run ? 14 : 9) : 0); if (a.g.position.y < -0.3){ a.phase += dt * 6; }   // paddling in the water
   const sw = moving ? Math.sin(a.phase) * (run ? 0.9 : 0.6) : 0;
   a.legL.rotation.x += (sw - a.legL.rotation.x) * 0.4; a.legR.rotation.x += (-sw - a.legR.rotation.x) * 0.4;
   a.armL.rotation.x += (-sw - a.armL.rotation.x) * 0.4; a.armR.rotation.x += (sw - a.armR.rotation.x) * 0.4;
@@ -1251,8 +1265,8 @@ function makeLabel(text){ const cv = document.createElement('canvas'); cv.width 
 
 // ---------------- the crew ----------------
 const NPC = [];
-function npc(id, name, mx, my, face){ const a = id === 'ari' ? beagleActor() : actorFor(id); a.g.position.set(X(mx), 0, Z(my)); a.g.rotation.y = face;
-  const n = {id, name, a, x: X(mx), z: Z(my), home: [X(mx), Z(my)], face, doing: 'hanging out', spot: null, feel: {energy: 0.8, hunger: 0.3, fun: 0.5, social: 0.4}, moving: false};
+function npc(id, name, mx, my, face){ const a = id === 'ari' ? beagleActor() : id === 'luke' ? dogActor(lukeDog()) : actorFor(id); a.g.position.set(X(mx), 0, Z(my)); a.g.rotation.y = face;
+  const n = {id, name, a, x: X(mx), z: Z(my), y: 0, home: [X(mx), Z(my)], face, doing: 'hanging out', spot: null, feel: {energy: 0.8, hunger: 0.3, fun: 0.5, social: 0.4}, moving: false, busy: false, inWater: false};
   n.tag = makeLabel(name); n.tag.position.y = a.dog ? 1.15 : (a.height || 1.7) + 0.3; a.g.add(n.tag); blob(a.g, a.dog ? 0.45 : 0.5); NPC.push(n); return n; }
 // Grandma's bench on the grass by the bike path, facing the pool
 { const bx = X(388), bz = Z(402), bm = M('#8a5a3c', {roughness: 0.9}); box(26 * S, 0.06, 0.45, bm, bx, 0.45, bz); box(26 * S, 0.42, 0.05, bm, bx, 0.72, bz + 0.25); [-1, 1].forEach(k => { box(0.06, 0.45, 0.45, mat.dark, bx + k * 12 * S, 0.22, bz); }); solids.push([bx - 13 * S, bz - 0.25, bx + 13 * S, bz + 0.3, 0.9]); }
@@ -1263,7 +1277,8 @@ const mel = npc('mel', 'Mel', 290, 312, Math.PI);
 const ari = npc('ari', 'Ari', 300, 345, 0);
 const guard = npc('guard', 'Lifeguard', 197, 180, Math.PI / 2);
 const nutty = npc('nutty', 'Nutty Dip', 390.5, 53, 0);
-const levaN = npc('leva', 'leva', 300, 330, Math.PI);   // leva the character: hidden while you are him, walking his rounds when you are somebody else
+const levaN = npc('leva', 'leva', 250, 80, 0);
+const luke = npc('luke', 'Luke', 386, 393, Math.PI);   // leva the character: hidden while you are him, walking his rounds when you are somebody else
 const Q = {gmaCool: 0, nuttyCool: 0};
 const byId = Object.fromEntries(NPC.map(n => [n.id, n]));
 const hourNow = () => 11 + dayT / DAY_LEN * 9;
@@ -1274,16 +1289,46 @@ const WP = {hallW: [424, 218], hallE: [536, 218], door: [549, 218], lotMid: [548
 const EDGES = [['deck', 'hall', ['hallW']], ['hall', 'front', ['hallE', 'door']], ['front', 'sw', ['lotMid', 'lotS', 'grassW']], ['deck', 'conc', ['cgS', 'cgIn']], ['conc', 'north', ['cgN1', 'cgN2']]];
 function region(x, z){ const u = (x - SITE[0]) / S, v = (z - SITE[1]) / S;
   if (u >= 328 && u <= 420 && v >= 28 && v <= 92) return 'conc'; if (u >= 420 && u <= 541 && v >= 146 && v <= 236) return 'hall'; if (u > 541) return 'front';
-  if (v >= 395) return u < 420 ? 'sw' : 'front'; if (v < 28 || Math.hypot(u - CX, v - CY) > DECK_R + 2) return 'north'; if (u > 420) return 'front'; return 'deck'; }
+  if (v >= 395) return u < 420 ? 'sw' : 'front'; if (u > 420) return 'front'; if (v < 28) return 'north'; if (Math.hypot(u - CX, v - CY) > DECK_R + 2) return (u > 300 && v > 300) ? 'deck' : 'north'; return 'deck'; }   // the grass by the towels is inside the fence, a straight walk from the deck
 function routeWps(from, to){ if (from === to) return []; const prev = {[from]: null}, q = [from]; while (q.length){ const r = q.shift(); if (r === to) break; for (const [a, b] of EDGES){ const n = a === r ? b : b === r ? a : null; if (n && !(n in prev)){ prev[n] = r; q.push(n); } } }
   if (!(to in prev)) return []; const chain = []; for (let r = to; r; r = prev[r]) chain.unshift(r); const out = [];
   for (let i = 0; i < chain.length - 1; i++){ const e = EDGES.find(([a, b]) => (a === chain[i] && b === chain[i + 1]) || (b === chain[i] && a === chain[i + 1])); const pts = e[0] === chain[i] ? e[2] : e[2].slice().reverse(); pts.forEach(k => out.push([X(WP[k][0]), Z(WP[k][1])])); }
   return out; }
 // walk somebody toward a point, around the fences and out of the pools. Returns true when they're there.
+// the pools as boxes with a little margin, in map units: a walk that would cross one goes around by the nearest corner
+const POOL_BOX = [[210.5, 119.5, 300, 302], [134.5, 119.5, 184.5, 234.5], [332, 142.6, 390.6, 273.4]];
+function segBox(ax, az, bx, bz, B){ let t0 = 0, t1 = 1; const dx = bx - ax, dz = bz - az; for (const [p, q] of [[-dx, ax - B[0]], [dx, B[2] - ax], [-dz, az - B[1]], [dz, B[3] - az]]){ if (p === 0){ if (q < 0) return false; } else { const t = q / p; if (p < 0){ if (t > t1) return false; if (t > t0) t0 = t; } else { if (t < t0) return false; if (t < t1) t1 = t; } } } return true; }
+function poolDetour(from, to){ const u0 = (from[0] - SITE[0]) / S, v0 = (from[1] - SITE[1]) / S, u1 = (to[0] - SITE[0]) / S, v1 = (to[1] - SITE[1]) / S;
+  for (const B of POOL_BOX){ if (!segBox(u0, v0, u1, v1, B)) continue; if (u1 > B[0] && u1 < B[2] && v1 > B[1] && v1 < B[3]) continue;   // the target is in the margin (a ladder, the edge): go straight
+    let pu = u0, pv = v0; if (pu > B[0] && pu < B[2] && pv > B[1] && pv < B[3]){ const dl = pu - B[0], dr = B[2] - pu, dn = pv - B[1], ds = B[3] - pv, m = Math.min(dl, dr, dn, ds); if (m === dl) pu = B[0] - 0.5; else if (m === dr) pu = B[2] + 0.5; else if (m === dn) pv = B[1] - 0.5; else pv = B[3] + 0.5; }   // standing in the margin: reckon from just outside it
+    const o = 3, corners = [[B[0] - o, B[1] - o], [B[2] + o, B[1] - o], [B[0] - o, B[3] + o], [B[2] + o, B[3] + o]]; let best = null, bd = 1e9;
+    for (const c of corners){ if (Math.hypot(c[0] - pu, c[1] - pv) < 1.2) continue; const d = Math.hypot(c[0] - pu, c[1] - pv) + Math.hypot(u1 - c[0], v1 - c[1]) + (segBox(pu, pv, c[0], c[1], B) ? 1e3 : 0) + (segBox(c[0], c[1], u1, v1, B) ? 200 : 0); if (d < bd){ bd = d; best = c; } }   // the shortest way round: a corner you can reach dry, and that gets you on toward the target dry if one does
+    return best ? [X(best[0]), Z(best[1])] : null; }
+  return null; }
+// the nearest dry spot just outside a pool, for anyone who ends up in the water by accident
+function poolExit(x, z){ const u = (x - SITE[0]) / S, v = (z - SITE[1]) / S, p = inPool(x, z); if (!p) return null;
+  if (p === 'zero'){ const du = (u - 335) / 52.6, dv = (v - 208) / 62.4, r = Math.hypot(du, dv) || 0.01; if (u - 335 < 4) return [X(334), Z(v)]; return [X(335 + du / r * 54.6), Z(208 + dv / r * 64.4)]; }
+  const B = p === 'dive' ? [137.5, 122.5, 181.5, 231.5] : [213.5, 122.5, 297, 299], dl = u - B[0], dr = B[2] - u, dn = v - B[1], ds = B[3] - v, m = Math.min(dl, dr, dn, ds);
+  return m === dl ? [X(B[0] - 1), Z(v)] : m === dr ? [X(B[2] + 1), Z(v)] : m === dn ? [X(u), Z(B[1] - 1)] : [X(u), Z(B[3] + 1)]; }
+// walking around a chair, a stand, a bench or a lounger: if the next few meters cross one, head for its nearest free corner first (meters)
+function solidDetour(from, to, rad = 0.4){
+  const dx = to[0] - from[0], dz = to[1] - from[1], L = Math.hypot(dx, dz); if (L < 0.05) return null; const lim = Math.min(L, 4), ex = from[0] + dx / L * lim, ez = from[1] + dz / L * lim; let hit = null, hd = 1e9;
+  for (const q of solids){ const B = [q[0] - rad, q[1] - rad, q[2] + rad, q[3] + rad]; if (B[2] - B[0] > 30 || B[3] - B[1] > 30) continue; if (from[0] > B[0] && from[0] < B[2] && from[1] > B[1] && from[1] < B[3]) continue;
+    if (segBox(from[0], from[1], ex, ez, B)){ const d = Math.hypot((B[0] + B[2]) / 2 - from[0], (B[1] + B[3]) / 2 - from[1]); if (d < hd){ hd = d; hit = B; } } }
+  if (!hit) return null; if (to[0] > hit[0] && to[0] < hit[2] && to[1] > hit[1] && to[1] < hit[3]) return null;   // the target is right at it: go straight and let the collision stop us
+  const o = 0.35, c4 = [[hit[0] - o, hit[1] - o], [hit[2] + o, hit[1] - o], [hit[0] - o, hit[3] + o], [hit[2] + o, hit[3] + o]]; let best = null, bd = 1e9;
+  for (const c of c4){ if (Math.hypot(c[0] - from[0], c[1] - from[1]) < 0.4) continue; const d = Math.hypot(c[0] - from[0], c[1] - from[1]) + Math.hypot(to[0] - c[0], to[1] - c[1]) + (segBox(from[0], from[1], c[0], c[1], hit) ? 1e3 : 0) + (segBox(c[0], c[1], to[0], to[1], hit) ? 60 : 0); if (d < bd){ bd = d; best = c; } }
+  return best; }
 function moveNpc(n, tgt, dt, speed, stop = 0.5){
+  if (!n.inWater){ const ex = poolExit(n.x, n.z); if (ex){ n.x = ex[0]; n.z = ex[1]; } }   // nobody walks on water: step back onto the deck
   if (!n.wps || n.rT !== region(tgt[0], tgt[1]) || (n.wps.length && n.stuck > 2)){ n.rT = region(tgt[0], tgt[1]); n.wps = routeWps(region(n.x, n.z), n.rT); n.stuck = 0; }
-  const nxt = n.wps.length ? n.wps[0] : tgt, dx = nxt[0] - n.x, dz = nxt[1] - n.z, d = Math.hypot(dx, dz), st = n.wps.length ? 0.7 : stop;
-  if (d <= st){ if (n.wps.length){ n.wps.shift(); return false; } n.moving = false; return true; }
+  let nxt = n.wps.length ? n.wps[0] : tgt; const det = poolDetour([n.x, n.z], nxt); if (det && Math.hypot(det[0] - n.x, det[1] - n.z) > 0.6) nxt = det;
+  // stuck on something (a chair, a stand, a lounger): sidestep for a moment, then try again
+  if ((n.stuck || 0) > 0.8 && !n.nudge){ const a0 = Math.atan2(nxt[0] - n.x, nxt[1] - n.z) + (Math.random() < 0.5 ? 1 : -1) * Math.PI / 2; n.nudge = {x: n.x + Math.sin(a0) * 1.8, z: n.z + Math.cos(a0) * 1.8, t: 1.5}; n.stuck = 0; }
+  if (n.nudge){ n.nudge.t -= dt; if (n.nudge.t <= 0 || Math.hypot(n.nudge.x - n.x, n.nudge.z - n.z) < 0.3 || inPool(n.nudge.x, n.nudge.z)) n.nudge = null; else nxt = [n.nudge.x, n.nudge.z]; }
+  if (!n.nudge){ const sd = solidDetour([n.x, n.z], nxt); if (sd && !inPool(sd[0], sd[1])) nxt = sd; }
+  const detour = nxt !== tgt && !(n.wps.length && nxt === n.wps[0]), dx = nxt[0] - n.x, dz = nxt[1] - n.z, d = Math.hypot(dx, dz), st = detour ? 0.5 : n.wps.length ? 0.7 : stop;
+  if (d <= st){ if (detour) return false; if (n.wps.length){ n.wps.shift(); return false; } n.moving = false; return true; }
   const sp = speed * dt; let nx = n.x + dx / d * sp, nz = n.z + dz / d * sp;
   if (inPool(nx, nz)){ let ok = false; for (const off of [0.7, -0.7, 1.4, -1.4, 2.1, -2.1]){ const a = Math.atan2(dz, dx) + off; const tx = n.x + Math.cos(a) * sp, tz = n.z + Math.sin(a) * sp; if (!inPool(tx, tz)){ nx = tx; nz = tz; ok = true; break; } } if (!ok){ nx = n.x; nz = n.z; } }
   const p = {x: nx, z: nz}; collide(p, 0, 0.3); const moved = Math.hypot(p.x - n.x, p.z - n.z); n.stuck = moved < sp * 0.3 ? (n.stuck || 0) + dt : 0;
@@ -1344,6 +1389,7 @@ function endOfDay(){
     if (m.wonders.length) lines.push('Still wondering: ' + m.wonders[m.wonders.length - 1]);
     m.journal.push({day: save.day, lines: lines.slice(0, 5)}); if (m.journal.length > 7) m.journal.shift(); }
   // Ari's day in his own words
+  { const m = memOf('luke'), v = LUKE.value, best = Object.entries(v).sort((a, b) => b[1] - a[1])[0]; m.journal.push({day: save.day, lines: [(save.events.luke || []).slice(-2).join(' ') || 'Ran. Chewed. Found the girls.', `Best thing today: ${({zoomies: 'zoomies', park: 'the park', chew: 'the rope toy', swim: 'the water', girls: 'the girls', ari: 'Ari', gma: 'Grandma'})[best[0]]}.`]}); if (m.journal.length > 7) m.journal.shift(); }
   { const m = memOf('ari'), v = MIND.value, best = Object.entries(v).sort((a, b) => b[1] - a[1])[0]; m.journal.push({day: save.day, lines: [(save.events.ari || []).slice(-2).join(' '), `What paid off most: ${({gma: 'Grandma', nutty: 'the window', play: 'playing with leva', rest: 'the shade'})[best[0]]}.`].filter(Boolean)}); if (m.journal.length > 7) m.journal.shift(); }
   save.events = {}; save.day++; store(); toast('Day ' + (save.day - 1) + ' is in the books. Everybody wrote in their journal.'); }
 
@@ -1368,20 +1414,22 @@ function routine(n, dt){
 }
 const moodOf = n => { const f = n.feel; return f.hunger > 0.75 ? 'hungry' : f.energy < 0.3 ? 'tired' : f.fun > 0.65 ? 'happy' : f.social < 0.2 ? 'a little lonely' : 'chill'; };
 const seesNear = (n, R = 14) => { const out = []; const d0 = Math.hypot(me.x - n.x, me.z - n.z); if (d0 <= R) out.push({name: PLAYER.name, d: d0, what: me.sprinting ? 'running' : inPool(me.x, me.z) ? 'swimming' : 'standing there'});
-  for (const o of NPC){ if (o === n || o.played) continue; const d = Math.hypot(o.x - n.x, o.z - n.z); if (d <= R) out.push({name: o.name, d, what: o.id === 'ari' ? (MIND.plan ? MIND.plan.steps[Math.min(MIND.plan.i, MIND.plan.steps.length - 1)].label.toLowerCase() : 'thinking') : o.doing}); } return out.sort((a, b) => a.d - b.d); };
+  for (const o of NPC){ if (o === n || o.played) continue; const d = Math.hypot(o.x - n.x, o.z - n.z); if (d <= R) out.push({name: o.name, d, what: o.id === 'ari' ? (MIND.plan ? MIND.plan.steps[Math.min(MIND.plan.i, MIND.plan.steps.length - 1)].label.toLowerCase() : 'thinking') : o.id === 'luke' ? (LUKE.plan ? LUKE.plan.label.toLowerCase() : 'thinking') : o.doing}); } return out.sort((a, b) => a.d - b.d); };
 
 // ---------------- Ari's mind: senses, wants, a plan, and what he has learned pays off ----------------
 const MIND = {
-  wants: {treat: 0.55, play: 0.25, rest: 0.1, sniff: 0.4},
+  wants: {treat: 0.55, play: 0.25, rest: 0.1, sniff: 0.4, swim: 0.3},
   range: 12, memory: true, known: {}, senses: [], plan: null, note: '', lastSwitch: 0, moving: false,
-  value: Object.assign({gma: 0.5, nutty: 0.5, play: 0.5, rest: 0.5}, (save.mem.ari && save.mem.ari.value) || {})
+  value: Object.assign({gma: 0.5, nutty: 0.5, play: 0.5, rest: 0.5, swim: 0.6}, (save.mem.ari && save.mem.ari.value) || {})
 };
 const SHADE = [X(117.5), Z(279.5)];
+function freeSpot(x, z){ if (inPool(x, z) || region(x, z) !== 'deck') return false; for (const q of solids) if (x > q[0] - 0.6 && x < q[2] + 0.6 && z > q[1] - 0.6 && z < q[3] + 0.6) return false; for (const t of trunks) if (Math.hypot(t[0] - x, t[1] - z) < t[2] + 0.6) return false; return true; }
+function randomDeckPoint(rMin = 50, rMax = 160){ for (let k = 0; k < 40; k++){ const a = Math.random() * Math.PI * 2, r = rMin + Math.random() * (rMax - rMin), x = X(CX + r * Math.cos(a)), z = Z(CY + r * Math.sin(a)); if (freeSpot(x, z)) return [x, z]; } return [X(300), Z(330)]; }
 const sources = () => [
   {id: 'gma', name: 'Grandma', x: gma.x, z: gma.z, what: Q.gmaCool > 0 ? 'snack bag (she said no more for now)' : 'snack bag', gives: 'treat'},
   {id: 'nutty', name: 'Nutty Dip window', x: X(390.5), z: Z(62), what: hourNow() < 18.5 ? 'the smell of Nutty Dip' : 'the window, closed', gives: 'treat'},
   {id: 'me', name: PLAYER.name, x: me.x, z: me.z, what: me.sprinting ? 'running!' : 'standing around', gives: 'play'},
-  {id: 'em', name: 'Em', x: em.x, z: em.z, what: em.doing}, {id: 'mel', name: 'Mel', x: mel.x, z: mel.z, what: mel.doing}, {id: 'yen', name: 'Yenny', x: yen.x, z: yen.z, what: yen.doing}, {id: 'leva', name: 'leva', x: levaN.x, z: levaN.z, what: levaN.doing}
+  {id: 'em', name: 'Em', x: em.x, z: em.z, what: em.doing}, {id: 'mel', name: 'Mel', x: mel.x, z: mel.z, what: mel.doing}, {id: 'yen', name: 'Yenny', x: yen.x, z: yen.z, what: yen.doing}, {id: 'leva', name: 'leva', x: levaN.x, z: levaN.z, what: levaN.doing}, {id: 'luke', name: 'Luke', x: luke.x, z: luke.z, what: luke.doing}
 ].filter(s => !(byId[s.id] && byId[s.id].played));
 function sense(dt, now){
   const out = []; const srcs = sources();
@@ -1391,6 +1439,7 @@ function sense(dt, now){
   MIND.senses = out;
   const W = MIND.wants; W.treat = Math.min(1, W.treat + 0.011 * dt); const lev = MIND.known.me; W.play = Math.min(1, W.play + 0.006 * dt + (me.sprinting && lev && Math.hypot(lev.x - ari.x, lev.z - ari.z) < 16 ? 0.06 * dt : 0));
   W.rest = Math.max(0, Math.min(1, W.rest + (MIND.moving ? 0.007 : -0.012) * dt)); W.sniff = Math.max(0.1, Math.min(1, W.sniff + (Math.random() - 0.5) * 0.08 * dt));
+  const hh = hourNow(); W.swim = Math.max(0, Math.min(1, W.swim + (hh > 12 && hh < 18.5 ? 0.006 : 0.002) * dt));   // the hotter part of the day, the more the water calls
   Q.gmaCool = Math.max(0, Q.gmaCool - dt); Q.nuttyCool = Math.max(0, Q.nuttyCool - dt);
 }
 function options(){
@@ -1399,6 +1448,7 @@ function options(){
   if (K.gma && Q.gmaCool <= 0) o.push({goal: 'treat-gma', label: 'Get a treat from Grandma', util: W.treat * near(K.gma) * learned('gma'), why: 'wants a treat, knows where Grandma is' + (V.gma > 0.65 ? ', and that has paid off before' : '')});
   if (K.nutty && Q.nuttyCool <= 0) o.push({goal: 'treat-nutty', label: 'Beg at the Nutty Dip window', util: W.treat * 0.85 * near(K.nutty) * learned('nutty'), why: 'wants a treat, knows where the window is' + (V.nutty < 0.35 ? ', though that has not worked lately' : '')});
   if (K.me) o.push({goal: 'play', label: `Play with ${PLAYER.name}`, util: W.play * near(K.me) * 1.1 * learned('play'), why: `wants to play, knows where ${PLAYER.name} is`});
+  { const lv = levaAt(), edge = [X(209), Z(160)], levaFar = Math.hypot(lv[0] - edge[0], lv[1] - edge[1]) > 16; o.push({goal: 'sneak', label: 'Sneak into the pool', util: W.swim * learned('swim') * (levaFar ? 1.0 : 0.12), why: levaFar ? 'wants a swim, and leva is on the other side of the park' : 'wants a swim, but leva is right there'}); }
   o.push({goal: 'rest', label: 'Nap in the shade', util: W.rest * 0.8 * learned('rest'), why: 'tired'});
   o.push({goal: 'sniff', label: 'Sniff around the deck', util: 0.22 + W.sniff * 0.25, why: 'nothing better to do'});
   return o.sort((a, b) => b.util - a.util);
@@ -1410,7 +1460,8 @@ function makePlan(opt){
   else if (opt.goal === 'treat-nutty') steps = [go('Trot to the window', () => [X(390.5), Z(63)]), act('Sit by the window', 'sit', 1.0), act('Beg', 'beg', 3.0), act(hourNow() < 18.5 ? 'Pup cup!' : 'Window is closed', 'eat', 1.6)];
   else if (opt.goal === 'play') steps = [go(`Run to ${PLAYER.name}`, () => [me.x, me.z]), act(`Hop around ${PLAYER.name}`, 'hop', 3.5)];
   else if (opt.goal === 'rest') steps = [go('Walk to the shade', () => SHADE), act('Lie down', 'nap', 9)];
-  else { let sp; for (let k = 0; k < 20; k++){ const a = Math.random() * Math.PI * 2, r = 60 + Math.random() * 100; sp = [CX + r * Math.cos(a), CY + r * Math.sin(a)]; if (!inPool(X(sp[0]), Z(sp[1])) && region(X(sp[0]), Z(sp[1])) === 'deck') break; } steps = [go('Wander over there', () => [X(sp[0]), Z(sp[1])]), act('Sniff', 'sniff', 2.5)]; }
+  else if (opt.goal === 'sneak') steps = [go('Trot to the pool edge', () => [X(209), Z(160)]), act('Look around', 'look', 1.2), act('Hop in!', 'hopin', 0.7), act('Dog paddle', 'paddle', 26), act('Scramble out', 'out', 1.1), act('Shake off', 'shake', 1.6)];
+  else { const sp = randomDeckPoint(60, 160); steps = [go('Wander over there', () => sp), act('Sniff', 'sniff', 2.5)]; }
   return {goal: opt.goal, label: opt.label, why: opt.why, util: opt.util, steps, i: 0, t: 0, run: opt.goal === 'play'};
 }
 // learning: when a plan pays off, that kind of plan is worth a little more to him next time; when it doesn't, a little less
@@ -1422,19 +1473,29 @@ function finishStep(st){
     else { Q.nuttyCool = 70; learn('nutty', 0); MIND.note = 'The window was closed. That trip did not pay off, so the window is worth less to him now.'; event('ari', 'Window was closed. Sat there anyway.'); } }
   if (st.kind === 'hop'){ MIND.wants.play = Math.max(0, MIND.wants.play - 0.55); learn('play', 0.8); MIND.note = 'Playing used up his play want.'; event('ari', `Played with ${PLAYER.name}.`); }
   if (st.kind === 'nap'){ MIND.wants.rest = 0.05; learn('rest', 0.7); MIND.note = 'Rested. Rest want back to low.'; event('ari', 'Napped in the shade.'); }
+  if (st.kind === 'paddle'){ MIND.wants.swim = 0.05; const caught = !!P.caught; learn('swim', caught ? 0.45 : 0.9); MIND.note = caught ? 'leva caught him. He still got a swim, so the pool is worth a little less, not a lot less.' : 'A whole swim and nobody noticed. The pool is worth more to him now.'; event('ari', caught ? 'Snuck into the lap pool. leva got him out.' : 'Snuck into the lap pool. Got away with it.'); found('emerge'); }
 }
 function think(dt, now){
   sense(dt, now);
   const opts = options(), best = opts[0]; let P = MIND.plan;
   const lost = P && ((P.goal === 'treat-gma' && (!MIND.known.gma || Q.gmaCool > 0)) || (P.goal === 'treat-nutty' && (!MIND.known.nutty || Q.nuttyCool > 0)) || (P.goal === 'play' && !MIND.known.me));
   if (lost){ MIND.note = P.goal === 'play' ? `He lost track of ${PLAYER.name}, so that plan is gone.` : 'He can\'t count on that anymore, so the plan is gone.'; P = MIND.plan = null; }
-  if (!P || (best.goal !== P.goal && best.util > P.util + 0.25 && now - MIND.lastSwitch > 2)){ if (P && best.goal !== P.goal) MIND.note = `"${best.label}" beat "${P.label}", so he switched.`; MIND.plan = P = makePlan(best); MIND.lastSwitch = now; }
+  if (ari.inWater && !inPool(ari.x, ari.z)) ari.inWater = false;
+  if (ari.inWater && P && P.goal !== 'sneak'){ P = MIND.plan = {goal: 'sneak', label: 'Scramble out of the pool', why: 'is in the water, and the water is not the place to be', util: 2, steps: [{label: 'Scramble out', kind: 'out', dur: 1.1}, {label: 'Shake off', kind: 'shake', dur: 1.6}], i: 0, t: 0}; }   // never leave him stranded in the water
+  if (!P || (best.goal !== P.goal && best.util > P.util + 0.25 && now - MIND.lastSwitch > 2 && !ari.inWater)){ if (P && best.goal !== P.goal) MIND.note = `"${best.label}" beat "${P.label}", so he switched.`; MIND.plan = P = makePlan(best); MIND.lastSwitch = now; }
   else if (P) P.util = (opts.find(o => o.goal === P.goal) || P).util;
   const st = P.steps[P.i]; MIND.moving = false;
   if (st.at){ const there = moveNpc(ari, st.at(), dt, P.run ? 4.8 : 3.4, P.goal === 'play' ? 1.6 : 0.5); MIND.moving = ari.moving;
     if (there){ P.i = Math.min(P.steps.length - 1, P.i + 1); P.t = 0; ari.a.tick(dt, false); } else ari.a.tick(dt, true, P.run); }
   else { P.t += dt; ari.a.tick(dt, false);
-    const g = ari.a; if (st.kind === 'sit' || st.kind === 'beg'){ g.armL.rotation.x = -1.2; g.armR.rotation.x = -1.2; g.g.rotation.x = st.kind === 'beg' ? -0.35 : -0.15; } else if (st.kind === 'nap'){ g.g.rotation.x = 0; g.g.position.y = -0.18; } else if (st.kind === 'hop'){ g.g.rotation.x = 0; g.g.position.y = Math.abs(Math.sin(P.t * 9)) * 0.35; const want = Math.atan2(me.x - ari.x, me.z - ari.z); g.g.rotation.y = want + Math.sin(P.t * 3) * 0.6; } else { g.g.rotation.x = 0; g.g.position.y = 0; g.head.rotation.x = Math.sin(P.t * 6) * 0.2 + 0.3; }
+    const g = ari.a;
+    if (st.kind === 'hopin'){ const t = Math.min(1, P.t / st.dur); if (!st.from) st.from = [ari.x, ari.z]; const to = [X(218), Z(160)]; ari.x = st.from[0] + (to[0] - st.from[0]) * t; ari.z = st.from[1] + (to[1] - st.from[1]) * t; g.g.position.set(ari.x, 2.2 * t * (1 - t) - 0.5 * t, ari.z); g.g.rotation.y = Math.PI / 2; g.g.rotation.x = -0.3 + t * 0.6; if (t >= 1){ splash(ari.x, ari.z, true, 0.8); ari.inWater = true; } }
+    else if (st.kind === 'paddle'){ const c = [X(222), Z(150)], ang = P.t * 0.55; ari.x = c[0] + Math.cos(ang) * 3.2; ari.z = c[1] + Math.sin(ang) * 3.2; g.g.position.set(ari.x, -0.5, ari.z); g.g.rotation.y = Math.atan2(-Math.sin(ang), Math.cos(ang)) + Math.PI / 2; g.g.rotation.x = -0.22; animActor(g, true, dt, true); ari.inWater = true; if (Math.random() < dt * 3) splash(ari.x, ari.z, true, 0.3);
+      const lv = levaAt(); if (Math.hypot(lv[0] - ari.x, lv[1] - ari.z) < 5.5 && P.t > 3){ P.caught = true; P.t = st.dur; } }
+    else if (st.kind === 'out'){ const t = Math.min(1, P.t / st.dur); if (!st.from) st.from = [ari.x, ari.z]; const to = [X(209), st.from[1]]; ari.x = st.from[0] + (to[0] - st.from[0]) * t; ari.z = st.from[1]; g.g.position.set(ari.x, -0.5 + 0.5 * Math.min(1, t * 1.6) + 1.2 * t * (1 - t), ari.z); g.g.rotation.y = -Math.PI / 2; g.g.rotation.x = -0.4 * (1 - t); if (t >= 1){ ari.inWater = false; g.g.position.y = 0; } }
+    else if (st.kind === 'shake'){ g.g.position.set(ari.x, 0, ari.z); g.g.rotation.x = 0; g.g.rotation.z = Math.sin(P.t * 28) * 0.22; g.head.rotation.z = Math.sin(P.t * 28 + 1) * 0.4; if (Math.random() < dt * 8) splash(ari.x + (Math.random() - 0.5) * 0.6, ari.z + (Math.random() - 0.5) * 0.6, false); if (P.t >= st.dur - dt){ g.g.rotation.z = 0; g.head.rotation.z = 0; } }
+    else if (st.kind === 'look'){ g.g.position.set(ari.x, 0, ari.z); g.g.rotation.x = 0; g.head.rotation.y = Math.sin(P.t * 5) * 0.7; if (P.t >= st.dur - dt) g.head.rotation.y = 0; }
+    else if (st.kind === 'sit' || st.kind === 'beg'){ g.armL.rotation.x = -1.2; g.armR.rotation.x = -1.2; g.g.rotation.x = st.kind === 'beg' ? -0.35 : -0.15; } else if (st.kind === 'nap'){ g.g.rotation.x = 0; g.g.position.y = -0.18; } else if (st.kind === 'hop'){ g.g.rotation.x = 0; g.g.position.y = Math.abs(Math.sin(P.t * 9)) * 0.35; const want = Math.atan2(me.x - ari.x, me.z - ari.z); g.g.rotation.y = want + Math.sin(P.t * 3) * 0.6; } else { g.g.rotation.x = 0; g.g.position.y = 0; g.head.rotation.x = Math.sin(P.t * 6) * 0.2 + 0.3; }
     if (P.t >= st.dur){ g.g.rotation.x = 0; g.g.position.y = 0; g.head.rotation.x = 0; finishStep(st); if (P.i >= P.steps.length - 1){ MIND.plan = null; } else { P.i++; P.t = 0; } }
   }
   const tagText = P ? P.steps[Math.min(P.i, P.steps.length - 1)].label : 'Thinking…'; if (ari.tagText !== tagText){ ari.tagText = tagText; ari.tag.setText('Ari', tagText); }
@@ -1590,7 +1651,7 @@ function renderInside(force){
       <div class="tink"><h4 style="margin-top:0">Try changing a rule</h4><label>Treat want <span></span><input type="range" id="sl-treat" min="0" max="100" value="${Math.round(W.treat * 100)}"></label><label>How far he can sense <span></span><input type="range" id="sl-range" min="3" max="30" value="${MIND.range}"></label><label>Memory <input type="checkbox" id="sl-memory" ${MIND.memory ? 'checked' : ''}></label></div><p id="in-note"></p>`;
     document.getElementById('in-senses').innerHTML = (S_.length ? S_.map(s => `<li><b>${esc(s.how)}</b> ${esc(s.name)} <span>${s.d.toFixed(0)} m, ${esc(s.what)}</span></li>`).join('') : '<li class="dim">Nothing in range right now</li>') +
       Object.keys(K).filter(k => !S_.some(s => s.id === k)).map(k => `<li class="mem"><b>remembers</b> ${esc(K[k].name)} <span>last seen ${Math.max(0, camNow - K[k].t).toFixed(0)} s ago</span></li>`).join('');
-    document.getElementById('in-wants').innerHTML = bar('Treat', W.treat, 'treat') + bar('Play', W.play, 'play') + bar('Rest', W.rest, 'rest') + bar('Sniff', W.sniff, 'sniff');
+    document.getElementById('in-wants').innerHTML = bar('Treat', W.treat, 'treat') + bar('Play', W.play, 'play') + bar('Rest', W.rest, 'rest') + bar('Sniff', W.sniff, 'sniff') + bar('Swim', W.swim, 'swim');
     const slT = document.getElementById('sl-treat'); if (document.activeElement !== slT) slT.value = Math.round(W.treat * 100);
     document.getElementById('in-goal').innerHTML = P ? `<b>${esc(P.label)}</b><span>because he ${esc(P.why)}</span>` : '<b>Deciding…</b><span>weighing what he wants against what he knows</span>';
     document.getElementById('in-steps').innerHTML = P ? P.steps.map((s, i) => `<li class="${i < P.i ? 'done' : i === P.i ? 'now' : ''}">${esc(s.label)}</li>`).join('') : '';
@@ -1602,6 +1663,15 @@ function renderInside(force){
     if (MIND.memory && P && (P.goal === 'treat-gma' || P.goal === 'treat-nutty' || P.goal === 'play') && !MIND.senses.some(s => s.id === {'treat-gma': 'gma', 'treat-nutty': 'nutty', 'play': 'me'}[P.goal])) found('remember');
     return;
   }
+  if (n.id === 'luke'){
+    const W = LUKE.wants, P = LUKE.plan, V = LUKE.value, first = insideBody.dataset.who !== 'luke'; insideBody.dataset.who = 'luke';
+    if (first) insideBody.innerHTML = `<h4>Wants</h4><div id="in-wants"></div><h4>Plan</h4><div id="in-goal"></div><h4>What he weighed</h4><ul id="in-opts"></ul><h4>What has paid off <span class="small">he learns this</span></h4><div id="in-value"></div><h4>Today so far</h4><ul id="in-today"></ul><p id="in-note"></p>`;
+    document.getElementById('in-wants').innerHTML = bar('Run', W.run, 'play') + bar('Play', W.play, 'play') + bar('Chew toy', W.chew, 'sniff') + bar('Swim', W.swim, 'swim') + bar('Treat', W.treat, 'treat') + bar('The girls', W.girls, 'rest');
+    document.getElementById('in-goal').innerHTML = P ? `<b>${esc(P.label)}</b><span>because he ${esc(P.why)}</span>` : '<b>Deciding…</b><span>weighing what he wants</span>';
+    document.getElementById('in-opts').innerHTML = lukeOptions(n).slice(0, 4).map(o => `<li><span>${esc(o.label)}</span><i style="width:${Math.round(Math.min(1, o.util) * 100)}%"></i></li>`).join('');
+    document.getElementById('in-value').innerHTML = bar('Zoomies', V.zoomies, 'play') + bar('The park', V.park, 'play') + bar('Chew toy', V.chew, 'sniff') + bar('The girls', V.girls, 'rest') + bar('Ari', V.ari, 'play') + bar('Grandma', V.gma, 'treat');
+    const today = save.events.luke || []; document.getElementById('in-today').innerHTML = today.length ? today.slice(-4).map(e => `<li>${esc(e)}</li>`).join('') : '<li class="dim">Day just started</li>';
+    document.getElementById('in-note').textContent = LUKE.note || 'Luke wants to run, play, chew and be near the girls. Watch which one wins.'; return; }
   const m = memOf(n.id), f = n.feel, sees = seesNear(n), j = m.journal.slice(-2).reverse(), today = save.events[n.id] || [];
   insideBody.dataset.who = n.id; insideBody.innerHTML = `<h4>Senses <span class="small">what ${n.name} can see</span></h4><ul id="in-senses">${sees.length ? sees.map(s => `<li><b>sees</b> ${esc(s.name)} <span>${s.d.toFixed(0)} m, ${esc(s.what)}</span></li>`).join('') : '<li class="dim">Nobody close by</li>'}</ul>
     <h4>Feeling <span class="small">${esc(moodOf(n))}</span></h4>${bar('Energy', f.energy, 'play')}${bar('Hunger', f.hunger, 'treat')}${bar('Fun', f.fun, 'sniff')}${bar('Social', f.social, 'rest')}
@@ -1619,11 +1689,220 @@ const FOUND = {
   range: ['Senses set the world', 'Shrink what he can sense, and his world shrinks with it.', 25],
   memory: ['Memory is knowledge', 'Without memory, Ari only knows what he senses right this second.', 25],
   remember: ['Memory lets you plan', 'He\'s heading for something he can\'t see. That takes memory.', 25],
-  emerge: ['Rules add up', 'Nobody told Ari to beg at the window. Simple rules added up to it.', 25],
+  emerge: ['Rules add up', 'Nobody told Ari to beg at the window or sneak a swim. Simple rules added up to it.', 25],
   learn: ['He learns from what pays off', 'A plan that worked is worth more to Ari now. That is learning.', 30],
   tag: ['Confidence is not a source', 'A character told you how it knew: remembered, knew, worked out, or guessed. Always ask.', 20]
 };
 function found(id){ if (!FOUND[id] || save.found.includes(id)) return; save.found.push(id); save.pts += FOUND[id][2]; store(); toast(FOUND[id][0] + ' — ' + FOUND[id][1], 'find'); updateHud(); }
+
+// ---------------- the crew's day, the way they live it on the pool page ----------------
+// Em swims laps and cannonballs off the low board, practices volleyball, tells leva jokes. Mel floats in the zero depth, sings, asks leva about catfish, goes off the low board feet first.
+// Yenny coaches Em, runs lunch and snacks to Nutty Dip, wades in with Mel, checks on leva, pets Ari, sits with Grandma. Ari sneaks into the pool and leva gets him out.
+// A plan is a list of steps (walk, hop in, swim, tread, float, climb out, do something for a while, say something). When a plan ends the picker chooses the next one from the time of day and how they feel.
+const MU = (x, y) => [X(x), Z(y)];
+const LADDER = {   // deck point, water point, and which way you face climbing out
+  lapNW: {deck: MU(209, 135.5), water: MU(218, 135.5), face: -Math.PI / 2}, lapNE: {deck: MU(301.5, 135.5), water: MU(293, 135.5), face: Math.PI / 2}, lapSE: {deck: MU(301.5, 283.5), water: MU(293, 283.5), face: Math.PI / 2},
+  diveE: {deck: MU(186, 140), water: MU(177, 140), face: Math.PI / 2}};
+const LANE = k => X(213.5 + 83.5 * (k + 0.5) / 6);   // lane centers, west to east
+const BOARDS = {low1: {y: 138, base: 118, tip: 150, h: 1}, low2: {y: 164, base: 118, tip: 150, h: 1}, high1: {y: 190, base: 112, tip: 156, h: 3}, high2: {y: 216, base: 112, tip: 156, h: 3}};
+const GRASS_VB = MU(380, 374), TOWEL = {em: MU(378, 389), mel: MU(390, 389), yen: MU(366, 389)}, ZERO_IN = MU(393, 196), ZERO_FLOAT = MU(357, 192), ZERO_WADE = MU(363, 199);   // in from the beach on the north side of the mushroom; float where it is waist deep
+const vball = ball(0.11, SM('#f4f3ee', {roughness: 0.5}), 0, -5, 0, scene, 12, 8); vball.visible = false;
+// steps
+const S_go = (to, speed = 1.7, stop = 0.6, run = false) => ({k: 'go', to, speed, stop, run});
+const S_hop = (to) => ({k: 'hop', to}), S_swim = (to, speed = 1.4) => ({k: 'swim', to, speed}), S_tread = secs => ({k: 'tread', secs}), S_float = secs => ({k: 'float', secs});
+const S_climb = (L) => ({k: 'climb', to: L.deck, face: L.face}), S_wade = (to, speed = 0.9) => ({k: 'wade', to, speed}), S_act = (state, secs, face) => ({k: 'act', state, secs, face});
+const S_say = (text, secs = 4) => ({k: 'say', text, secs}), S_fn = f => ({k: 'fn', f}), S_until = (cond, max = 20, state = 'idle') => ({k: 'until', cond, max, state});
+const S_up = (h, x) => ({k: 'up', h, x}), S_along = (to, h) => ({k: 'along', to, h}), S_dive = (pose, fwd = 1.6, upv = 3.0) => ({k: 'dive', pose, fwd, upv});
+const faceTo = (n, p) => Math.atan2(p[0] - n.x, p[1] - n.z);
+function bubble(n, text, secs = 4){ talkWho.textContent = n.name + ' '; talkTxt.textContent = text; talkBox.classList.add('on'); talkT = secs; talker = n; if (n.a.set) n.a.set('talk'); }
+const levaAt = () => PLAYER.id === 'leva' ? [me.x, me.z] : [levaN.x, levaN.z];
+const whereIs = id => byId[id] && !byId[id].played ? [byId[id].x, byId[id].z] : id === PLAYER.id ? [me.x, me.z] : null;
+const dist2 = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+// a trip off a board: walk to the base, up, out to the tip, off, swim to the ladder, climb out
+function boardTrip(b, pose, doing){ const B = BOARDS[b], L = LADDER.diveE; return [S_go(MU(B.base - 4, B.y)), S_fn(n => { n.doing = doing; }), S_up(B.h, X(B.base) + 0.3), S_along([X(B.tip) - 0.6, Z(B.y)], B.h), S_dive(pose, pose === 'fall' ? 0.9 : 1.7, pose === 'fall' ? 1.2 : 3.2), S_tread(1.2), S_swim(L.water), S_climb(L)]; }
+function lapTrip(lane, lengths, speed, doing){ const L = LADDER.lapNW, steps = [S_go(L.deck), S_fn(n => { n.doing = doing; }), S_hop(MU(218, 140)), S_swim([LANE(lane), Z(130)], speed)]; for (let i = 0; i < lengths; i++){ steps.push(S_swim([LANE(lane), Z(i % 2 ? 130 : 291)], speed)); steps.push(S_tread(1.5 + Math.random())); } steps.push(S_swim(L.water, speed), S_climb(L)); return steps; }
+function slotOf(id, h){ const sch = SCHED[id]; if (!sch) return 0; let k = 0; sch.forEach((s, i) => { if (h >= s[0]) k = i; }); return k; }
+function plan(n, steps, doing, after, soft = false){ n.plan = {steps, i: 0, t: 0, after, soft, slot: slotOf(n.id, hourNow())}; if (doing) n.doing = doing; return true; }   // soft plans (towel time) give way when the schedule moves on
+const cool = (n, k, secs) => { n.cool = n.cool || {}; const ok = !n.cool[k] || camNow - n.cool[k] > secs; if (ok) n.cool[k] = camNow; return ok; };
+const JOKES = ['Why did the fish blush? It saw the pool\'s bottom.', 'What kind of tree grows by the pool? A swim-amore.', 'Why can\'t robots swim? Okay but leva, can you?', 'What do you call a dog in the deep end? Ari. Every day.'];
+const CATFISH = ['Did you know catfish have taste buds all over their body? Their whole body is a tongue.', 'Catfish whiskers are called barbels. They don\'t sting. That\'s the fins.', 'A channel catfish can live more than fifteen years. Older than me!', 'Catfish don\'t have scales. They\'re smooth, like a wet balloon.', 'A flathead catfish can weigh a hundred pounds. A hundred!', 'Catfish find food in muddy water by taste and smell, not by looking.'];
+const COACH = ['Get under the ball, Em. Platform out, arms straight.', 'Call it! Say "mine" every time.', 'Push it up with your legs, not your arms.', 'Set with your fingertips, like a window over your forehead.', 'Eyes on the ball until it touches your hands.'];
+const pickRnd = a => a[Math.floor(Math.random() * a.length)];
+// Em
+function pickEm(n){
+  const h = hourNow(), lv = levaAt(), dl = dist2([n.x, n.z], lv), r = Math.random();
+  if (dl < 14 && !n.inWater && r < 0.25 && cool(n, 'joke', 150)) return plan(n, [S_go(lv, 2.0, 1.6), S_say(pickRnd(JOKES), 5), S_act('talk', 5), S_fn(() => event('em', `Told ${PLAYER.id === 'leva' ? 'leva' : 'leva'} a joke.`))], 'telling leva a joke');
+  if (h < 11.3) return plan(n, [S_go(TOWEL.em), S_act('idle', 8, Math.PI)], 'getting her goggles on', null, true);
+  if (h >= 12.4 && h < 13) return plan(n, [S_go(MU(395, 68)), S_act('idle', 9, 0), S_go(TOWEL.em), S_act('sit', 10, Math.PI)], 'in line at the window', () => { n.feel.hunger = Math.max(0, n.feel.hunger - 0.5); });
+  if ((h >= 11.3 && h < 12.4) || (h >= 13 && h < 15) || h >= 17.5){ const race = h >= 13 && h < 15; return plan(n, lapTrip(0, 2, race ? 2.2 : 1.9, race ? 'racing anybody who will race' : h >= 17.5 ? 'one more set of laps' : 'doing laps, counting them out loud'), null, () => { n.feel.fun = Math.min(1, n.feel.fun + 0.2); event('em', race ? 'Raced two lengths. Won, obviously.' : 'Swam laps.'); }); }
+  if (h >= 15 && h < 16.2) return plan(n, boardTrip('low1', 'sit', 'cannonballs off the low board'), null, () => { n.feel.fun = Math.min(1, n.feel.fun + 0.25); event('em', 'Cannonball off the low board. Huge splash.'); });
+  // towels: volleyball, a chat with Mel, drying off
+  const mel = byId.mel; if (r < 0.5) return plan(n, [S_go(GRASS_VB), S_act('volley', 18, Math.PI)], 'practicing volleyball on the grass', () => { event('em', 'Practiced bumps on the grass.'); n.feel.fun = Math.min(1, n.feel.fun + 0.1); });
+  if (mel && !mel.played && !mel.busy && dist2([mel.x, mel.z], TOWEL.mel) < 3 && r < 0.75) return plan(n, [S_go([mel.x + 0.9, mel.z], 1.7, 0.9), S_act('talk', 8), S_fn(() => { n.feel.social = Math.min(1, n.feel.social + 0.3); if (mel.a.set) mel.a.set('idle'); })], 'arguing with Mel about who won');
+  return plan(n, [S_go(TOWEL.em), S_act('sit', 12, Math.PI)], 'drying off on her towel', null, true);
+}
+// Mel
+function pickMel(n){
+  const h = hourNow(), lv = levaAt(), dl = dist2([n.x, n.z], lv), r = Math.random(), ari = byId.ari;
+  if (dl < 14 && !n.inWater && r < 0.3 && cool(n, 'catfish', 140)) return plan(n, [S_go(lv, 1.7, 1.6), S_say(pickRnd(CATFISH), 6), S_act('talk', 6), S_fn(() => event('mel', 'Asked leva about catfish.'))], 'asking leva about catfish');
+  if (h < 11.5) return plan(n, [S_go(TOWEL.mel), S_act('sing', 10, Math.PI)], 'humming and putting on sunscreen', null, true);
+  if ((h >= 11.5 && h < 12.5) || h >= 17.5) return plan(n, [S_go(ZERO_IN), S_fn(() => { n.doing = 'floating in the zero depth, looking at clouds'; }), S_wade(ZERO_FLOAT), S_float(16), S_wade(ZERO_IN), S_act('idle', 3, 0)], 'wading into the zero depth', () => { n.feel.fun = Math.min(1, n.feel.fun + 0.2); n.feel.energy = Math.min(1, n.feel.energy + 0.1); event('mel', 'Floated in the zero depth and watched the clouds.'); });
+  if (h >= 12.5 && h < 13.2) return plan(n, [S_go(MU(388, 72)), S_act('idle', 10, 0), S_go(TOWEL.mel), S_act('sit', 9, Math.PI)], 'deciding between a pretzel and a Nutty Dip', () => { n.feel.hunger = Math.max(0, n.feel.hunger - 0.5); });
+  if (h >= 13.2 && h < 14.5) return plan(n, [S_go(MU(290, 308)), S_act('cheer', 6, Math.PI), S_act('idle', 6, Math.PI)], 'watching Em race, cheering wrong on purpose');
+  if (h >= 14.5 && h < 16) return plan(n, boardTrip('low2', 'fall', 'going off the low board, feet first'), null, () => { n.feel.fun = Math.min(1, n.feel.fun + 0.2); event('mel', 'Went off the low board. Feet first. Twice.'); });
+  { const dog = [ari, byId.luke].filter(d => d && !d.inWater && dist2([d.x, d.z], [n.x, n.z]) < 20 && (d.id === 'luke' || (MIND.plan && MIND.plan.goal !== 'sneak'))).sort((p, q) => dist2([p.x, p.z], [n.x, n.z]) - dist2([q.x, q.z], [n.x, n.z]))[0];
+    if (dog && r < 0.4 && cool(n, 'secret', 90)) return plan(n, [S_go([dog.x, dog.z], 1.7, 1.2), S_act('pet', 6), S_fn(() => { if (dog.id === 'ari') MIND.wants.play = Math.max(0, MIND.wants.play - 0.2); else LUKE.wants.girls = 0.05; event('mel', `Told ${dog.name} a secret. He is very good at keeping them.`); })], `telling ${dog.name} a secret`); }
+  if (r < 0.5) return plan(n, [S_go(TOWEL.mel), S_act('sing', 12, Math.PI)], 'singing her favorite song', null, true);
+  return plan(n, [S_go(TOWEL.mel), S_act('sit', 10, Math.PI)], 'on her towel', null, true);
+}
+// Yenny
+function pickYen(n){
+  const h = hourNow(), lv = levaAt(), r = Math.random(), em = byId.em, mel = byId.mel, ari = byId.ari;
+  if (h >= 12.3 && h < 13 && cool(n, 'lunch', 400)) return plan(n, [S_go(MU(388, 76)), S_act('idle', 8, 0), S_go(TOWEL.yen), S_fn(() => { event('yen', 'Brought lunch for everybody. Hot dogs and lemonade.'); n.feel.hunger = 0.1; })], 'getting lunch for everybody');
+  if (h >= 14 && h < 15.5 && cool(n, 'snack', 400)) return plan(n, [S_go(MU(388, 76)), S_act('idle', 6, 0), S_go(TOWEL.yen), S_fn(() => event('yen', 'Snack run. Pretzels.'))], 'on a snack run');
+  if (h >= 16.5 && h < 17.8) return plan(n, [S_go(MU(372, 399)), S_act('sit', 20, Math.PI)], 'sitting with Grandma for a bit', () => { n.feel.social = Math.min(1, n.feel.social + 0.3); });
+  if (h >= 17.8) return plan(n, [S_go(TOWEL.yen), S_act('idle', 12, Math.PI)], 'packing up slowly');
+  if (em && !em.played && em.plan && em.doing.startsWith('practicing volleyball') && cool(n, 'coach', 60)) return plan(n, [S_go([GRASS_VB[0] - 2.2, GRASS_VB[1] + 0.5], 1.7, 0.8), S_say(pickRnd(COACH), 5), S_act('talk', 9, faceTo(n, GRASS_VB)), S_fn(() => event('yen', 'Coached Em on her platform.'))], 'coaching Em');
+  if (mel && !mel.played && mel.plan && mel.doing.startsWith('floating') && r < 0.7 && cool(n, 'wadeMel', 120)) return plan(n, [S_go(ZERO_IN), S_wade(ZERO_WADE), S_act('idle', 10, faceTo(n, ZERO_FLOAT)), S_wade(ZERO_IN)], 'in the zero depth with Mel', () => event('yen', 'Waded in with Mel. The water was perfect.'));
+  if (dist2([n.x, n.z], lv) < 22 && r < 0.35 && cool(n, 'leva', 150)) return plan(n, [S_go(lv, 1.7, 1.6), S_act('talk', 6), S_fn(() => event('yen', 'Checked in with leva about the water.'))], 'checking in with leva');
+  { const dog = [ari, byId.luke].filter(d => d && !d.inWater && dist2([d.x, d.z], [n.x, n.z]) < 18 && (d.id === 'luke' || (MIND.plan && MIND.plan.goal !== 'sneak'))).sort((p, q) => dist2([p.x, p.z], [n.x, n.z]) - dist2([q.x, q.z], [n.x, n.z]))[0];
+    if (dog && r < 0.5 && cool(n, 'dog', 100)) return plan(n, [S_go([dog.x, dog.z], 1.7, 1.2), S_act('pet', 6), S_fn(() => { if (dog.id === 'ari'){ MIND.wants.play = Math.max(0, MIND.wants.play - 0.3); event('yen', 'Ari came by for pets. Favorite person, he says.'); } else { LUKE.wants.girls = Math.max(0, LUKE.wants.girls - 0.2); event('yen', 'Gave Luke a good scratch. He leaned on my leg the whole time.'); } })], `petting ${dog.name}`); }
+  return plan(n, [S_go(TOWEL.yen), S_act(h < 12.3 ? 'idle' : 'sit', 12, Math.PI - 0.3)], h < 12.3 ? 'setting up the towels' : 'coaching from the shade', null, true);
+}
+const PICK = {em: pickEm, mel: pickMel, yen: pickYen};
+// running a plan, one step at a time
+function runPlan(n, dt){
+  const P = n.plan, st = P.steps[P.i], a = n.a; P.t += dt; n.busy = !(st.k === 'act' && (st.state === 'idle' || st.state === 'sit')); let done = false;
+  if (st.k === 'go'){ const there = moveNpc(n, st.to, dt, st.speed, st.stop); n.y = inPool(n.x, n.z) === 'zero' ? -zeroDepth(n.x, n.z) : 0; a.tick(dt, !there && n.moving, st.run); done = there; }
+  else if (st.k === 'wade'){ const dx = st.to[0] - n.x, dz = st.to[1] - n.z, d = Math.hypot(dx, dz), sp = st.speed * dt; if (d <= sp){ n.x = st.to[0]; n.z = st.to[1]; done = true; } else { n.x += dx / d * sp; n.z += dz / d * sp; a.g.rotation.y = Math.atan2(dx, dz); }
+    n.y = inPool(n.x, n.z) === 'zero' ? -zeroDepth(n.x, n.z) : 0; a.tick(dt, !done); if (!done && n.y < -0.05 && Math.random() < dt * 1.6) splash(n.x, n.z, true, 0.35); n.inWater = n.y < -0.05; }
+  else if (st.k === 'hop'){ if (!st.from) st.from = [n.x, n.z, n.y]; const t = Math.min(1, P.t / 0.75); n.x = st.from[0] + (st.to[0] - st.from[0]) * t; n.z = st.from[1] + (st.to[1] - st.from[1]) * t; n.y = st.from[2] * (1 - t) + a.floatY * t + 2.4 * t * (1 - t); a.g.rotation.y = Math.atan2(st.to[0] - st.from[0], st.to[1] - st.from[1]); a.set(t < 0.55 ? 'jump' : 'fall'); a.tick(dt); if (t >= 1){ splash(n.x, n.z, true, 0.9); n.inWater = true; done = true; } }
+  else if (st.k === 'swim'){ const dx = st.to[0] - n.x, dz = st.to[1] - n.z, d = Math.hypot(dx, dz), sp = st.speed * dt; if (d <= Math.max(sp, 0.25)){ n.x = st.to[0]; n.z = st.to[1]; done = true; } else { n.x += dx / d * sp; n.z += dz / d * sp; let want = Math.atan2(dx, dz), dd = want - a.g.rotation.y; while (dd > Math.PI) dd -= Math.PI * 2; while (dd < -Math.PI) dd += Math.PI * 2; a.g.rotation.y += dd * Math.min(1, dt * 5); }
+    n.y += (a.floatY - n.y) * Math.min(1, dt * 5); a.set('swim'); a.tick(dt); n.kick = (n.kick || 0) + dt; if (n.kick > 0.45){ n.kick = 0; splash(n.x - Math.sin(a.g.rotation.y) * 0.7, n.z - Math.cos(a.g.rotation.y) * 0.7, true, 0.4); } n.inWater = true; }
+  else if (st.k === 'tread'){ n.y += (a.treadY - n.y) * Math.min(1, dt * 4); a.set('tread'); a.tick(dt); done = P.t >= st.secs; }
+  else if (st.k === 'float'){ n.y += (a.floatY + 0.02 - n.y) * Math.min(1, dt * 3); a.set('float'); a.tick(dt); if (Math.random() < dt * 0.5) splash(n.x, n.z, true, 0.5); done = P.t >= st.secs; }
+  else if (st.k === 'climb'){ if (!st.from) st.from = [n.x, n.z, n.y]; const t = Math.min(1, P.t / 1.4), m = Math.max(0, (t - 0.45) / 0.55); n.x = st.from[0] + (st.to[0] - st.from[0]) * m; n.z = st.from[1] + (st.to[1] - st.from[1]) * m; n.y = st.from[2] + (0 - st.from[2]) * Math.min(1, t / 0.6); a.g.rotation.y = st.face; a.set('climb'); a.tick(dt); if (t >= 1){ n.y = 0; n.inWater = false; done = true; } }
+  else if (st.k === 'up'){ const t = Math.min(1, P.t / (st.h * 0.6)); if (!st.from) st.from = [n.x, n.z]; n.x = st.from[0] + (st.x - 0.9 - st.from[0]) * t; n.y = st.h * t; a.g.rotation.y = Math.PI / 2; a.set(st.h > 1.5 ? 'climb' : 'jump'); a.tick(dt); if (t >= 1){ n.y = st.h; done = true; } }
+  else if (st.k === 'along'){ const dx = st.to[0] - n.x, dz = st.to[1] - n.z, d = Math.hypot(dx, dz), sp = 1.1 * dt; n.y = st.h; if (d <= sp){ n.x = st.to[0]; n.z = st.to[1]; done = true; } else { n.x += dx / d * sp; n.z += dz / d * sp; a.g.rotation.y = Math.atan2(dx, dz); } a.tick(dt, !done); }
+  else if (st.k === 'dive'){ if (!st.from){ st.from = [n.x, n.z, n.y]; st.dir = [Math.sin(a.g.rotation.y), Math.cos(a.g.rotation.y)]; } const t = P.t; n.x = st.from[0] + st.dir[0] * st.fwd * t; n.z = st.from[1] + st.dir[1] * st.fwd * t; n.y = st.from[2] + st.upv * t - 0.5 * G * t * t; a.set(st.pose === 'sit' ? 'tuck' : (n.y > st.from[2] ? 'jump' : 'fall')); a.tick(dt);
+    if (n.y <= a.floatY){ n.y = a.floatY; splash(n.x, n.z, true, st.pose === 'sit' ? 1.6 : 1.0); if (st.pose === 'sit') splash(n.x, n.z, false); n.inWater = true; done = true; } }
+  else if (st.k === 'act'){ if (st.face !== undefined) a.g.rotation.y = st.face; const zp = inPool(n.x, n.z) === 'zero'; if (zp && st.state !== 'float' && st.state !== 'swim') n.y = -zeroDepth(n.x, n.z); else if (n.inWater) n.y += (a.floatY - n.y) * Math.min(1, dt * 4); a.set(st.state); a.tick(dt); done = P.t >= st.secs;
+    if (st.state === 'chew'){ chewToy.position.set(n.x + Math.sin(a.g.rotation.y) * 0.5, 0.08, n.z + Math.cos(a.g.rotation.y) * 0.5); chewToy.rotation.y = a.g.rotation.y; }
+    if (st.state === 'volley'){ vball.visible = true; vball.position.set(n.x + Math.sin(a.g.rotation.y) * 0.3, n.y + 1.0 * (a.size || 1) + Math.abs(Math.sin(P.t * 4.2)) * 1.1, n.z + Math.cos(a.g.rotation.y) * 0.3); if (done) vball.visible = false; } }
+  else if (st.k === 'follow'){ const who = st.who === 'leva' ? levaAt() : [me.x, me.z], dx = who[0] - n.x, dz = who[1] - n.z, d = Math.hypot(dx, dz), far = d > 2.2, sp = (d > 6 ? 5.5 : 3.2) * dt; if (far){ n.x += dx / d * sp; n.z += dz / d * sp; a.g.rotation.y = Math.atan2(dx, dz); } n.y = 0; a.tick(dt, far, d > 6); done = st.until() || P.t > st.max; }
+  else if (st.k === 'orbit'){ const c = byId[st.who], ang = st.ang + P.t * 4, tx = c.x + Math.cos(ang) * st.r, tz = c.z + Math.sin(ang) * st.r, dx = tx - n.x, dz = tz - n.z, d = Math.hypot(dx, dz), sp = 5.5 * dt; if (d > sp){ n.x += dx / d * sp; n.z += dz / d * sp; } else { n.x = tx; n.z = tz; } a.g.rotation.y = Math.atan2(dx, dz); n.y = 0; a.tick(dt, true, true); done = P.t > 0.75; }
+  else if (st.k === 'say'){ bubble(n, st.text, st.secs); done = true; }
+  else if (st.k === 'fn'){ st.f(n); done = true; }
+  else if (st.k === 'until'){ a.set(st.state); a.tick(dt); done = st.cond(n) || P.t > st.max; }
+  a.g.position.set(n.x, n.y, n.z);
+  if (done){ P.i++; P.t = 0; if (P.i >= P.steps.length){ n.plan = null; n.busy = false; if (P.after) P.after(n); } }
+}
+function crewStep(n, dt){
+  const f = n.feel; f.hunger = Math.min(1, f.hunger + 0.0025 * dt); f.energy = Math.max(0, Math.min(1, f.energy + ((n.moving || n.inWater) ? -0.004 : 0.0015) * dt)); f.fun = Math.max(0, f.fun - 0.0015 * dt); f.social = Math.max(0, f.social - 0.001 * dt);
+  if (n.a.state === 'talk' && talker !== n && !(n.plan && n.plan.steps[n.plan.i].k === 'act' && n.plan.steps[n.plan.i].state === 'talk')) n.a.set('idle');
+  if (n.plan && n.plan.soft && !n.inWater && slotOf(n.id, hourNow()) !== n.plan.slot) n.plan = null;   // the day moved on
+  if (n.plan){ runPlan(n, dt); return; }
+  if (PICK[n.id] && PICK[n.id](n)) return;
+  routine(n, dt);
+}
+// leva (the character) gets Ari out of the pool, the way he does every day
+function levaWatch(n, dt){
+  if (n.played) return;
+  const P = MIND.plan, sneaking = P && P.goal === 'sneak' && P.steps[P.i] && P.steps[P.i].kind === 'paddle';
+  if (sneaking && !n.plan){ const edge = [X(209), ari.z]; plan(n, [S_go(edge, 2.6, 0.9, true), S_say('Out, Ari. Beagles aren\'t allowed in the pool.', 4), S_until(() => !(MIND.plan && MIND.plan.goal === 'sneak') || !ari.inWater, 12, 'talk'), S_say('Every day.', 3), S_act('idle', 2, Math.PI / 2), S_fn(() => { event('leva', 'Got Ari out of the lap pool. Again.'); n.spot = null; })], 'getting Ari out of the pool'); return; }
+}
+
+// ---------------- Luke ----------------
+// The girls' dog. Tan with a white chest, white socks and a white blaze, tall pointed ears, pale blue eyes, a slate collar with a tag. Long legs, built to run.
+// He loves Em and Mel, he is buddies with Ari, he likes chew toys more than treats, he likes to swim, and he gets the zoomies. He gets out of the pool deck and into the park, and leva has to go get him.
+// He always comes back to the girls. Like Ari, he is an agent the kids can look inside: wants, a plan, a reason, and what has paid off.
+function lukeDog(){
+  const g = new THREE.Group(), inner = new THREE.Group(); g.add(inner);
+  const tan = M('#c9a06a', {roughness: 0.9}), white = M('#f3eee4', {roughness: 0.9}), mask = M('#a8824f', {roughness: 0.9}), slate = M('#3b4452', {roughness: 0.6});
+  const body = cap(0.2, 0.8, tan, 0, 0.52, 0, inner); body.rotation.x = Math.PI / 2;
+  const chest = cap(0.16, 0.5, white, 0, 0.42, 0.1, inner); chest.rotation.x = Math.PI / 2;
+  const mk = (x, z) => { const l = new THREE.Group(); l.position.set(x, 0.46, z); inner.add(l); cap(0.05, 0.4, tan, 0, -0.17, 0, l); cap(0.052, 0.17, white, 0, -0.36, 0, l); return l; };
+  const legL = mk(-0.11, 0.26), legR = mk(0.11, 0.26), armL = mk(-0.11, -0.28), armR = mk(0.11, -0.28);
+  const head = new THREE.Group(); head.position.set(0, 0.74, 0.46); inner.add(head);
+  ball(0.17, tan, 0, 0, 0, head); const mz = ball(0.12, mask, 0, -0.03, 0.08, head); mz.scale.set(1.15, 0.8, 1);
+  const muzzle = bx(0.13, 0.11, 0.2, tan, 0, -0.06, 0.2, head); const blaze = bx(0.07, 0.1, 0.19, white, 0, -0.08, 0.215, head); ball(0.038, M('#2a2426'), 0, -0.03, 0.3, head);
+  [-1, 1].forEach(k => { const w = ball(0.034, M('#e4edf3'), k * 0.07, 0.04, 0.135, head); w.scale.set(1, 1, 0.6); ball(0.02, M('#8fc3e6'), k * 0.07, 0.04, 0.155, head); ball(0.01, M('#15171c'), k * 0.07, 0.04, 0.168, head);
+    const ear = cap(0.045, 0.2, tan, k * 0.11, 0.17, -0.03, head); ear.rotation.z = -k * 0.2; ear.rotation.x = -0.15; const ei = cap(0.025, 0.12, M('#d9a98f'), k * 0.11, 0.17, -0.01, head); ei.rotation.z = -k * 0.2; ei.rotation.x = -0.15; });
+  const collar = part(new THREE.TorusGeometry(0.15, 0.028, 8, 20), slate, 0, 0.62, 0.32, inner); collar.rotation.x = Math.PI / 2 - 0.35; ball(0.03, M('#c9ced6', {metalness: 0.8, roughness: 0.3}), 0, 0.5, 0.42, inner).scale.set(1, 1, 0.4);
+  const tail = cap(0.03, 0.46, tan, 0, 0.5, -0.52, inner); tail.rotation.x = -0.5;
+  inner.traverse(o => { if (o.isMesh) o.castShadow = true; }); scene.add(g);
+  return {g, inner, legL, legR, armL, armR, head, tail, phase: 0, dog: true, size: 1.25, floatY: -0.52, treadY: -0.52, height: 1.0};
+}
+// a dog that takes the same orders as a person: set a state, tick each frame
+function dogActor(model){
+  const b = model; b.state = 'idle';
+  b.set = function(s){ this.state = s; };
+  b.tick = function(dt, moving, run){
+    if (moving !== undefined){ if (moving) this.state = run ? 'run' : 'walk'; else if (this.state === 'walk' || this.state === 'run') this.state = 'idle'; }
+    const st = this.state, swimming = this.g.position.y < -0.3; if (moving === undefined) moving = st === 'walk' || st === 'jog' || st === 'run' || st === 'swim'; if (run === undefined) run = st === 'run' || st === 'jog';
+    animActor(this, moving || swimming, dt, run || swimming); const I = this.inner || this.g;
+    if (st === 'sit'){ this.armL.rotation.x += (-0.9 - this.armL.rotation.x) * 0.3; this.armR.rotation.x += (-0.9 - this.armR.rotation.x) * 0.3; I.rotation.x += (-0.3 - I.rotation.x) * 0.3; I.position.y += (0 - I.position.y) * 0.3; }
+    else if (st === 'nap' || st === 'chew'){ I.rotation.x += (0 - I.rotation.x) * 0.3; I.position.y += (-0.22 - I.position.y) * 0.3; this.legL.rotation.x += (-1.4 - this.legL.rotation.x) * 0.3; this.legR.rotation.x += (-1.4 - this.legR.rotation.x) * 0.3; this.armL.rotation.x += (1.3 - this.armL.rotation.x) * 0.3; this.armR.rotation.x += (1.3 - this.armR.rotation.x) * 0.3; if (st === 'chew') this.head.rotation.x = 0.35 + Math.sin(performance.now() / 110) * 0.12; else this.head.rotation.x += (0.5 - this.head.rotation.x) * 0.1; }
+    else if (st === 'hop'){ I.rotation.x += (0 - I.rotation.x) * 0.3; I.position.y = Math.abs(Math.sin(performance.now() / 120)) * 0.35; }
+    else if (st === 'bow'){ I.rotation.x += (0.45 - I.rotation.x) * 0.3; I.position.y += (-0.1 - I.position.y) * 0.3; this.tail.rotation.y = Math.sin(performance.now() / 90) * 0.7; }
+    else if (st === 'swim'){ I.rotation.x += (-0.22 - I.rotation.x) * 0.3; I.position.y += (0 - I.position.y) * 0.3; }
+    else { I.rotation.x += (0 - I.rotation.x) * 0.25; I.position.y += (0 - I.position.y) * 0.25; if (!moving) this.head.rotation.x += (0 - this.head.rotation.x) * 0.1; }
+    if (st !== 'chew' && st !== 'nap') this.head.rotation.x += (0 - this.head.rotation.x) * 0.15;
+  };
+  return b;
+}
+const chewToy = (() => { const g = new THREE.Group(), rope = M('#e8e0cf', {roughness: 1}), knot = M('#d7263b', {roughness: 0.9}); const c = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.26, 8), rope); c.rotation.z = Math.PI / 2; g.add(c); [-0.14, 0.14].forEach(x => { const k = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8), knot); k.position.x = x; g.add(k); }); g.traverse(o => { if (o.isMesh) o.castShadow = true; }); g.position.set(X(384), 0.05, Z(381)); g.userData.home = [X(384), Z(381)]; scene.add(g); return g; })();
+const LUKE = {wants: {run: 0.55, play: 0.4, chew: 0.5, swim: 0.15, treat: 0.3, girls: 0.35}, value: Object.assign({zoomies: 0.6, park: 0.6, chew: 0.7, swim: 0.5, girls: 0.7, ari: 0.6, gma: 0.5}, (save.mem.luke && save.mem.luke.value) || {}), plan: null, note: '', away: 0, fetched: false};
+const lukeLearn = (k, reward) => { const V = LUKE.value; V[k] = Math.max(0, Math.min(1, V[k] + 0.25 * (reward - V[k]))); memOf('luke').value = V; store(); };
+// the ball diamond nearest the pool, and the spot behind its backstop where a dog can watch
+const BALL_SPOT = (() => { let best = null, bd = 1e9; D.pitches.filter(p => p.sport === 'baseball').forEach(p => { const c = centroid(p.pts); let home = p.pts[0], far = 0; p.pts.forEach(q => { const d = Math.hypot(q[0] - c[0], q[1] - c[1]); if (d > far){ far = d; home = q; } }); const ang = Math.atan2(c[1] - home[1], c[0] - home[0]); const spot = [home[0] + Math.cos(ang + Math.PI) * 10, home[1] + Math.sin(ang + Math.PI) * 10]; const d = Math.hypot(spot[0] - X(257), spot[1] - Z(211)); if (d < bd){ bd = d; best = {spot, face: Math.atan2(Math.cos(ang), Math.sin(ang))}; } }); return best || {spot: [X(120), Z(-60)], face: 0}; })();
+function lukeOptions(n){
+  const W = LUKE.wants, V = LUKE.value, L = k => 0.5 + V[k], here = region(n.x, n.z), onDeck = here === 'deck' || here === 'conc';
+  const girl = ['em', 'mel'].map(id => byId[id]).find(g => g && !g.played && !g.inWater && (!g.busy || g.a.state === 'sit' || g.a.state === 'idle')), ariFree = !ari.played && !ari.inWater && MIND.plan && (MIND.plan.goal === 'sniff' || MIND.plan.goal === 'rest');
+  const lv = levaAt(), levaFar = Math.hypot(lv[0] - X(393), lv[1] - Z(208)) > 18;
+  const o = [
+    {goal: 'zoomies', label: 'Zoomies around the deck', util: W.run * L('zoomies'), why: 'has to run'},
+    {goal: 'park', label: 'Run off into the park', util: W.run * 0.9 * L('park') * (onDeck ? 1 : 0.3), why: 'has to run, and the park is right there past the gate'},
+    {goal: 'chew', label: 'Chew the rope toy', util: W.chew * L('chew'), why: 'wants his toy'},
+    {goal: 'swim', label: 'Paddle in the zero depth', util: W.swim * L('swim') * (levaFar ? 1 : 0.3), why: levaFar ? 'wants a swim, and leva is far off' : 'wants a swim, but leva is close'},
+    {goal: 'girls', label: girl ? `Go see ${girl.name}` : 'Go find the girls', util: W.girls * L('girls') * (girl ? 1 : 0.35), why: 'misses the girls'},
+    {goal: 'ari', label: 'Play with Ari', util: W.play * L('ari') * (ariFree ? 1 : 0.1), why: ariFree ? 'wants to play, and Ari is free' : 'wants to play, but Ari is busy'},
+    {goal: 'gma', label: 'Sit with Grandma', util: (0.2 + W.treat * 0.5) * L('gma'), why: 'Grandma has the snack bag, and a lap to lean on'}];
+  return o.sort((a, b) => b.util - a.util);
+}
+function lukePlan(n, opt){
+  const g = opt.goal, deckPt = () => randomDeckPoint(50, 160);
+  let steps = [], after = null, doing = opt.label;
+  if (g === 'zoomies'){ steps = [S_fn(() => { n.doing = 'zoomies'; })]; for (let k = 0; k < 5; k++) steps.push(S_go(deckPt(), 6.5, 1.0, true)); steps.push(S_act('idle', 1.5)); after = () => { LUKE.wants.run = 0.1; lukeLearn('zoomies', 0.85); LUKE.note = 'Zoomies done. Run want back to low.'; event('luke', 'Zoomies around the whole deck.'); n.feel.fun = Math.min(1, n.feel.fun + 0.3); }; }
+  else if (g === 'park'){ steps = [S_fn(() => { n.doing = 'out the gate and into the park'; LUKE.away = 0; LUKE.fetched = false; }), S_go(BALL_SPOT.spot, 6.0, 1.2, true), S_fn(() => { n.doing = 'watching the ball diamond'; }), S_act('sit', 40, BALL_SPOT.face), S_go(TOWEL.em, 5.5, 1.5, true)]; after = () => { LUKE.wants.run = 0.15; LUKE.wants.girls = Math.min(1, LUKE.wants.girls + 0.4); lukeLearn('park', LUKE.fetched ? 0.55 : 0.9); LUKE.note = LUKE.fetched ? 'leva came and got him. He still had his run, so the park is worth a bit less, not a lot less.' : 'A run in the park and back to the girls on his own.'; event('luke', LUKE.fetched ? 'Got out into the park. leva came and got him.' : 'Ran out to the ball diamond and came back on his own.'); }; }
+  else if (g === 'chew'){ steps = [S_go(chewToy.userData.home, 3.0, 0.9), S_act('chew', 16, Math.PI), S_fn(() => { chewToy.position.set(chewToy.userData.home[0], 0.05, chewToy.userData.home[1]); })]; after = () => { LUKE.wants.chew = 0.1; lukeLearn('chew', 0.9); LUKE.note = 'Chewed his toy. Chew want gone.'; event('luke', 'Chewed the rope toy flat.'); }; }
+  else if (g === 'swim'){ steps = [S_go(ZERO_IN, 5.0, 1.0, true), S_fn(() => { n.doing = 'paddling in the zero depth'; }), S_wade([X(362), Z(190)], 1.6), S_act('swim', 18), S_wade(ZERO_IN, 1.4), S_act('idle', 1.5)]; after = () => { LUKE.wants.swim = 0.05; lukeLearn('swim', LUKE.caught ? 0.5 : 0.85); LUKE.note = LUKE.caught ? 'leva called him out of the water.' : 'A swim and a shake.'; event('luke', LUKE.caught ? 'Paddled in the zero depth until leva called him out.' : 'Paddled in the zero depth.'); LUKE.caught = false; }; }
+  else if (g === 'girls'){ const gl = ['em', 'mel'].map(id => byId[id]).find(x => x && !x.played && !x.inWater) || byId.em; steps = [S_go([gl.x, gl.z], 5.5, 1.4, true), S_act('hop', 3.5, undefined), S_fn(() => { if (!gl.played && !gl.inWater && (!gl.plan || (gl.plan.steps[gl.plan.i].k === 'act'))){ gl.plan = {steps: [S_act('pet', 5, Math.atan2(n.x - gl.x, n.z - gl.z))], i: 0, t: 0, after: gl.plan ? gl.plan.after : null}; gl.doing = `petting Luke`; } }), S_act('sit', 6)]; after = () => { LUKE.wants.girls = 0.05; LUKE.wants.play = Math.max(0, LUKE.wants.play - 0.3); lukeLearn('girls', 1); LUKE.note = `Found ${gl.name}. That always pays off.`; event('luke', `Went and found ${gl.name}. Got pets.`); }; }
+  else if (g === 'ari'){ steps = [S_go([ari.x, ari.z], 5.5, 1.6, true), S_act('bow', 2.2, undefined)]; for (let k = 0; k < 4; k++){ const a = k * Math.PI / 2; steps.push({k: 'orbit', who: 'ari', ang: a, r: 2.4}); } steps.push(S_act('idle', 1)); after = () => { LUKE.wants.play = 0.1; lukeLearn('ari', 0.8); LUKE.note = 'Played with Ari. Play want used up.'; event('luke', 'Ran circles around Ari. Ari allowed it.'); event('ari', 'Luke ran circles around him. He allowed it.'); }; }
+  else { steps = [S_go([gma.x + 1.7, gma.z - 1.0], 3.0, 0.5), S_act('sit', 22, Math.PI), S_fn(() => { if (Math.random() < 0.6){ LUKE.wants.treat = 0.1; event('gma', 'Luke came and sat with me. He got a treat. Of course he did.'); } })]; after = () => { lukeLearn('gma', 0.8); LUKE.wants.girls = Math.min(1, LUKE.wants.girls + 0.3); LUKE.note = 'Sat with Grandma a while.'; event('luke', 'Sat by Grandma Sweetheart on her bench.'); }; }
+  LUKE.plan = {goal: g, label: opt.label, why: opt.why, util: opt.util, steps, i: 0}; n.plan = {steps, i: 0, t: 0, after: () => { if (after) after(); LUKE.plan = null; }}; n.doing = doing;
+}
+function lukeThink(n, dt){
+  const W = LUKE.wants, hh = hourNow(); W.run = Math.min(1, W.run + 0.012 * dt); W.play = Math.min(1, W.play + 0.006 * dt); W.chew = Math.min(1, W.chew + 0.005 * dt); W.swim = Math.min(1, W.swim + (hh > 12.5 && hh < 18 ? 0.006 : 0.002) * dt); W.treat = Math.min(1, W.treat + 0.006 * dt); W.girls = Math.min(1, W.girls + 0.008 * dt);
+  const f = n.feel; f.fun = Math.max(0, f.fun - 0.001 * dt); f.energy = Math.max(0, Math.min(1, f.energy + (n.moving ? -0.003 : 0.002) * dt));
+  // out in the park: leva comes to get him (or you do, if you are leva)
+  const here = region(n.x, n.z), out = LUKE.plan && LUKE.plan.goal === 'park' && here !== 'deck' && here !== 'conc';
+  if (out){ LUKE.away += dt; const lv = levaAt(), d = Math.hypot(lv[0] - n.x, lv[1] - n.z);
+    if (LUKE.away > 6 && !LUKE.fetched && d < 3.5 && n.plan && n.plan.steps[n.plan.i].k !== 'follow'){ LUKE.fetched = true; n.plan.steps.splice(n.plan.i, 1, {k: 'follow', who: 'leva', until: () => region(n.x, n.z) === 'deck' || region(n.x, n.z) === 'conc', max: 60}); n.plan.t = 0; n.doing = 'coming back with leva'; }
+    if (LUKE.away > 8 && PLAYER.id === 'leva' && !LUKE.told){ LUKE.told = true; hint('Luke got out into the park. Go get him.', 5000); } }
+  else { LUKE.away = 0; LUKE.told = false; }
+  // leva is close while he is paddling: out he comes
+  if (LUKE.plan && LUKE.plan.goal === 'swim' && n.plan && n.plan.steps[n.plan.i].k === 'act' && n.plan.steps[n.plan.i].state === 'swim'){ const lv = levaAt(); if (Math.hypot(lv[0] - n.x, lv[1] - n.z) < 5 && n.plan.t > 2){ LUKE.caught = true; n.plan.t = 99; } }
+  if (n.plan){ runPlan(n, dt); }
+  else { const opts = lukeOptions(n); lukePlan(n, opts[0]); }
+  const tagText = LUKE.plan ? (n.plan && n.plan.steps[n.plan.i] && n.plan.steps[n.plan.i].k === 'follow' ? 'Coming back with leva' : LUKE.plan.label) : 'Thinking…'; if (n.tagText !== tagText){ n.tagText = tagText; n.tag.setText('Luke', tagText); }
+}
+// leva goes and gets Luke out of the park
+function levaFetch(n, dt){
+  if (n.played || n.plan) return;
+  const luke = byId.luke; if (!luke || !LUKE.plan || LUKE.plan.goal !== 'park' || LUKE.away < 7 || LUKE.fetched) return;
+  plan(n, [S_go([luke.x, luke.z], 2.8, 2.8, true), S_say('Luke. Come on, buddy. Back to the deck.', 4), S_until(() => LUKE.fetched || !LUKE.plan || LUKE.plan.goal !== 'park', 8, 'talk'), S_go(MU(300, 330), 1.9, 1.0), S_fn(() => { event('leva', 'Went and got Luke out of the park. Again.'); n.spot = null; })], 'getting Luke back from the park');
+}
 
 // ---------------- lifeguard stands and guard changes ----------------
 // Ten pedestal chairs like Levagood's own: a galvanized column with a ladder up the back, a seat with a white hoop rail, a footrest bar, and a red rescue tube hanging off the side.
@@ -1819,13 +2098,15 @@ function walkStep(dt){
   const playerHead = player.head ? player.head.getWorldPosition(headTmp) : null;
   NPC.forEach(n => { if (n.played) return; const d = Math.hypot(n.x - me.x, n.z - me.z); if (d < nd){ nd = d; near = n; }
     if (n.a.face){ const F = n.a.face; if (!F.robot && n.feel){ const md = FACE_MOODS[moodOf(n)] || FACE_MOODS.chill; F.want.brow = md.brow; F.want.tilt = md.tilt; F.want.lid = md.lid; F.want.squint = md.squint; F.want.smile = md.smile * (0.5 + F.smileBase * 0.7); if (chat.n === n){ F.want.smile = Math.min(1, F.want.smile + 0.25); F.want.brow += 0.15; } } F.target = d < 6 && playerHead ? playerHead : null; }
-    if (n.id !== 'gma' && n.id !== 'ari' && !n.moving){ if (d < 6){ const want = Math.atan2(me.x - n.x, me.z - n.z); let dd = want - n.a.g.rotation.y; while (dd > Math.PI) dd -= Math.PI * 2; while (dd < -Math.PI) dd += Math.PI * 2; n.a.g.rotation.y += dd * Math.min(1, dt * 6); } else n.a.g.rotation.y += (n.face - n.a.g.rotation.y) * Math.min(1, dt * 2); }
-    if (SCHED[n.id]) routine(n, dt); else if (n.id !== 'ari') n.a.tick(dt, false);
-    n.tag.visible = n.id === 'ari' ? d < 18 : d < 7; });
+    if (n.id !== 'gma' && !n.a.dog && !n.moving && !n.busy && !n.inWater){ if (d < 6){ const want = Math.atan2(me.x - n.x, me.z - n.z); let dd = want - n.a.g.rotation.y; while (dd > Math.PI) dd -= Math.PI * 2; while (dd < -Math.PI) dd += Math.PI * 2; n.a.g.rotation.y += dd * Math.min(1, dt * 6); } else n.a.g.rotation.y += (n.face - n.a.g.rotation.y) * Math.min(1, dt * 2); }
+    if (n.id === 'leva'){ levaWatch(n, dt); levaFetch(n, dt); }
+    if (n.id === 'luke') lukeThink(n, dt); else if (n.id !== 'ari' && (SCHED[n.id] || PICK[n.id])) crewStep(n, dt); else if (n.id !== 'ari') n.a.tick(dt, false);
+    n.tag.visible = n.a.dog ? d < 18 : d < 7; });
   guardsStep(dt);
+  if (PLAYER.id === 'leva' && MIND.plan && MIND.plan.goal === 'sneak' && MIND.plan.steps[MIND.plan.i].kind === 'paddle' && !MIND.plan.told){ MIND.plan.told = true; hint('Ari is in the lap pool. Go get him out.', 5000); }
   nearNpc = near; if (player.face) player.face.target = near && near.a.head && Math.hypot(near.x - me.x, near.z - me.z) < 5 ? near.a.head.getWorldPosition(headTmp2) : null;
-  const verb = near ? (near.id === 'ari' ? 'Look inside Ari' : 'Talk to ' + near.name) : '';
-  prompt.innerHTML = near ? (touch ? verb : `<kbd>${pad.on ? 'X' : 'E'}</kbd> ${verb}`) : ''; prompt.classList.toggle('on', !!near && !insideOpen && !chat.n); talkBtn.textContent = near && near.id === 'ari' ? 'Look inside' : 'Talk'; talkBtn.classList.toggle('on', !!near && !insideOpen && !chat.n);
+  const verb = near ? (near.a.dog ? 'Look inside ' + near.name : 'Talk to ' + near.name) : '';
+  prompt.innerHTML = near ? (touch ? verb : `<kbd>${pad.on ? 'X' : 'E'}</kbd> ${verb}`) : ''; prompt.classList.toggle('on', !!near && !insideOpen && !chat.n); talkBtn.textContent = near && near.a.dog ? 'Look inside' : 'Talk'; talkBtn.classList.toggle('on', !!near && !insideOpen && !chat.n);
   if (near && near.id === 'ari' && firstNear){ firstNear = false; hint(touch ? 'Tap Look inside to see how Ari thinks.' : `Press ${pad.on ? 'X' : 'E'} to see how Ari thinks.`); }
   // Ari thinks for himself
   think(dt, camNow);
@@ -1843,7 +2124,7 @@ let camNear, talkT = 0, talker = null, runHeld = false; const headTmp = new THRE
 let fadeMats = null, fadeNow = 1;
 function fadePlayer(a){ if (Math.abs(a - fadeNow) < 0.01) return; fadeNow = a; if (!fadeMats){ fadeMats = []; player.g.traverse(o => { if (o.isMesh && o.material && !o.isSprite){ (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { if (!fadeMats.includes(m)) fadeMats.push(m); }); } }); }
   fadeMats.forEach(m => { if (m.isSpriteMaterial || m.map === blobTex) return; m.transparent = a < 1; m.opacity = a; m.depthWrite = a >= 1; }); }
-function talk(n){ if (n.id === 'ari'){ openInside(ari); return; } if (chat.n === n){ closeChat(); return; } closeInside(); openChat(n); }
+function talk(n){ if (n.a.dog){ openInside(n); return; } if (chat.n === n){ closeChat(); return; } closeInside(); openChat(n); }
 addEventListener('keydown', e => { if (mode !== 'walk') return; if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return; const k = e.key.toLowerCase(); if (k === ' '){ wantJump = true; e.preventDefault(); } if ((k === 'e' || k === 'enter') && nearNpc) talk(nearNpc); });
 jumpBtn.addEventListener('pointerdown', e => { e.preventDefault(); wantJump = true; });
 runBtn.addEventListener('pointerdown', e => { e.preventDefault(); runHeld = true; runBtn.classList.add('held'); }); ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => runBtn.addEventListener(ev, () => { runHeld = false; runBtn.classList.remove('held'); }));
@@ -1861,7 +2142,7 @@ function setPlayer(id){
 }
 whoBtn.addEventListener('click', () => { const on = !whoBox.classList.contains('on'); whoBox.classList.toggle('on', on); whoBtn.setAttribute('aria-expanded', on); });
 whoBox.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { setPlayer(b.dataset.who); whoBox.classList.remove('on'); whoBtn.setAttribute('aria-expanded', 'false'); toast(`You're ${PLAYER.name} now.`); }));
-setPlayer(save.who || 'leva');
+setPlayer(save.who || 'leva'); { const sp = startSpot(); me.x = sp[0]; me.z = sp[1]; me.face = sp[2]; player.g.position.set(me.x, 0, me.z); player.g.rotation.y = me.face; const old = byId[PLAYER.id]; if (old){ old.x = me.x; old.z = me.z; } }
 updateHud();
 
 function resize(){ renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); }
@@ -1878,7 +2159,7 @@ toonify(scene); window.__toonify = toonify;
 document.getElementById('loading').classList.add('done');
 const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => { const dt = Math.min(0.05, clock.getDelta()); waterMat.uniforms.t.value += dt; waters.forEach(w => { w.material.uniforms.time.value += dt * 0.6; }); dayStep(dt); if (mode === 'walk') walkStep(dt); else { orbit.update(); camNow += dt; think(dt, camNow); guardsStep(dt); } peopleStep(dt); renderer.render(scene, camera); });
-window.__park3d = {scene, camera, me, setMode, D, poolC, X, Z, S, SITE, inPool, onDeck, placeName, NPC, STARS, talk, save, keys, MIND, FOUND, openInside, closeInside, openChat, closeChat, ask, pocket, CARDS, memOf, endOfDay, moodOf, region, routeWps, brain, get player(){ return player; }, jump: () => { wantJump = true; }, cam: () => [camYaw, camPitch], setCam: (y, p) => { camYaw = y; camPitch = p; camTouched = camNow; }, setDay: t => { dayT = t; }, step: (dt, n = 1) => { for (let i = 0; i < n; i++) walkStep(dt); }, pause: () => renderer.setAnimationLoop(null), render: () => { dayStep(0.001); for (let i = 0; i < 20; i++){ NPC.forEach(n => { if (n.id !== 'ari') n.a.tick(0.03); }); if (player) player.tick(0.03); } renderer.render(scene, camera); }, walls, solids, trunks, STANDS, GUARDS, CHAINS, guardChange: startChanges, zeroDepth, setPlayer, get who(){ return PLAYER.id; }};
+window.__park3d = {scene, camera, me, setMode, D, poolC, X, Z, S, SITE, inPool, onDeck, placeName, NPC, STARS, talk, save, keys, MIND, FOUND, openInside, closeInside, openChat, closeChat, ask, pocket, CARDS, memOf, endOfDay, moodOf, region, routeWps, brain, get player(){ return player; }, jump: () => { wantJump = true; }, cam: () => [camYaw, camPitch], setCam: (y, p) => { camYaw = y; camPitch = p; camTouched = camNow; }, setDay: t => { dayT = t; }, step: (dt, n = 1) => { for (let i = 0; i < n; i++) walkStep(dt); }, pause: () => renderer.setAnimationLoop(null), render: () => { dayStep(0.001); for (let i = 0; i < 20; i++){ NPC.forEach(n => { if (n.id !== 'ari') n.a.tick(0.03); }); if (player) player.tick(0.03); } renderer.render(scene, camera); }, walls, solids, trunks, STANDS, GUARDS, CHAINS, guardChange: startChanges, zeroDepth, setPlayer, get who(){ return PLAYER.id; }, byId, bubble, runPlan, get levaN(){ return levaN; }, LUKE, poolDetour, moveNpc};
 </script>
 </body>
 </html>
