@@ -21,7 +21,7 @@ window.LEVA = (() => {
     if (e.reason === "subscribed") return `Subscribed. Paid through ${day(e.expires_at)}.`;
     if (/grace/.test(e.reason)) return `Your last payment didn't go through. leva keeps working until ${day(e.expires_at)}; please update your card.`;
     if (e.reason === "paid through the period") return `Canceled, but paid through ${day(e.expires_at)}.`;
-    if (/canceled|unpaid|expired/.test(e.reason)) return "Subscription ended. The free checks still run; subscribe again for the full read.";
+    if (/canceled|unpaid|expired/.test(e.reason)) return "Subscription ended. The free checks still run.";
     return "Free. Mechanical checks only.";
   }
   return { API, session, call, esc, day, ago, planText, isLocal };

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Your account · leva</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<meta name="description" content="Sign in to leva, manage your subscription, download the Mac app.">
+<meta name="description" content="Sign in to leva and download the Mac app.">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -140,10 +140,10 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #00
     $("who").textContent = u.email; $("plan").textContent = planText(u);
     const e = u.entitlement || {};
     const canSubscribe = me.stripe && !(e.active && (e.reason === "subscribed" || e.reason === "admin")) ;
-    $("subscribe").classList.toggle("hide", !canSubscribe);
+    $("subscribe").classList.add("hide");   // the monthly plan is closed to new sign-ups
     $("subscribe").textContent = u.sub_status && u.sub_status !== "active" ? "Subscribe again" : "Subscribe";
     $("portal").classList.toggle("hide", !(me.stripe && u.has_customer));
-    $("pricenote").textContent = canSubscribe ? "$6 a month, cancel anytime. Stripe handles the card; leva never sees it." : "";
+    $("pricenote").textContent = "";
     $("adminlink").classList.toggle("hide", u.role !== "admin");
     $("devices").innerHTML = (u.devices || []).filter((d) => d.kind === "app").map((d) => `<li>${esc(d.device || "a Mac")} · leva ${esc(d.version || "?")} · last check-in ${ago(d.last_used_at)}</li>`).join("") || "<li>No Mac signed in yet. Download leva and sign in from its Settings.</li>";
     $("justsubscribed").classList.toggle("hide", !params.get("subscribed"));

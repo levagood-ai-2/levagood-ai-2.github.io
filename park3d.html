@@ -256,6 +256,7 @@ import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import * as GFX from './pool/park-gfx.js?v=3';
 import {createRoofBall} from './pool/park-roofball.js?v=2';
+import {createParkRadio} from './pool/park-radio.js?v=1';
 import {createCard} from './pool/park-card.js?v=1';
 import * as PP from './pool/park-people.js?v=1';
 
@@ -784,6 +785,15 @@ const red = M('#d7263b', {roughness: 0.6}), darkM = mat.dark, chromeM = mat.chro
   }
   bathroom(89, +1, 'GIRLS', 'girls', 'The girls\' bathhouse. Shower before you swim. The hall at the back takes you out to the lot.');
   bathroom(289, -1, 'BOYS', 'boys', 'The boys\' bathhouse. Shower before you swim. Its roof is where we play roof ball.');
+// the deck radio: a boombox on a stand by the bathhouse wall, in front of the pit
+const RADIO_AT = [X(416.4), Z(174)];
+{ const body = M('#2b2e36'), face = M('#c9cdd6'), red = M('#d9333f');
+  box(0.5, 0.74, 0.4, M('#8a8f9a'), RADIO_AT[0], 0.42, RADIO_AT[1]);                         // the stand
+  box(0.2, 0.3, 0.62, body, RADIO_AT[0], 0.94, RADIO_AT[1]);                                 // the box
+  box(0.03, 0.18, 0.18, face, RADIO_AT[0] - 0.105, 0.93, RADIO_AT[1] - 0.19); box(0.03, 0.18, 0.18, face, RADIO_AT[0] - 0.105, 0.93, RADIO_AT[1] + 0.19);   // two speakers
+  box(0.03, 0.06, 0.16, red, RADIO_AT[0] - 0.105, 1.02, RADIO_AT[1]);                        // the dial
+  box(0.03, 0.03, 0.5, body, RADIO_AT[0], 1.14, RADIO_AT[1]);                                // the handle
+  solidBox(RADIO_AT[0], RADIO_AT[1], 0.6, 0.7, 1.2); }
 
   // the row of offices between the girls' wing and the pit: the glass window room, the head guard office, first aid, storage. Doors on the pit side, the sign-in window on the deck.
   brickBox(U0, 143.5, EU, 169, 0, WH); hip(U0, 143.5, EU, 169, WH + 0.1, 2.0); box((EU - U0) * S + 0.3, 0.2, 25.5 * S + 0.3, mat.trim, X((U0 + EU) / 2), WH, Z(156.25), false);
@@ -3379,6 +3389,7 @@ addEventListener('keydown', e => { if (e.key === 'Escape'){ menuShow(false); hel
 canvas.addEventListener('pointerdown', () => { menuShow(false); whoBox.classList.remove('on'); whoBtn.setAttribute('aria-expanded', 'false'); });
 document.getElementById('wave-btn').addEventListener('pointerdown', e => { e.preventDefault(); wantWave = true; });
 // ---------------- roof ball, off the boys' bathhouse roof ----------------
+const RADIO = createParkRadio({pos: [X(416.4), Z(174)], where: () => [me.x, me.z]});   // the deck radio: off until you turn it on
 const RB = createRoofBall({scene, camera, X, Z, label: makeLabel, gesture, sfx: n => sfx(n),
   who: () => PLAYER.id, player: () => player, npc: id => byId[id], where: () => [me.x, me.z, me.face],
   shadow: v => { shadowAt = v; },
