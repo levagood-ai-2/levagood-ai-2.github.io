@@ -239,7 +239,7 @@
     chem: null, log: [], visitor: {name: '', chats: 0, topics: {}, met: {}, likes: {}},
     // the visitor's game: points, badges, leva's daily work order, your swim level, your towel and the Swim Team
     game: {pts: 0, badges: {}, n: {spots: 0, leaves: 0, cards: {}, rooms: {}}, order: null, streak: {last: '', n: 0, best: 0}, daily: {day: '', watch: 0, ask: 0}, hello: false, fresh: null,
-      lvl: null, towel: null, tryout: null, team: 0}
+      lvl: null, towel: null, tryout: null, team: 0, park: {pts: 0}}
   };
   // anything new since a visitor was last here gets its starting value
   var DEFAULTS = JSON.parse(JSON.stringify(MEM));
@@ -2656,6 +2656,8 @@
     {id: 'streak7', name: 'Full Week', desc: 'Finish work orders 7 days in a row.', pts: 100, icon: 'cup'},
     {id: 'team', name: 'Swim Team', desc: 'Reach Level 10 and pass the Swim Team tryout.', pts: 100, icon: 'team'}
   ];
+  // badges you earn walking the park in 3D: the same list the park uses (pool/leva-card.js)
+  if (window.LevaCard){ window.LevaCard.PARK_BADGES.forEach(function(b){ BADGES.push(b); }); for (var pk in window.LevaCard.ICONS) if (!GAME_ART.icons[pk]) GAME_ART.icons[pk] = window.LevaCard.ICONS[pk]; }
   var BADGE = {}; BADGES.forEach(function(b){ BADGE[b.id] = b; });
   // Swim levels. Your points move you up one swim skill at a time, and each level has its own numbered cap.
   var LEVELS = [['Bubbles', 0], ['Floater', 50], ['Glider', 125], ['Kicker', 250], ['Freestyle', 400], ['Side Breather', 600], ['Backstroke', 850], ['Breaststroke', 1150], ['Deep Water', 1500], ['Butterfly', 2000]];
@@ -2748,6 +2750,24 @@
     var b = BADGE[id]; GM.badges[id] = Date.now(); GM.fresh = id;
     toast('Badge', b.name, b.pts, b.icon);
     award(b.pts);
+  }
+  // The park keeps its own ledger of what you earned there. This adds whatever is new to the card: the points, and any badges.
+  // The points for a park badge are already in the park's total, so a badge that comes over is marked earned without paying twice.
+  function parkMerge(quiet){
+    if (!GM || !window.LevaCard) return;
+    var L = window.LevaCard.ledger(); if (!L) return;
+    if (!GM.park || typeof GM.park !== 'object') GM.park = {pts: 0};
+    var seen = +GM.park.pts || 0, delta = L.pts - seen, got = [];
+    if (delta < 0){ GM.park.pts = L.pts; delta = 0; }   // the park was cleared: start counting from where it is now
+    for (var id in L.badges){ if (BADGE[id] && !GM.badges[id]){ GM.badges[id] = +L.badges[id] || Date.now(); GM.fresh = id; got.push(BADGE[id]); } }
+    if (L.roofToday && orderReady()) workJob('roofball');   // a game played in the park today counts on leva's work order
+    if (!delta && !got.length) return;
+    GM.park.pts = L.pts;
+    if (!quiet){
+      if (delta) toast('From the park', delta + (delta === 1 ? ' point' : ' points') + ' from the 3D park', delta, 'tree');
+      got.slice(0, 3).forEach(function(b){ toast('Park badge', b.name, 0, b.icon); });
+    }
+    if (delta) award(delta); else { gameDirty = true; save(); flushSoon(); }
   }
   // a new swim level: its cap, a word from leva, a cheer from the girls if they're here, and whatever it unlocks
   function levelUp(was, now){
@@ -3011,7 +3031,7 @@
       gameUI.towelPick.appendChild(b); c.el = b;
     });
     BADGES.forEach(function(b){
-      var li = mkEl('li', 'badge locked'); li.appendChild(iconCanvas(b.icon));
+      var li = mkEl('li', 'badge locked' + (b.park ? ' from-park' : '')); li.appendChild(iconCanvas(b.icon));
       var d = mkEl('div'); d.appendChild(mkEl('b', null, b.name)); d.appendChild(mkEl('span', null, b.desc)); li.appendChild(d);
       li.appendChild(mkEl('em', 'b-pts', '+' + b.pts));
       var sr = mkEl('span', 'sr', 'Not earned yet.'); li.appendChild(sr); li.sr = sr;
@@ -3064,7 +3084,7 @@
       : 'Finish all three for ' + ORDER_BONUS + ' bonus points. ' + (live && s.n ? 'Keep your ' + s.n + (s.n === 1 ? ' day' : ' days') + ' going.' : 'Do it again tomorrow to start a streak.');
     gameUI.count.textContent = nb + ' of ' + BADGES.length;
     BADGES.forEach(function(b){
-      var t = gameUI.tiles[b.id], got = !!GM.badges[b.id], cls = 'badge' + (got ? '' : ' locked') + (GM.fresh === b.id ? ' new' : '');
+      var t = gameUI.tiles[b.id], got = !!GM.badges[b.id], cls = 'badge' + (b.park ? ' from-park' : '') + (got ? '' : ' locked') + (GM.fresh === b.id ? ' new' : '');
       if (t.className !== cls) t.className = cls;
       var srt = got ? 'Earned.' : 'Not earned yet.'; if (t.sr.textContent !== srt) t.sr.textContent = srt;
     });
@@ -3127,6 +3147,11 @@
     window.addEventListener('leva-room', function(e){ GAME.event('room', e.detail && e.detail.id); });
     window.addEventListener('leva-arcade', function(e){ GAME.event('arcade', e.detail); });
     window.addEventListener('leva-roofball', function(e){ GAME.event('roofball', e.detail); });
+    // the park, in another tab or since your last visit
+    setTimeout(function(){ parkMerge(); }, 1800);
+    window.addEventListener('storage', function(e){ if (window.LevaCard && e.key === window.LevaCard.PARK_KEY) parkMerge(); });
+    document.addEventListener('visibilitychange', function(){ if (!document.hidden) parkMerge(); });
+    window.addEventListener('pageshow', function(){ parkMerge(); });
     gameDirty = true; renderGame();
     // write up today's order as soon as the weather is in, even before the map scrolls into view
     var tries = 0, wt = setInterval(function(){

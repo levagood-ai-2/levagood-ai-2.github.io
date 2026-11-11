@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The pool · levagood</title>
 <meta name="description" content="Levagood Pool in Dearborn, Michigan, from above. Where levagood started. Every room is where it really is.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff">
+<link rel="canonical" href="https://www.levagood.com/pool.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="levagood">
+<meta property="og:title" content="Levagood Pool, from above">
+<meta property="og:description" content="Dearborn, Michigan. The 50 meter pool, the diving well, the zero depth pool, and leva running the deck. Every room is where it really is.">
+<meta property="og:url" content="https://www.levagood.com/pool.html">
+<meta property="og:image" content="https://www.levagood.com/pool/share-pool.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;800;900&family=Silkscreen&display=swap" rel="stylesheet">
@@ -279,6 +291,16 @@
   /* full screen: the whole park fills the browser, scaled to fit */
   .fullbtn{display:inline-flex;align-items:center;gap:8px;padding:0 14px;min-height:44px;background:#0A0A0A;color:#fff;border:2px solid #0A0A0A;box-shadow:4px 4px 0 var(--pink);font:700 13px/1 "Inter Tight",system-ui,sans-serif;cursor:pointer}
   .fullbtn:hover{background:var(--pink);border-color:var(--pink)} .fullbtn:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+  .fullbtn.go3d{text-decoration:none;background:var(--pink);border-color:#0A0A0A;box-shadow:4px 4px 0 #0A0A0A} .fullbtn.go3d:hover{background:#0A0A0A;border-color:#0A0A0A}
+  .fullbtn.go3d b{font-family:Silkscreen,monospace;font-weight:400;font-size:13px;letter-spacing:.06em}
+  .hero-go{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+  .hero-go a{display:inline-block;padding:13px 20px;border:2px solid #0A0A0A;font-weight:800;font-size:16px;text-decoration:none;color:#0A0A0A;background:#fff;box-shadow:3px 3px 0 #0A0A0A;transition:transform .12s,box-shadow .12s}
+  .hero-go a.pink{background:var(--pink);color:#fff}
+  .hero-go a:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #0A0A0A} .hero-go a:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #0A0A0A} .hero-go a:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+  #map{scroll-margin-top:70px}
+  .rb-row a.rb-3d{font-family:Silkscreen,monospace;font-size:12px;letter-spacing:.06em;color:#0A0A0A;background:var(--cyan);border:2px solid var(--cyan);padding:10px 12px;min-height:44px;display:inline-flex;align-items:center;text-decoration:none}
+  .rb-row a.rb-3d:hover,.rb-row a.rb-3d:focus-visible{background:#fff;border-color:#fff;outline:0}
+  .badge.from-park b::after{content:"3D park";margin-left:8px;padding:2px 5px;font-family:Silkscreen,monospace;font-weight:400;font-size:9px;letter-spacing:.06em;color:#fff;background:#0A0A0A;vertical-align:middle;white-space:nowrap}
   .fb-ic{width:12px;height:12px;flex:none;background:linear-gradient(#fff,#fff) 0 0/5px 2px,linear-gradient(#fff,#fff) 0 0/2px 5px,linear-gradient(#fff,#fff) 100% 0/5px 2px,linear-gradient(#fff,#fff) 100% 0/2px 5px,linear-gradient(#fff,#fff) 0 100%/5px 2px,linear-gradient(#fff,#fff) 0 100%/2px 5px,linear-gradient(#fff,#fff) 100% 100%/5px 2px,linear-gradient(#fff,#fff) 100% 100%/2px 5px;background-repeat:no-repeat}
   .park.full{position:fixed;inset:0;z-index:35;padding:0;display:block;overflow:hidden;background:#5a9a4a}
   .park.full .swipe-hint,.park.full .park-note,.park.full .park-links,.park.full .gate-band{display:none}
@@ -288,7 +310,8 @@
   .park.full .park-wrap::-webkit-scrollbar{display:none}
   .park.full .sizer{margin:0 auto}
   body.pool-full{overflow:hidden}
-  @media(max-width:700px){.fb-t{display:none} .fullbtn{padding:0 13px}}
+  @media(max-width:700px){.fb-t{display:none} .fullbtn{padding:0 11px} .fullbtn.go3d{padding:0 8px;box-shadow:3px 3px 0 #0A0A0A} .scorebar-row{gap:8px 6px}}
+  @media(max-width:379px){.fullbtn.go3d{display:none}}
   @media(min-width:701px) and (max-width:1200px){.sb-go{display:none} .sb-cell{padding:6px 9px 7px} .sb-cell b{font-size:15px}}
   @media(max-width:700px){.scorebar-row{justify-content:center;padding:0 12px} .sb-cell{padding:6px 8px 7px} .sb-cell b{font-size:13px} .sb-cell i{font-size:8px} .sb-go{display:none}}
   .toasts{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;flex-direction:column;align-items:flex-start;gap:10px;pointer-events:none;max-width:min(380px,calc(100vw - 32px))}
@@ -307,8 +330,11 @@
   .crew-head{max-width:720px;margin-bottom:32px}
   .crew-head h2{font-weight:900;letter-spacing:-.04em;line-height:1.02;font-size:clamp(32px,4.4vw,52px);margin-bottom:16px;text-wrap:balance}
   .crew-lead{font-size:18px;color:var(--grey);font-weight:500;line-height:1.55;max-width:62ch}
-  .crew-grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);grid-template-areas:"lvl order" "lvl towel" "badges badges";gap:28px;align-items:start}
-  .crew-rank{grid-area:lvl} .crew-order{grid-area:order} .crew-towel{grid-area:towel} .crew-badges{grid-area:badges}
+  .crew-grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);grid-template-areas:"lvl order" "lvl towel" "park park" "badges badges";gap:28px;align-items:start}
+  .crew-rank{grid-area:lvl} .crew-order{grid-area:order} .crew-towel{grid-area:towel} .crew-badges{grid-area:badges} .crew-park{grid-area:park}
+  .park3d-row{display:flex;align-items:center;gap:20px;flex-wrap:wrap} .park3d-row p{flex:1 1 320px;font-size:15px;line-height:1.5;color:#2a2a30}
+  .park3d-go{flex:none;display:inline-block;padding:13px 20px;background:var(--pink);color:#fff;border:2px solid #0A0A0A;box-shadow:3px 3px 0 #0A0A0A;font-weight:800;font-size:16px;text-decoration:none;transition:transform .12s,box-shadow .12s}
+  .park3d-go:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 #0A0A0A} .park3d-go:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #0A0A0A} .park3d-go:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
   .rank-top{display:flex;align-items:center;gap:14px;margin-bottom:14px}
   .rank-top .px-icon{width:60px;height:60px;flex:none}
   .rank-top b{display:block;font-weight:900;font-size:28px;letter-spacing:-.03em;line-height:1.05}
@@ -356,7 +382,7 @@
   .badge.locked .px-icon{filter:grayscale(1);opacity:.3}
   .badge.locked b{color:#5f5f66}
   .badge.new{box-shadow:4px 4px 0 var(--pink)}
-  @media(max-width:720px){.crew{padding:48px 0 0} .crew-wrap{padding:0 16px} .crew-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"lvl" "order" "towel" "badges"} .badges{grid-template-columns:minmax(0,1fr)}}
+  @media(max-width:720px){.crew{padding:48px 0 0} .crew-wrap{padding:0 16px} .crew-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"lvl" "order" "towel" "park" "badges"} .badges{grid-template-columns:minmax(0,1fr)}}
   @media (prefers-reduced-motion:reduce){.toast{animation:none} .toast.bye{transition:none} .sb-cell b.bump{animation:none} .rank-bar i{transition:none} .scorebar{transition:none}}
 
   /* the chat box */
@@ -419,9 +445,11 @@
   .lchat-link:hover{color:var(--pink)}
   @media(max-width:560px){.lchat{left:16px;align-items:stretch} .lchat-open{align-self:flex-end} .lchat.on .lchat-open{display:none} .lchat-panel{width:100%;height:min(600px,calc(100vh - 40px))}}
   @media (prefers-reduced-motion:reduce){.lchat.thinking .lchat-heart svg,.lchat-beat.beating svg{animation:none} .gauge i{transition:none} .lchat-open{transition:none}}
+.skip{position:absolute;left:12px;top:-60px;z-index:1000;padding:10px 14px;background:#0A0A0A;color:#fff;font-weight:700;text-decoration:none;border-radius:8px;transition:top .15s}.skip:focus{top:12px;outline:3px solid #00F0FF;outline-offset:2px}
 </style>
 </head>
 <body>
+<a class="skip" href="#top">Skip to the page</a>
 
 <nav>
   <div class="inner">
@@ -430,15 +458,16 @@
   </div>
 </nav>
 
-<section class="hero">
+<section class="hero" id="top">
   <div class="wrap">
     <div class="eyebrow">Where it started</div>
     <h1>Levagood Pool,<br>from above.</h1>
     <p class="lead">Dearborn, Michigan. The 50 meter pool, the diving well, the zero depth pool, the pump room, and the building with every room where it really is. leva is Maintenance, and he runs the place on his own. He tests the water, keeps the chemistry right, skims the leaves, and gets Ari out of the pool. Again. Em and Mel are sisters with big plans for the deep end, their mom Yenny brings them every day, and Grandma Sweetheart drives up with snacks and waits for them on her bench by the bike path. The map follows your clock, day and night, and the real weather in Dearborn. Say hi in the chat. leva, Em, Mel, Ari, Yenny and Grandma Sweetheart are all in there.</p>
+    <div class="hero-go"><a href="#map">See the pool</a><a class="pink" href="park3d.html">Walk the park in 3D</a></div>
   </div>
 </section>
 
-<section class="park" aria-label="A pixel map of Levagood Pool">
+<section class="park" id="map" aria-label="A pixel map of Levagood Pool">
   <div class="wx-alert" id="wx-alert" role="alert" hidden>
     <strong id="wx-alert-title"></strong>
     <span id="wx-alert-text"></span>
@@ -470,10 +499,11 @@
       <span class="sb-cell"><i>Points</i><b id="sb-pts">0000</b></span>
       <span class="sb-cell"><i id="sb-rank-lbl">Level 1</i><b id="sb-rank">BUBBLES</b></span>
       <span class="sb-cell"><i>Work order</i><b id="sb-jobs">-/3</b></span>
-      <span class="sb-cell"><i>Badges</i><b id="sb-badges">0/29</b></span>
+      <span class="sb-cell"><i>Badges</i><b id="sb-badges">0/36</b></span>
       <span class="sb-go" aria-hidden="true">Crew card &darr;</span>
     </button>
     <button type="button" class="fullbtn" id="fullbtn" aria-pressed="false"><span class="fb-ic" aria-hidden="true"></span><span class="fb-t">Full screen</span></button>
+    <a class="fullbtn go3d" href="park3d.html" aria-label="Walk the park in 3D"><b aria-hidden="true">3D</b><span class="fb-t">Walk it</span></a>
   </div>
   <div class="park-wrap">
    <div class="sizer">
@@ -510,6 +540,7 @@
   <p class="park-note">Point at a building or a pool to see what it is. The pink ones open: the pump room, the pit, first aid, the entrance, Nutty Dip, and the arcade in the guard shack. The roof of the boys' bathhouse is where we play roof ball. On a phone, tap. When Ari sneaks into the pool, tap him before leva sees him, and tap floating leaves to net them. It all counts on your crew card.</p>
   <ul class="park-links">
     <li><a href="index.html">Home</a></li>
+    <li><a href="park3d.html">The park in 3D, walk it yourself</a></li>
     <li><a href="account.html">Head guard office, get leva for your Mac</a></li>
     <li><a href="account.html">Glass window room, sign in</a></li>
     <li><a href="mailto:ai@levagood.com">First aid, help</a></li>
@@ -549,8 +580,15 @@
         </div>
         <div class="swatches" id="crew-towel-pick" role="group" aria-label="Towel color" hidden></div>
       </div>
+      <div class="panel crew-park">
+        <h3>The park, in 3D</h3>
+        <div class="park3d-row">
+          <p>Walk Levagood Park yourself. Run the deck, go off the high dive, and play roof ball off the boys' bathhouse roof. What you earn out there lands on this card, park badges and all.</p>
+          <a class="park3d-go" href="park3d.html">Walk the park in 3D</a>
+        </div>
+      </div>
       <div class="panel crew-badges">
-        <div class="badges-head"><h3>Badges</h3><span id="crew-count">0 of 29</span></div>
+        <div class="badges-head"><h3>Badges</h3><span id="crew-count">0 of 36</span></div>
         <ul class="badges" id="crew-badges"></ul>
       </div>
     </div>
@@ -623,6 +661,7 @@
       <button type="button" id="rb-em">Play Em</button>
       <button type="button" id="rb-guard">Play a lifeguard</button>
       <button type="button" id="rb-friend" disabled>Play a friend: coming soon</button>
+      <a class="rb-3d" href="park3d.html">Play it in the 3D park</a>
     </div>
     <div class="rb-row" id="rb-pad" hidden>
       <span><button type="button" id="rb-left" aria-label="Move left">&#9664;</button><button type="button" id="rb-right" aria-label="Move right">&#9654;</button></span>
@@ -680,6 +719,7 @@
         <div class="footer-col-head">Company</div>
         <a href="about.html">Our story</a>
         <a href="pool.html">The pool</a>
+        <a href="park3d.html">The park, in 3D</a>
         <a href="mailto:ai@levagood.com">ai@levagood.com</a>
       </div>
       <div class="footer-col">
@@ -697,7 +737,8 @@
 <script src="pool-gate.js?v=2"></script>
 <script src="pool-weather.js?v=1"></script>
 <script src="pool-radio.js?v=2"></script>
-<script src="pool-life.js?v=15"></script>
+<script src="pool/leva-card.js?v=1"></script>
+<script src="pool-life.js?v=16"></script>
 <script>
 (function(){
   // scale the 1440 x 840 stage to the page width
