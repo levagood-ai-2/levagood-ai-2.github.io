@@ -1,4 +1,4 @@
-// Roof ball, in the park, at the boys' bathhouse where it was played.
+// Roof ball, in the park, on the boys' side of the bathhouse: off the roof over the guard shack, the one that slopes down to the deck.
 // You hit or kick a playground ball up onto the roof. The roof slopes down toward the deck, so the ball comes back.
 // It can bounce anywhere on the slope, but if it goes over the peak it's gone and you lose the point. Coming back it can
 // bounce on the deck one time. Then the other player has to hit or kick it back up. Same rules and the same feel as the
@@ -8,13 +8,15 @@ import * as THREE from 'three';
 export function createRoofBall(o){
   const {scene, camera, X, Z} = o;
   // ---- the court, in meters. x runs east toward the bathhouse wall, y is up. Everything is played in the plane z = ZC. ----
-  const WALLX = X(420), XE = WALLX - 0.25, ZC = Z(262.5), GY = 0.047, R = 0.16, G = 22, H = 1 / 240;   // H: the ball moves in steps this small, always, so a guess about where it will go is exact
-  const EAVE = [XE, 3.5], PEAK = [XE + 7.78, 5.8], SOFFIT = 3.4;
+  // The roof is the hip roof over the guard shack and the storage row (map 211 to 234.5, the row just north of the boys' bathhouse). Its west face comes down to the deck wall;
+  // the game is played up the middle of that face, eave to the point where the ridge starts.
+  const ROW = [211, 234.5], WALLX = X(420), XE = WALLX - 0.25, ZC = Z((ROW[0] + ROW[1]) / 2), GY = 0.047, R = 0.16, G = 22, H = 1 / 240;   // H: the ball moves in steps this small, always, so a guess about where it will go is exact
+  const EAVE = [XE, 3.5], PEAK = [XE + 0.25 + (Z(ROW[1]) - Z(ROW[0])) / 2, 5.5], SOFFIT = 3.4;
   const RLEN = Math.hypot(PEAK[0] - EAVE[0], PEAK[1] - EAVE[1]), DX = (PEAK[0] - EAVE[0]) / RLEN, DY = (PEAK[1] - EAVE[1]) / RLEN, NX = -DY, NY = DX;   // up the slope, and straight off it
-  const MINX = XE - 10.9, MAXX = XE - 0.55, HOME = [XE - 6.3, XE - 3.2], CLOSE = XE - 2.1, FENCE = XE - 11.6, LANE = 0.7;
+  const MINX = XE - 8.2, MAXX = XE - 0.55, HOME = [XE - 5.2, XE - 2.9], CLOSE = XE - 2.1, FENCE = XE - 8.9, LANE = 0.7;   // the zero depth pool starts about nine and a half meters out from this wall; the court stops short of it
   // a hit is softer and loftier, a kick is harder and flatter. Both land farther up the roof the longer you hold.
   // (tuned on this roof: a hit goes over the peak in about the top fifth of the wind-up, a kick in about the top third)
-  const SHOT = {hit: {t0: 0.08, t1: 0.92, vmax: 20, loft: 0.12}, kick: {t0: 0.14, t1: 0.86, vmax: 23, loft: 0}};
+  const SHOT = {hit: {t0: 0.08, t1: 1.12, vmax: 20, loft: 0.12}, kick: {t0: 0.14, t1: 1.10, vmax: 23, loft: 0}};
   const CHARGE_SECS = 0.6, SWING_SECS = 0.24, RALLY_BADGE = 10;
   const OPPS = {
     em: {name: 'Em', speed: 4.7, err: 0.2, late: 0.14, react: 0.3, say: {mine: ['My point!', 'Yes!', 'Got it!'], yours: ['Nice one!', 'Good hit!', 'Whoa, nice!'], over: ['Too far! Oops.', 'Over the peak. Oops!'], win: ['Good game!'], lose: ['Good game! You got me.']}},
@@ -84,7 +86,7 @@ export function createRoofBall(o){
   document.body.appendChild(hud);
   const fade = document.createElement('div'); fade.className = 'rb-fade'; document.body.appendChild(fade);
   const pick = document.createElement('div'); pick.className = 'gate'; pick.setAttribute('role', 'dialog'); pick.setAttribute('aria-modal', 'true'); pick.setAttribute('aria-label', 'Roof ball'); pick.innerHTML = `<div class="gate-card rb-pick"><h2>Roof ball</h2>
-    <p>The game from the boys' bathhouse wall. One ball, one roof, two players.</p>
+    <p>The game from the boys' side of the bathhouse. One ball, one roof, two players.</p>
     <ol><li>Hit or kick the ball up on the roof. It rolls back down.</li><li>It gets one bounce on the deck. Then the other player sends it back up.</li><li>Over the peak, or short of the roof, and you lose the point.</li></ol>
     <div class="seg" id="rb-len" role="group" aria-label="Game length"><button type="button" data-to="7" class="on">Quick game, to 7</button><button type="button" data-to="15">Full game, to 15</button></div>
     <div class="gate-row" id="rb-opps"></div><div class="gate-row"><button class="pill" type="button" id="rb-no">Not now</button></div><small id="rb-note"></small></div>`;

@@ -235,7 +235,7 @@
     </div>
     <h3>Things to do</h3>
     <ul>
-      <li>Play roof ball. The ball is on the deck by the boys' bathhouse wall.</li>
+      <li>Play roof ball. The ball is on the deck by the guard shack wall, right next to the boys' bathhouse.</li>
       <li>Climb the high dive and go off it.</li>
       <li>Find the stars. There are some out in the park, too.</li>
       <li>Talk to the crew, throw a toy for the dogs, and look inside how Ari thinks.</li>
@@ -255,7 +255,7 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import * as GFX from './pool/park-gfx.js?v=3';
-import {createRoofBall} from './pool/park-roofball.js?v=1';
+import {createRoofBall} from './pool/park-roofball.js?v=2';
 import {createCard} from './pool/park-card.js?v=1';
 import * as PP from './pool/park-people.js?v=1';
 
@@ -575,7 +575,6 @@ function building(x0, y0, x1, y1, h, roofH, wallM, roofM){
   box((x1 - x0) * S + 0.3, 0.18, (y1 - y0) * S + 0.3, mat.trim, X((x0 + x1) / 2), h, Z((y0 + y1) / 2), false);
   hipRoof(x0, y0, x1, y1, h + 0.1, roofH, roofM);
 }
-building(225, 35, 275, 70, 3.4, 2.4); solidBox(X(250), Z(52.5), 50 * S, 35 * S, 3.4);   // the pump room
 // the pool site's ground, drawn in 3D: the concrete deck, the concession square, the building apron, the lots, Denwood, the sidewalks and the bike path
 const deckConc = PM(TEX.concrete, 4.0, {roughness: 0.9}), siteAsph = mat.asphalt, roadAsph = mat.road, walkConc = mat.concrete;
 const sitePoly = (pts, m, y) => flat(pts.map(([x, yy]) => [X(x), Z(yy)]), m, y);
@@ -629,38 +628,226 @@ for (let y = 4; y < 420; y += 14) strip([[X(615), Z(y)], [X(615), Z(y + 7)]], 0.
 }
 // Grandma's bench and the bike rack sit on the grass and the apron; a few parked cars come from the map
 
-// ---------------- the bathhouse: two brick wings with hipped roofs and the open hall through the middle ----------------
-function wing(y0, y1, name, doorY){
-  box(121 * S, 3.4, (y1 - y0) * S, mat.wallTan, X(480.5), 1.7, Z((y0 + y1) / 2)); solidBox(X(480.5), Z((y0 + y1) / 2), 121 * S, (y1 - y0) * S, 3.4);
-  box(121 * S + 0.3, 0.22, (y1 - y0) * S + 0.3, mat.trim, X(480.5), 3.4, Z((y0 + y1) / 2), false);
-  hipRoof(420, y0, 541, y1, 3.5, 2.3, mat.roof);
-  // the door out to the deck on the west face, with its sign; a few windows high on the east face
-  box(0.08, 2.2, 1.1, M('#2b3a66', {roughness: 0.6}), X(419.9), 1.1, Z(doorY)); box(0.1, 2.3, 1.3, mat.trim, X(419.85), 1.15, Z(doorY), false);
-  { const cv = document.createElement('canvas'); cv.width = 256; cv.height = 64; const g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, 256, 64); g.fillStyle = '#16207a'; g.font = '900 44px Arial Black, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(name, 128, 34);
-    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; const s = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.35), new THREE.MeshStandardMaterial({map: t})); s.position.set(X(419.8), 2.6, Z(doorY)); s.rotation.y = -Math.PI / 2; scene.add(s); }
-  for (let y = y0 + 8; y < y1 - 6; y += 12) box(0.06, 0.6, 1.6, mat.glass, X(541.05), 2.6, Z(y), false);
-}
-wing(89, 146, 'GIRLS', 108); wing(236, 289, 'BOYS', 272);
-// the hall: a flat roof on brick columns, open at both ends so you see the pool from the lot
-box(121 * S, 0.25, 90 * S, M('#d8d2c4'), X(480.5), 3.55, Z(191), true);
-box(0.3, 1.9, 90 * S + 0.2, mat.wallTan, X(541.1), 3.9, Z(191));   // the front parapet, where the sign goes
-box(0.3, 0.8, 90 * S + 0.2, mat.trim, X(419.9), 3.6, Z(191));      // the fascia on the deck side
-[[421, 160], [421, 191], [421, 222], [540, 236], [540, 200], [540, 146]].forEach(([x, y]) => { box(0.5, 3.6, 0.5, mat.wallTan, X(x), 1.8, Z(y)); solidBox(X(x), Z(y), 0.5, 0.5, 3.6); });
-// the front desk: a low wall with a counter from the north wing to the entry, and the open entry south of it
-box(0.3, 1.1, (200 - 146) * S, mat.wallTan, X(540.9), 0.55, Z(173)); box(0.6, 0.08, (200 - 146) * S, mat.trim, X(540.9), 1.12, Z(173), false);
-walls.push([X(541), Z(146), X(541), Z(200)]);
-// the sign, centered over the entry
+const ROOMS3 = [], ROOF_GROUPS = [];   // rooms you can walk into, and the roofs that lift off while you are inside
+function room3(id, box, roofs, name, note){ const r = {id, box, roofs, name, note, seen: false}; ROOMS3.push(r); roofs.forEach(g => { g.userData.dyn = true; if (!ROOF_GROUPS.includes(g)) ROOF_GROUPS.push(g); }); return r; }   // dyn keeps a roof out of the static batch, so it can still lift off
+function roomAt(x, z){ const u = (x - SITE[0]) / S, v = (z - SITE[1]) / S; return ROOMS3.find(r => u >= r.box[0] && v >= r.box[1] && u <= r.box[2] && v <= r.box[3]) || null; }
 {
-  const cv = document.createElement('canvas'); cv.width = 1024; cv.height = 192; const g = cv.getContext('2d');
-  g.fillStyle = '#16207a'; g.fillRect(0, 0, 1024, 192); g.strokeStyle = '#e8ecff'; g.lineWidth = 8; g.strokeRect(4, 4, 1016, 184);
-  g.fillStyle = '#fff'; g.font = '900 104px Arial Black, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('LEVAGOOD POOL', 512, 100);
+// ---------------- the bathhouse, laid out like the pool page: the girls' wing north, the boys' south, the offices and storage rows, the pit open to the deck between them, the entrance along the street ----------------
+// map units throughout, like the pool page. Rooms you can walk into: the pump room, both bathhouses, the entrance hall, the pit. Their roofs lift off while you are inside so the camera can see you.
+const WH = 3.4, WT = 0.3;   // wall height and thickness, meters
+const repWait = [], rep = (t, rx, ry) => { const c = t.clone(); c.repeat.set(rx, ry); if (t.image) c.needsUpdate = true; else repWait.push(c); return c; };   // a copy of a texture at its own scale; a photo texture still loading is picked up when it lands
+const repTimer = setInterval(() => { for (let i = repWait.length - 1; i >= 0; i--) if (repWait[i].image){ repWait[i].needsUpdate = true; repWait.splice(i, 1); } if (!repWait.length) clearInterval(repTimer); }, 250);
+function tex(w, h, fn, rep){ const cv = document.createElement('canvas'); cv.width = w; cv.height = h; fn(cv.getContext('2d'), w, h); const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; if (rep) t.repeat.set(rep, rep); return t; }   // small painted textures for the rooms
+const tileTex = tex(128, 128, (g, w, h) => { g.fillStyle = '#f4f2eb'; g.fillRect(0, 0, w, h); g.strokeStyle = '#d6d2c6'; g.lineWidth = 2; g.beginPath(); for (let x = 0; x <= w; x += 32){ g.moveTo(x, 0); g.lineTo(x, h); } for (let y = 0; y <= h; y += 32){ g.moveTo(0, y); g.lineTo(w, y); } g.stroke(); });
+const blockTex = tex(256, 128, (g, w, h) => { g.fillStyle = '#5a5f68'; g.fillRect(0, 0, w, h); for (let row = 0; row < 4; row++) for (let c = -1; c < 5; c++){ const x = c * 64 + (row % 2 ? 32 : 0), y = row * 32; g.fillStyle = ['#636871', '#5c616a', '#686d76', '#565b64'][Math.floor(tr() * 4)]; g.fillRect(x + 1, y + 1, 62, 30); } });
+const brickAt = (w, h) => { const t = rep(TEX.brickB, w / 2.1, h / 2.1); return new THREE.MeshStandardMaterial({map: t, color: '#dcc7a2', bumpMap: t, bumpScale: 1.4, roughness: 0.92}); };   // the same tan brick as the rest of the park, scaled to each wall
+const tileAt = (w, h) => new THREE.MeshStandardMaterial({map: rep(tileTex, w / 1.0, h / 1.0), roughness: 0.55});                        // white four inch tile
+const blockOutAt = (w, h) => new THREE.MeshStandardMaterial({map: rep(blockTex, w / 1.6, h / 0.8), color: '#c9ccd2', roughness: 0.95});   // grey block, the pump room outside
+const blockInAt = (w, h) => new THREE.MeshStandardMaterial({map: rep(blockTex, w / 1.6, h / 0.8), color: '#8d929b', roughness: 0.95});    // and inside, darker
+const roofBrown = PM(TEX.shingle, 2.6, {color: '#84594a', side: THREE.DoubleSide}), roofRidge = M('#6f4636'), flatRoofM = M('#b9b6ae', {roughness: 1}), ceilM = M('#efece4'), floorBath = M('#c9ced3', {roughness: 0.8}), floorEntry = M('#d8d4c9', {roughness: 0.8}), floorPump = M('#6e7079', {roughness: 1});
+const tealM = M('#2a8f9a'), tealDark = M('#1f5f6b'), lampM = M('#ffffff', {emissive: '#fff6dc', emissiveIntensity: 0.9}), stallM = M('#6f85a3', {roughness: 0.6}), woodM = M('#a8783f', {roughness: 0.85}), lockerM = M('#2f5bc2', {roughness: 0.5}), glassM = mat.glass;
+const ubox = (x0, y0, x1, y1, h0, h1, m, cast = true) => box((x1 - x0) * S, h1 - h0, (y1 - y0) * S, m, X((x0 + x1) / 2), (h0 + h1) / 2, Z((y0 + y1) / 2), cast);   // a box from map-unit corners and a height range
+const usolid = (x0, y0, x1, y1, h = WH) => solids.push([X(x0), Z(y0), X(x1), Z(y1), h]);
+// a wall along one axis in map units; the room is on the inSide (+1 toward +u or +v); gaps are doorways [a0, a1, height] along the run. Faces: brick out, tile in.
+function wallRun(x0, y0, x1, y1, inSide, gaps = [], inner = tileAt, outer = brickAt, h = WH){
+  const horiz = y0 === y1, a0 = horiz ? Math.min(x0, x1) : Math.min(y0, y1), a1 = horiz ? Math.max(x0, x1) : Math.max(y0, y1);
+  const parts = []; let cur = a0; gaps.slice().sort((p, q) => p[0] - q[0]).forEach(g => { if (g[0] > cur) parts.push([cur, g[0], 0]); parts.push([g[0], g[1], g[2] || 2.2]); cur = g[1]; }); if (cur < a1) parts.push([cur, a1, 0]);
+  for (const [p0, p1, dh] of parts){
+    const len = (p1 - p0) * S, mid = (p0 + p1) / 2, ph = h - dh, inn = inner(len, ph), out = outer(len, ph), cap = outer(WT, ph), inPos = inSide > 0;
+    const mats = horiz ? [cap, cap, mat.trim, mat.trim, inPos ? inn : out, inPos ? out : inn] : [inPos ? inn : out, inPos ? out : inn, mat.trim, mat.trim, cap, cap];
+    const g = new THREE.Mesh(new THREE.BoxGeometry(horiz ? len : WT, ph, horiz ? WT : len), mats); g.position.set(horiz ? X(mid) : X(x0), dh + ph / 2, horiz ? Z(y0) : Z(mid)); g.castShadow = true; g.receiveShadow = true; scene.add(g);
+    if (dh === 0) walls.push(horiz ? [X(p0), Z(y0), X(p1), Z(y0)] : [X(x0), Z(p0), X(x0), Z(p1)]);
+    else { // a doorway: trim jambs and a head
+      [p0, p1].forEach(p => box(horiz ? 0.1 : WT + 0.06, dh, horiz ? WT + 0.06 : 0.1, mat.trim, horiz ? X(p) : X(x0), dh / 2, horiz ? Z(y0) : Z(p), false));
+      box(horiz ? len : WT + 0.06, 0.1, horiz ? WT + 0.06 : len, mat.trim, horiz ? X(mid) : X(x0), dh - 0.05, horiz ? Z(y0) : Z(mid), false); }
+  }
+  box(horiz ? (a1 - a0) * S + 0.1 : WT + 0.1, 0.12, horiz ? WT + 0.1 : (a1 - a0) * S + 0.1, mat.trim, horiz ? X((a0 + a1) / 2) : X(x0), h + 0.06, horiz ? Z(y0) : Z((a0 + a1) / 2), false);   // the coping
+}
+// a solid brick box (a room nobody goes in), bricks scaled to each face
+function brickBox(x0, y0, x1, y1, h0, h1){ const w = (x1 - x0) * S, d = (y1 - y0) * S, h = h1 - h0, a = brickAt(d, h), b = brickAt(w, h);
+  const g = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), [a, a, mat.trim, mat.trim, b, b]); g.position.set(X((x0 + x1) / 2), (h0 + h1) / 2, Z((y0 + y1) / 2)); g.castShadow = true; g.receiveShadow = true; scene.add(g); usolid(x0, y0, x1, y1, h1); return g; }
+function ridgeCap(x0, y0, x1, y1, top){ const ax = X(x0), bx = X(x1), az = Z(y0), bz = Z(y1), w = bx - ax, d = bz - az; if (w >= d){ const r = d / 2; return box(w - 2 * r + 0.3, 0.12, 0.26, roofRidge, (ax + bx) / 2, top + 0.02, az + r, false); } const r = w / 2; return box(0.26, 0.12, d - 2 * r + 0.3, roofRidge, ax + r, top + 0.02, (az + bz) / 2, false); }
+roofBrown.userData.slopeUV = true;   // brown shingles, the rows running along the eaves
+// a roof that lifts off is not baked with the rest of the park, so it lays out its own shingles the way the bake would
+function shingleUV(g, tile){ const pos = g.attributes.position, nor = g.attributes.normal, n = pos.count, uv = new Float32Array(n * 2);
+  for (let i = 0; i < n; i++){ const nx = nor.getX(i), nz = nor.getZ(i), x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+    if (Math.abs(nx) > Math.abs(nz)){ uv[i * 2] = z / tile; uv[i * 2 + 1] = (x * Math.sign(nx) * -1 + y * 0.5) / tile; } else { uv[i * 2] = x / tile; uv[i * 2 + 1] = (z * Math.sign(nz) * -1 + y * 0.5) / tile; } }
+  g.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); }
+function hip(x0, y0, x1, y1, base, rh, group){ const m = hipRoof(x0, y0, x1, y1, base, rh, roofBrown), c = ridgeCap(x0, y0, x1, y1, base + rh); if (group){ shingleUV(m.geometry, roofBrown.userData.worldUV); scene.remove(m); scene.remove(c); group.add(m); group.add(c); } return m; }
+function signPlane(text, w, h, x, y, z, rotY, bg = '#ffffff', fg = '#16207a', o = {}){
+  const cv = document.createElement('canvas'); cv.width = 512; cv.height = Math.max(64, Math.round(512 * h / w)); const g = cv.getContext('2d');
+  if (bg){ g.fillStyle = bg; g.fillRect(0, 0, cv.width, cv.height); } if (o.border){ g.strokeStyle = o.border; g.lineWidth = 12; g.strokeRect(6, 6, cv.width - 12, cv.height - 12); }
+  const lines = text.split('\n'), lh = cv.height / (lines.length + 0.3); g.fillStyle = fg; g.font = `900 ${o.px || Math.min(Math.round(lh * 0.62), Math.round(440 / Math.max(...lines.map(l => l.length)) * 1.55))}px Arial Black, Arial, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  lines.forEach((ln, i) => g.fillText(ln, cv.width / 2, lh * (i + 0.65)));
+  if (o.cross){ g.fillStyle = '#d7263b'; const c = o.cross, s = cv.height * 0.5; g.fillRect(c - s * 0.16, cv.height / 2 - s / 2, s * 0.32, s); g.fillRect(c - s / 2, cv.height / 2 - s * 0.16, s, s * 0.32); }
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
-  const sign = new THREE.Mesh(new THREE.PlaneGeometry(13, 2.4), new THREE.MeshStandardMaterial({map: t, roughness: 0.6})); sign.position.set(X(541.1) + 0.17, 4.0, Z(191)); sign.rotation.y = Math.PI / 2; scene.add(sign);
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({map: t, roughness: 0.6, transparent: !bg, side: THREE.DoubleSide})); m.position.set(x, y, z); m.rotation.order = 'YXZ'; m.rotation.y = rotY; m.rotation.x = o.rotX || 0; m.rotation.z = o.rotZ || 0; scene.add(m); return m;
+}
+const groundText = (text, w, h, u, v, rotZ, fg = '#d7263b') => signPlane(text, w, h, X(u), 0.06, Z(v), 0, null, fg, {rotX: -Math.PI / 2, rotZ});
+const doorLeaf = (u, v, w, h, rotY, m = M('#2b3a66', {roughness: 0.6}), proud = 0.16) => { const d = box(w, h, 0.07, m, X(u) + Math.sin(rotY) * proud, h / 2, Z(v) + Math.cos(rotY) * proud); d.rotation.y = rotY; box(w + 0.16, h + 0.08, 0.05, mat.trim, X(u) + Math.sin(rotY) * (proud - 0.02), h / 2 + 0.02, Z(v) + Math.cos(rotY) * (proud - 0.02), false).rotation.y = rotY; box(0.05, 0.05, 0.12, mat.chrome, X(u) + Math.sin(rotY) * (proud + 0.05) + Math.cos(rotY) * (w * 0.38), 1.0, Z(v) + Math.cos(rotY) * (proud + 0.05) - Math.sin(rotY) * (w * 0.38), false); return d; };
+const windowPane = (u, v, w, h, y, rotY, depth = WT + 0.08) => { const g = box(w, h, depth, glassM, X(u), y, Z(v), false); g.rotation.y = rotY; box(w + 0.12, 0.08, depth + 0.02, mat.trim, X(u), y - h / 2 - 0.04, Z(v), false).rotation.y = rotY; return g; };
+const rollDoor = (u, v, w, h, rotY, open) => { // a ribbed roll-up door; open shows the drum and a hand of slats, closed fills the opening
+  const rib = new THREE.MeshStandardMaterial({map: (() => { const cv = document.createElement('canvas'); cv.width = 16; cv.height = 64; const g = cv.getContext('2d'); g.fillStyle = '#b9bcc2'; g.fillRect(0, 0, 16, 64); g.fillStyle = '#9ea2a9'; for (let y = 0; y < 64; y += 8) g.fillRect(0, y + 6, 16, 2); const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(1, h * 1.6); return t; })(), roughness: 0.7});
+  const drum = cyl(0.2, 0.2, w + 0.3, M('#7d8187'), X(u) - Math.sin(rotY) * 0.3, h + 0.12, Z(v) - Math.cos(rotY) * 0.3, 14); drum.rotation.z = Math.PI / 2; drum.rotation.y = rotY;
+  const hang = open ? 0.35 : h; const d = box(w, hang, 0.05, rib, X(u) - Math.sin(rotY) * 0.2, h - hang / 2, Z(v) - Math.cos(rotY) * 0.2, false); d.rotation.y = rotY; return d; };
+const fluor = (x, y, z, along = 'x') => box(along === 'x' ? 1.25 : 0.3, 0.07, along === 'x' ? 0.3 : 1.25, lampM, x, y, z, false);
+const red = M('#d7263b', {roughness: 0.6}), darkM = mat.dark, chromeM = mat.chrome;
+
+// ---------------- the pump room: block walls, a brown roof with two turbine vents, the roll-up door open to the deck, three filter tanks and the green pumps ----------------
+{
+  const u0 = 225, v0 = 35, u1 = 275, v1 = 70, roof = new THREE.Group(); scene.add(roof);
+  wallRun(u0, v0, u1, v0, +1, [], blockInAt, blockOutAt); wallRun(u0, v1, u1, v1, -1, [[240.5, 259.5, 3.0]], blockInAt, blockOutAt); wallRun(u0, v0, u0, v1, +1, [], blockInAt, blockOutAt); wallRun(u1, v0, u1, v1, -1, [], blockInAt, blockOutAt);
+  ubox(u0, v0, u1, v1, 0.05, 0.065, floorPump, false);
+  const ceil = ubox(u0 - 0.5, v0 - 0.5, u1 + 0.5, v1 + 0.5, WH, WH + 0.16, ceilM); scene.remove(ceil); roof.add(ceil);
+  hip(u0, v0, u1, v1, WH + 0.16, 2.3, roof);
+  [240, 260].forEach(u => { const v = cyl(0.34, 0.34, 0.5, chromeM, X(u), WH + 2.5, Z(52.5), 16), cap = new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), chromeM); cap.position.set(X(u), WH + 2.72, Z(52.5)); cap.castShadow = true; scene.remove(v); roof.add(v); roof.add(cap); const nk = cyl(0.26, 0.3, 0.5, M('#8a8e95'), X(u), WH + 2.1, Z(52.5), 12); scene.remove(nk); roof.add(nk); });   // the two vents, the eyes on the map
+  rollDoor(250, 70, 19 * S, 3.0, 0, true);
+  signPlane('PUMP ROOM', 1.6, 0.4, X(250), 3.22, Z(70) + 0.19, 0, '#16207a', '#ffffff', {border: '#e8ecff'});
+  // the three filter tanks along the back wall, each on its pad with a sight glass, a valve and a pipe up to the header; the first one says LAP
+  const header = cyl(0.08, 0.08, 40 * S, darkM, X(250), 3.2, Z(47), 10); header.rotation.z = Math.PI / 2;
+  [[236, 'LAP'], [250, null], [264, null]].forEach(([u, lbl]) => { const x = X(u), z = Z(47), R = 0.75, cy = 1.75, white = M('#f3f0e7', {roughness: 0.45}), brown = M('#7a4a2a', {roughness: 0.9});   // lying on its side, like the pool page
+    cyl(0.14, 0.16, 1.0, brown, x, 0.5, z, 10); box(1.7, 0.14, 1.1, brown, x, 1.0, z); box(1.9, 0.08, 1.3, M('#5c381f'), x, 0.04, z);
+    const body = cyl(R, R, 1.5, white, x, cy, z, 30); body.rotation.z = Math.PI / 2;
+    [-1, 1].forEach(sd => { const c = new THREE.Mesh(new THREE.SphereGeometry(R, 28, 12, 0, Math.PI * 2, 0, Math.PI / 2), white); c.position.set(x + sd * 0.75, cy, z); c.rotation.z = -sd * Math.PI / 2; c.scale.y = 0.45; c.castShadow = true; c.receiveShadow = true; scene.add(c); });
+    const eye = cyl(0.19, 0.19, 0.08, M('#1c2330'), x - 0.5, cy + 0.08, z + R * 0.94, 18); eye.rotation.x = Math.PI / 2; const ring = new THREE.Mesh(new THREE.TorusGeometry(0.21, 0.03, 8, 24), chromeM); ring.position.set(x - 0.5, cy + 0.08, z + R * 0.94 + 0.04); scene.add(ring);
+    [-0.12, -0.24, -0.36].forEach(dy => box(0.62, 0.05, 0.03, mat.blue, x + 0.32, cy + dy, z + Math.sqrt(R * R - dy * dy) + 0.01, false));
+    if (lbl) signPlane('▸ ' + lbl, 0.5, 0.17, x - 0.05, cy + 0.12, z + R + 0.03, 0, '#2f6fd1', '#ffffff');
+    cyl(0.065, 0.065, WH - cy - R + 0.1, darkM, x, (cy + R + WH) / 2, z, 10); const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.022, 8, 18), red); wheel.position.set(x, cy + R + 0.2, z + 0.12); wheel.rotation.y = Math.PI / 2; scene.add(wheel);
+    const shade = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.26, 16, 1, true), M('#2c3038', {side: THREE.DoubleSide})); shade.position.set(x, 3.0, z + 1.2); scene.add(shade); const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.09, 12, 8), lampM); bulb.position.set(x, 2.89, z + 1.2); scene.add(bulb); cyl(0.02, 0.02, 0.3, darkM, x, 3.18, z + 1.2, 6);
+    // the green pump out front, on its base, with the suction line back to the tank
+    const pz = Z(56); box(1.3, 0.12, 0.7, darkM, x, 0.06, pz); const motor = cyl(0.26, 0.26, 0.72, mat.green, x - 0.2, 0.45, pz, 16); motor.rotation.z = Math.PI / 2; box(0.5, 0.5, 0.52, mat.green, x + 0.4, 0.4, pz); cyl(0.1, 0.1, 0.2, darkM, x + 0.68, 0.4, pz, 10).rotation.z = Math.PI / 2;
+    const line = cyl(0.07, 0.07, pz - z - 0.9, darkM, x + 0.4, 0.42, (pz + z + 0.9) / 2, 10); line.rotation.x = Math.PI / 2;
+    usolid(u - 5.4, 43.5, u + 5.4, 50.5, 3.0); usolid(u - 2.5, 54.5, u + 2.8, 57.5, 0.7); });
+  signPlane('▦', 0.7, 0.7, X(250), 0.07, Z(62), 0, null, '#3a3f47', {rotX: -Math.PI / 2, px: 300});   // the floor drain
+  box(0.65, 0.95, 0.12, M('#9aa0a8'), X(274.75), 1.5, Z(44)); [0, 0.2].forEach(o => box(0.08, 0.08, 0.04, red, X(274.65), 1.75 + o * 0, Z(44) + 0.2 - o, false));   // the panel
+  box(0.14, 0.14, 0.06, M('#4dff9a', {emissive: '#4dff9a', emissiveIntensity: 1.2}), X(274.75), 2.0, Z(66));                                   // the green light by the door
+  box(2.0, 0.06, 0.7, woodM, X(228.5), 0.9, Z(60)); [-0.9, 0.9].forEach(o => box(0.06, 0.9, 0.6, darkM, X(228.5) + o, 0.45, Z(60))); usolid(225.5, 58.5, 231.5, 61.5, 0.9);   // the workbench
+  [[270, 38.5], [272.5, 38.5], [270, 41.5]].forEach(([u, v]) => { cyl(0.3, 0.3, 0.9, mat.blue, X(u), 0.5, Z(v), 14); trunks.push([X(u), Z(v), 0.34]); });                      // drums of chemicals
+  room3('pump', [u0, v0, u1, v1], [roof], 'In the pump room', 'The pump room. The filters and the pumps. This is where leva lives.');
+}
+
+// ---------------- the bathhouse ----------------
+{
+  const U0 = 420, U1 = 541, EU = 521.5, HIPU = 471;
+  // a bathhouse wing: outerV is the outside wall, the room runs dir (+1 south for the girls, -1 north for the boys); laid out from the outer wall in t
+  function bathroom(outerV, dir, name, id, note){
+    const vt = t => outerV + dir * t, vr = (t0, t1) => [Math.min(vt(t0), vt(t1)), Math.max(vt(t0), vt(t1))], inner = vt(54.5), [vlo, vhi] = vr(0, 54.5);
+    const ub = (u0, u1, t0, t1, h0, h1, m, cast = true) => { const [a, b] = vr(t0, t1); return ubox(u0, a, u1, b, h0, h1, m, cast); };
+    const us = (u0, u1, t0, t1, h) => { const [a, b] = vr(t0, t1); usolid(u0, a, u1, b, h); };
+    const roof = new THREE.Group(); scene.add(roof);
+    // the shell: brick out, tile in; the doorway to the deck, the door through to the entrance hall
+    wallRun(U0, outerV, U1, outerV, dir, []); wallRun(U0, inner, EU, inner, -dir, []); wallRun(EU, inner, U1, inner, -dir, [[528, 534.5, 2.2]], tileAt, tileAt);
+    wallRun(U0, vlo, U0, vhi, +1, [[...vr(15, 23), 2.3]]); wallRun(U1, vlo, U1, vhi, -1, []);
+    ub(U0, U1, 0, 54.5, 0.05, 0.065, floorBath, false);
+    // roofs: the ceiling, the flat roof over the west half, the hip roof over the east, the little guards' roof, the lights; all lift off when you are inside
+    const ceil = ub(U0 - 0.5, U1 + 0.5, -0.5, 55, WH, WH + 0.15, ceilM); scene.remove(ceil); roof.add(ceil);
+    const flatR = ub(U0 - 0.6, HIPU, -0.6, 55.1, WH + 0.15, WH + 0.34, flatRoofM); scene.remove(flatR); roof.add(flatR);
+    [[U0 - 0.6, -0.6, U0 + 0.4, 55.1], [U0 - 0.6, -0.6, HIPU, 0.4], [U0 - 0.6, 54.1, HIPU, 55.1]].forEach(([a, t0, b, t1]) => { const lip = ub(a, b, t0, t1, WH + 0.34, WH + 0.62, flatRoofM); scene.remove(lip); roof.add(lip); });
+    hip(HIPU, vlo, U1, vhi, WH + 0.15, 2.3, roof); hip(443, ...vr(31, 54.5).slice(0, 1), 471, vr(31, 54.5)[1], WH + 0.34, 1.4, roof);
+    [[432, 10], [432, 40], [455, 15], [485, 15], [485, 42], [510, 15], [510, 42], [532, 28]].forEach(([u, t]) => { const f = fluor(X(u), WH - 0.04, Z(vt(t))); scene.remove(f); roof.add(f); });
+    [[438, 6], [460, 6]].forEach(([u, t]) => { const d = new THREE.Mesh(new THREE.SphereGeometry(0.55, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), M('#f6f8ff', {roughness: 0.3})); d.position.set(X(u), WH + 0.34, Z(vt(t))); d.castShadow = true; roof.add(d); });   // skylights
+    // high windows on the outside wall and the east wall
+    [500, 512, 524, 536].forEach(u => windowPane(u, outerV, 1.6, 0.6, 2.7, 0)); [12, 30, 46].forEach(t => windowPane(U1, vt(t), 1.6, 0.6, 2.7, Math.PI / 2));
+    signPlane(name, 1.5, 0.38, X(U0) - 0.2, 2.72, Z(vt(19)), -Math.PI / 2, '#ffffff', '#16207a', {border: '#16207a'});
+    // the privacy wall inside the deck door, with the shower rule on it; the showers in the corner behind it
+    wallRun(426, ...vr(12, 26).slice(0, 1), 426, vr(12, 26)[1], +1, [], tileAt, tileAt, 2.4); wallRun(U0, vt(12), 437, vt(12), dir, [], tileAt, tileAt, 2.0);
+    signPlane('SHOWER BEFORE\nENTERING THE POOL', 1.3, 0.5, X(426) - 0.17, 1.7, Z(vt(19)), -Math.PI / 2, '#ffffff', '#d7263b', {border: '#d7263b'});
+    [424, 428, 432, 436].forEach(u => { cyl(0.025, 0.025, 1.1, chromeM, X(u), 1.55, Z(vt(0)) + 0.17 * 1, 8); const hd = cyl(0.03, 0.09, 0.1, chromeM, X(u), 2.08, Z(vt(0)) + 0.17 + 0.16 * 1, 10); hd.rotation.x = dir * 0.9; box(0.1, 0.03, 0.03, chromeM, X(u), 1.1, Z(vt(0)) + 0.2, false); });
+    signPlane('▦', 0.5, 0.5, X(430), 0.07, Z(vt(6)), 0, null, '#4a4f58', {rotX: -Math.PI / 2, px: 300});
+    // toilet stalls along the outside wall
+    for (let k = 0; k <= 9; k++) ub(446 + 4 * k - 0.1, 446 + 4 * k + 0.1, 0.6, 5.6, 0.25, 2.05, stallM);
+    for (let k = 0; k < 9; k++){ const u = 446 + 4 * k; if (k === 2 || k === 6){ const d = ub(u + 0.25, u + 0.5, 5.4, 8.8, 0.25, 2.05, stallM); } else ub(u + 0.35, u + 3.65, 5.4, 5.6, 0.25, 2.05, stallM);
+      box(0.4, 0.42, 0.5, mat.white, X(u + 2), 0.21, Z(vt(2.6))); box(0.44, 0.4, 0.18, mat.white, X(u + 2), 0.6, Z(vt(1.0))); }
+    us(445.5, 482.5, 0, 5.8, 2.05);
+    // the guards' room in the corner by the offices, with its own little roof
+    wallRun(443, vt(31), 471, vt(31), -dir, [], tileAt, tileAt); wallRun(443, ...vr(31, 54.5).slice(0, 1), 443, vr(31, 54.5)[1], +1, [], tileAt, tileAt); wallRun(471, ...vr(31, 54.5).slice(0, 1), 471, vr(31, 54.5)[1], -1, [], tileAt, tileAt); us(443, 471, 31, 54.5, WH);
+    doorLeaf(457, vt(31), 0.95, 2.1, dir > 0 ? Math.PI : 0); signPlane('GUARDS', 0.9, 0.26, X(457), 2.42, Z(vt(31)) - dir * 0.2, dir > 0 ? Math.PI : 0, '#ffffff', '#16207a', {border: '#16207a'});
+    windowPane(452, vt(31), 1.2, 0.8, 1.7, 0);
+    // changing stalls with curtains along the outside wall, east of the toilets
+    for (let k = 0; k <= 5; k++) ub(486 + 4 * k - 0.1, 486 + 4 * k + 0.1, 0.6, 5.0, 0, 2.1, mat.white);
+    for (let k = 0; k < 5; k++){ const u = 486 + 4 * k, drawn = k % 2 === 0; ub(u + 0.3, drawn ? u + 3.7 : u + 1.6, 4.9, 5.05, 0.05, 2.0, k % 3 ? tealM : M('#e85050')); box(0.06, 0.06, 1.2, chromeM, X(u + 2), 2.05, Z(vt(4.95)), false); }
+    us(485.5, 506.5, 0, 5.2, 2.1);
+    // lockers and the sinks along the inside wall; the hand dryers by the door to the hall
+    { const w = 18 * S, lk = new THREE.MeshStandardMaterial({map: (() => { const cv = document.createElement('canvas'); cv.width = 512; cv.height = 128; const g = cv.getContext('2d'); g.fillStyle = '#2f5bc2'; g.fillRect(0, 0, 512, 128); g.fillStyle = '#1e3f8f'; for (let x = 0; x < 512; x += 30){ g.fillRect(x, 0, 2, 128); g.fillRect(x + 8, 20, 14, 2); g.fillRect(x + 8, 25, 14, 2); g.fillRect(x + 8, 30, 14, 2); g.fillRect(x + 22, 64, 3, 10); } const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.repeat.set(w / 5.1, 1); t.wrapS = THREE.RepeatWrapping; return t; })(), roughness: 0.5});
+      const b = ub(475, 493, 52.9, 54.4, 0, 1.85, [lockerM, lockerM, lockerM, lockerM, dir > 0 ? lk : lockerM, dir > 0 ? lockerM : lk]); us(475, 493, 52.6, 54.5, 1.85); }
+    ub(497, 518, 52.5, 54.4, 0.78, 0.86, mat.white); ub(497, 518, 52.8, 54.4, 0.05, 0.78, M('#e9e4d6')); us(497, 518, 52.3, 54.5, 0.9);
+    for (let k = 0; k < 5; k++){ const u = 499 + k * 4.2; cyl(0.2, 0.17, 0.14, mat.white, X(u), 0.9, Z(vt(53.3)), 14); cyl(0.02, 0.02, 0.2, chromeM, X(u), 1.02, Z(vt(53.9)), 6); const sp = cyl(0.02, 0.02, 0.18, chromeM, X(u), 1.1, Z(vt(53.6)), 6); sp.rotation.x = Math.PI / 2; }
+    ub(497.5, 517.5, 54.15, 54.3, 1.25, 2.0, M('#d7ecf6', {roughness: 0.15, metalness: 0.3})); ub(497.3, 517.7, 54.1, 54.32, 2.0, 2.06, chromeM, false); ub(497.3, 517.7, 54.1, 54.32, 1.19, 1.25, chromeM, false);
+    [519.5, 522].forEach(u => box(0.3, 0.26, 0.22, mat.white, X(u), 1.25, Z(vt(54.1)) - dir * 0.0, false));
+    // benches, cubbies along the east wall, trash cans, a floor drain
+    [[450, 466, 22], [486, 506, 24], [500, 516, 40]].forEach(([a, b, t]) => { const w = (b - a) * S; [-0.14, 0, 0.14].forEach(o => box(w, 0.045, 0.1, woodM, X((a + b) / 2), 0.45, Z(vt(t)) + o)); [-0.42, 0.42].forEach(f => box(0.08, 0.43, 0.36, darkM, X((a + b) / 2) + f * w, 0.215, Z(vt(t)))); us(a, b, t - 0.9, t + 0.9, 0.5); });
+    { const t0 = 4, t1 = 50, d = 0.42, x = X(U1) - 0.17 - d / 2; ub(U1 - 1.55, U1 - 1.45, t0, t1, 0, 1.6, woodM); [0.02, 0.55, 1.08, 1.58].forEach(y => { const [a, b] = vr(t0, t1); box(d, 0.04, (b - a) * S, woodM, x, y, Z((a + b) / 2)); }); for (let t = t0; t <= t1; t += 1.6){ box(d, 1.6, 0.04, woodM, x, 0.8, Z(vt(t))); } us(U1 - 1.6, U1, t0, t1, 1.6); }
+    [[440, 30], [520, 50]].forEach(([u, t]) => { cyl(0.28, 0.24, 0.8, M('#5b6068'), X(u), 0.4, Z(vt(t)), 12); trunks.push([X(u), Z(vt(t)), 0.32]); });
+    signPlane('▦', 0.4, 0.4, X(470), 0.07, Z(vt(18)), 0, null, '#4a4f58', {rotX: -Math.PI / 2, px: 300});
+    signPlane('NO RUNNING', 1.0, 0.26, X(434), 2.3, Z(inner) - dir * 0.17, dir > 0 ? Math.PI : 0, '#ffffff', '#d7263b', {border: '#d7263b'});
+    room3(id, [U0, vlo, U1, vhi], [roof], `In the ${name.toLowerCase()}' bathhouse`, note);
+  }
+  bathroom(89, +1, 'GIRLS', 'girls', 'The girls\' bathhouse. Shower before you swim. The hall at the back takes you out to the lot.');
+  bathroom(289, -1, 'BOYS', 'boys', 'The boys\' bathhouse. Shower before you swim. Its roof is where we play roof ball.');
+
+  // the row of offices between the girls' wing and the pit: the glass window room, the head guard office, first aid, storage. Doors on the pit side, the sign-in window on the deck.
+  brickBox(U0, 143.5, EU, 169, 0, WH); hip(U0, 143.5, EU, 169, WH + 0.1, 2.0); box((EU - U0) * S + 0.3, 0.2, 25.5 * S + 0.3, mat.trim, X((U0 + EU) / 2), WH, Z(156.25), false);
+  windowPane(U0, 156.25, 4.6, 1.3, 1.75, Math.PI / 2, 0.14); signPlane('SIGN IN', 1.3, 0.34, X(U0) - 0.2, 2.72, Z(156.25), -Math.PI / 2, '#ffffff', '#16207a', {border: '#16207a'});
+  [[457.5, 'HEAD GUARD', null], [483, 'FIRST AID', 60], [508.5, 'STORAGE', null]].forEach(([u, nm, cross]) => { doorLeaf(u, 169, 1.0, 2.15, 0); signPlane(nm, 1.4, 0.34, X(u), 2.5, Z(169) + 0.2, 0, '#ffffff', cross ? '#d7263b' : '#16207a', {border: cross ? '#d7263b' : '#16207a', cross}); });
+  windowPane(470, 169, 1.4, 0.9, 1.7, 0, 0.14); windowPane(495, 169, 1.4, 0.9, 1.7, 0, 0.14);
+  // the storage row south of the pit: maintenance storage with its roll-up door, and the guard shack with the arcade
+  brickBox(U0, 211, EU, 234.5, 0, WH); hip(U0, 211, EU, 234.5, WH + 0.1, 2.0); box((EU - U0) * S + 0.3, 0.2, 23.5 * S + 0.3, mat.trim, X((U0 + EU) / 2), WH, Z(222.75), false);
+  rollDoor(435, 211, 3.6, 2.6, Math.PI, false); signPlane('MAINTENANCE', 1.8, 0.34, X(435), 2.95, Z(211) - 0.2, Math.PI, '#ffffff', '#16207a', {border: '#16207a'});
+  doorLeaf(466, 211, 1.0, 2.15, Math.PI); signPlane('GUARD SHACK', 1.6, 0.34, X(466), 2.5, Z(211) - 0.2, Math.PI, '#ffffff', '#16207a', {border: '#16207a'}); windowPane(484, 211, 2.2, 0.9, 1.7, 0, 0.14); windowPane(506, 211, 1.4, 0.9, 1.7, 0, 0.14);
+  // the pit: the covered spot between the rows, open to the deck, the entrance hall behind it with one door through; the chimney against the back wall
+  const mid = new THREE.Group(); scene.add(mid);
+  wallRun(EU, 169, EU, 211, +1, [[174, 178.5, 2.2]], tileAt, brickAt);
+  wallRun(EU, 143.5, EU, 169, +1, [], tileAt, brickAt); wallRun(EU, 211, EU, 234.5, +1, [], tileAt, brickAt);
+  wallRun(U1, 143.5, U1, 234.5, -1, [[196, 203, 2.4]], tileAt, brickAt);
+  const slab = ubox(U0 - 0.3, 169 - 0.3, U1 + 0.6, 211 + 0.3, WH + 0.1, WH + 0.35, [flatRoofM, flatRoofM, flatRoofM, ceilM, flatRoofM, flatRoofM]); scene.remove(slab); mid.add(slab);
+  [[EU - 0.3, 143.5, U1 + 0.6, 169], [EU - 0.3, 211, U1 + 0.6, 234.5]].forEach(([a, b, c, d]) => { const s = ubox(a, b, c, d, WH + 0.1, WH + 0.35, [flatRoofM, flatRoofM, flatRoofM, ceilM, flatRoofM, flatRoofM]); scene.remove(s); mid.add(s); });
+  { const par = ubox(U1 + 0.3, 143.5, U1 + 0.6, 234.5, WH + 0.35, WH + 1.7, brickAt((234.5 - 143.5) * S, 1.35)); scene.remove(par); mid.add(par); const cap = ubox(U1 + 0.25, 143.3, U1 + 0.65, 234.7, WH + 1.7, WH + 1.82, mat.trim, false); scene.remove(cap); mid.add(cap); }   // the parapet over the entrance, where the sign goes
+  { const cv = document.createElement('canvas'); cv.width = 1024; cv.height = 192; const g = cv.getContext('2d'); g.fillStyle = '#16207a'; g.fillRect(0, 0, 1024, 192); g.strokeStyle = '#e8ecff'; g.lineWidth = 8; g.strokeRect(4, 4, 1016, 184); g.fillStyle = '#fff'; g.font = '900 104px Arial Black, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('LEVAGOOD POOL', 512, 100);
+    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; const sign = new THREE.Mesh(new THREE.PlaneGeometry(10.5, 1.95), new THREE.MeshStandardMaterial({map: t, roughness: 0.6})); sign.position.set(X(U1) + 0.19, WH + 1.05, Z(199.5)); sign.rotation.y = Math.PI / 2; mid.add(sign); }
+  { const cv = document.createElement('canvas'); cv.width = 1024; cv.height = 96; const g = cv.getContext('2d'); g.fillStyle = '#1f5f6b'; g.fillRect(0, 0, 1024, 96); g.fillStyle = '#d7e9ec'; for (let i = 0; i < 9; i++) g.fillRect(380 + i * 22, 22, 10, 52); g.fillStyle = '#d7263b'; g.fillRect(340, 22, 10, 52); g.fillStyle = '#9fc9d1'; g.fillRect(620, 22, 10, 52);
+    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; const f = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.75, 42 * S + 0.6), [new THREE.MeshStandardMaterial({map: t}), new THREE.MeshStandardMaterial({map: t}), tealDark, tealDark, tealDark, tealDark]); f.position.set(X(U0) - 0.1, WH + 0.0, Z(190)); f.castShadow = true; mid.add(f); }   // the teal fascia on the deck side
+  { const chim = ubox(515.5, 186, 520.8, 191.2, 0, 7.4, brickAt(1.5, 7.4)); const cap = ubox(515.2, 185.7, 521.1, 191.5, 7.4, 7.6, M('#6e6a63'), false); usolid(515.5, 186, 520.8, 191.2, 7.6); const hole = ubox(516.3, 186.8, 520, 190.4, 7.6, 7.7, darkM, false); }
+  // the pit's stuff: old cabinets and the desk along the north wall, the hose reel, the bike and the dollies on the south side, pipes and a pallet on the ground
+  [498, 501.6, 505.2].forEach(u => { ubox(u, 169.6, u + 3.3, 171.4, 0, 1.9, M('#c9b48c')); box(0.03, 1.7, 0.02, darkM, X(u + 1.65), 0.95, Z(171.4) + 0.02, false); [0.9, 1.4].forEach(y => box(0.05, 0.05, 0.1, chromeM, X(u + 1.3), y, Z(171.4) + 0.05, false)); usolid(u, 169.6, u + 3.3, 171.4, 1.9); });
+  { const u = 488, v = 171.8; box(1.7, 0.06, 0.8, woodM, X(u), 0.78, Z(v)); [-0.78, 0.78].forEach(o => box(0.08, 0.76, 0.7, darkM, X(u) + o, 0.38, Z(v))); box(0.5, 0.28, 0.4, M('#cfd3d8'), X(u) - 0.35, 0.95, Z(v) - 0.05); box(0.44, 0.42, 0.06, darkM, X(u) + 0.3, 1.0, Z(v) - 0.25); box(0.3, 0.02, 0.2, M('#e9e4d6'), X(u) + 0.35, 0.82, Z(v) + 0.1, false);
+    box(0.44, 0.06, 0.44, M('#3a3f47'), X(u), 0.45, Z(v) + 0.9); box(0.44, 0.45, 0.06, M('#3a3f47'), X(u), 0.68, Z(v) + 1.1); cyl(0.03, 0.03, 0.44, chromeM, X(u), 0.22, Z(v) + 0.9, 6); usolid(u - 3.2, 170.3, u + 3.2, 173.6, 1.0); }
+  { const u = 478, v = 171.6; const reel = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.13, 10, 24), red); reel.position.set(X(u), 0.75, Z(v)); reel.castShadow = true; scene.add(reel); const hose = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.1, 8, 20), M('#2e8a4a')); hose.position.set(X(u), 0.75, Z(v)); scene.add(hose); [-0.3, 0.3].forEach(o => box(0.06, 0.75, 0.06, darkM, X(u) + o, 0.37, Z(v))); box(0.9, 0.06, 0.5, darkM, X(u), 0.03, Z(v)); usolid(u - 1.7, 170.7, u + 1.7, 172.5, 1.0); }
+  { const u = 470, v = 209.2, x = X(u), z = Z(v); [-0.52, 0.52].forEach(o => { const w = new THREE.Mesh(new THREE.TorusGeometry(0.33, 0.035, 8, 24), darkM); w.position.set(x + o, 0.35, z); w.castShadow = true; scene.add(w); }); const bar = cyl(0.02, 0.02, 1.0, M('#2a52c4'), x, 0.78, z, 6); bar.rotation.z = Math.PI / 2; const dn = cyl(0.02, 0.02, 0.5, M('#2a52c4'), x + 0.2, 0.55, z, 6); dn.rotation.z = 0.5; const dn2 = cyl(0.02, 0.02, 0.5, M('#2a52c4'), x - 0.3, 0.55, z, 6); dn2.rotation.z = -0.4; box(0.26, 0.05, 0.14, darkM, x - 0.3, 0.86, z); cyl(0.02, 0.02, 0.5, chromeM, x + 0.52, 1.0, z, 6).rotation.x = Math.PI / 2; usolid(u - 3.2, 207.8, u + 3.2, 210.6, 0.9); }
+  [[504, 209.4], [507.5, 209.4]].forEach(([u, v]) => { const x = X(u), z = Z(v); [-0.2, 0.2].forEach(o => { const t = cyl(0.02, 0.02, 1.2, red, x + o, 0.62, z, 6); t.rotation.x = 0.35; }); [-0.2, 0.2].forEach(o => { const w = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.04, 8, 16), darkM); w.position.set(x + o * 1.4, 0.13, z - 0.1); w.rotation.y = Math.PI / 2; scene.add(w); }); box(0.5, 0.03, 0.3, M('#8a8e95'), x, 0.03, z + 0.2); cyl(0.02, 0.02, 0.44, red, x, 1.18, z + 0.2, 6).rotation.z = Math.PI / 2; usolid(u - 1.2, 208.2, u + 1.2, 210.6, 1.2); });
+  [[432, 206.5], [432, 207.3], [432, 208.1], [440, 206.9]].forEach(([u, v], i) => { const p = cyl(0.07, 0.07, 4.4, M(i === 3 ? '#9aa0a8' : '#6e7279'), X(u) + 2.2, 0.07 + (i === 2 ? 0.14 : 0), Z(v), 10); p.rotation.z = Math.PI / 2; }); usolid(432, 206, 448, 208.6, 0.3);
+  { const u = 440, v = 171.8; [-0.5, 0, 0.5].forEach(o => box(1.2, 0.08, 0.1, woodM, X(u), 0.11, Z(v) + o)); [-0.5, 0, 0.5].forEach(o => box(0.1, 0.1, 1.2, woodM, X(u) + o, 0.05, Z(v))); usolid(u - 2.3, 170, u + 2.3, 173.6, 0.2); }
+  groundText('WALK', 1.6, 0.6, 413.5, 181, Math.PI / 2); groundText('NO CHAIRS', 2.6, 0.6, 413.5, 200, Math.PI / 2);
+  strip([[X(418.3), Z(95)], [X(418.3), Z(289)]], 0.12, mat.red, 0.056);   // the red line down the deck edge by the building
+  room3('pit', [U0, 169, EU, 211], [mid], 'In the pit', 'The pit. Where Maintenance kept everything. This is where it started.');
+  // the entrance hall: white tile with a teal band, the long counter with the rules sign over it, the turnstile to the girls' side and the gate to the boys', the OPEN sign by the door
+  ubox(EU, 143.5, U1, 234.5, 0.05, 0.065, floorEntry, false);
+  [[EU + 0.6, 143.5, EU + 0.6, 234.5], [U1 - 0.6, 143.5, U1 - 0.6, 234.5]].forEach(([a, b, c, d]) => box(0.03, 0.14, (d - b) * S, tealM, X(a) + (a < 530 ? -0.0 : 0), 2.5, Z((b + d) / 2), false));
+  [[EU, U1, 143.5], [EU, U1, 234.5]].forEach(([a, b, v]) => box((b - a) * S, 0.14, 0.03, tealM, X((a + b) / 2), 2.5, Z(v) + (v < 189 ? 0.17 : -0.17), false));
+  ubox(EU + 0.6, 182, EU + 2.9, 210, 0.05, 1.08, mat.white); ubox(EU + 0.5, 181.9, EU + 3.0, 210.1, 1.08, 1.14, mat.white); ubox(EU + 2.95, 181.9, EU + 3.05, 210.1, 1.14, 1.2, tealM, false); ubox(EU + 0.6, 182, EU + 2.9, 210, 0.05, 0.14, tealM, false); usolid(EU, 182, EU + 3.0, 210, 1.2);
+  box(0.4, 0.28, 0.42, darkM, X(EU + 1.8), 1.28, Z(192)); box(0.3, 0.02, 0.3, M('#ffd84a'), X(EU + 1.6), 1.15, Z(203), false); box(0.3, 0.02, 0.3, M('#4dff9a'), X(EU + 2.2), 1.15, Z(205), false);   // the register, the wristbands
+  { const cv = document.createElement('canvas'); cv.width = 1024; cv.height = 512; const g = cv.getContext('2d'); g.fillStyle = '#ffffff'; g.fillRect(0, 0, 1024, 512); g.fillStyle = '#c8322e'; g.fillRect(0, 0, 1024, 92); g.fillStyle = '#fff'; g.font = '900 54px Arial Black, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('✚  POOL RULES AND REGULATIONS  ✚', 512, 48);
+    let y = 128; for (let i = 0; i < 14; i++){ g.fillStyle = i % 4 === 0 ? '#c8322e' : '#2b2b2b'; const n = 3 + Math.floor(tr() * 5); let x = 40; for (let k = 0; k < n; k++){ const w = 40 + tr() * 150; if (x + w > 984) break; g.fillRect(x, y, w, 12); x += w + 18; } y += 26; }
+    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; const s = new THREE.Mesh(new THREE.PlaneGeometry(2.8, 1.4), new THREE.MeshStandardMaterial({map: t, roughness: 0.6})); s.position.set(X(EU) + 0.17, 2.0, Z(197)); s.rotation.y = Math.PI / 2; scene.add(s); }
+  box(0.06, 0.72, 0.58, M('#6b4a2e'), X(EU) + 0.19, 2.0, Z(186)); box(0.02, 0.56, 0.42, M('#9a3b32'), X(EU) + 0.23, 2.0, Z(186), false);   // the framed picture
+  signPlane('POOL\n— — —\n— —', 0.5, 0.56, X(EU) + 0.17, 1.95, Z(206.5), Math.PI / 2, '#ffffff', '#2b2b2b', {border: '#2b2b2b'});
+  signPlane('OPEN', 0.7, 0.3, X(U1) - 0.17, 2.35, Z(193), -Math.PI / 2, '#0d2a1c', '#4dff9a', {border: '#4dff9a'});
+  signPlane('ENTRANCE', 2.0, 0.42, X(U1) + 0.2, 2.78, Z(199.5), Math.PI / 2, '#ffffff', '#16207a', {border: '#16207a'});
+  [[160, 1], [222, -1]].forEach(([v, s]) => { // the turnstile line and the gate line: rails across the hall with a one meter gap
+    [[EU + 0.3, 528.5], [532, U1 - 0.3]].forEach(([a, b]) => { const r = cyl(0.02, 0.02, (b - a) * S, chromeM, X((a + b) / 2), 0.95, Z(v), 8); r.rotation.z = Math.PI / 2; [a, b].forEach(u => cyl(0.03, 0.03, 0.95, chromeM, X(u), 0.475, Z(v), 8)); walls.push([X(a), Z(v), X(b), Z(v)]); });
+    if (s > 0){ cyl(0.09, 0.1, 1.0, chromeM, X(528.7), 0.5, Z(v), 12); for (let k = 0; k < 3; k++){ const a = k * Math.PI * 2 / 3 + 0.5, arm = cyl(0.018, 0.018, 0.5, chromeM, X(528.7) + Math.cos(a) * 0.0 + 0.27, 0.95 + Math.sin(a) * 0.25, Z(v) + Math.cos(a) * 0.25, 6); arm.rotation.z = Math.PI / 2; arm.rotation.y = a; } }
+    else { const gate = box(0.9, 0.5, 0.04, chromeM, X(531.8) - 0.0, 0.75, Z(v) + 0.3, false); gate.rotation.y = 1.2; } });
+  signPlane('GIRLS ▸', 1.3, 0.3, X(531.25), 2.42, Z(143.5) + 0.17, 0, '#ffffff', '#16207a', {border: '#16207a'}); signPlane('◂ BOYS', 1.3, 0.3, X(531.25), 2.42, Z(234.5) - 0.17, Math.PI, '#ffffff', '#16207a', {border: '#16207a'});
+  [155, 175, 198, 222].forEach(v => { const f = fluor(X(531.25), WH + 0.06, Z(v), 'z'); scene.remove(f); mid.add(f); });
+  cyl(0.3, 0.26, 0.9, M('#5b6068'), X(538.5), 0.45, Z(208), 12); trunks.push([X(538.5), Z(208), 0.34]);
+  room3('entry', [EU, 143.5, U1, 234.5], [mid], 'At the entrance', 'The entrance. The rules sign on the wall was made by Maintenance. Pay here, then the girls\' side is to the north and the boys\' to the south.');
+  walls.push([X(418), Z(289), X(U0), Z(289)]);   // the hair of fence between the deck fence and the building corner
 }
 // the bike rack on the apron, a bench by the front, the trash cans
 for (let k = 0; k < 7; k++){ const h = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.025, 8, 16, Math.PI), mat.chrome); h.position.set(X(498) + k * 0.6, 0.02, Z(302)); h.rotation.y = Math.PI / 2; scene.add(h); } solidBox(X(498) + 1.8, Z(302), 4.4, 0.8, 0.5);
 [[560, 150], [560, 232]].forEach(([x, y]) => { solidBox(X(x), Z(y), 0.5, 1.8, 0.9); box(0.45, 0.06, 1.8, M('#6b4a2e'), X(x), 0.45, Z(y)); box(0.05, 0.42, 1.8, M('#6b4a2e'), X(x) - 0.2, 0.72, Z(y)); [-0.7, 0.7].forEach(o => box(0.4, 0.45, 0.06, mat.dark, X(x), 0.22, Z(y) + o)); });
 [[552, 135], [552, 247], [424, 300]].forEach(([x, y]) => { cyl(0.3, 0.26, 0.9, M('#5b6068'), X(x), 0.45, Z(y)); trunks.push([X(x), Z(y), 0.36]); });
+
+}
 // ---------------- the concession square: canopy, Nutty Dip, tables ----------------
 [[335, 39], [359, 39], [335, 62], [359, 62]].forEach(([x, y]) => { box(0.15, 2.6, 0.15, mat.white, X(x), 1.3, Z(y)); trunks.push([X(x), Z(y), 0.12]); });
 hipRoof(334, 38, 360, 63, 2.6, 1.5, M('#d7263b', {roughness: 0.75, side: THREE.DoubleSide}));
@@ -720,8 +907,6 @@ for (let k = 1; k < 10; k++){
 mapCar(454, 68, '#f2f3f6', 5.2, 2.05);   // the white Navigator
 mapCar(470, 68, '#c9a23e');              // Grandma's gold Cutlass
 fences.forEach(f => walls.push(f));
-// the bathhouse's outer walls, with the front door and the hall open
-[[420, 89, 541, 89], [418, 289, 541, 289], [541, 89, 541, 146], [541, 236, 541, 289]].forEach(([a, b, c, d]) => walls.push([X(a), Z(b), X(c), Z(d)]));
 
 // ---------------- trees: tall spruces and pines along the edges, big maples and oaks in the open ----------------
 function spruce(x, z, h){ forest.add('spruce', x, z, h * 1.05); trunks.push([x, z, 0.45]); }
@@ -889,13 +1074,14 @@ function inPool(x, z){ const u = (x - SITE[0]) / S, v = (z - SITE[1]) / S;
   if (u > 335 && ((u - 335) / 52.6) ** 2 + ((v - 208) / 62.4) ** 2 < 1) return 'zero'; return null; }
 function onDeck(x, z){ return Math.hypot((x - SITE[0]) / S - CX, (z - SITE[1]) / S - CY) < DECK_R; }
 function placeName(x, z){
+  { const rm = roomAt(x, z); if (rm) return rm.name; }
   for (const p of D.pitches) if (inPoly(x, z, p.pts)) return p.sport === 'baseball' ? 'On a ball diamond' : 'On the ' + p.sport + ' court';
   for (const p of D.playgrounds) if (inPoly(x, z, p)) return 'At the playground';
   const pl = inPool(x, z); if (pl) return pl === 'dive' ? 'In the diving well' : pl === 'lap' ? 'In the lap pool' : 'In the zero depth';
   if (D.rink.length && inPoly(x, z, D.rink)) return 'On the rink';
   if (onDeck(x, z)) return 'On the pool deck';
   if (onSite([x, z]) && (x - SITE[0]) / S > 420 && (z - SITE[1]) / S > 300) return 'In the pool lot';
-  if (onSite([x, z]) && (x - SITE[0]) / S > 420 && (x - SITE[0]) / S < 541 && (z - SITE[1]) / S > 89 && (z - SITE[1]) / S < 289) return 'In the bathhouse';
+  if (onSite([x, z]) && (x - SITE[0]) / S > 420 && (x - SITE[0]) / S < 541 && (z - SITE[1]) / S > 89 && (z - SITE[1]) / S < 289) return 'By the bathhouse';
   if (onSite([x, z]) && (x - SITE[0]) / S > 541) return 'On the drive';
   if (onSite([x, z]) && (x - SITE[0]) / S < 420) return 'On the grass by the pool';
   for (const p of D.parking) if (inPoly(x, z, p)) return 'In the parking lot';
@@ -1478,7 +1664,8 @@ function mhGait(r, P, dt, run, jog, G, sz){
   arm('R', cL); arm('L', cR);
 }
 // the paving sits a couple of inches proud of the grass: real feet stand on top of it, not in it
-function surfY(x, z){ const u = (x - SITE[0]) / S, v = (z - SITE[1]) / S; return onDeck(x, z) || (u > 328 && u < 595 && v > 0 && v < 420 && (u >= 420 || (v > 28 && v < 92))) ? 0.047 : 0.006; }
+function surfY(x, z){ const u = (x - SITE[0]) / S, v = (z - SITE[1]) / S, rm = roomAt(x, z); if (rm && rm.id !== 'pit') return 0.066;   // the rooms have their own floor, a little above the deck
+  return onDeck(x, z) || (u > 328 && u < 595 && v > 0 && v < 420 && (u >= 420 || (v > 28 && v < 92))) ? 0.047 : 0.006; }
 const mhCull = new THREE.Sphere(), mhFrustum = new THREE.Frustum(), mhMat = new THREE.Matrix4(); let mhStamp = -1;
 // the pose, laid onto the richer skeleton: the spine and the neck share a bend over their joints, a raised arm lifts its collar bone,
 // the wrists and the toes take what the animator gives them, and the fingers ease toward open or closed
@@ -1795,10 +1982,10 @@ const hourNow = () => 11 + dayT / DAY_LEN * 9;
 const clockText = () => { const h = hourNow(), hh = Math.floor(h), mm = Math.floor((h - hh) * 60); return (hh > 12 ? hh - 12 : hh) + ':' + (mm < 10 ? '0' : '') + mm + (hh >= 12 ? ' pm' : ' am'); };
 
 // ---------------- the fenced parts of the site and the openings between them ----------------
-const WP = {hallW: [424, 218], hallE: [536, 218], door: [549, 218], lotMid: [548, 300], lotS: [548, 384], grassW: [430, 399], cgS: [371, 96], cgIn: [371, 88], cgN1: [348, 31], cgN2: [348, 22]};
-const EDGES = [['deck', 'hall', ['hallW']], ['hall', 'front', ['hallE', 'door']], ['front', 'sw', ['lotMid', 'lotS', 'grassW']], ['deck', 'conc', ['cgS', 'cgIn']], ['conc', 'north', ['cgN1', 'cgN2']]];
+const WP = {hallW: [426, 190], pitE: [516, 176.2], entIn: [527, 176.2], entMid: [531, 199.5], door: [549, 199.5], lotMid: [548, 300], lotS: [548, 384], grassW: [430, 399], cgS: [371, 96], cgIn: [371, 88], cgN1: [348, 31], cgN2: [348, 22]};
+const EDGES = [['deck', 'hall', ['hallW']], ['hall', 'front', ['pitE', 'entIn', 'entMid', 'door']], ['front', 'sw', ['lotMid', 'lotS', 'grassW']], ['deck', 'conc', ['cgS', 'cgIn']], ['conc', 'north', ['cgN1', 'cgN2']]];
 function region(x, z){ const u = (x - SITE[0]) / S, v = (z - SITE[1]) / S;
-  if (u >= 328 && u <= 420 && v >= 28 && v <= 92) return 'conc'; if (u >= 420 && u <= 541 && v >= 146 && v <= 236) return 'hall'; if (u > 541) return 'front';
+  if (u >= 328 && u <= 420 && v >= 28 && v <= 92) return 'conc'; if (u >= 420 && u <= 541 && v >= 143.5 && v <= 234.5) return 'hall'; if (u > 541) return 'front';
   if (v >= 395) return u < 420 ? 'sw' : 'front'; if (u > 420) return 'front'; if (v < 28) return 'north'; if (Math.hypot(u - CX, v - CY) > DECK_R + 2) return (u > 300 && v > 300) ? 'deck' : 'north'; return 'deck'; }   // the grass by the towels is inside the fence, a straight walk from the deck
 function routeWps(from, to){ if (from === to) return []; const prev = {[from]: null}, q = [from]; while (q.length){ const r = q.shift(); if (r === to) break; for (const [a, b] of EDGES){ const n = a === r ? b : b === r ? a : null; if (n && !(n in prev)){ prev[n] = r; q.push(n); } } }
   if (!(to in prev)) return []; const chain = []; for (let r = to; r; r = prev[r]) chain.unshift(r); const out = [];
@@ -1808,13 +1995,16 @@ function routeWps(from, to){ if (from === to) return []; const prev = {[from]: n
 // the pools as boxes with a little margin, in map units: a walk that would cross one goes around by the nearest corner
 const POOL_BOX = [[210.5, 119.5, 300, 302], [134.5, 119.5, 184.5, 234.5], [332, 142.6, 390.6, 273.4]];
 function segBox(ax, az, bx, bz, B){ let t0 = 0, t1 = 1; const dx = bx - ax, dz = bz - az; for (const [p, q] of [[-dx, ax - B[0]], [dx, B[2] - ax], [-dz, az - B[1]], [dz, B[3] - az]]){ if (p === 0){ if (q < 0) return false; } else { const t = q / p; if (p < 0){ if (t > t1) return false; if (t > t0) t0 = t; } else { if (t < t0) return false; if (t < t1) t1 = t; } } } return true; }
-function poolDetour(from, to){ const u0 = (from[0] - SITE[0]) / S, v0 = (from[1] - SITE[1]) / S, u1 = (to[0] - SITE[0]) / S, v1 = (to[1] - SITE[1]) / S;
-  for (const B of POOL_BOX){ if (!segBox(u0, v0, u1, v1, B)) continue; if (u1 > B[0] && u1 < B[2] && v1 > B[1] && v1 < B[3]) continue;   // the target is in the margin (a ladder, the edge): go straight
-    let pu = u0, pv = v0; if (pu > B[0] && pu < B[2] && pv > B[1] && pv < B[3]){ const dl = pu - B[0], dr = B[2] - pu, dn = pv - B[1], ds = B[3] - pv, m = Math.min(dl, dr, dn, ds); if (m === dl) pu = B[0] - 0.5; else if (m === dr) pu = B[2] + 0.5; else if (m === dn) pv = B[1] - 0.5; else pv = B[3] + 0.5; }   // standing in the margin: reckon from just outside it
-    const o = 3, corners = [[B[0] - o, B[1] - o], [B[2] + o, B[1] - o], [B[0] - o, B[3] + o], [B[2] + o, B[3] + o]]; let best = null, bd = 1e9;
-    for (const c of corners){ if (Math.hypot(c[0] - pu, c[1] - pv) < 1.2) continue; const d = Math.hypot(c[0] - pu, c[1] - pv) + Math.hypot(u1 - c[0], v1 - c[1]) + (segBox(pu, pv, c[0], c[1], B) ? 1e3 : 0) + (segBox(c[0], c[1], u1, v1, B) ? 200 : 0); if (d < bd){ bd = d; best = c; } }   // the shortest way round: a corner you can reach dry, and that gets you on toward the target dry if one does
-    return best ? [X(best[0]), Z(best[1])] : null; }
-  return null; }
+// does a straight walk get wet? Check the real water every third of a meter, not a box around it
+function wetAlong(ax, az, bx, bz){ const L = Math.hypot(bx - ax, bz - az), n = Math.max(2, Math.ceil(L / 0.35)); for (let i = 1; i < n; i++){ const t = i / n, p = inPool(ax + (bx - ax) * t, az + (bz - az) * t); if (p) return p; } return null; }
+const POOL_BY = {lap: POOL_BOX[0], dive: POOL_BOX[1], zero: POOL_BOX[2]};
+function poolDetour(from, to){
+  if (inPool(to[0], to[1]) || inPool(from[0], from[1])) return null;   // headed into the water on purpose, or already in it
+  const p = wetAlong(from[0], from[1], to[0], to[1]); if (!p) return null;
+  const B = POOL_BY[p], o = 3, corners = [[B[0] - o, B[1] - o], [B[2] + o, B[1] - o], [B[0] - o, B[3] + o], [B[2] + o, B[3] + o]].map(c => [X(c[0]), Z(c[1])]); let best = null, bd = 1e9;
+  for (const c of corners){ const dc = Math.hypot(c[0] - from[0], c[1] - from[1]); if (dc < 0.75) continue;   // already at this corner: pick the next one
+    const d = dc + Math.hypot(to[0] - c[0], to[1] - c[1]) + (wetAlong(from[0], from[1], c[0], c[1]) ? 1e3 : 0) + (wetAlong(c[0], c[1], to[0], to[1]) ? 150 : 0); if (d < bd){ bd = d; best = c; } }
+  return best; }
 // the nearest dry spot just outside a pool, for anyone who ends up in the water by accident
 function poolExit(x, z){ const u = (x - SITE[0]) / S, v = (z - SITE[1]) / S, p = inPool(x, z); if (!p) return null;
   if (p === 'zero'){ const du = (u - 335) / 52.6, dv = (v - 208) / 62.4, r = Math.hypot(du, dv) || 0.01; if (u - 335 < 4) return [X(334), Z(v)]; return [X(335 + du / r * 54.6), Z(208 + dv / r * 64.4)]; }
@@ -1831,8 +2021,10 @@ function solidDetour(from, to, rad = 0.4){
   return best; }
 function moveNpc(n, tgt, dt, speed, stop = 0.5){
   if (!n.inWater){ const ex = poolExit(n.x, n.z); if (ex){ n.x = ex[0]; n.z = ex[1]; } }   // nobody walks on water: step back onto the deck
+  { const dT = Math.hypot(tgt[0] - n.x, tgt[1] - n.z); if (!n.prog || Math.hypot(n.prog.x - tgt[0], n.prog.z - tgt[1]) > 2){ n.prog = {x: tgt[0], z: tgt[1], best: dT, t: 0}; } else if (dT < n.prog.best - 0.5){ n.prog.best = dT; n.prog.t = 0; } else n.prog.t += dt;
+    if (n.prog.t > 6){ n.prog.t = 0; n.prog.best = dT; n.wps = null; for (let k = 0; k < 8; k++){ const a0 = Math.random() * Math.PI * 2, nx_ = n.x + Math.sin(a0) * 3, nz_ = n.z + Math.cos(a0) * 3; if (!inPool(nx_, nz_) && !wetAlong(n.x, n.z, nx_, nz_)){ n.nudge = {x: nx_, z: nz_, t: 2.5}; break; } } } }
   if (!n.wps || n.rT !== region(tgt[0], tgt[1]) || (n.wps.length && n.stuck > 2)){ n.rT = region(tgt[0], tgt[1]); n.wps = routeWps(region(n.x, n.z), n.rT); n.stuck = 0; }
-  let nxt = n.wps.length ? n.wps[0] : tgt; const det = poolDetour([n.x, n.z], nxt); if (det && Math.hypot(det[0] - n.x, det[1] - n.z) > 0.6) nxt = det;
+  let nxt = n.wps.length ? n.wps[0] : tgt; const det = poolDetour([n.x, n.z], nxt); if (det) nxt = det;
   // stuck on something (a chair, a stand, a lounger): sidestep for a moment, then try again
   if ((n.stuck || 0) > 0.8 && !n.nudge){ const a0 = Math.atan2(nxt[0] - n.x, nxt[1] - n.z) + (Math.random() < 0.5 ? 1 : -1) * Math.PI / 2; n.nudge = {x: n.x + Math.sin(a0) * 1.8, z: n.z + Math.cos(a0) * 1.8, t: 1.5}; n.stuck = 0; }
   if (n.nudge){ n.nudge.t -= dt; if (n.nudge.t <= 0 || Math.hypot(n.nudge.x - n.x, n.nudge.z - n.z) < 0.3 || inPool(n.nudge.x, n.nudge.z)) n.nudge = null; else nxt = [n.nudge.x, n.nudge.z]; }
@@ -2518,6 +2710,7 @@ function throwToy(t, from, opts){ const a = holderActor(t); a.g.updateMatrixWorl
 // the toy in flight, bouncing, rolling, floating
 function toyStep(dt){
   for (const t of Object.values(TOYS)){
+    t.wetT = t.state === 'water' ? (t.wetT || 0) + dt : 0;
     if (t.state === 'hand'){ const a = holderActor(t); if (!a || (t.by !== 'me' && (!t.by.plan || !t.by.plan.fetchPlay))){ dropToyAt(t, t.by && t.by.x !== undefined ? t.by.x : t.x, t.by && t.by.z !== undefined ? t.by.z : t.z); continue; } a.g.updateMatrixWorld(true); handOf(a).getWorldPosition(tmpV); t.x = tmpV.x; t.y = tmpV.y; t.z = tmpV.z; t.m.rotation.set(0, a.g.rotation.y, 0); }
     else if (t.state === 'mouth'){ const a = t.by.a; a.g.updateMatrixWorld(true); mouthOf(a).getWorldPosition(tmpV); t.x = tmpV.x; t.y = tmpV.y; t.z = tmpV.z; t.m.rotation.set(0, a.g.rotation.y, 0); }
     else if (t.state === 'air'){
@@ -2535,11 +2728,16 @@ function toyStep(dt){
         const pool = inPool(t.x, t.z); if (pool && pool !== 'zero'){ t.y = 0.02; setToy(t, 'water'); splash(t.x, t.z, true, 0.3); } else if (pool === 'zero') t.y = t.r - zeroDepth(t.x, t.z); } }
     else if (t.state === 'water'){ const pool = inPool(t.x, t.z);   // it floats and the pump current drifts it to the wall
       if (!pool || (pool === 'zero' && zeroDepth(t.x, t.z) < 0.05)){ dropToyAt(t, t.x, t.z); continue; }
-      if (pool !== 'zero'){ const e = poolEdge(t.x, t.z); if (e.gap > 0.32){ const dx = e.wall[0] - t.x, dz = e.wall[1] - t.z, d = Math.hypot(dx, dz) || 1; t.x += dx / d * 0.22 * dt; t.z += dz / d * 0.22 * dt; } }
+      if (pool !== 'zero'){ const e = poolEdge(t.x, t.z); if (e.gap > 0.32){ const dx = e.wall[0] - t.x, dz = e.wall[1] - t.z, d = Math.hypot(dx, dz) || 1; t.x += dx / d * 0.55 * dt; t.z += dz / d * 0.55 * dt; } }
       t.y = 0.02 + Math.sin(performance.now() / 420 + t.x) * 0.012; t.m.rotation.y += dt * 0.3; }
     t.m.position.set(t.x, t.y, t.z);
   }
 }
+// a toy stuck out in the deep water: leva skims it out with the net and sets it on the deck
+function levaSkim(n){ if (n.played || n.plan) { if (PLAYER.id === 'leva') for (const t of Object.values(TOYS)) if (t.state === 'water' && t.wetT > 25 && !t.told && inPool(t.x, t.z) !== 'zero'){ t.told = true; hint(`${t.name} is floating in the pool. Swim out and grab it (${touch ? 'Grab' : 'F'}).`, 5000); } return; }
+  for (const t of Object.values(TOYS)){ const p = t.state === 'water' && inPool(t.x, t.z); if (!p || p === 'zero' || t.wetT < 25 || [ari, byId.luke].some(d => d && d.fetch && d.fetch.toy === t)) continue;
+    const e = poolEdge(t.x, t.z), out = [e.pt[0] + (e.pt[0] - e.wall[0]) * 0.8, e.pt[1] + (e.pt[1] - e.wall[1]) * 0.8];
+    plan(n, [S_go(e.pt, 2.4, 0.5), S_act('volley', 1.4, Math.atan2(t.x - e.pt[0], t.z - e.pt[1])), S_fn(() => { if (t.state === 'water'){ dropToyAt(t, out[0], out[1]); t.told = false; event('leva', `Skimmed ${t.name} out of the pool.`); } })], `skimming ${t.name} out of the pool`); return; } }
 // the deck spot right at a pool's wall nearest a point, and how far that point is from the wall (meters)
 function poolEdge(x, z){ const u = (x - SITE[0]) / S, v = (z - SITE[1]) / S, p = inPool(x, z);
   if (p === 'zero'){ const ex = poolExit(x, z) || [x, z]; return {pt: ex, wall: ex, gap: Math.hypot(ex[0] - x, ex[1] - z)}; }
@@ -2698,7 +2896,7 @@ function fetchPlay(n){
       act, S_fn(m => { if (t.state === 'hand' && t.by === m) throwToy(t, m, {to: spot}); }), S_act('idle', 0.5),
       S_until(m => t.state === 'ground' && Math.hypot(t.x - m.x, t.z - m.z) < 3.5 && !dog.fetch, 25, 'idle'),
       S_fn(m => { if (--rounds > 0 && t.state === 'ground' && Math.hypot(t.x - m.x, t.z - m.z) < 4) m.plan.steps.push(...round()); else event(m.id, `Played fetch with ${dog.name} on the deck.`); })]; };
-  plan(n, round(), `playing fetch with ${dog.name}`); n.plan.fetchPlay = true; return true;
+  plan(n, round(), `playing fetch with ${dog.name}`, undefined, true); n.plan.fetchPlay = true; return true;   // soft: when the schedule says lunch, the game ends
 }
 
 // ---------------- the panel: what he knows ----------------
@@ -3069,6 +3267,8 @@ function walkStep(dt){
   if (swimming && sp > 0.4 && me.kick === 0) sfx('plip', 1);
   if (me.dive){ me.dive.t += dt; pivotPitch(player, me.x, me.y, me.z, me.face, diveRot(me.dive), (player.hipY || 0.8) * (player.size || 1) * 0.9); }   // flips turn around the hips
   splashStep(dt); poolUi(swimming);
+  { const rm = roomAt(me.x, me.z), want = rm ? rm.roofs : []; ROOF_GROUPS.forEach(g => { const vis = !want.includes(g); if (g.visible !== vis) g.visible = vis; });
+    if (rm !== lastRoom){ lastRoom = rm; if (rm && !rm.seen){ rm.seen = true; hint(rm.note, 5000); } } }
   // the camera, behind you, kept out of the walls
   const cfull = camDist, cy0 = me.y + 1.4; const tx = me.x + Math.sin(camYaw) * Math.cos(camPitch) * cfull, tz = me.z + Math.cos(camYaw) * Math.cos(camPitch) * cfull, ty = Math.max(0.5, cy0 + Math.sin(camPitch) * cfull);
   const reach = camReach(me.x, me.z, tx, tz, ty); const cd = Math.max(0.5, cfull * reach - 0.25); camNear = camNear === undefined ? cd : (cd < camNear ? cd : camNear + (cd - camNear) * Math.min(1, dt * 3));
@@ -3102,12 +3302,12 @@ function crewTick(dt){
         if (n.id !== 'gma'){ const want = Math.atan2(me.x - n.x, me.z - n.z); let dd = want - n.a.g.rotation.y; while (dd > Math.PI) dd -= Math.PI * 2; while (dd < -Math.PI) dd += Math.PI * 2; n.a.g.rotation.y += dd * Math.min(1, dt * 6); }
         if (n.id !== 'ari'){ if (n.inWater && n.a.set) n.a.set('tread'); n.a.tick(dt, false); }
         n.tag.visible = n.a.dog ? d < 18 : d < 7; return; } }
-    if (n.id === 'leva'){ levaWatch(n, dt); levaFetch(n, dt); }
+    if (n.id === 'leva'){ levaWatch(n, dt); levaFetch(n, dt); levaSkim(n); }
     if (n.id === 'luke') lukeThink(n, dt); else if (n.id !== 'ari' && (SCHED[n.id] || PICK[n.id])) crewStep(n, dt); else if (n.id !== 'ari') n.a.tick(dt, false);
     n.tag.visible = n.a.dog ? d < 18 : d < 7; });
   guardsStep(dt); toyStep(dt); heartsStep(dt); playerToyStep(dt); if (wantWave){ wantWave = false; if (!toyUsed) emote(); } toyUsed = false;   // F waves, unless there was a toy to pick up or throw
   if (PLAYER.id === 'leva' && MIND.plan && MIND.plan.goal === 'sneak' && MIND.plan.steps[MIND.plan.i].kind === 'paddle' && !MIND.plan.told){ MIND.plan.told = true; hint('Ari is in the lap pool. Go get him out.', 5000); }
-  const rbD = RB.active ? -1 : RB.idle(me.x, me.z); rbNear = rbD >= 0 && (!near || rbD < nd) && me.ground && !inWater && !me.dive && !me.exit; if (rbNear) near = null;   // the ball by the boys' bathhouse wall
+  const rbD = RB.active ? -1 : RB.idle(me.x, me.z); rbNear = rbD >= 0 && (!near || rbD < nd) && me.ground && !inWater && !me.dive && !me.exit; if (rbNear) near = null;   // the ball by the guard shack wall
   nearNpc = near; if (player.face && !RB.active) player.face.target = near && near.a.head && Math.hypot(near.x - me.x, near.z - me.z) < 5 ? near.a.head.getWorldPosition(headTmp2) : null;
   const verb = rbNear ? 'Play roof ball' : near ? 'Talk to ' + near.name : '', showP = !!verb && !insideOpen && !chat.n && !RB.active;
   prompt.innerHTML = verb ? (touch ? verb : `<kbd>${pad.on ? 'X' : 'E'}</kbd> ${verb}`) : ''; prompt.classList.toggle('on', showP); talkBtn.textContent = rbNear ? 'Roof ball' : 'Talk'; talkBtn.classList.toggle('on', showP);
@@ -3132,7 +3332,7 @@ function emote(){ if (me.act || inWater || me.dive || me.exit || chat.n || RB.ac
     setTimeout(() => { if (kid && d < 2.0){ gesture(n.a, 'five', true); gesture(player, 'five', true); setTimeout(() => { sfx('clap'); credit('five', n.id); }, 380); } else gesture(n.a, kid ? 'waveBig' : 'wave', true); }, 300 + Math.random() * 350); });
   GUARDS.forEach(gd => { if (Math.hypot(gd.a.g.position.x - me.x, gd.a.g.position.z - me.z) < 12){ guards++; setTimeout(() => gesture(gd.a, 'wave', true), 400 + Math.random() * 400); } });
   if (guards) setTimeout(() => credit('guard'), 700); }
-let chatLift = 0, camNear, talkT = 0, talker = null, runHeld = false; const headTmp = new THREE.Vector3(), headTmp2 = new THREE.Vector3();
+let lastRoom = null, chatLift = 0, camNear, talkT = 0, talker = null, runHeld = false; const headTmp = new THREE.Vector3(), headTmp2 = new THREE.Vector3();
 // when the camera has to come in close, you go see-through so it never sits inside your head
 let fadeMats = null, fadeNow = 1;
 function fadePlayer(a){ if (Math.abs(a - fadeNow) < 0.01) return; fadeNow = a; if (!fadeMats){ fadeMats = []; player.g.traverse(o => { if (o.isMesh && o.material && !o.isSprite){ (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { if (!fadeMats.includes(m)) fadeMats.push(m); }); } }); }
@@ -3227,7 +3427,7 @@ function drawFrame(){
   if (post) post.render(scene, camera); else renderer.render(scene, camera);
 }
 renderer.setAnimationLoop(() => { const dt = Math.min(0.05, clock.getDelta()); govern(); ambience(dt); GFX.tick(dt); dayStep(dt); printsStep(dt); if (mode === 'walk') walkStep(dt); else { orbit.update(); camNow += dt; think(dt, camNow); guardsStep(dt); } peopleStep(dt); drawFrame(); });
-window.__park3d = {RB, CARD, SND, GOV, sfx, credit, helpShow, menuShow, crewTick, scene, camera, me, setMode, D, poolC, X, Z, S, SITE, inPool, onDeck, placeName, NPC, STARS, talk, save, keys, MIND, FOUND, openInside, closeInside, openChat, closeChat, ask, pocket, CARDS, memOf, endOfDay, moodOf, region, routeWps, brain, get player(){ return player; }, jump: () => { wantJump = true; }, cam: () => [camYaw, camPitch], setCam: (y, p) => { camYaw = y; camPitch = p; camTouched = camNow; }, setDay: t => { dayT = t; }, step: (dt, n = 1) => { for (let i = 0; i < n; i++) walkStep(dt); }, pause: () => renderer.setAnimationLoop(null), draw: () => drawFrame(), render: () => { dayStep(0.001); camLod.copy(camera.position); for (let i = 0; i < 20; i++){ NPC.forEach(n => { if (n.id !== 'ari') n.a.tick(0.03); }); if (player) player.tick(0.03); } drawFrame(); }, sky, sunRig, sun, renderer, TIER, GFX, orbit, get mode(){ return mode; }, gesture, GEST, fade: a => fadePlayer(a), lod: () => camLod.copy(camera.position), shadowAt: v => { shadowAt = v; }, bladesAt: v => { bladesAt = v; }, BATCH, water, forest, blades, get post(){ return post; }, walls, solids, trunks, STANDS, GUARDS, CHAINS, guardChange: startChanges, zeroDepth, setPlayer, get who(){ return PLAYER.id; }, byId, bubble, runPlan, get levaN(){ return levaN; }, LUKE, poolDetour, moveNpc, JUMPS, startDive, waterAhead, startExit, exitOptions, bigSplash, get DROPS(){ return DROPS; }, LADDERS, TOYS, DOGS, hearCue, reward, playerDog, fetchPlay, throwToy, setToy, dogOf, skillOf, ari, playerToy, dogHears};
+window.__park3d = {RB, CARD, SND, GOV, sfx, credit, helpShow, menuShow, crewTick, scene, camera, me, setMode, D, poolC, X, Z, S, SITE, inPool, onDeck, placeName, NPC, STARS, talk, save, keys, MIND, FOUND, openInside, closeInside, openChat, closeChat, ask, pocket, CARDS, memOf, endOfDay, moodOf, region, routeWps, brain, get player(){ return player; }, jump: () => { wantJump = true; }, cam: () => [camYaw, camPitch], setCam: (y, p) => { camYaw = y; camPitch = p; camTouched = camNow; }, setDay: t => { dayT = t; }, step: (dt, n = 1) => { for (let i = 0; i < n; i++) walkStep(dt); }, pause: () => renderer.setAnimationLoop(null), draw: () => drawFrame(), render: () => { dayStep(0.001); camLod.copy(camera.position); for (let i = 0; i < 20; i++){ NPC.forEach(n => { if (n.id !== 'ari') n.a.tick(0.03); }); if (player) player.tick(0.03); } drawFrame(); }, sky, sunRig, sun, renderer, TIER, GFX, orbit, get mode(){ return mode; }, gesture, GEST, fade: a => fadePlayer(a), lod: () => camLod.copy(camera.position), shadowAt: v => { shadowAt = v; }, bladesAt: v => { bladesAt = v; }, BATCH, water, forest, blades, get post(){ return post; }, walls, solids, trunks, STANDS, GUARDS, CHAINS, guardChange: startChanges, zeroDepth, setPlayer, get who(){ return PLAYER.id; }, byId, bubble, runPlan, get levaN(){ return levaN; }, LUKE, poolDetour, moveNpc, ROOMS3, roomAt, ROOF_GROUPS, JUMPS, startDive, waterAhead, startExit, exitOptions, bigSplash, get DROPS(){ return DROPS; }, LADDERS, TOYS, DOGS, hearCue, reward, playerDog, fetchPlay, throwToy, setToy, dogOf, skillOf, ari, playerToy, dogHears};
 </script>
 </body>
 </html>
