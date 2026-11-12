@@ -152,7 +152,8 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #00
   }
 
   // the download button points at the latest release, or the site's download page
-  try { const m = await (await fetch(window.LEVA.API + "/manifest.json")).json(); if (m.app && m.app.url) { $("download").href = m.app.url; $("download").textContent = `Download leva ${m.app.version} for Mac`; } else $("download").href = "index.html#download"; } catch (_) { $("download").href = "index.html#download"; }
+  const noDownload = () => { $("download").href = "index.html#contact"; $("download").removeAttribute("target"); $("download").textContent = "Ask about leva for Mac"; };
+  try { const m = await (await fetch(window.LEVA.API + "/manifest.json")).json(); if (m.app && m.app.url) { $("download").href = m.app.url; $("download").textContent = `Download leva ${m.app.version} for Mac`; } else noDownload(); } catch (_) { noDownload(); }
 
   if (params.get("verify")) {
     show("verifying");

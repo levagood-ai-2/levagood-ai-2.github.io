@@ -2638,7 +2638,7 @@
     {id: 'howl', name: 'Sing-Along', desc: 'Hear Ari howl along with Mel.', pts: 25, icon: 'note'},
     {id: 'cards', name: 'Catfish Cards', desc: 'Hear all 10 catfish facts on the deck as Mel learns them from leva.', pts: 100, icon: 'catfish'},
     {id: 'test', name: 'Water Tester', desc: 'Ask leva to test the water.', pts: 10, icon: 'drop'},
-    {id: 'connect', name: 'Networker', desc: 'Ask leva what Connect Space does.', pts: 15, icon: 'talk'},
+    {id: 'connect', name: 'Local History', desc: 'Ask leva how levagood got its name.', pts: 15, icon: 'talk'},
     {id: 'explorer', name: 'Explorer', desc: 'Open every pink building on the map.', pts: 40, icon: 'key'},
     {id: 'gamer', name: 'Guard Shack Gamer', desc: 'Score 15 in Invaders.', pts: 25, icon: 'invader'},
     {id: 'clear', name: 'All Clear', desc: 'Clear every invader.', pts: 75, icon: 'star'},
@@ -2691,7 +2691,7 @@
     leaves: {g: 'a', text: 'Net 5 leaves off the water.', need: 5, say: 'net 5 leaves off the water'},
     test: {g: 'b', text: 'Ask leva to test the water.', need: 1, say: 'ask me to test the water'},
     weather: {g: 'b', text: 'Ask leva how the weather is in Dearborn.', need: 1, say: 'ask me how the weather is in Dearborn'},
-    connect: {g: 'b', text: 'Ask leva what Connect Space does.', need: 1, say: 'ask me what Connect Space does'},
+    connect: {g: 'b', text: 'Ask leva how levagood got its name.', need: 1, say: 'ask me how levagood got its name'},
     pump: {g: 'b', text: 'Take the pump room tour on the map.', need: 1, say: 'take the pump room tour on the map'},
     treat: {g: 'c', text: 'Give Ari a treat in the chat.', need: 1, say: 'give Ari a treat in the chat'},
     trick: {g: 'c', text: 'Ask Ari to sit, shake or roll over.', need: 1, say: 'ask Ari to sit, shake or roll over'},
@@ -3399,7 +3399,7 @@
       save();
     },
     forget: function(){ MEM.visitor = {name: '', chats: 0, topics: {}, met: {}, likes: {}}; save(); },
-    // the chat tells the game when you asked leva about the weather or Connect Space
+    // the chat tells the game when you asked leva about the weather or how levagood got its name
     game: function(name, v){ if (ready) GAME.event(name, v); },
     ready: function(){ return ready; }
   };

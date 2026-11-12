@@ -16,11 +16,11 @@ export function createParkRadio(o){
   const audio = new Audio(); audio.preload = 'none';
 
   const css = document.createElement('style');
-  css.textContent = '#pk-radio{position:fixed;right:12px;bottom:12px;z-index:30;display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:12px;background:rgba(14,18,30,.78);color:#fff;font:600 12px/1 "Inter Tight",system-ui,sans-serif;backdrop-filter:blur(6px)}'
+  css.textContent = '#pk-radio{position:fixed;right:12px;top:56px;z-index:5;display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:12px;background:rgba(14,18,30,.78);color:#fff;font:600 12px/1 "Inter Tight",system-ui,sans-serif;backdrop-filter:blur(6px)}'
     + '#pk-radio button{appearance:none;border:0;border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font:700 13px/1 inherit;min-width:30px;height:30px;padding:0 8px;cursor:pointer}'
     + '#pk-radio button:hover{background:rgba(255,255,255,.22)}#pk-radio .on{background:#2FAE5A}#pk-radio .lbl{min-width:92px;text-align:center;opacity:.9}'
     + '#pk-radio.off .lbl,#pk-radio.off .st,#pk-radio.off .vl{display:none}'
-    + '@media (max-width:700px){#pk-radio{right:8px;bottom:auto;top:56px}#pk-radio .lbl{min-width:70px}}';
+    + '@media (max-width:700px){#pk-radio{right:8px}#pk-radio .lbl{min-width:70px}}';
   document.head.appendChild(css);
   const el = document.createElement('div'); el.id = 'pk-radio'; el.className = 'off'; el.setAttribute('role', 'group'); el.setAttribute('aria-label', 'Deck radio');
   el.innerHTML = '<button class="pw" aria-pressed="false" aria-label="Deck radio power">Radio</button><button class="st" data-d="-1" aria-label="Station down">&lsaquo;</button><span class="lbl"></span><button class="st" data-d="1" aria-label="Station up">&rsaquo;</button><button class="vl" data-v="-0.1" aria-label="Volume down">&minus;</button><button class="vl" data-v="0.1" aria-label="Volume up">+</button>';

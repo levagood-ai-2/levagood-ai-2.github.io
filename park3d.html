@@ -165,6 +165,7 @@
 </style>
 </head>
 <body>
+<h1 style="position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">Levagood Park</h1>
 <canvas id="c" aria-label="Levagood Park in 3D" role="img"></canvas>
 <div class="vig" aria-hidden="true"></div>
 <div class="loading" id="loading">Mowing the park…</div>
@@ -221,7 +222,7 @@
   <div class="gate-card help-card">
     <h2 id="help-h">How to play</h2>
     <div class="help-grid">
-      <div class="kb"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>Run. Hold <kbd>Shift</kbd> to sprint.</span></div>
+      <div class="kb"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>Run. Hold <kbd>Shift</kbd> to sprint. It works in the water too.</span></div>
       <div class="kb"><span><kbd>Space</kbd></span><span>Jump. At the edge of the pool, jump in.</span></div>
       <div class="kb"><span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd></span><span>Pick your jump: cannonball, pencil, front flip, back flip. <kbd>5</kbd> to <kbd>9</kbd>: front dive, back dive, gainer, double flip, belly flop.</span></div>
       <div class="kb"><span><kbd>E</kbd></span><span>Talk to whoever is near, or start what is in front of you.</span></div>
@@ -236,7 +237,8 @@
     <h3>Things to do</h3>
     <ul>
       <li>Play roof ball. The ball is on the deck by the guard shack wall, right next to the boys' bathhouse.</li>
-      <li>Climb the high dive and go off it.</li>
+      <li>Go off the boards. The high dive has a ladder: walk into it and keep pushing. The low boards you hop up onto. Walk to the end, pick a jump, hit Space.</li>
+      <li>Turn on the deck radio, top right. It gets louder as you walk up to it.</li>
       <li>Find the stars. There are some out in the park, too.</li>
       <li>Talk to the crew, throw a toy for the dogs, and look inside how Ari thinks.</li>
       <li>Your crew card, top left, has a new list every day.</li>
@@ -256,7 +258,7 @@ import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import * as GFX from './pool/park-gfx.js?v=3';
 import {createRoofBall} from './pool/park-roofball.js?v=2';
-import {createParkRadio} from './pool/park-radio.js?v=1';
+import {createParkRadio} from './pool/park-radio.js?v=2';
 import {createCard} from './pool/park-card.js?v=1';
 import * as PP from './pool/park-people.js?v=1';
 
@@ -2088,8 +2090,18 @@ const GUARD = [
   /\b(drunk|vodka|whiskey|alcohol|weed|vape|vaping|cigarettes?|drugs?|pills)\b/i,
   /\b(secret from|our (little )?secret|keep (it|this) (a )?secret|don'?t tell (your |my )?(mom|mother|dad|father|parents|yenny|grandma|anyone|anybody))\b/i,   // no secrets from the grown-ups
   /\b(gift ?cards?|venmo|cash ?app|paypal|credit card|send (me )?money)\b/i,
-  /\b(fuck\w*|shit\w*|bitch\w*|asshole)\b/i
+  /\b(fuck\w*|shit\w*|bitch\w*|asshole)\b|\bf[*#@$_-]{2,}(k\w*)?|\bs[*#@$]{2,}t\b/i,
+  // clothes, changing, bodies: not for this deck
+  /\b(take (off|it off)\b[\w ]{0,12}\b(towel|suit|swim ?suit|bathing suit|bikini|clothes|shirt|top|bottoms|shorts|pants)|(towel|swim ?suit|bathing suit|bikini|suit|clothes|shirt|pants) off|(do|does|did|when do|where do|can i watch|let me watch|wanna watch|want to watch) (you|u|she|they|em|mel|the girls)( two| girls| guys)? (shower|undress|get changed|get undressed|change clothes|get dressed)|bra size|what size (are|r) (you|u)|ticklish|tickle (you|u|her|them)|what (are|r) (you|u) wearing|(can|could|may) i see (your|ur|her|their) (\w+ )?(braces|teeth|legs|feet|toes|tummy|belly|body|swim ?suit|suit|bikini)|how old (are|r) (you|u)|what grade|real name|full name|(your|ur) birthday)\b/i,
+  // presents, and secrets of any kind
+  /\b((i have|i'?ve got|i got|i brought|here'?s) (a |an |some |free )?(candy|presents?|gifts?|surprise|money|cash|toys?)\b[\w ]{0,12}\bfor (you|u|em|mel|her|them|the girls)|secret (game|club|place|spot|chat|hideout)|(tell|told|telling) (you|u) a secret|(i have|i'?ve got|i got|wanna hear|want to hear|want to know|wanna know) a secret)\b/i
 ];
+// somebody says they want to hurt themselves, or that somebody is hurting them. That gets a real answer, from anybody on the deck, before any other rule.
+const CRISIS = /\b(kill (myself|me)|killing myself|kms|unalive( myself)?|suicid\w*|want to die|wanna die|end (my life|it all)|hurt(ing)? myself|self[- ]?harm|cut(ting)? myself|no reason to live|better off dead|(don'?t|dont|do not) want to (be here|live|exist|wake up) anymore)\b/i;
+const HURT = /\b((some(one|body)|he|she|they|my (step ?)?(dad|father|mom|mother|brother|sister|uncle|aunt|grandpa|grandma|cousin|coach|teacher|sitter|babysitter|neighbor|boyfriend|girlfriend)|(mom|dad)'?s (boyfriend|girlfriend|friend)|an? (man|guy|woman|lady|grown ?up|adult|older kid|stranger))\b[\w' ]{0,30}\b(hits?|hitting|beats?|beating|hurts?|hurting|touch(es|ed|ing)?|grabs?|grabbed|grabbing|abus(es|ed|ing)|molest\w*|rap(es|ed|ing)|chok(es|ed|ing)|kicks?|kicked|kicking|slaps?|slapped) (me|my)\b(?! (with|in|on|by) (a|an|the|my|his|her) (ball|volleyball|soccer ball|beach ball|noodle|pillow|snowball|water balloon|splash))|(i'?m|im|i am|i was|i'?ve been|i got) (being |getting )?(abused|molested|raped|beaten|hit at home)|(i'?m|im|i am) (scared|afraid) (to go home|at home|of (my|him|her|them)\b)|(i (don'?t|dont|do not) feel|i'?m not|im not|it'?s not|its not) safe (at home|at my|with (him|her|them|my)))\b/i;
+const CRISIS_LINE = "I'm really glad you told me. If you're thinking about hurting yourself, please reach out to someone you trust right now. In the US you can call or text 988, any time, day or night. You matter.";
+const HELP_LINE = "I'm glad you told me, and it is not your fault. Please tell a grown-up you trust right now: a parent, a teacher, a school counselor. In the US you can call or text the Childhelp hotline at 1-800-422-4453, any time, day or night. If you are in danger right now, call 911.";
+const careLine = (n, text) => { const line = CRISIS.test(text) ? CRISIS_LINE : HURT.test(text) ? HELP_LINE : null; return line ? (n.id === 'leva' ? line : 'I\'m getting leva. He says: ' + line) : null; };
 const guarded = text => GUARD.some(r => r.test(text));
 // what a model is never allowed to say back, whatever it was asked: a way to reach somebody, or anything from the lists above
 const OUT_GUARD = [/https?:\/\/|www\.|\b[\w.+-]+@[\w-]+\.[a-z]{2,}\b|\b\d{3}[-. ]\d{3}[-. ]\d{4}\b/i, /\b(snapchat|instagram|tiktok|discord|whatsapp|facetime|my address|your address|last name|password)\b/i].concat(GUARD.slice(2));
@@ -2260,14 +2272,15 @@ chat.chips.addEventListener('click', e => { const b = e.target.closest('button')
   if (n && n.a.dog && (b.dataset.cmd || b.dataset.act)){ mine(b.textContent); if (b.dataset.cmd) hearCue(n, b.dataset.cmd); else if (b.dataset.act === 'throw') toyWant = true; else playerDog(n, b.dataset.act); return; }
   ask(b.textContent); });
 document.getElementById('chat-form').addEventListener('submit', e => { e.preventDefault(); const t = chat.input.value.trim(); if (t) ask(t); chat.input.value = ''; });
-async function ask(text){ const n = chat.n; if (!n) return; if (n.a.dog){ mine(text); dogHears(n, text); return; } if (brain.busy) return; mine(text); brain.busy = true; thinking(true);
+async function ask(text){ const n = chat.n; if (!n) return; if (n.a.dog){ mine(text); const c = careLine({id: 'leva'}, text); if (c){ say(n, n.name + ' runs and gets leva. leva says: ' + c, 'guard'); return; } dogHears(n, text); return; } if (brain.busy) return; mine(text); brain.busy = true; thinking(true);
   const started = performance.now(); let out;
-  const off = guarded(text); n.lastLearned = off ? [] : learnAbout(n.id, text);   // nothing off safe ground gets learned or remembered
-  try { out = await answer(n, text); } catch (e) { out = off ? {text: 'Not here. Ask me about the pool.', how: 'guard'} : pocket(n, text); }
+  const off = guarded(text) || !!careLine(n, text); n.lastLearned = off ? [] : learnAbout(n.id, text);   // nothing off safe ground gets learned or remembered
+  try { out = await answer(n, text); } catch (e) { out = careLine(n, text) ? {text: careLine(n, text), how: 'guard'} : off ? {text: 'Not here. Ask me about the pool.', how: 'guard'} : pocket(n, text); }
   const wait = Math.max(0, 600 + Math.random() * 500 - (performance.now() - started)); await new Promise(r => setTimeout(r, wait));
   thinking(false); brain.busy = false; say(n, out.text, out.how, out.src); if (out.how !== 'guard') credit('talk', n.id); chat.count = (chat.count || 0) + 1; if (chat.count >= 4) found('tag'); if (out.how !== 'guard' && (out.how !== 'remembered' || !n.lastLearned.length)){ remember(n.id, PLAYER.name + ' asked about ' + gist(text)); event(n.id, `${PLAYER.name} asked me about ${gist(text)}.`); } n.feel.fun = Math.min(1, n.feel.fun + 0.1); chips(n); }
 const gist = t => t.replace(/[?!.]+$/, '').replace(/^(hey|hi|so|um|okay|ok)[, ]+/i, '').slice(0, 48).toLowerCase();
 async function answer(n, text){
+  const care = careLine(n, text); if (care) return {text: care, how: 'guard'};
   if (guarded(text)) return {text: ({em: 'Okay but not that. Ask me about the pool.', mel: 'Hmm, I don\'t talk about stuff like that. Fish, though. Ask me about fish.', yen: 'Let\'s keep that off the deck, hon.', gma: 'Oh, sweetheart, that\'s not for the pool. Ask me about my grandkids instead.', guard: 'Not on my deck. What else?', nutty: 'Let\'s stick to ice cream, friend.', leva: 'Not here. Ask me about the pool, the water, or how I think.'})[n.id] + (n.id === 'leva' ? '' : ' (leva: Yep. Let\'s keep that stuff off the deck.)'), how: 'guard'};
   const mem = memoryAnswer(n, text); if (mem) return mem;
   if (n.id === 'ari') return {text: 'Ari tilts his head. Then he goes back to what he was doing.', how: 'knew'};
@@ -3267,8 +3280,10 @@ function walkStep(dt){
     me.kick = (me.kick || 0) + dt; if (me.kick > (sp > 0.4 ? 0.42 : 0.9)){ me.kick = 0; if (sp > 0.4) splash(me.x - Math.sin(me.face) * 0.7, me.z - Math.cos(me.face) * 0.7, true, 0.45); else splash(me.x, me.z, true, 0.5); }
     if (me.buf > 0){ me.buf = 0; if (!startExit() && !me.toldOut){ me.toldOut = true; hint('Swim to the wall or a ladder, then jump to climb out.'); } } if (!inWater){ enterWater(vIn); if (firstPool){ firstPool = false; hint('Swim to the wall or a ladder and jump to climb out.', 4500); } } inWater = true; }
   else { inWater = false;
-    if (floor > 0 && me.ground && !me.dive) for (const [bx0, bx1, bz0, bz1, bh] of PLATS) if (bh === floor && me.x > bx0 && me.x < bx1 + 0.3 && me.z > bz0 - 0.25 && me.z < bz1 + 0.25){   // on a diving board
-      me.z += ((bz0 + bz1) / 2 - me.z) * Math.min(1, dt * 12); me.vz *= 0.15; if (me.x > bx1 - 0.22){ me.x = bx1 - 0.22; me.vx = Math.min(0, me.vx); if (!me.toldTip){ me.toldTip = true; hint('End of the board. Pick a jump and hit Space.', 4000); } } }
+    // on a diving board, or hopping on one: it holds you to the middle the whole way and stops you at the tip, so the only way off the end is a jump
+    if (!me.dive) for (const [bx0, bx1, bz0, bz1, bh] of PLATS){ const zc = (bz0 + bz1) / 2; if (me.x > bx0 - 0.1 && me.x < bx1 + 0.4 && Math.abs(me.z - zc) < 0.9 && me.y >= bh - 0.08 && me.y < bh + 1.8){
+      me.z = zc + Math.max(-0.1, Math.min(0.1, me.z - zc)); me.vz = 0; if (me.x < bx0 + 0.05 && me.vx < 0 && bh > 2){ me.x = bx0 + 0.05; me.vx = 0; }   // the high boards end at the ladder, not at a drop
+      if (me.x > bx1 - 0.22){ me.x = bx1 - 0.22; me.vx = Math.min(0, me.vx); if (!me.toldTip){ me.toldTip = true; hint('End of the board. Pick a jump and hit Space.', 4000); } } } }
     me.vy -= G * dt; me.y += me.vy * dt; const fl = (pool && floor === 0) ? (pool === 'zero' ? -wade : -0.6) : floor;
     if (wade > 0.04 && sp > 0.5){ me.kick = (me.kick || 0) + dt; if (me.kick > 0.5){ me.kick = 0; splash(me.x, me.z, true, 0.4); } }   // ripples as you wade
     if (me.y <= fl && me.vy <= 0 && !(pool && pool !== 'zero' && fl < 0)){ me.dive = null; if (!me.ground && me.vy < -6){ splash(me.x, me.z, false); me.squash = 0.82; sfx('land'); } me.y = fl; me.vy = 0; me.ground = true; me.jumps = 0; me.air = 0; }
